@@ -28,41 +28,36 @@ export function StoreHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<'women' | 'men' | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<'women' | 'men' | null>(null);
-  const [isMiniCartOpen, setIsMiniCartOpen] = useState(false);
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const miniCartRef = useRef<HTMLDivElement | null>(null);
 
   const cart = useCommerceStore((state) => state.cart);
-  const removeFromCart = useCommerceStore((state) => state.removeFromCart);
   const wishlist = useCommerceStore((state) => state.wishlist);
   const currentUser = useCommerceStore((state) => state.currentUser);
   const categories = useCommerceStore((state) => state.categories);
   const products = useCommerceStore((state) => state.products);
-  const settings = useCommerceStore((state) => state.settings);
+  const currency = useCommerceStore((state) => state.currency);
+  const setCurrency = useCommerceStore((state) => state.setCurrency);
+  const setIsCartDrawerOpen = useCommerceStore((state) => state.setIsCartDrawerOpen);
 
   const totalCartItems = cart.reduce((total, item) => total + item.quantity, 0);
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  // Close mini cart when clicking outside
+  // Global Cmd+K / Ctrl+K listener for instant search
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (miniCartRef.current && !miniCartRef.current.contains(event.target as Node)) {
-        setIsMiniCartOpen(false);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
       }
-    }
-    if (isMiniCartOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isMiniCartOpen]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
-  // Close mini cart on route change
+  // Close cart drawer on route change
   useEffect(() => {
-    setIsMiniCartOpen(false);
-  }, [pathname]);
+    setIsCartDrawerOpen(false);
+  }, [pathname, setIsCartDrawerOpen]);
 
   const handleMouseEnter = (menu: 'women' | 'men') => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -199,11 +194,37 @@ export function StoreHeader() {
           </nav>
 
           {/* Right Action Icons */}
-          <div className="flex items-center space-x-5 text-[#111111]">
-            {/* Search */}
+          <div className="flex items-center space-x-3 sm:space-x-4 text-[#111111]">
+            {/* Currency Switcher */}
+            <button
+              type="button"
+              onClick={() => setCurrency(currency === 'USD' ? 'VND' : 'USD')}
+              className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full border border-[#E5E5E5] bg-[#FAF9F5] hover:border-[#111111] transition-all shadow-2xs"
+              title={`Switch currency to ${currency === 'USD' ? 'VND (₫)' : 'USD ($)'}`}
+              aria-label="Toggle currency"
+            >
+              <span className="text-[11px] font-mono text-[#777777]">{currency === 'USD' ? '$' : '₫'}</span>
+              <span className="text-[11px]">{currency}</span>
+            </button>
+
+            {/* Desktop Instant Search Trigger with Shortcut */}
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen(true)}
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#E5E5E5] bg-[#F5F4F0] hover:border-[#111111] transition-all text-xs text-[#666666]"
+              aria-label="Open search dialog"
+            >
+              <Search className="w-3.5 h-3.5 text-[#111111]" />
+              <span className="text-[12px]">Search garments...</span>
+              <kbd className="text-[10px] bg-white border border-[#D0D0D0] rounded px-1.5 py-0.2 font-mono text-[#444444] shadow-2xs">
+                ⌘K
+              </kbd>
+            </button>
+
+            {/* Mobile Search Icon */}
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="p-1 hover:opacity-60 transition-opacity"
+              className="md:hidden p-1.5 hover:opacity-60 transition-opacity"
               aria-label="Search"
             >
               <Search className="w-5 h-5 stroke-[1.4]" />
@@ -236,138 +257,21 @@ export function StoreHeader() {
               )}
             </Link>
 
-            {/* Cart with Mini-Cart Dropdown Trigger */}
-            <div className="relative" ref={miniCartRef}>
-              <button
-                type="button"
-                onClick={() => setIsMiniCartOpen(!isMiniCartOpen)}
-                className="p-1 hover:opacity-60 transition-opacity relative flex items-center"
-                aria-label="Open mini shopping bag"
-                title="View bag preview"
-              >
-                <ShoppingBag className="w-5 h-5 stroke-[1.4]" />
-                {totalCartItems > 0 && (
-                  <span className="absolute -top-1 -right-1.5 bg-[#111111] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                    {totalCartItems}
-                  </span>
-                )}
-              </button>
-
-              {/* Mini Cart Dropdown Box with Glassmorphism */}
-              {isMiniCartOpen && (
-                <div className="absolute right-0 top-full mt-3 w-80 sm:w-96 glass-card shadow-2xl p-5 z-50 animate-in fade-in zoom-in-95 duration-150">
-                  <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
-                    <span className="text-xs uppercase tracking-widest font-semibold text-[#111111]">
-                      Shopping Bag ({totalCartItems})
-                    </span>
-                    <button
-                      onClick={() => setIsMiniCartOpen(false)}
-                      className="text-[#777777] hover:text-[#111111] p-1"
-                      aria-label="Close"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {cart.length > 0 ? (
-                    <div className="mt-3 space-y-4">
-                      {/* Scrollable Items List */}
-                      <div className="max-h-64 overflow-y-auto divide-y divide-[#E5E5E5] pr-1">
-                        {cart.map((item) => (
-                          <div key={item.id} className="py-3 flex gap-3 items-center">
-                            <div className="relative w-12 h-16 bg-[#F5F4F0] flex-shrink-0 border border-[#E5E5E5] overflow-hidden">
-                              <Image
-                                src={item.image}
-                                alt={item.productName}
-                                fill
-                                className="object-cover"
-                                sizes="48px"
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <Link
-                                href={`/product/${item.slug}`}
-                                onClick={() => setIsMiniCartOpen(false)}
-                                className="text-xs font-medium text-[#111111] hover:underline block truncate"
-                              >
-                                {item.productName}
-                              </Link>
-                              <p className="text-[11px] text-[#777777] mt-0.5">
-                                Size: {item.size} &bull; Qty: {item.quantity}
-                              </p>
-                              <div className="flex items-center justify-between pt-1">
-                                <span className="text-xs font-semibold text-[#111111]">
-                                  {formatPrice(item.price * item.quantity)}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    removeFromCart(item.id);
-                                    toast.info('Item removed from bag.');
-                                  }}
-                                  className="text-[#777777] hover:text-[#B74747] p-1 transition-colors"
-                                  title="Remove"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Subtotal & Free Shipping Notice */}
-                      <div className="border-t border-[#E5E5E5] pt-3 space-y-2">
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-[#777777] uppercase tracking-wider">Subtotal</span>
-                          <span className="text-sm font-semibold text-[#111111]">
-                            {formatPrice(subtotal)}
-                          </span>
-                        </div>
-                        {subtotal >= settings.freeShippingThreshold ? (
-                          <p className="text-[10px] text-[#477A5A] font-medium flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3" /> Complimentary delivery qualified
-                          </p>
-                        ) : (
-                          <p className="text-[10px] text-[#777777]">
-                            Add {formatPrice(settings.freeShippingThreshold - subtotal)} more for free shipping
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Buttons */}
-                      <div className="space-y-2 pt-1">
-                        <Link
-                          href="/checkout"
-                          onClick={() => setIsMiniCartOpen(false)}
-                          className="block w-full text-center bg-[#111111] text-white py-2.5 text-xs uppercase tracking-[0.15em] font-semibold hover:bg-[#333333] transition-colors"
-                        >
-                          Checkout Now
-                        </Link>
-                        <Link
-                          href="/cart"
-                          onClick={() => setIsMiniCartOpen(false)}
-                          className="block w-full text-center border border-[#111111] text-[#111111] py-2 text-xs uppercase tracking-[0.15em] font-medium hover:bg-[#F5F4F0] transition-colors"
-                        >
-                          View Full Bag
-                        </Link>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="py-8 text-center space-y-3">
-                      <p className="text-xs text-[#777777]">Your shopping bag is currently empty.</p>
-                      <Link
-                        href="/shop"
-                        onClick={() => setIsMiniCartOpen(false)}
-                        className="inline-block bg-[#111111] text-white px-5 py-2 text-[11px] uppercase tracking-wider font-semibold hover:bg-[#333333]"
-                      >
-                        Explore Styles
-                      </Link>
-                    </div>
-                  )}
-                </div>
+            {/* Cart Trigger -> Opens Full Slide-Over Cart Drawer */}
+            <button
+              type="button"
+              onClick={() => setIsCartDrawerOpen(true)}
+              className="p-1 hover:opacity-60 transition-opacity relative flex items-center"
+              aria-label="Open shopping bag drawer"
+              title="Open shopping bag"
+            >
+              <ShoppingBag className="w-5 h-5 stroke-[1.4]" />
+              {totalCartItems > 0 && (
+                <span className="absolute -top-1 -right-1.5 bg-[#111111] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                  {totalCartItems}
+                </span>
               )}
-            </div>
+            </button>
 
             {/* Admin Switcher */}
             <Link

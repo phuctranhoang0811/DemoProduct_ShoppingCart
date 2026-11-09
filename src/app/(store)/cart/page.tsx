@@ -14,6 +14,7 @@ export default function CartPage() {
   const removeFromCart = useCommerceStore((state) => state.removeFromCart);
   const settings = useCommerceStore((state) => state.settings);
   const validateDiscount = useCommerceStore((state) => state.validateDiscount);
+  const currency = useCommerceStore((state) => state.currency);
 
   const [promoCode, setPromoCode] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState<{
@@ -32,7 +33,7 @@ export default function CartPage() {
       toast.error(res.error || 'Invalid promotional code.');
       setAppliedDiscount(null);
     } else {
-      toast.success(`Code ${promoCode.toUpperCase()} applied! Saved ${formatPrice(res.discountAmount)}`);
+      toast.success(`Code ${promoCode.toUpperCase()} applied! Saved ${formatPrice(res.discountAmount, currency)}`);
       setAppliedDiscount({
         code: promoCode.toUpperCase(),
         amount: res.discountAmount,
@@ -123,10 +124,10 @@ export default function CartPage() {
                     </div>
 
                     <div className="pt-2 text-base font-semibold text-[#111111]">
-                      {formatPrice(item.price)}
+                      {formatPrice(item.price, currency)}
                       {item.originalPrice && (
                         <span className="text-sm text-[#777777] line-through ml-2 font-normal">
-                          {formatPrice(item.originalPrice)}
+                          {formatPrice(item.originalPrice, currency)}
                         </span>
                       )}
                     </div>
@@ -156,7 +157,7 @@ export default function CartPage() {
                     </div>
 
                     <div className="text-base font-semibold text-[#111111]">
-                      {formatPrice(item.price * item.quantity)}
+                      {formatPrice(item.price * item.quantity, currency)}
                     </div>
                   </div>
                 </div>
@@ -214,7 +215,7 @@ export default function CartPage() {
                 <span>
                   {isFreeShipping
                     ? 'You qualified for complimentary standard shipping'
-                    : `Add ${formatPrice(settings.freeShippingThreshold - subtotal)} more for free shipping`}
+                    : `Add ${formatPrice(settings.freeShippingThreshold - subtotal, currency)} more for free shipping`}
                 </span>
               </div>
               <div className="w-full bg-[#E5E5E5] h-1.5 rounded-full overflow-hidden">
@@ -229,24 +230,24 @@ export default function CartPage() {
             <div className="space-y-2.5 text-sm border-t border-[#E5E5E5] pt-4">
               <div className="flex justify-between text-[#555555]">
                 <span>Subtotal</span>
-                <span className="font-medium text-[#111111]">{formatPrice(subtotal)}</span>
+                <span className="font-medium text-[#111111]">{formatPrice(subtotal, currency)}</span>
               </div>
 
               {discountAmount > 0 && (
                 <div className="flex justify-between text-[#B74747]">
                   <span>Discount ({appliedDiscount?.code})</span>
-                  <span className="font-medium">-{formatPrice(discountAmount)}</span>
+                  <span className="font-medium">-{formatPrice(discountAmount, currency)}</span>
                 </div>
               )}
 
               <div className="flex justify-between text-[#555555]">
                 <span>Estimated Shipping</span>
-                <span className="font-medium text-[#111111]">{shippingFee === 0 ? 'Complimentary' : formatPrice(shippingFee)}</span>
+                <span className="font-medium text-[#111111]">{shippingFee === 0 ? 'Complimentary' : formatPrice(shippingFee, currency)}</span>
               </div>
 
               <div className="flex justify-between text-base font-semibold text-[#111111] border-t border-[#E5E5E5] pt-3">
                 <span>Total</span>
-                <span>{formatPrice(grandTotal)}</span>
+                <span>{formatPrice(grandTotal, currency)}</span>
               </div>
             </div>
 

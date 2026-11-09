@@ -5,16 +5,26 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export type CurrencyCode = 'USD' | 'VND';
+
+export const USD_TO_VND_RATE = 25400;
+
 export function formatPrice(amount: number, currency: string = 'USD'): string {
-  if (currency === 'USD') {
-    return new Intl.NumberFormat('en-US', {
+  if (currency === 'VND') {
+    const vndAmount = Math.round(amount * USD_TO_VND_RATE);
+    return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    }).format(amount);
+      currency: 'VND',
+      maximumFractionDigits: 0,
+    }).format(vndAmount);
   }
-  return `${amount.toLocaleString()} ${currency}`;
+
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount);
 }
 
 export function formatDate(dateString: string): string {

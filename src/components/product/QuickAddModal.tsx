@@ -18,6 +18,7 @@ export function QuickAddModal({ product, isOpen, onClose }: QuickAddModalProps) 
   const [selectedColor, setSelectedColor] = useState<ProductColor>(product.colors[0]);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const addToCart = useCommerceStore((state) => state.addToCart);
+  const currency = useCommerceStore((state) => state.currency);
 
   if (!isOpen) return null;
 
@@ -77,10 +78,10 @@ export function QuickAddModal({ product, isOpen, onClose }: QuickAddModalProps) 
           <div>
             <h3 className="text-sm font-medium text-[#111111]">{product.name}</h3>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-sm font-semibold">{formatPrice(product.price)}</span>
+              <span className="text-sm font-semibold">{formatPrice(product.price, currency)}</span>
               {product.originalPrice && (
                 <span className="text-xs text-[#777777] line-through">
-                  {formatPrice(product.originalPrice)}
+                  {formatPrice(product.originalPrice, currency)}
                 </span>
               )}
             </div>

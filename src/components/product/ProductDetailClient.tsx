@@ -33,6 +33,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   const addToCart = useCommerceStore((state) => state.addToCart);
   const toggleWishlist = useCommerceStore((state) => state.toggleWishlist);
   const isInWishlistStore = useCommerceStore((state) => state.isInWishlist);
+  const currency = useCommerceStore((state) => state.currency);
 
   const product = useMemo(() => {
     return products.find((p) => p.slug === slug);
@@ -223,11 +224,11 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
 
             <div className="flex items-center gap-3 pt-1">
               <span className="text-xl sm:text-2xl font-normal text-[#111111]">
-                {formatPrice(product.price)}
+                {formatPrice(product.price, currency)}
               </span>
               {product.originalPrice && (
                 <span className="text-sm text-[#777777] line-through font-normal">
-                  {formatPrice(product.originalPrice)}
+                  {formatPrice(product.originalPrice, currency)}
                 </span>
               )}
               {product.originalPrice && (
@@ -386,7 +387,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
           <div className="border-t border-[#E5E5E5] pt-4 space-y-2 text-xs text-[#555555]">
             <div className="flex items-center gap-2">
               <Truck className="w-4 h-4 text-[#111111]" />
-              <span>Complimentary standard delivery on orders over $150</span>
+              <span>Complimentary standard delivery on orders over {formatPrice(100, currency)}</span>
             </div>
             <div className="flex items-center gap-2">
               <RotateCcw className="w-4 h-4 text-[#111111]" />

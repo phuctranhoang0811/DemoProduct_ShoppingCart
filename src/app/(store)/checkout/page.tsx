@@ -19,6 +19,7 @@ export default function CheckoutPage() {
   const settings = useCommerceStore((state) => state.settings);
   const createOrder = useCommerceStore((state) => state.createOrder);
   const validateDiscount = useCommerceStore((state) => state.validateDiscount);
+  const currency = useCommerceStore((state) => state.currency);
 
   // Form states
   const [fullName, setFullName] = useState(currentUser?.name || 'Elena Rostova');
@@ -54,7 +55,7 @@ export default function CheckoutPage() {
       toast.error(res.error || 'Invalid discount code.');
       setAppliedDiscount(null);
     } else {
-      toast.success(`Code ${promoCode.toUpperCase()} applied! Saved ${formatPrice(res.discountAmount)}`);
+      toast.success(`Code ${promoCode.toUpperCase()} applied! Saved ${formatPrice(res.discountAmount, currency)}`);
       setAppliedDiscount({
         code: promoCode.toUpperCase(),
         amount: res.discountAmount,
@@ -264,7 +265,7 @@ export default function CheckoutPage() {
                   {
                     id: 'standard',
                     label: 'Standard Courier (2-4 business days)',
-                    desc: isFreeShipping ? 'Complimentary' : formatPrice(settings.shippingFee),
+                    desc: isFreeShipping ? 'Complimentary' : formatPrice(settings.shippingFee, currency),
                   },
                   {
                     id: 'express',
@@ -422,7 +423,7 @@ export default function CheckoutPage() {
                       </p>
                     </div>
                     <span className="text-xs font-medium text-[#111111]">
-                      {formatPrice(item.price * item.quantity)}
+                      {formatPrice(item.price * item.quantity, currency)}
                     </span>
                   </div>
                 ))}
@@ -457,21 +458,21 @@ export default function CheckoutPage() {
               <div className="border-t border-[#E5E5E5] pt-4 space-y-2 text-xs">
                 <div className="flex justify-between text-[#555555]">
                   <span>Subtotal</span>
-                  <span>{formatPrice(subtotal)}</span>
+                  <span>{formatPrice(subtotal, currency)}</span>
                 </div>
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-[#B74747]">
                     <span>Discount</span>
-                    <span>-{formatPrice(discountAmount)}</span>
+                    <span>-{formatPrice(discountAmount, currency)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-[#555555]">
                   <span>Shipping</span>
-                  <span>{shippingFee === 0 ? 'Complimentary' : formatPrice(shippingFee)}</span>
+                  <span>{shippingFee === 0 ? 'Complimentary' : formatPrice(shippingFee, currency)}</span>
                 </div>
                 <div className="flex justify-between text-base font-semibold text-[#111111] border-t border-[#E5E5E5] pt-3">
                   <span>Grand Total</span>
-                  <span>{formatPrice(total)}</span>
+                  <span>{formatPrice(total, currency)}</span>
                 </div>
               </div>
 
@@ -480,7 +481,7 @@ export default function CheckoutPage() {
                 disabled={isSubmitting}
                 className="w-full bg-[#111111] text-white py-4 text-xs uppercase tracking-[0.2em] font-semibold hover:bg-[#333333] transition-colors disabled:opacity-50"
               >
-                {isSubmitting ? 'Placing Order...' : `Place Order — ${formatPrice(total)}`}
+                {isSubmitting ? 'Placing Order...' : `Place Order — ${formatPrice(total, currency)}`}
               </button>
 
               <p className="text-[10px] text-[#777777] text-center leading-relaxed">

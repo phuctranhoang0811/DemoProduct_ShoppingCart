@@ -37,6 +37,7 @@ const STORAGE_KEYS = {
   inventory: 'fashion_inventory_v1',
   settings: 'fashion_settings_v1',
   session: 'fashion_session_v1',
+  currency: 'fashion_currency_v1',
 };
 
 function getStorageItem<T>(key: string, defaultValue: T): T {
@@ -73,9 +74,13 @@ interface CommerceState {
   inventoryMovements: InventoryMovement[];
   settings: StoreSettings;
   currentUser: Customer | null;
+  currency: 'USD' | 'VND';
+  isCartDrawerOpen: boolean;
 
   initHydrate: () => void;
   resetDemoData: () => void;
+  setCurrency: (currency: 'USD' | 'VND') => void;
+  setIsCartDrawerOpen: (open: boolean) => void;
 
   // Products
   addProduct: (product: Omit<Product, 'id' | 'createdAt'>) => void;
@@ -154,6 +159,14 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   inventoryMovements: initialInventoryMovements,
   settings: initialSettings,
   currentUser: null,
+  currency: 'USD',
+  isCartDrawerOpen: false,
+
+  setCurrency: (currency) => {
+    set({ currency });
+    setStorageItem(STORAGE_KEYS.currency, currency);
+  },
+  setIsCartDrawerOpen: (isCartDrawerOpen) => set({ isCartDrawerOpen }),
 
   initHydrate: () => {
     if (typeof window === 'undefined') return;
@@ -169,6 +182,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     const inventory = getStorageItem<InventoryMovement[]>(STORAGE_KEYS.inventory, initialInventoryMovements);
     const settings = getStorageItem<StoreSettings>(STORAGE_KEYS.settings, initialSettings);
     const sessionUser = getStorageItem<Customer | null>(STORAGE_KEYS.session, initialCustomers[0]);
+    const currency = getStorageItem<'USD' | 'VND'>(STORAGE_KEYS.currency, 'USD');
 
     set({
       isHydrated: true,
@@ -183,6 +197,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       inventoryMovements: inventory,
       settings,
       currentUser: sessionUser,
+      currency,
     });
   },
 
@@ -339,7 +354,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       }
 
       setStorageItem(STORAGE_KEYS.cart, updated);
-      return { cart: updated };
+      return { cart: updated, isCartDrawerOpen: true };
     });
   },
 

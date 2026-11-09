@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { ProductCard } from '@/components/product/ProductCard';
+import { formatPrice } from '@/lib/utils';
 
 const RUNWAY_REELS = [
   {
@@ -139,6 +140,7 @@ function ReelCard({ reel }: { reel: (typeof RUNWAY_REELS)[0] }) {
 export default function HomePage() {
   const products = useCommerceStore((state) => state.products);
   const categories = useCommerceStore((state) => state.categories);
+  const currency = useCommerceStore((state) => state.currency);
 
   const heroVideoRef = useRef<HTMLVideoElement>(null);
   const [heroMuted, setHeroMuted] = useState(true);
@@ -272,7 +274,7 @@ export default function HomePage() {
               <Truck className="w-5 h-5 text-[#111111] flex-shrink-0" />
               <div>
                 <p className="text-xs font-semibold text-[#111111]">Free Worldwide Delivery</p>
-                <p className="text-[11px] text-[#666666]">On all orders over $100</p>
+                <p className="text-[11px] text-[#666666]">On all orders over {formatPrice(100, currency)}</p>
               </div>
             </div>
             <div className="flex items-center justify-center lg:justify-start gap-3">

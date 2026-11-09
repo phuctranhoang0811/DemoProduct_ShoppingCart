@@ -22,6 +22,7 @@ export function ProductCard({ product, density = 'catalog' }: ProductCardProps) 
 
   const toggleWishlist = useCommerceStore((state) => state.toggleWishlist);
   const isInWishlist = useCommerceStore((state) => state.isInWishlist(product.id));
+  const currency = useCommerceStore((state) => state.currency);
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -72,32 +73,32 @@ export function ProductCard({ product, density = 'catalog' }: ProductCardProps) 
           {/* Minimalist Friendly Badges */}
           <div className="absolute top-2.5 left-2.5 flex flex-wrap items-center gap-1.5 z-10 pointer-events-none">
             {discountPercent && (
-              <span className="bg-[#9E3A3A] text-white text-[10px] font-semibold tracking-wide px-2 py-0.5 rounded-full shadow-xs">
+              <span className="bg-white/90 backdrop-blur-md text-[#9E3A3A] border border-[#9E3A3A]/30 text-[10px] font-medium tracking-wider uppercase px-2.5 py-0.5 rounded-full shadow-xs">
                 -{discountPercent}%
               </span>
             )}
             {product.newArrival && !product.sale && (
-              <span className="bg-[#111111] text-white text-[10px] font-medium tracking-wider uppercase px-2 py-0.5 rounded-full shadow-xs">
+              <span className="bg-white/90 backdrop-blur-md text-[#111111] border border-black/15 text-[10px] font-medium tracking-widest uppercase px-2.5 py-0.5 rounded-full shadow-xs">
                 New
               </span>
             )}
           </div>
 
-          {/* Always Visible, Accessible Wishlist Button */}
+          {/* Always Visible, Refined Wishlist Button */}
           <button
             type="button"
             onClick={handleToggleWishlist}
             className={`absolute top-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 z-10 ${
               isInWishlist
-                ? 'bg-white text-[#9E3A3A] shadow-md scale-105'
-                : 'bg-white/85 hover:bg-white text-[#111111] hover:text-[#9E3A3A] backdrop-blur-xs shadow-xs hover:scale-110 active:scale-95'
+                ? 'bg-white text-[#9E3A3A] border border-[#9E3A3A]/30 shadow-sm scale-105'
+                : 'bg-white/90 hover:bg-white text-[#777777] hover:text-[#9E3A3A] backdrop-blur-md border border-white/80 shadow-xs hover:scale-110 active:scale-95'
             }`}
             aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
             title={isInWishlist ? 'Remove from wishlist' : 'Save to wishlist'}
           >
             <Heart
-              className={`w-4 h-4 stroke-[1.6] transition-colors duration-200 ${
-                isInWishlist ? 'fill-[#9E3A3A]' : ''
+              className={`w-3.5 h-3.5 transition-colors duration-200 ${
+                isInWishlist ? 'fill-[#9E3A3A] stroke-[#9E3A3A]' : 'stroke-[1.6]'
               }`}
             />
           </button>
@@ -172,11 +173,11 @@ export function ProductCard({ product, density = 'catalog' }: ProductCardProps) 
           {/* Pricing with Clear Discount Savings */}
           <div className="mt-1 flex items-center gap-2">
             <span className={`font-semibold text-[#111111] ${isEditorial ? 'text-base' : 'text-sm sm:text-[15px]'}`}>
-              {formatPrice(product.price)}
+              {formatPrice(product.price, currency)}
             </span>
             {product.originalPrice && (
               <span className="text-xs sm:text-sm text-[#888888] line-through font-normal">
-                {formatPrice(product.originalPrice)}
+                {formatPrice(product.originalPrice, currency)}
               </span>
             )}
             {discountPercent && (

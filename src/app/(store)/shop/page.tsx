@@ -7,11 +7,13 @@ import { useSearchParams } from 'next/navigation';
 import { SlidersHorizontal, ArrowUpDown, X, Tag, LayoutGrid, Columns, ArrowUpRight } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { ProductCard } from '@/components/product/ProductCard';
+import { formatPrice } from '@/lib/utils';
 
 function ShopContent() {
   const searchParams = useSearchParams();
   const products = useCommerceStore((state) => state.products);
   const categories = useCommerceStore((state) => state.categories);
+  const currency = useCommerceStore((state) => state.currency);
 
   // Filters state
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
@@ -306,7 +308,7 @@ function ShopContent() {
               onClick={() => setPriceRange(500)}
               className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F5F4F0] border border-[#E5E5E5] text-[11px] hover:border-[#111111] transition-colors"
             >
-              <span>Under ${priceRange}</span>
+              <span>Under {formatPrice(priceRange, currency)}</span>
               <X className="w-3 h-3 text-[#777777]" />
             </button>
           )}
@@ -378,7 +380,7 @@ function ShopContent() {
           <div>
             <div className="flex justify-between items-center text-xs mb-2">
               <span className="uppercase tracking-widest font-semibold text-[#111111]">Max Price</span>
-              <span className="font-semibold font-mono text-[#111111]">${priceRange}</span>
+              <span className="font-semibold font-mono text-[#111111]">{formatPrice(priceRange, currency)}</span>
             </div>
             <input
               type="range"
@@ -390,8 +392,8 @@ function ShopContent() {
               className="w-full accent-[#111111]"
             />
             <div className="flex justify-between text-[10px] text-[#777777] mt-1">
-              <span>$50</span>
-              <span>$500</span>
+              <span>{formatPrice(50, currency)}</span>
+              <span>{formatPrice(500, currency)}</span>
             </div>
           </div>
 
@@ -615,7 +617,7 @@ function ShopContent() {
 
             {/* Price */}
             <div>
-              <p className="text-xs uppercase font-semibold mb-2">Max Price (${priceRange})</p>
+              <p className="text-xs uppercase font-semibold mb-2">Max Price ({formatPrice(priceRange, currency)})</p>
               <input
                 type="range"
                 min="50"
