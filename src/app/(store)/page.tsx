@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Sparkles, ShieldCheck, Leaf, RefreshCw, Volume2, VolumeX, Pause, Play, ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -10,7 +10,7 @@ import { ProductCard } from '@/components/product/ProductCard';
 const RUNWAY_REELS = [
   {
     id: 1,
-    videoSrc: 'https://videos.pexels.com/video-files/3121460/3121460-uhd_2560_1440_25fps.mp4',
+    videoSrc: '/videos/runway.mp4',
     poster: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=800',
     label: '[ 01 — OUTERWEAR ]',
     title: 'Cocoon Silhouettes',
@@ -19,7 +19,7 @@ const RUNWAY_REELS = [
   },
   {
     id: 2,
-    videoSrc: 'https://videos.pexels.com/video-files/5699516/5699516-hd_1280_720_25fps.mp4',
+    videoSrc: '/videos/hero.mp4',
     poster: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800',
     label: '[ 02 — SHIRTS ]',
     title: 'Fluid Precision',
@@ -28,7 +28,7 @@ const RUNWAY_REELS = [
   },
   {
     id: 3,
-    videoSrc: 'https://videos.pexels.com/video-files/3045163/3045163-uhd_2560_1440_25fps.mp4',
+    videoSrc: '/videos/nature.mp4',
     poster: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800',
     label: '[ 03 — KNITWEAR ]',
     title: 'Tactile Warmth',
@@ -37,7 +37,7 @@ const RUNWAY_REELS = [
   },
   {
     id: 4,
-    videoSrc: 'https://videos.pexels.com/video-files/5699516/5699516-hd_1280_720_25fps.mp4',
+    videoSrc: '/videos/runway.mp4',
     poster: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=800',
     label: '[ 04 — TROUSERS ]',
     title: 'Architectural Drape',
@@ -118,6 +118,14 @@ export default function HomePage() {
   const [heroPaused, setHeroPaused] = useState(false);
   const reelScrollRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (heroVideoRef.current) {
+      heroVideoRef.current.defaultMuted = true;
+      heroVideoRef.current.muted = true;
+      heroVideoRef.current.play().catch(() => {});
+    }
+  }, []);
+
   const toggleMute = () => {
     if (heroVideoRef.current) {
       heroVideoRef.current.muted = !heroMuted;
@@ -160,7 +168,7 @@ export default function HomePage() {
           className="absolute inset-0 w-full h-full object-cover opacity-80"
           poster="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=85&w=2200&auto=format&fit=crop"
         >
-          <source src="https://videos.pexels.com/video-files/3121460/3121460-uhd_2560_1440_25fps.mp4" type="video/mp4" />
+          <source src="/videos/hero.mp4" type="video/mp4" />
         </video>
 
         {/* Cinematic gradient overlays */}
@@ -369,7 +377,7 @@ export default function HomePage() {
               className="absolute inset-0 w-full h-full object-cover opacity-90"
               poster="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1200"
             >
-              <source src="https://videos.pexels.com/video-files/3045163/3045163-uhd_2560_1440_25fps.mp4" type="video/mp4" />
+              <source src="/videos/runway.mp4" type="video/mp4" />
             </video>
             <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/40" />
             <div className="absolute bottom-6 left-6">
