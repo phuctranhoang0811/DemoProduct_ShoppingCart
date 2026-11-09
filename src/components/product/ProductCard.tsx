@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, Plus, ArrowUpRight } from 'lucide-react';
+import { Heart, Plus, ShoppingBag } from 'lucide-react';
 import { Product } from '@/types';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { formatPrice } from '@/lib/utils';
@@ -16,6 +16,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, density = 'catalog' }: ProductCardProps) {
+  const [selectedColorIdx, setSelectedColorIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
 
@@ -39,8 +40,15 @@ export function ProductCard({ product, density = 'catalog' }: ProductCardProps) 
     setIsQuickAddOpen(true);
   };
 
-  const displayImage = isHovered && product.images[1] ? product.images[1] : product.images[0];
+  const currentColor = product.colors[selectedColorIdx] || product.colors[0];
+  const activeImage = currentColor?.image || product.images[selectedColorIdx] || product.images[0];
+  const displayImage = isHovered && product.images[1] && selectedColorIdx === 0 ? product.images[1] : activeImage;
   const isEditorial = density === 'editorial';
+
+  const discountPercent =
+    product.sale && product.originalPrice
+      ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+      : null;
 
   return (
     <>
@@ -50,62 +58,66 @@ export function ProductCard({ product, density = 'catalog' }: ProductCardProps) 
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Image Container with 3:4 aspect ratio */}
-        <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F5F4F0]">
+        <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F5F4F0] rounded-xs">
           <Link href={`/product/${product.slug}`} className="block w-full h-full">
             <Image
               src={displayImage}
               alt={product.name}
               fill
-              className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
               sizes={isEditorial ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw'}
             />
           </Link>
 
-          {/* Luxury Floating "VIEW" Pill on Hover */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <span className="glass text-[#111111] text-[10px] uppercase font-semibold tracking-[0.2em] px-4 py-2 shadow-sm rounded-full flex items-center gap-1">
-              <span>View Piece</span>
-              <ArrowUpRight className="w-3 h-3 stroke-[1.5]" />
-            </span>
-          </div>
-
-          {/* Minimalist Editorial Badges */}
-          <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5 z-10 pointer-events-none">
-            {product.sale && product.originalPrice && (
-              <span className="bg-white/85 backdrop-blur-md text-[#9E3A3A] border border-[#9E3A3A]/25 text-[9px] uppercase tracking-[0.2em] font-medium px-2.5 py-0.5 rounded-full shadow-xs">
-                Sale
+          {/* Minimalist Friendly Badges */}
+          <div className="absolute top-2.5 left-2.5 flex flex-wrap items-center gap-1.5 z-10 pointer-events-none">
+            {discountPercent && (
+              <span className="bg-[#9E3A3A] text-white text-[10px] font-semibold tracking-wide px-2 py-0.5 rounded-full shadow-xs">
+                -{discountPercent}%
               </span>
             )}
             {product.newArrival && !product.sale && (
-              <span className="bg-white/85 backdrop-blur-md text-[#222222] border border-black/10 text-[9px] uppercase tracking-[0.2em] font-medium px-2.5 py-0.5 rounded-full shadow-xs">
+              <span className="bg-[#111111] text-white text-[10px] font-medium tracking-wider uppercase px-2 py-0.5 rounded-full shadow-xs">
                 New
               </span>
             )}
           </div>
 
-          {/* Minimalist Ethereal Wishlist Button */}
+          {/* Always Visible, Accessible Wishlist Button */}
           <button
             type="button"
             onClick={handleToggleWishlist}
-            className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 z-10 ${
+            className={`absolute top-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 z-10 ${
               isInWishlist
-                ? 'bg-white/95 text-[#9E3A3A] shadow-sm scale-100 opacity-100'
-                : 'bg-white/70 hover:bg-white text-[#222222] hover:text-[#9E3A3A] backdrop-blur-md border border-white/60 shadow-xs sm:opacity-0 sm:group-hover:opacity-100 hover:scale-110 active:scale-95'
+                ? 'bg-white text-[#9E3A3A] shadow-md scale-105'
+                : 'bg-white/85 hover:bg-white text-[#111111] hover:text-[#9E3A3A] backdrop-blur-xs shadow-xs hover:scale-110 active:scale-95'
             }`}
             aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+            title={isInWishlist ? 'Remove from wishlist' : 'Save to wishlist'}
           >
             <Heart
-              className={`w-3.5 h-3.5 stroke-[1.3] transition-colors duration-200 ${
-                isInWishlist ? 'fill-[#9E3A3A] text-[#9E3A3A]' : ''
+              className={`w-4 h-4 stroke-[1.6] transition-colors duration-200 ${
+                isInWishlist ? 'fill-[#9E3A3A]' : ''
               }`}
             />
           </button>
 
-          {/* Quick Add Overlay Slide-up Button */}
+          {/* Mobile Quick Add Button (Bottom Right) */}
           <button
             type="button"
             onClick={handleQuickAddClick}
-            className="absolute bottom-0 inset-x-0 glass text-[#111111] py-3 text-[11px] uppercase tracking-[0.18em] font-semibold border-t border-white/40 flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-[#111111] hover:text-white"
+            className="sm:hidden absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full bg-white text-[#111111] shadow-md flex items-center justify-center active:scale-90 z-10"
+            aria-label="Quick Add to Bag"
+            title="Quick add"
+          >
+            <ShoppingBag className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Desktop Quick Add Button (Hover Slide-up) */}
+          <button
+            type="button"
+            onClick={handleQuickAddClick}
+            className="hidden sm:flex absolute bottom-0 inset-x-0 glass text-[#111111] py-2.5 text-xs uppercase tracking-wider font-semibold border-t border-white/50 items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-[#111111] hover:text-white"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Quick Add</span>
@@ -114,27 +126,37 @@ export function ProductCard({ product, density = 'catalog' }: ProductCardProps) 
 
         {/* Content */}
         <div className="pt-3 pb-2 flex flex-col flex-1">
-          {/* Swatches */}
+          {/* Interactive Color Swatches */}
           {product.colors.length > 1 && (
-            <div className="flex items-center gap-1.5 mb-1.5">
-              {product.colors.slice(0, 4).map((c) => (
-                <span
+            <div className="flex items-center gap-1.5 mb-2">
+              {product.colors.map((c, idx) => (
+                <button
                   key={c.id}
-                  className="w-2.5 h-2.5 rounded-full border border-black/10 inline-block"
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setSelectedColorIdx(idx);
+                  }}
+                  className={`w-3.5 h-3.5 rounded-full border transition-all ${
+                    selectedColorIdx === idx
+                      ? 'ring-1 ring-offset-1 ring-[#111111] scale-110'
+                      : 'border-black/20 hover:scale-110'
+                  }`}
                   style={{ backgroundColor: c.hex }}
                   title={c.name}
+                  aria-label={`Color ${c.name}`}
                 />
               ))}
-              {product.colors.length > 4 && (
-                <span className="text-[10px] text-[#777777]">
-                  +{product.colors.length - 4}
-                </span>
-              )}
+              <span className="text-[11px] text-[#777777] ml-1">
+                {currentColor.name}
+              </span>
             </div>
           )}
 
+          {/* Product Title */}
           <Link href={`/product/${product.slug}`} className="group-hover:underline">
-            <h3 className={`font-normal text-[#111111] line-clamp-1 leading-snug tracking-tight ${
+            <h3 className={`font-normal text-[#111111] line-clamp-1 leading-snug ${
               isEditorial ? 'text-base sm:text-lg font-medium' : 'text-sm sm:text-[15px]'
             }`}>
               {product.name}
@@ -147,13 +169,19 @@ export function ProductCard({ product, density = 'catalog' }: ProductCardProps) 
             </p>
           )}
 
+          {/* Pricing with Clear Discount Savings */}
           <div className="mt-1 flex items-center gap-2">
-            <span className={`font-medium text-[#111111] ${isEditorial ? 'text-base' : 'text-sm sm:text-[15px]'}`}>
+            <span className={`font-semibold text-[#111111] ${isEditorial ? 'text-base' : 'text-sm sm:text-[15px]'}`}>
               {formatPrice(product.price)}
             </span>
             {product.originalPrice && (
-              <span className="text-xs sm:text-sm text-[#777777] line-through font-normal">
+              <span className="text-xs sm:text-sm text-[#888888] line-through font-normal">
                 {formatPrice(product.originalPrice)}
+              </span>
+            )}
+            {discountPercent && (
+              <span className="text-[11px] text-[#9E3A3A] font-medium">
+                Save {discountPercent}%
               </span>
             )}
           </div>
