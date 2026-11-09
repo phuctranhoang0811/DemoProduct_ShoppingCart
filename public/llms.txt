@@ -1,0 +1,32 @@
+# COS Minimal — Modern Scandinavian Fashion & Architectural Tailoring
+
+> Timeless wardrobe essentials conceived for everyday living. Inspired by Scandinavian architectural minimalism, tactile natural textiles, and calm monochrome palettes.
+
+## Store Information
+- **Domain:** https://demo-product-shopping-cart.vercel.app
+- **Brand:** COS Minimal
+- **Core Aesthetic:** Minimalist, Editorial, Scandinavian Contemporary
+- **Target Audience:** Modern design-conscious individuals seeking durable, timeless wardrobe pieces over fast fashion.
+
+## Main Collections & Routes
+- **Homepage:** https://demo-product-shopping-cart.vercel.app/
+- **Shop All Garments:** https://demo-product-shopping-cart.vercel.app/shop
+- **Shirts & Tops:** https://demo-product-shopping-cart.vercel.app/shop?category=cat-shirts
+- **Tailored Trousers:** https://demo-product-shopping-cart.vercel.app/shop?category=cat-trousers
+- **Outerwear & Coats:** https://demo-product-shopping-cart.vercel.app/shop?category=cat-outerwear
+- **Dresses:** https://demo-product-shopping-cart.vercel.app/shop?category=cat-dresses
+- **Accessories:** https://demo-product-shopping-cart.vercel.app/shop?category=cat-accessories
+
+## Signature Garments
+- Oversized Poplin Shirt (Pure organic cotton poplin, stepped hem, concealed placket)
+- Wide-Leg Tailored Wool Trousers (RWS-certified wool twill, fluid drape, pressed creases)
+- Double-Faced Wool Cocoon Coat (Unlined double-face wool, curved silhouette)
+- Asymmetric Draped Midi Dress (Sculptural gather, fluid matte jersey)
+- Minimalist Cashmere Crewneck Knit (Grade-A recycled cashmere, ribbed trims)
+- Sculptural Leather Crossbody Bag (Supple Italian nappa leather, magnetic clasp)
+
+## Quality & Sustainability Commitment
+- RWS (Responsible Wool Standard) certified virgin and recycled wools.
+- GOTS-certified 100% organic cotton shirting.
+- Plastic-free packaging and transparent ethical fabrication.
+- Complimentary standard shipping on orders over $150.
