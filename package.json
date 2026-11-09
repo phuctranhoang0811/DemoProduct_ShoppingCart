@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "audit:seo": "node scripts/audit-seo.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",
