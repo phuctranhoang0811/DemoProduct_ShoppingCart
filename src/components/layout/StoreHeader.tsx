@@ -253,9 +253,9 @@ export function StoreHeader() {
                 )}
               </button>
 
-              {/* Mini Cart Dropdown Box */}
+              {/* Mini Cart Dropdown Box with Glassmorphism */}
               {isMiniCartOpen && (
-                <div className="absolute right-0 top-full mt-3 w-80 sm:w-96 bg-white border border-[#E5E5E5] shadow-2xl p-5 z-50 animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute right-0 top-full mt-3 w-80 sm:w-96 glass-card shadow-2xl p-5 z-50 animate-in fade-in zoom-in-95 duration-150">
                   <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
                     <span className="text-xs uppercase tracking-widest font-semibold text-[#111111]">
                       Shopping Bag ({totalCartItems})
@@ -384,7 +384,7 @@ export function StoreHeader() {
         {/* Dropdown Mega Menu for Women & Men with Safe Hover Bridge */}
         {activeDropdown && (
           <div
-            className="hidden lg:block absolute left-0 right-0 top-full bg-white border-b border-[#E5E5E5] shadow-2xl animate-in fade-in duration-150 before:absolute before:-top-3 before:h-3 before:w-full before:content-['']"
+            className="hidden lg:block absolute left-0 right-0 top-full bg-white/95 backdrop-blur-2xl border-b border-[#E5E5E5] shadow-2xl animate-in fade-in duration-150 before:absolute before:-top-3 before:h-3 before:w-full before:content-['']"
             onMouseEnter={() => {
               if (timeoutRef.current) clearTimeout(timeoutRef.current);
             }}

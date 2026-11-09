@@ -54,8 +54,8 @@ export function QuickAddModal({ product, isOpen, onClose }: QuickAddModalProps) 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white max-w-md w-full p-6 border border-[#E5E5E5] relative animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
+      <div className="glass-card max-w-md w-full p-6 border border-white/60 relative shadow-2xl animate-in fade-in zoom-in-95 duration-150">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-1 text-[#777777] hover:text-[#111111]"

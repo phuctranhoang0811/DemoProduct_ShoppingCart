@@ -64,3 +64,42 @@ button, input, select, textarea {
 ::-webkit-scrollbar-thumb:hover {
   background: #999999;
 }
+
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+  
+  .glass-card {
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(229, 229, 229, 0.7);
+    box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.06);
+  }
+
+  .glass-dark {
+    background: rgba(15, 15, 15, 0.82);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  }
+
+  .glass-violet {
+    background: rgba(147, 97, 255, 0.18);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(147, 97, 255, 0.35);
+  }
+
+  .glass-lime {
+    background: rgba(210, 255, 82, 0.18);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(210, 255, 82, 0.4);
+  }
+}

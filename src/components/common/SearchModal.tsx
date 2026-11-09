@@ -31,8 +31,8 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex justify-center pt-16 px-4">
-      <div className="bg-white w-full max-w-2xl rounded-none shadow-2xl p-6 self-start border border-[#E5E5E5] animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex justify-center pt-16 px-4">
+      <div className="glass-card w-full max-w-2xl shadow-2xl p-6 self-start border border-white/60 animate-in fade-in duration-200">
         <div className="flex items-center justify-between pb-4 border-b border-[#E5E5E5]">
           <div className="flex items-center gap-3 w-full">
             <SearchIcon className="w-5 h-5 text-[#777777]" />

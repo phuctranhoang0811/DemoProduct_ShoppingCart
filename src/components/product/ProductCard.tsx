@@ -63,7 +63,7 @@ export function ProductCard({ product, density = 'catalog' }: ProductCardProps) 
 
           {/* Luxury Floating "VIEW" Pill on Hover */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <span className="bg-white/90 backdrop-blur-md text-[#111111] text-[10px] uppercase font-semibold tracking-[0.2em] px-4 py-2 border border-black/5 shadow-xs flex items-center gap-1">
+            <span className="glass text-[#111111] text-[10px] uppercase font-semibold tracking-[0.2em] px-4 py-2 shadow-sm rounded-full flex items-center gap-1">
               <span>View Piece</span>
               <ArrowUpRight className="w-3 h-3 stroke-[1.5]" />
             </span>
@@ -90,7 +90,7 @@ export function ProductCard({ product, density = 'catalog' }: ProductCardProps) 
             className={`absolute top-2.5 right-2.5 p-2 rounded-full transition-all duration-200 z-10 ${
               isInWishlist
                 ? 'bg-white text-[#B74747] shadow-sm'
-                : 'bg-white/80 text-[#111111] hover:bg-white hover:scale-110'
+                : 'glass text-[#111111] hover:bg-white hover:scale-110'
             }`}
             aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
           >
@@ -103,7 +103,7 @@ export function ProductCard({ product, density = 'catalog' }: ProductCardProps) 
           <button
             type="button"
             onClick={handleQuickAddClick}
-            className="absolute bottom-0 inset-x-0 bg-white/95 text-[#111111] py-3 text-[11px] uppercase tracking-[0.18em] font-semibold border-t border-[#E5E5E5] flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-[#111111] hover:text-white"
+            className="absolute bottom-0 inset-x-0 glass text-[#111111] py-3 text-[11px] uppercase tracking-[0.18em] font-semibold border-t border-white/40 flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-[#111111] hover:text-white"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Quick Add</span>
