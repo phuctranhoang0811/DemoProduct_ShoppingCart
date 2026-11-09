@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useMemo, useEffect, Suspense } from 'react';
+import { useState, useMemo, useEffect, Suspense, Fragment } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { SlidersHorizontal, ArrowUpDown, X, Tag } from 'lucide-react';
+import { SlidersHorizontal, ArrowUpDown, X, Tag, LayoutGrid, Columns, ArrowUpRight } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { ProductCard } from '@/components/product/ProductCard';
 
@@ -20,6 +22,7 @@ function ShopContent() {
   const [selectedColor, setSelectedColor] = useState('all');
   const [priceRange, setPriceRange] = useState<number>(500);
   const [sortBy, setSortBy] = useState<'newest' | 'price-asc' | 'price-desc' | 'popular'>('newest');
+  const [gridDensity, setGridDensity] = useState<'catalog' | 'editorial'>('catalog');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [page, setPage] = useState(1);
   const ITEMS_PER_PAGE = 8;
@@ -181,22 +184,55 @@ function ShopContent() {
           )}
         </div>
 
-        {/* Sort Selector */}
-        <div className="flex items-center gap-2 self-end sm:self-auto">
-          <label htmlFor="sort-select" className="text-xs text-[#666666] flex items-center gap-1 uppercase tracking-wider font-medium">
-            <ArrowUpDown className="w-3.5 h-3.5" /> Sort:
-          </label>
-          <select
-            id="sort-select"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
-            className="text-xs uppercase font-medium bg-transparent border-b border-[#111111] py-1 pl-1 pr-6 outline-none cursor-pointer tracking-wider"
-          >
-            <option value="newest">Newest Arrivals</option>
-            <option value="popular">Best Selling</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-          </select>
+        {/* Controls: Grid View Switcher + Sort Selector */}
+        <div className="flex items-center gap-6 self-end sm:self-auto">
+          {/* Grid View Switcher */}
+          <div className="hidden sm:flex items-center gap-1 border-r border-[#E5E5E5] pr-4">
+            <button
+              type="button"
+              onClick={() => setGridDensity('catalog')}
+              className={`p-1.5 transition-colors ${
+                gridDensity === 'catalog'
+                  ? 'text-[#111111] bg-[#F5F4F0]'
+                  : 'text-[#999999] hover:text-[#111111]'
+              }`}
+              title="Catalog Grid (3 Columns)"
+              aria-label="Switch to 3 column catalog view"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setGridDensity('editorial')}
+              className={`p-1.5 transition-colors ${
+                gridDensity === 'editorial'
+                  ? 'text-[#111111] bg-[#F5F4F0]'
+                  : 'text-[#999999] hover:text-[#111111]'
+              }`}
+              title="Editorial View (2 Columns)"
+              aria-label="Switch to 2 column editorial view"
+            >
+              <Columns className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Sort Selector */}
+          <div className="flex items-center gap-2">
+            <label htmlFor="sort-select" className="text-xs text-[#666666] flex items-center gap-1 uppercase tracking-wider font-medium">
+              <ArrowUpDown className="w-3.5 h-3.5" /> Sort:
+            </label>
+            <select
+              id="sort-select"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="text-xs uppercase font-medium bg-transparent border-b border-[#111111] py-1 pl-1 pr-6 outline-none cursor-pointer tracking-wider"
+            >
+              <option value="newest">Newest Arrivals</option>
+              <option value="popular">Best Selling</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -426,9 +462,71 @@ function ShopContent() {
         <div className="lg:col-span-3">
           {filteredProducts.length > 0 ? (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
-                {displayedProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+              <div
+                className={
+                  gridDensity === 'editorial'
+                    ? 'grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12'
+                    : 'grid grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8'
+                }
+              >
+                {displayedProducts.map((product, idx) => (
+                  <Fragment key={product.id}>
+                    <ProductCard product={product} density={gridDensity} />
+
+                    {/* Editorial Breather 1: SS26 Philosophy quote after 3rd item */}
+                    {idx === 2 && (
+                      <div
+                        className={`my-2 py-10 px-6 sm:px-12 bg-[#F5F4F0] border border-[#E5E5E5] flex flex-col items-center justify-center text-center ${
+                          gridDensity === 'editorial' ? 'col-span-1 md:col-span-2' : 'col-span-2 md:col-span-3'
+                        }`}
+                      >
+                        <span className="text-[10px] uppercase tracking-[0.28em] text-[#777777] font-semibold mb-2">
+                          SS26 Philosophy
+                        </span>
+                        <p className="font-serif italic text-lg sm:text-2xl text-[#111111] max-w-xl leading-relaxed">
+                          &ldquo;Form follows silence &mdash; enduring garments crafted from tactile organic fibres and architectural tailoring.&rdquo;
+                        </p>
+                        <div className="w-8 h-[1px] bg-[#111111] mt-4 mb-2" />
+                        <span className="text-[10px] uppercase tracking-widest text-[#555555]">Copenhagen Atelier</span>
+                      </div>
+                    )}
+
+                    {/* Editorial Breather 2: Archive series lookbook split card after 6th item */}
+                    {idx === 5 && (
+                      <div
+                        className={`my-2 grid grid-cols-1 md:grid-cols-2 bg-[#111111] text-white overflow-hidden ${
+                          gridDensity === 'editorial' ? 'col-span-1 md:col-span-2' : 'col-span-2 md:col-span-3'
+                        }`}
+                      >
+                        <div className="relative aspect-[4/3] md:aspect-auto min-h-[220px]">
+                          <Image
+                            src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1000&q=80"
+                            alt="Tactile tailoring"
+                            fill
+                            className="object-cover opacity-90"
+                          />
+                        </div>
+                        <div className="p-6 sm:p-10 flex flex-col justify-center">
+                          <span className="text-[10px] uppercase tracking-[0.25em] text-[#B9A58B] font-semibold mb-2">
+                            The Archive Series
+                          </span>
+                          <h3 className="font-serif text-xl sm:text-2xl text-white font-normal mb-2">
+                            Quiet Luxury & Conscious Materiality
+                          </h3>
+                          <p className="text-xs text-[#CCCCCC] leading-relaxed mb-5 font-light">
+                            Every silhouette is cut from responsibly sourced Japanese twill, heavyweight mulberry silk, and Mongolian cashmere &mdash; designed to outlive ephemeral seasonal trends.
+                          </p>
+                          <Link
+                            href="/about"
+                            className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-white border-b border-white pb-0.5 self-start hover:text-[#B9A58B] hover:border-[#B9A58B] transition-colors"
+                          >
+                            <span>Read Sourcing Manifesto</span>
+                            <ArrowUpRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+                  </Fragment>
                 ))}
               </div>
 

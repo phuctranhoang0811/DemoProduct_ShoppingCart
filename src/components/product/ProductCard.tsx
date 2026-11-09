@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, Plus } from 'lucide-react';
+import { Heart, Plus, ArrowUpRight } from 'lucide-react';
 import { Product } from '@/types';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { formatPrice } from '@/lib/utils';
@@ -12,9 +12,10 @@ import { toast } from 'sonner';
 
 interface ProductCardProps {
   product: Product;
+  density?: 'editorial' | 'catalog';
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, density = 'catalog' }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
 
@@ -39,6 +40,7 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   const displayImage = isHovered && product.images[1] ? product.images[1] : product.images[0];
+  const isEditorial = density === 'editorial';
 
   return (
     <>
@@ -55,9 +57,17 @@ export function ProductCard({ product }: ProductCardProps) {
               alt={product.name}
               fill
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              sizes={isEditorial ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw'}
             />
           </Link>
+
+          {/* Luxury Floating "VIEW" Pill on Hover */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <span className="bg-white/90 backdrop-blur-md text-[#111111] text-[10px] uppercase font-semibold tracking-[0.2em] px-4 py-2 border border-black/5 shadow-xs flex items-center gap-1">
+              <span>View Piece</span>
+              <ArrowUpRight className="w-3 h-3 stroke-[1.5]" />
+            </span>
+          </div>
 
           {/* Editorial Badges */}
           <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 z-10 pointer-events-none">
@@ -122,13 +132,21 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
 
           <Link href={`/product/${product.slug}`} className="group-hover:underline">
-            <h3 className="text-sm sm:text-[15px] font-normal text-[#111111] line-clamp-1 leading-snug tracking-tight">
+            <h3 className={`font-normal text-[#111111] line-clamp-1 leading-snug tracking-tight ${
+              isEditorial ? 'text-base sm:text-lg font-medium' : 'text-sm sm:text-[15px]'
+            }`}>
               {product.name}
             </h3>
           </Link>
 
+          {isEditorial && product.materials && (
+            <p className="text-xs text-[#777777] font-mono mt-0.5 line-clamp-1">
+              {product.materials.split('.')[0]}
+            </p>
+          )}
+
           <div className="mt-1 flex items-center gap-2">
-            <span className="text-sm sm:text-[15px] font-medium text-[#111111]">
+            <span className={`font-medium text-[#111111] ${isEditorial ? 'text-base' : 'text-sm sm:text-[15px]'}`}>
               {formatPrice(product.price)}
             </span>
             {product.originalPrice && (
