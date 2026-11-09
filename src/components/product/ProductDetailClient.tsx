@@ -194,7 +194,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
               sizes="(max-width: 1024px) 100vw, 55vw"
             />
             {product.sale && (
-              <span className="absolute top-4 left-4 bg-[#B74747] text-white text-[10px] uppercase font-bold tracking-widest px-2.5 py-1">
+              <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-[#9E3A3A] border border-[#9E3A3A]/25 text-[10px] uppercase font-medium tracking-[0.2em] px-3 py-1 rounded-full shadow-xs">
                 Sale
               </span>
             )}

@@ -69,33 +69,35 @@ export function ProductCard({ product, density = 'catalog' }: ProductCardProps) 
             </span>
           </div>
 
-          {/* Editorial Badges */}
-          <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 z-10 pointer-events-none">
+          {/* Minimalist Editorial Badges */}
+          <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5 z-10 pointer-events-none">
             {product.sale && product.originalPrice && (
-              <span className="bg-[#B74747] text-white text-[9px] uppercase font-bold tracking-widest px-2 py-0.5">
+              <span className="bg-white/85 backdrop-blur-md text-[#9E3A3A] border border-[#9E3A3A]/25 text-[9px] uppercase tracking-[0.2em] font-medium px-2.5 py-0.5 rounded-full shadow-xs">
                 Sale
               </span>
             )}
-            {product.newArrival && (
-              <span className="bg-[#111111] text-white text-[9px] uppercase font-medium tracking-widest px-2 py-0.5">
+            {product.newArrival && !product.sale && (
+              <span className="bg-white/85 backdrop-blur-md text-[#222222] border border-black/10 text-[9px] uppercase tracking-[0.2em] font-medium px-2.5 py-0.5 rounded-full shadow-xs">
                 New
               </span>
             )}
           </div>
 
-          {/* Minimalist Wishlist Button */}
+          {/* Minimalist Ethereal Wishlist Button */}
           <button
             type="button"
             onClick={handleToggleWishlist}
-            className={`absolute top-2.5 right-2.5 p-2 rounded-full transition-all duration-200 z-10 ${
+            className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 z-10 ${
               isInWishlist
-                ? 'bg-white text-[#B74747] shadow-sm'
-                : 'glass text-[#111111] hover:bg-white hover:scale-110'
+                ? 'bg-white/95 text-[#9E3A3A] shadow-sm scale-100 opacity-100'
+                : 'bg-white/70 hover:bg-white text-[#222222] hover:text-[#9E3A3A] backdrop-blur-md border border-white/60 shadow-xs sm:opacity-0 sm:group-hover:opacity-100 hover:scale-110 active:scale-95'
             }`}
             aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
           >
             <Heart
-              className={`w-3.5 h-3.5 stroke-[1.5] ${isInWishlist ? 'fill-[#B74747]' : ''}`}
+              className={`w-3.5 h-3.5 stroke-[1.3] transition-colors duration-200 ${
+                isInWishlist ? 'fill-[#9E3A3A] text-[#9E3A3A]' : ''
+              }`}
             />
           </button>
 
