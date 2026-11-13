@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import {
   Users,
   Award,
@@ -32,6 +33,11 @@ import { formatPrice } from '@/lib/utils';
 function HellobeePortalContent() {
   const searchParams = useSearchParams();
 
+  const currentUser = useCommerceStore((state) => state.currentUser);
+  const orders = useCommerceStore((state) => state.orders);
+  const products = useCommerceStore((state) => state.products);
+  const createOrder = useCommerceStore((state) => state.createOrder);
+  const updateProfile = useCommerceStore((state) => state.updateProfile);
   const members = useCommerceStore((state) => state.hellobeeMembers);
   const commissions = useCommerceStore((state) => state.commissions);
   const payouts = useCommerceStore((state) => state.payouts);
@@ -44,6 +50,33 @@ function HellobeePortalContent() {
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'team' | 'commissions' | 'payouts' | 'register'>('dashboard');
   const [copiedCode, setCopiedCode] = useState(false);
+
+  // Check if current user qualifies to access the Hellobee Employee / Consultant Network
+  const isDirectStaff = currentUser?.role === 'admin' || currentUser?.role === 'employee';
+
+  const userOrders = orders.filter(
+    (o) =>
+      currentUser &&
+      o.status !== 'Cancelled' &&
+      (o.customerEmail.toLowerCase() === currentUser.email.toLowerCase() ||
+        o.customerName.toLowerCase() === currentUser.name.toLowerCase())
+  );
+
+  const hasPurchasedMachine = userOrders.some(
+    (o) =>
+      o.total >= 1500 ||
+      o.items.some(
+        (item) =>
+          item.price >= 1500 ||
+          item.productId === 'hellobee-filter-1500' ||
+          item.productName.toLowerCase().includes('filter 1500') ||
+          item.productName.toLowerCase().includes('ionizer') ||
+          item.productName.toLowerCase().includes('k8') ||
+          item.productName.toLowerCase().includes('sd501')
+      )
+  );
+
+  const isQualified = isDirectStaff || hasPurchasedMachine;
 
   // Registration Form State
   const [regName, setRegName] = useState('');
@@ -59,8 +92,26 @@ function HellobeePortalContent() {
   const [bankAccount, setBankAccount] = useState('');
   const [bankHolder, setBankHolder] = useState('');
 
-  // Find currently active member
-  const currentMember = members.find((m) => m.id === activeMemberId) || members[0];
+  // Find currently active member:
+  // Match logged in user if they are a consultant, or activeMemberId if admin
+  let currentMember = members.find((m) =>
+    currentUser
+      ? m.email.toLowerCase() === currentUser.email.toLowerCase() ||
+        m.id === currentUser.id ||
+        (currentUser.referralCode && m.referralCode.toUpperCase() === currentUser.referralCode.toUpperCase())
+      : false
+  );
+
+  if (!currentMember) {
+    if (currentUser?.role === 'admin') {
+      currentMember = members.find((m) => m.id === activeMemberId) || members[0];
+    } else if (currentUser?.role === 'employee') {
+      currentMember = members.find((m) => m.role === 'EMPLOYEE') || members[2];
+    } else {
+      currentMember = members.find((m) => m.id === activeMemberId) || members[2];
+    }
+  }
+
   const isOwner = currentMember?.role === 'OWNER';
 
   // Subordinate employees if Owner
@@ -183,6 +234,240 @@ function HellobeePortalContent() {
     }
   };
 
+  const handleActivateWithPurchase = () => {
+    if (!currentUser) {
+      toast.error('Please sign in or register an account first.');
+      return;
+    }
+
+    const qualifyingProduct =
+      products.find((p) => p.id === 'hellobee-filter-1500') ||
+      products.find((p) => p.price >= 1500) ||
+      products[0];
+
+    // Create qualifying order
+    createOrder({
+      customerName: currentUser.name,
+      customerEmail: currentUser.email,
+      customerPhone: currentUser.phone || '+1 (555) 349-8201',
+      shippingAddress: {
+        street: currentUser.addresses[0]?.street || '100 Main Street',
+        ward: currentUser.addresses[0]?.ward || 'Central',
+        district: currentUser.addresses[0]?.district || 'Manhattan',
+        city: currentUser.addresses[0]?.city || 'New York',
+      },
+      deliveryMethod: 'Enagic White-Glove Technician Delivery',
+      paymentMethod: 'stripe',
+      paymentStatus: 'Paid',
+      status: 'Processing',
+      items: [
+        {
+          productId: qualifyingProduct.id,
+          productName: qualifyingProduct.name,
+          slug: qualifyingProduct.slug,
+          image: qualifyingProduct.images[0],
+          price: 1500,
+          colorName: 'Standard White Edition',
+          size: 'Standard Package',
+          quantity: 1,
+        },
+      ],
+      subtotal: 1500,
+      discountAmount: 0,
+      shippingFee: 0,
+      total: 1500,
+    });
+
+    const newCode = `HB-EMP-${Math.floor(100 + Math.random() * 900)}`;
+    registerHellobeeMember({
+      name: currentUser.name,
+      email: currentUser.email,
+      phone: currentUser.phone || '+1 (555) 349-8201',
+      role: 'EMPLOYEE',
+      sponsorCode: undefined,
+    });
+
+    updateProfile({
+      role: 'employee',
+      referralCode: newCode,
+    });
+
+    toast.success(
+      `🎉 Qualifying $1,500 purchase confirmed! You are now a Certified Hellobee Consultant (${newCode}).`
+    );
+  };
+
+  // If user is not qualified (has not bought $1,500 machine and is not staff), show prerequisite gate
+  if (!isQualified) {
+    return (
+      <div className="min-h-screen bg-[#FDFCFB] text-[#111111]">
+        {/* Banner */}
+        <div className="border-b border-[#E5E5E5] bg-white">
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-800 mb-3">
+              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              <span>Hellobee Network • Independent Consultant Program</span>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-light tracking-tight text-[#111111]">
+              Consultant Qualification & Verification
+            </h1>
+            <p className="mt-1 text-sm text-[#666666] max-w-2xl">
+              To join the Hellobee Network (1A–5A) and earn 10% direct commissions ($150/unit), consultants must first purchase a qualifying $1,500 Enagic® water device and accept distributor terms.
+            </p>
+          </div>
+        </div>
+
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-8">
+          {/* Account Status Card */}
+          <div className="bg-white border border-[#E5E5E5] rounded-xl p-6 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-4 border-b border-[#F0F0F0]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#FAF9F5] border border-[#E5E5E5] flex items-center justify-center font-bold text-sm text-[#111111]">
+                  {currentUser ? currentUser.name[0] : '?'}
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-[#111111]">
+                    {currentUser ? currentUser.name : 'Guest Visitor'}
+                  </h2>
+                  <p className="text-xs text-[#777777]">
+                    {currentUser ? currentUser.email : 'Not signed in'}
+                  </p>
+                </div>
+              </div>
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full bg-[#FAF1E4] text-[#8C5E1E] border border-[#8C5E1E]/20">
+                {currentUser ? 'Customer • Unqualified' : 'Sign In Required'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div className="p-3 bg-[#FAF9F5] rounded-lg border border-[#EAE8E1]">
+                <span className="text-[10px] uppercase tracking-wider text-[#777777] font-semibold block">
+                  Hellobee Consultant Status
+                </span>
+                <p className="text-sm font-bold text-[#B74747] mt-0.5">
+                  Locked (Prerequisite Incomplete)
+                </p>
+                <p className="text-[11px] text-[#777777] mt-1">
+                  Requires 1x qualifying $1,500 water device purchase.
+                </p>
+              </div>
+
+              <div className="p-3 bg-[#FAF9F5] rounded-lg border border-[#EAE8E1]">
+                <span className="text-[10px] uppercase tracking-wider text-[#777777] font-semibold block">
+                  Eligible Commission Rate
+                </span>
+                <p className="text-sm font-bold text-[#2D5A27] mt-0.5">
+                  10% Direct ($150 per $1,500 unit)
+                </p>
+                <p className="text-[11px] text-[#777777] mt-1">
+                  Activates immediately upon device acquisition.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Mandatory Terms & Policy Agreement */}
+          <div className="bg-white border border-[#E5E5E5] rounded-xl p-6 shadow-xs space-y-4">
+            <h3 className="text-xs uppercase tracking-wider font-bold text-[#111111] flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-[#2D5A27]" />
+              <span>Hellobee Independent Consultant Terms & Requirements</span>
+            </h3>
+
+            <div className="space-y-3 text-xs text-[#555555] leading-relaxed">
+              <div className="p-3 bg-[#FAF9F5] rounded-lg border border-[#EAE8E1] space-y-1">
+                <p className="font-semibold text-[#111111] flex items-center gap-1.5">
+                  <CheckCircle className="w-3.5 h-3.5 text-[#2D5A27]" />
+                  <span>Requirement 1: Personal Device Ownership ($1,500 Unit)</span>
+                </p>
+                <p className="text-[#666666] pl-5">
+                  To ethically demonstrate and recommend Enagic® medical-grade ionization water to prospective clients, every Hellobee consultant must own at least one qualifying unit (such as the standardized $1,500 Hellobee Water Ionizer & Filtration System or Kangen Leveluk machine).
+                </p>
+              </div>
+
+              <div className="p-3 bg-[#FAF9F5] rounded-lg border border-[#EAE8E1] space-y-1">
+                <p className="font-semibold text-[#111111] flex items-center gap-1.5">
+                  <CheckCircle className="w-3.5 h-3.5 text-[#2D5A27]" />
+                  <span>Requirement 2: 1A–5A Rank Promotion & Direct 10% Commissions</span>
+                </p>
+                <p className="text-[#666666] pl-5">
+                  Qualified consultants receive an official referral code (e.g. <code>HB-EMP-101</code>). When new buyers enter your code, you earn an instant 10% commission ($150 per machine), advancing from 1A base rank up to 5A master distributor based on cumulative unit sales.
+                </p>
+              </div>
+
+              <div className="p-3 bg-[#FAF9F5] rounded-lg border border-[#EAE8E1] space-y-1">
+                <p className="font-semibold text-[#111111] flex items-center gap-1.5">
+                  <CheckCircle className="w-3.5 h-3.5 text-[#2D5A27]" />
+                  <span>Requirement 3: Authentic Medical Water Standards</span>
+                </p>
+                <p className="text-[#666666] pl-5">
+                  Consultants agree to provide truthful, scientific pH/ORP antioxidant demonstrations and abide by Enagic® ISO 13485 medical device quality protocols.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Qualifying Product Spotlight & Action */}
+          <div className="bg-[#FAF9F5] border-2 border-[#111111] rounded-xl p-6 sm:p-8 space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono uppercase bg-[#111111] text-white px-2 py-0.5 rounded-xs font-bold">
+                  Qualifying Activation Unit
+                </span>
+                <h3 className="text-xl font-bold text-[#111111]">
+                  Hellobee Water Ionizer & Filtration System
+                </h3>
+                <p className="text-xs text-[#666666]">
+                  Standardized $1,500 unit with 5 medical platinum titanium plates, -650 mV negative ORP, and 3-year warranty.
+                </p>
+              </div>
+              <div className="text-right">
+                <span className="text-xs text-[#777777] block">Standardized Price</span>
+                <span className="text-2xl font-bold text-[#111111]">$1,500</span>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-[#E5E5E5] flex flex-col sm:flex-row items-center gap-3">
+              {currentUser ? (
+                <>
+                  <Link
+                    href="/product/hellobee-filter-1500"
+                    className="w-full sm:w-auto flex-1 bg-[#111111] text-white py-3 px-6 text-center text-xs uppercase tracking-wider font-semibold hover:bg-[#333333] transition-colors rounded-xs btn-tactile"
+                  >
+                    Purchase $1,500 Machine in Store &rarr;
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={handleActivateWithPurchase}
+                    className="w-full sm:w-auto bg-[#2D5A27] text-white py-3 px-6 text-center text-xs uppercase tracking-wider font-semibold hover:bg-[#23471f] transition-colors rounded-xs shadow-xs btn-tactile flex items-center justify-center gap-2"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span>Instant Demo: Activate with $1,500 Order</span>
+                  </button>
+                </>
+              ) : (
+                <div className="w-full flex flex-col sm:flex-row gap-3">
+                  <Link
+                    href="/login"
+                    className="flex-1 bg-[#111111] text-white py-3 px-6 text-center text-xs uppercase tracking-wider font-semibold hover:bg-[#333333] transition-colors rounded-xs"
+                  >
+                    Sign In to Verify Account
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="flex-1 border border-[#111111] text-[#111111] py-3 px-6 text-center text-xs uppercase tracking-wider font-semibold hover:bg-[#F5F4F0] transition-colors rounded-xs"
+                  >
+                    Create New Account
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#FDFCFB] text-[#111111]">
       {/* Top Banner / Hero */}
@@ -204,29 +489,31 @@ function HellobeePortalContent() {
               </p>
             </div>
 
-            {/* Persona Switcher for Live Demo */}
-            <div className="bg-[#F5F4F0] p-3 rounded-xs border border-[#E5E5E5] text-xs space-y-2">
-              <span className="text-[#777777] font-semibold uppercase tracking-wider block text-[10px]">
-                Simulate Demo Account Persona:
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {members.map((m) => (
-                  <button
-                    key={m.id}
-                    type="button"
-                    onClick={() => setActiveMemberId(m.id)}
-                    className={`px-3 py-1.5 rounded-xs font-medium text-xs uppercase tracking-wider transition-all ${
-                      m.id === currentMember?.id
-                        ? 'bg-[#111111] text-white shadow-xs font-semibold'
-                        : 'bg-white text-[#555555] hover:text-[#111111] hover:bg-[#FAF9F5] border border-[#E0E0E0]'
-                    }`}
-                  >
-                    <span>{m.name.split(' ')[0]}</span>
-                    <span className="text-[10px] opacity-75 ml-1">({m.role === 'OWNER' ? 'Owner' : m.rank})</span>
-                  </button>
-                ))}
+            {/* Persona Switcher for Live Demo (Admin Only) */}
+            {currentUser?.role === 'admin' && (
+              <div className="bg-[#F5F4F0] p-3 rounded-xs border border-[#E5E5E5] text-xs space-y-2">
+                <span className="text-[#777777] font-semibold uppercase tracking-wider block text-[10px]">
+                  Simulate Demo Account Persona (Admin Only):
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {members.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => setActiveMemberId(m.id)}
+                      className={`px-3 py-1.5 rounded-xs font-medium text-xs uppercase tracking-wider transition-all ${
+                        m.id === currentMember?.id
+                          ? 'bg-[#111111] text-white shadow-xs font-semibold'
+                          : 'bg-white text-[#555555] hover:text-[#111111] hover:bg-[#FAF9F5] border border-[#E0E0E0]'
+                      }`}
+                    >
+                      <span>{m.name.split(' ')[0]}</span>
+                      <span className="text-[10px] opacity-75 ml-1">({m.role === 'OWNER' ? 'Owner' : m.rank})</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Navigation Sub-Tabs */}

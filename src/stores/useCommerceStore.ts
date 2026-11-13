@@ -1117,6 +1117,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       name,
       email,
       phone,
+      role: 'customer',
       status: 'active',
       addresses: [],
       referralCode: sponsor ? sponsor.referralCode : (referralCode?.trim() || undefined),

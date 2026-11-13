@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ShieldCheck, Tag, Sparkles, CheckCircle, ArrowRight, UserCheck } from 'lucide-react';
+import { ShieldCheck, Sparkles, ArrowRight, UserCheck } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { toast } from 'sonner';
 
@@ -24,26 +24,17 @@ function formatUSPhoneNumber(value: string): string {
 export default function RegisterPage() {
   const router = useRouter();
   const register = useCommerceStore((state) => state.register);
-  const hellobeeMembers = useCommerceStore((state) => state.hellobeeMembers);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [referralCode, setReferralCode] = useState('');
 
-  const recognizedSponsor = useMemo(() => {
-    if (!referralCode.trim()) return null;
-    const clean = referralCode.trim().toUpperCase();
-    return hellobeeMembers.find((m) => m.referralCode.toUpperCase() === clean);
-  }, [referralCode, hellobeeMembers]);
-
-  const handleQuickFill = (code = 'HB-EMP-101') => {
+  const handleQuickFill = () => {
     setName('Alexander Wright');
     setEmail(`alex.wright.${Math.floor(Math.random() * 900 + 100)}@example.com`);
     setPhone('(555) 349-8201');
     setPassword('Password123');
-    setReferralCode(code);
     toast.success('Sample customer credentials filled!');
   };
 
@@ -62,14 +53,8 @@ export default function RegisterPage() {
     }
 
     const fullUSPhone = `+1 ${phone}`;
-    register(name.trim(), email.trim(), fullUSPhone, referralCode.trim() || undefined);
-    if (recognizedSponsor) {
-      toast.success(
-        `Welcome ${name}! Linked with specialist ${recognizedSponsor.name} (${recognizedSponsor.referralCode}). All your future purchases will automatically credit your specialist.`
-      );
-    } else {
-      toast.success(`Account created successfully for ${name}!`);
-    }
+    register(name.trim(), email.trim(), fullUSPhone);
+    toast.success(`Account created successfully for ${name}!`);
     router.push('/account');
   };
 
@@ -95,12 +80,12 @@ export default function RegisterPage() {
             <span>Quick Fill Sample Data</span>
           </p>
           <p className="text-[11px] text-[#777777]">
-            Autofills mock customer details with referral specialist <code>HB-EMP-101</code>
+            Autofills mock customer details with valid US phone format
           </p>
         </div>
         <button
           type="button"
-          onClick={() => handleQuickFill('HB-EMP-101')}
+          onClick={handleQuickFill}
           className="bg-[#111111] text-white px-3.5 py-1.5 rounded-xs text-[11px] font-semibold hover:bg-[#333333] transition-colors flex-shrink-0 btn-tactile"
         >
           Quick Fill
@@ -172,37 +157,6 @@ export default function RegisterPage() {
             placeholder="Minimum 6 characters"
             className="w-full border border-[#E5E5E5] px-3.5 py-2.5 text-xs outline-none focus:border-[#111111] transition-colors rounded-xs"
           />
-        </div>
-
-        {/* Referral Code Field */}
-        <div className="pt-2 border-t border-[#F0F0F0]">
-          <div className="flex items-center justify-between mb-1">
-            <label className="text-[11px] text-[#777777] uppercase tracking-wider flex items-center gap-1.5">
-              <Tag className="w-3.5 h-3.5 text-[#B9A58B]" />
-              <span>Sponsor / Specialist Code (Optional)</span>
-            </label>
-            <span className="text-[10px] text-[#888888]">e.g. HB-EMP-101</span>
-          </div>
-          <input
-            type="text"
-            value={referralCode}
-            onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-            placeholder="HB-EMP-101 or HB-EMP-102"
-            className="w-full border border-[#E5E5E5] px-3.5 py-2.5 text-xs font-mono font-semibold uppercase outline-none focus:border-[#111111] transition-colors rounded-xs"
-          />
-
-          {recognizedSponsor ? (
-            <div className="mt-2 p-2.5 bg-[#EBF3EA] rounded-xs border border-[#2D5A27]/20 flex items-center gap-2 text-xs text-[#2D5A27]">
-              <CheckCircle className="w-4 h-4 flex-shrink-0" />
-              <span>
-                Assigned Specialist: <strong>{recognizedSponsor.name}</strong> ({recognizedSponsor.referralCode} - {recognizedSponsor.role})
-              </span>
-            </div>
-          ) : referralCode.trim() ? (
-            <p className="mt-1.5 text-[11px] text-[#888888]">
-              ℹ No specialist matched this code yet. You can still register normally.
-            </p>
-          ) : null}
         </div>
 
         <button

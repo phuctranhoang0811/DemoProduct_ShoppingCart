@@ -132,20 +132,27 @@ export default function EmployeePage() {
 
           <p className="text-xs text-[#666666] leading-relaxed">
             {currentUser
-              ? `You are currently logged in as ${currentUser.name} with role "${currentUser.role?.toUpperCase()}". Employee authorization is required to access fulfillment orders, inventory check, and staff referral tools.`
+              ? `You are currently logged in as ${currentUser.name} with role "${currentUser.role?.toUpperCase()}". To become a certified referral employee, you must purchase a qualifying $1,500 water ionizer and accept consultant terms.`
               : 'Sign in with an authorized employee account to access customer fulfillment, inventory lookup, and sales commission records.'}
           </p>
 
           <div className="pt-2 space-y-2">
+            <Link
+              href="/hellobee"
+              className="w-full bg-[#111111] text-white py-3 rounded-xs text-xs uppercase tracking-wider font-semibold hover:bg-[#333333] transition-colors shadow-xs flex items-center justify-center gap-2"
+            >
+              <span>Unlock Employee Status ($1,500 Device) &rarr;</span>
+            </Link>
+
             <button
               onClick={() => {
                 loginAsDemo('employee');
                 toast.success('Signed in as David Nguyen (Employee / HB-EMP-101)');
               }}
-              className="w-full bg-[#2D5A27] text-white py-3 rounded-xs text-xs uppercase tracking-wider font-semibold hover:bg-[#23471f] transition-colors shadow-xs flex items-center justify-center gap-2"
+              className="w-full bg-[#2D5A27] text-white py-2.5 rounded-xs text-xs uppercase tracking-wider font-semibold hover:bg-[#23471f] transition-colors shadow-xs flex items-center justify-center gap-2"
             >
               <Briefcase className="w-4 h-4" />
-              <span>1-Click Sign In as Employee (David Nguyen)</span>
+              <span>Demo Switch: Sign In as David Nguyen</span>
             </button>
 
             <Link
