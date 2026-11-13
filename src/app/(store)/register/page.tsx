@@ -62,10 +62,10 @@ export default function RegisterPage() {
     }
 
     const fullUSPhone = `+1 ${phone}`;
-    register(name.trim(), email.trim(), fullUSPhone);
+    register(name.trim(), email.trim(), fullUSPhone, referralCode.trim() || undefined);
     if (recognizedSponsor) {
       toast.success(
-        `Welcome ${name}! Linked with specialist ${recognizedSponsor.name} (${recognizedSponsor.referralCode}).`
+        `Welcome ${name}! Linked with specialist ${recognizedSponsor.name} (${recognizedSponsor.referralCode}). All your future purchases will automatically credit your specialist.`
       );
     } else {
       toast.success(`Account created successfully for ${name}!`);

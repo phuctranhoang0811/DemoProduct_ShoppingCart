@@ -132,6 +132,8 @@ export interface Customer {
   company?: string;
   status: 'active' | 'inactive';
   addresses: Address[];
+  referralCode?: string;
+  sponsorName?: string;
   createdAt: string;
   totalOrders: number;
   totalSpent: number;

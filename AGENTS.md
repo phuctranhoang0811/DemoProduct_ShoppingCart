@@ -44,6 +44,11 @@
 - **Password Reset**: Dedicated `/forgot-password` route providing streamlined, secure password recovery flows.
 - **US Phone Policy**: All phone inputs across the platform (Registration, Checkout, Account Profile) strictly utilize US phone formatting `+1 (XXX) XXX-XXXX` or `(XXX) XXX-XXXX`. All mock data seeds exclusively feature valid US phone patterns. Do not use Vietnamese `+84` prefixes.
 
+### Referral & Commission System
+- **Registration Linking**: When a customer registers with a sponsor/referral code (e.g. `HB-EMP-101`), that code is permanently saved to the customer's account (`Customer.referralCode`).
+- **Automatic Purchase Crediting**: When that customer checks out, the referral code is automatically applied and displayed. Even if the referral input is omitted, `createOrder` automatically falls back to the customer's saved sponsor code so direct commissions (10%) and owner overrides (1%) are always awarded upon purchase.
+- **Consultant Visibility**: Registered customers appear in their assigned specialist's consultation queue (`/employee`), and customers can view their assigned hydration specialist in `/account`.
+
 ---
 
 ## 4. Build & Vercel Deployment Rules

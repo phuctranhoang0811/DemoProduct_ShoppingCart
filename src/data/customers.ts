@@ -8,6 +8,8 @@ export const initialCustomers: Customer[] = [
     phone: '+1 (555) 201-2345',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop',
     status: 'active',
+    referralCode: 'HB-EMP-101',
+    sponsorName: 'David Nguyen',
     createdAt: '2026-06-12T10:00:00Z',
     totalOrders: 4,
     totalSpent: 875,

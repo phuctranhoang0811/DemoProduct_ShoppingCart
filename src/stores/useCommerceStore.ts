@@ -158,7 +158,7 @@ interface CommerceState {
   // Auth / Session
   loginAsDemo: (role?: 'customer' | 'employee' | 'admin' | 'owner') => void;
   loginWithEmail: (email: string) => boolean;
-  register: (name: string, email: string, phone: string) => Customer;
+  register: (name: string, email: string, phone: string, referralCode?: string) => Customer;
   logout: () => void;
   updateProfile: (updates: Partial<Customer>) => void;
   addAddress: (address: Omit<Address, 'id'>) => void;
@@ -505,13 +505,18 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
   // ORDERS
   createOrder: (orderData) => {
+    const state = get();
+    const effectiveReferralCode =
+      orderData.referralCode?.trim() ||
+      state.currentUser?.referralCode ||
+      state.customers.find((c) => c.email.toLowerCase() === orderData.customerEmail.toLowerCase())?.referralCode;
+
     const newOrder: Order = {
       ...orderData,
+      referralCode: effectiveReferralCode || undefined,
       id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
       createdAt: new Date().toISOString(),
     };
-
-    const state = get();
 
     // Deduct variant and size stock from products
     const updatedProducts = state.products.map((p) => {
@@ -1100,7 +1105,13 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     return true;
   },
 
-  register: (name, email, phone) => {
+  register: (name, email, phone, referralCode) => {
+    const state = get();
+    const cleanRef = referralCode?.trim().toUpperCase();
+    const sponsor = cleanRef
+      ? state.hellobeeMembers.find((m) => m.referralCode.toUpperCase() === cleanRef)
+      : null;
+
     const newCust: Customer = {
       id: generateId('cust'),
       name,
@@ -1108,15 +1119,24 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       phone,
       status: 'active',
       addresses: [],
+      referralCode: sponsor ? sponsor.referralCode : (referralCode?.trim() || undefined),
+      sponsorName: sponsor?.name,
       createdAt: new Date().toISOString(),
       totalOrders: 0,
       totalSpent: 0,
     };
     set((state) => {
+      let updatedMembers = state.hellobeeMembers;
+      if (sponsor) {
+        updatedMembers = updatedMembers.map((m) =>
+          m.id === sponsor.id ? { ...m, directInviteCount: m.directInviteCount + 1 } : m
+        );
+        setStorageItem(STORAGE_KEYS.hellobeeMembers, updatedMembers);
+      }
       const updated = [newCust, ...state.customers];
       setStorageItem(STORAGE_KEYS.customers, updated);
       setStorageItem(STORAGE_KEYS.session, newCust);
-      return { customers: updated, currentUser: newCust };
+      return { customers: updated, currentUser: newCust, hellobeeMembers: updatedMembers };
     });
     return newCust;
   },

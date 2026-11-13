@@ -42,14 +42,18 @@ function CheckoutContent() {
   const [fullName, setFullName] = useState(currentUser?.name || '');
   const [email, setEmail] = useState(currentUser?.email || '');
   const [phone, setPhone] = useState(currentUser?.phone || '');
-  const [referralCode, setReferralCode] = useState(searchParams?.get('ref') || '');
+  const [referralCode, setReferralCode] = useState(
+    searchParams?.get('ref') || currentUser?.referralCode || ''
+  );
 
   useEffect(() => {
     const refFromUrl = searchParams?.get('ref');
     if (refFromUrl) {
       setReferralCode(refFromUrl.toUpperCase());
+    } else if (currentUser?.referralCode && !referralCode) {
+      setReferralCode(currentUser.referralCode);
     }
-  }, [searchParams]);
+  }, [searchParams, currentUser?.referralCode]);
 
   const defaultAddr = currentUser?.addresses.find((a) => a.isDefault) || currentUser?.addresses[0];
   const [street, setStreet] = useState(defaultAddr?.street || '');
@@ -458,6 +462,15 @@ function CheckoutContent() {
               If an Enagic Certified Hydration Associate assisted you (e.g. <code>HB-EMP-101</code>),
               enter their code below to credit their direct commission and assign them as your dedicated customer specialist.
             </p>
+
+            {currentUser?.referralCode && (
+              <div className="flex items-center gap-2 p-2.5 bg-[#FAF9F5] border border-[#E5E5E5] rounded-xs text-xs text-[#2D5A27]">
+                <CheckCircle className="w-4 h-4 shrink-0 text-[#2D5A27]" />
+                <span>
+                  Auto-linked from your registered account specialist: <strong>{currentUser.sponsorName || currentUser.referralCode} ({currentUser.referralCode})</strong>.
+                </span>
+              </div>
+            )}
 
             <div className="space-y-2">
               <input

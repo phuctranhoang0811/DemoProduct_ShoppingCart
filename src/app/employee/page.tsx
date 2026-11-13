@@ -38,6 +38,7 @@ export default function EmployeePage() {
   const loginAsDemo = useCommerceStore((state) => state.loginAsDemo);
   const logout = useCommerceStore((state) => state.logout);
   const orders = useCommerceStore((state) => state.orders);
+  const customers = useCommerceStore((state) => state.customers);
   const updateOrderStatus = useCommerceStore((state) => state.updateOrderStatus);
   const products = useCommerceStore((state) => state.products);
   const hellobeeMembers = useCommerceStore((state) => state.hellobeeMembers);
@@ -92,6 +93,9 @@ export default function EmployeePage() {
   // Current employee member record
   const currentMember = hellobeeMembers.find((m) => m.role === 'EMPLOYEE') || hellobeeMembers[2];
   const employeeCode = currentMember?.referralCode || 'HB-EMP-101';
+  const assignedClients = customers.filter(
+    (c) => c.referralCode?.toUpperCase() === employeeCode.toUpperCase()
+  );
   const referralLink = `https://enagic-store.com/checkout?ref=${employeeCode}`;
 
   const isAuthorized = currentUser && (currentUser.role === 'employee' || currentUser.role === 'admin');
@@ -373,7 +377,7 @@ export default function EmployeePage() {
                 : 'border-transparent text-[#777777] hover:text-[#111111]'
             }`}
           >
-            <Users className="w-4 h-4" /> Consultation Queue & Leads ({leads.length})
+            <Users className="w-4 h-4" /> Consultation Queue & Leads ({leads.length + assignedClients.length})
           </button>
           <button
             onClick={() => setActiveTab('inventory')}
@@ -556,6 +560,58 @@ export default function EmployeePage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {assignedClients.map((client) => (
+                <div
+                  key={client.id}
+                  className="bg-white rounded-lg border-2 border-[#2D5A27]/30 p-5 space-y-3 shadow-xs hover:border-[#2D5A27] transition-all flex flex-col justify-between"
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-bold text-sm text-[#111111]">{client.name}</h3>
+                        <span className="text-[10px] text-[#888888] font-mono">
+                          {client.createdAt?.slice(0, 10)}
+                        </span>
+                      </div>
+                      <span className="text-[10px] uppercase font-bold bg-[#EBF3EA] text-[#2D5A27] px-2 py-0.5 rounded-full">
+                        Registered Client
+                      </span>
+                    </div>
+
+                    <div className="space-y-1 text-xs text-[#555]">
+                      <p className="font-semibold text-[#111111]">
+                        Total Spent: {formatPrice(client.totalSpent)} ({client.totalOrders} Orders)
+                      </p>
+                      <p className="flex items-center gap-1 text-[#477A5A]">
+                        <Phone className="w-3 h-3" /> {client.phone}
+                      </p>
+                      <p className="flex items-center gap-1 text-[#666]">
+                        <Mail className="w-3 h-3" /> {client.email}
+                      </p>
+                    </div>
+
+                    <p className="text-[11px] text-[#2D5A27] bg-[#FAF9F5] p-2.5 rounded border border-[#E5E5E5]">
+                      Linked to your code <strong>{employeeCode}</strong>. 10% direct commission auto-awarded on all purchases.
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-[#F0F0F0] flex gap-2">
+                    <a
+                      href={`tel:${client.phone}`}
+                      className="flex-1 bg-[#2D5A27] text-white py-1.5 rounded-xs text-[10px] uppercase font-semibold text-center hover:bg-[#1f401b] transition-colors"
+                    >
+                      Call Client
+                    </a>
+                    <a
+                      href={`mailto:${client.email}`}
+                      className="flex-1 border border-[#D5D5D5] py-1.5 rounded-xs text-[10px] uppercase font-semibold text-[#555] text-center hover:bg-[#F5F4F0]"
+                    >
+                      Email Client
+                    </a>
+                  </div>
+                </div>
+              ))}
+
               {leads.map((lead) => (
                 <div
                   key={lead.id}

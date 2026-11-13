@@ -421,6 +421,24 @@ export default function AccountPage() {
                     {currentUser.company || 'Private Residence'}
                   </p>
                 </div>
+
+                <div className="space-y-1 sm:col-span-2 pt-2 border-t border-[#F0F0F0]">
+                  <span className="text-[11px] uppercase tracking-wider text-[#888888] font-medium block">
+                    Assigned Enagic® Consultant / Specialist
+                  </span>
+                  {currentUser.referralCode ? (
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#FAF9F5] border border-[#E5E5E5] rounded-xs text-xs text-[#2D5A27] font-medium">
+                      <CheckCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>
+                        {currentUser.sponsorName || 'Hydration Specialist'} (<code>{currentUser.referralCode}</code>) &bull; Auto-credited on purchases
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-[#777777]">
+                      Direct Customer Account (No Consultant Linked)
+                    </p>
+                  )}
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSaveProfile} className="space-y-5">
