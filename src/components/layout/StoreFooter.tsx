@@ -74,6 +74,7 @@ export function StoreFooter() {
               <li><Link href="/cart" className="hover:text-white transition-colors">{t.cart.title}</Link></li>
               <li><Link href="/wishlist" className="hover:text-white transition-colors">{t.nav.savedItems}</Link></li>
               <li><Link href="/calculator" className="hover:text-white transition-colors">Tax Calculator (US & VN)</Link></li>
+              <li><Link href="/employee" className="hover:text-white transition-colors">Employee Portal</Link></li>
               <li><Link href="/admin" className="text-white hover:underline flex items-center gap-1">
                 <span>{t.nav.adminPortal}</span>
                 <Sparkles className="w-3 h-3 text-[#D2FF52]" />
@@ -84,12 +85,10 @@ export function StoreFooter() {
           {/* Newsletter */}
           <div className="space-y-3">
             <p className="text-xs uppercase tracking-widest text-white font-semibold">
-              {language === 'vi' ? 'Đăng Ký Bản Tin' : 'Newsletter'}
+              Newsletter
             </p>
             <p className="text-xs text-[#888888] leading-relaxed">
-              {language === 'vi'
-                ? 'Nhận thông tin cập nhật về các công nghệ lọc nước và khuyến mãi định kỳ.'
-                : 'Receive updates on new ionizer models and filtration maintenance.'}
+              Receive updates on new ionizer models and filtration maintenance.
             </p>
             <form onSubmit={handleSubscribe} className="space-y-2 pt-1">
               <div className="flex">
@@ -97,7 +96,7 @@ export function StoreFooter() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder={language === 'vi' ? 'Nhập email của bạn' : 'Enter your email'}
+                  placeholder="Enter your email"
                   className="bg-white/10 text-white placeholder-white/40 text-xs px-3.5 py-2.5 rounded-l-xs outline-none focus:bg-white/15 flex-1 border border-white/15"
                 />
                 <button

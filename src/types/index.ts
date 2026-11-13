@@ -113,6 +113,9 @@ export interface Address {
   city: string;
   district: string;
   ward: string;
+  postalCode?: string;
+  country?: string;
+  deliveryNotes?: string;
   isDefault?: boolean;
 }
 
@@ -122,6 +125,11 @@ export interface Customer {
   email: string;
   phone: string;
   avatar?: string;
+  gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
+  birthday?: string;
+  role?: 'admin' | 'employee' | 'customer';
+  membershipTier?: 'Standard' | 'Silver' | 'Gold' | 'VIP Platinum';
+  company?: string;
   status: 'active' | 'inactive';
   addresses: Address[];
   createdAt: string;
@@ -139,7 +147,7 @@ export type OrderStatus =
 
 export type PaymentStatus = 'Unpaid' | 'Paid' | 'Refunded';
 
-export type PaymentMethod = 'cod' | 'bank_transfer' | 'online_simulation';
+export type PaymentMethod = 'stripe' | 'cod' | 'bank_transfer' | 'online_simulation';
 
 export interface OrderItem {
   productId: string;

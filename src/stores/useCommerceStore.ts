@@ -156,12 +156,13 @@ interface CommerceState {
   updateSettings: (updates: Partial<StoreSettings>) => void;
 
   // Auth / Session
-  loginAsDemo: () => void;
+  loginAsDemo: (role?: 'customer' | 'employee' | 'admin' | 'owner') => void;
   loginWithEmail: (email: string) => boolean;
   register: (name: string, email: string, phone: string) => Customer;
   logout: () => void;
   updateProfile: (updates: Partial<Customer>) => void;
   addAddress: (address: Omit<Address, 'id'>) => void;
+  updateAddress: (addressId: string, updates: Partial<Address>) => void;
   deleteAddress: (addressId: string) => void;
   setDefaultAddress: (addressId: string) => void;
 
@@ -887,22 +888,216 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   // AUTH / SESSION
-  loginAsDemo: () => {
-    const demo = initialCustomers[0];
-    setStorageItem(STORAGE_KEYS.session, demo);
-    set({ currentUser: demo });
+  loginAsDemo: (role = 'customer') => {
+    const state = get();
+    if (role === 'employee') {
+      const emp = state.hellobeeMembers.find((m) => m.role === 'EMPLOYEE') || initialHellobeeMembers[2];
+      const empUser: Customer = {
+        id: emp.id,
+        name: emp.name.replace(/\s*\(.*\)/, ''),
+        email: emp.email,
+        phone: emp.phone || '+1 (555) 014-4411',
+        role: 'employee',
+        membershipTier: 'VIP Platinum',
+        gender: 'male',
+        birthday: '1992-04-18',
+        company: 'Enagic Hellobee Associate Network',
+        status: 'active',
+        addresses: [
+          {
+            id: `addr-${emp.id}`,
+            fullName: emp.name.replace(/\s*\(.*\)/, ''),
+            phone: emp.phone || '+1 (555) 014-4411',
+            street: '128 Nguyen Thi Minh Khai, Ward 6',
+            ward: 'Vo Thi Sau Ward',
+            district: 'District 3',
+            city: 'Ho Chi Minh City',
+            postalCode: '700000',
+            country: 'Vietnam',
+            deliveryNotes: 'Enagic Regional Consultant Office - 4th Floor',
+            isDefault: true,
+          },
+        ],
+        createdAt: emp.createdAt,
+        totalOrders: emp.validOrdersCount,
+        totalSpent: emp.personalSalesVolume,
+      };
+      setStorageItem(STORAGE_KEYS.session, empUser);
+      setStorageItem(STORAGE_KEYS.activeMemberId, emp.id);
+      set({ currentUser: empUser, activeMemberId: emp.id });
+      return;
+    }
+
+    if (role === 'owner' || role === 'admin') {
+      const owner = state.hellobeeMembers.find((m) => m.role === 'OWNER') || initialHellobeeMembers[0];
+      const ownerUser: Customer = {
+        id: owner.id,
+        name: owner.name.replace(/\s*\(.*\)/, ''),
+        email: owner.email,
+        phone: owner.phone || '+1 (555) 019-2831',
+        role: 'admin',
+        membershipTier: 'VIP Platinum',
+        gender: 'male',
+        birthday: '1985-09-12',
+        company: 'Enagic Corporation & Hellobee HQ',
+        status: 'active',
+        addresses: [
+          {
+            id: `addr-${owner.id}`,
+            fullName: owner.name.replace(/\s*\(.*\)/, ''),
+            phone: owner.phone || '+1 (555) 019-2831',
+            street: '88 Dong Khoi Boulevard, Suite 1200',
+            ward: 'Ben Nghe Ward',
+            district: 'District 1',
+            city: 'Ho Chi Minh City',
+            postalCode: '700000',
+            country: 'Vietnam',
+            deliveryNotes: 'Headquarters Reception Desk',
+            isDefault: true,
+          },
+        ],
+        createdAt: owner.createdAt,
+        totalOrders: owner.validOrdersCount,
+        totalSpent: owner.personalSalesVolume,
+      };
+      setStorageItem(STORAGE_KEYS.session, ownerUser);
+      setStorageItem(STORAGE_KEYS.activeMemberId, owner.id);
+      set({ currentUser: ownerUser, activeMemberId: owner.id });
+      return;
+    }
+
+    const demo = state.customers[0] || initialCustomers[0];
+    const customerUser: Customer = {
+      ...demo,
+      role: 'customer',
+      membershipTier: demo.membershipTier || 'Gold',
+      gender: demo.gender || 'female',
+      birthday: demo.birthday || '1995-11-20',
+      company: demo.company || 'Modern Living Architecture',
+    };
+    setStorageItem(STORAGE_KEYS.session, customerUser);
+    set({ currentUser: customerUser });
   },
 
   loginWithEmail: (email) => {
     const state = get();
     const clean = email.trim().toLowerCase();
-    const customer = state.customers.find((c) => c.email.toLowerCase() === clean);
-    if (customer) {
-      setStorageItem(STORAGE_KEYS.session, customer);
-      set({ currentUser: customer });
+
+    // Check if email matches admin/owner
+    if (clean.includes('admin') || clean.includes('owner') || clean === 'owner@hellobee.com') {
+      const owner = state.hellobeeMembers.find((m) => m.role === 'OWNER') || initialHellobeeMembers[0];
+      const adminUser: Customer = {
+        id: owner.id,
+        name: owner.name.replace(/\s*\(.*\)/, ''),
+        email: clean,
+        phone: owner.phone || '+1 (555) 019-2831',
+        role: 'admin',
+        membershipTier: 'VIP Platinum',
+        gender: 'male',
+        status: 'active',
+        addresses: [
+          {
+            id: `addr-admin`,
+            fullName: 'Admin User',
+            phone: '+1 (555) 019-2831',
+            street: '88 Dong Khoi Boulevard',
+            ward: 'Ben Nghe Ward',
+            district: 'District 1',
+            city: 'Ho Chi Minh City',
+            postalCode: '700000',
+            country: 'Vietnam',
+            isDefault: true,
+          },
+        ],
+        createdAt: new Date().toISOString(),
+        totalOrders: 642,
+        totalSpent: 45000,
+      };
+      setStorageItem(STORAGE_KEYS.session, adminUser);
+      set({ currentUser: adminUser });
       return true;
     }
-    return false;
+
+    // Check employee
+    const member = state.hellobeeMembers.find((m) => m.email.toLowerCase() === clean);
+    if (member || clean.includes('employee') || clean.includes('staff')) {
+      const targetMember = member || initialHellobeeMembers[2];
+      const isOwner = targetMember.role === 'OWNER';
+      const empUser: Customer = {
+        id: targetMember.id,
+        name: targetMember.name.replace(/\s*\(.*\)/, ''),
+        email: clean,
+        phone: targetMember.phone || '+1 (555) 014-4411',
+        role: isOwner ? 'admin' : 'employee',
+        membershipTier: 'VIP Platinum',
+        status: 'active',
+        addresses: [
+          {
+            id: `addr-${targetMember.id}`,
+            fullName: targetMember.name.replace(/\s*\(.*\)/, ''),
+            phone: targetMember.phone || '+1 (555) 014-4411',
+            street: '128 Nguyen Thi Minh Khai',
+            ward: 'Vo Thi Sau Ward',
+            district: 'District 3',
+            city: 'Ho Chi Minh City',
+            postalCode: '700000',
+            country: 'Vietnam',
+            isDefault: true,
+          },
+        ],
+        createdAt: targetMember.createdAt,
+        totalOrders: targetMember.validOrdersCount,
+        totalSpent: targetMember.personalSalesVolume,
+      };
+      setStorageItem(STORAGE_KEYS.session, empUser);
+      setStorageItem(STORAGE_KEYS.activeMemberId, targetMember.id);
+      set({ currentUser: empUser, activeMemberId: targetMember.id });
+      return true;
+    }
+
+    const customer = state.customers.find((c) => c.email.toLowerCase() === clean);
+    if (customer) {
+      const userObj: Customer = {
+        ...customer,
+        role: 'customer',
+      };
+      setStorageItem(STORAGE_KEYS.session, userObj);
+      set({ currentUser: userObj });
+      return true;
+    }
+
+    // Auto-create recognized demo customer if user types custom email
+    const autoCust: Customer = {
+      id: generateId('cust'),
+      name: clean.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+      email: clean,
+      phone: '+1 (555) 000-1122',
+      role: 'customer',
+      membershipTier: 'Standard',
+      status: 'active',
+      addresses: [
+        {
+          id: generateId('addr'),
+          fullName: clean.split('@')[0],
+          phone: '+1 (555) 000-1122',
+          street: '100 Main Street',
+          ward: 'Downtown',
+          district: 'Central',
+          city: 'California',
+          postalCode: '90001',
+          country: 'United States',
+          isDefault: true,
+        },
+      ],
+      createdAt: new Date().toISOString(),
+      totalOrders: 0,
+      totalSpent: 0,
+    };
+    const updatedCusts = [autoCust, ...state.customers];
+    setStorageItem(STORAGE_KEYS.customers, updatedCusts);
+    setStorageItem(STORAGE_KEYS.session, autoCust);
+    set({ customers: updatedCusts, currentUser: autoCust });
+    return true;
   },
 
   register: (name, email, phone) => {
@@ -952,6 +1147,20 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
         id: generateId('addr'),
       };
       const addresses = [...state.currentUser.addresses, newAddr];
+      const updatedUser = { ...state.currentUser, addresses };
+      const updatedCustomers = state.customers.map((c) => (c.id === updatedUser.id ? updatedUser : c));
+      setStorageItem(STORAGE_KEYS.session, updatedUser);
+      setStorageItem(STORAGE_KEYS.customers, updatedCustomers);
+      return { currentUser: updatedUser, customers: updatedCustomers };
+    });
+  },
+
+  updateAddress: (addressId, updates) => {
+    set((state) => {
+      if (!state.currentUser) return state;
+      const addresses = state.currentUser.addresses.map((a) =>
+        a.id === addressId ? { ...a, ...updates } : a
+      );
       const updatedUser = { ...state.currentUser, addresses };
       const updatedCustomers = state.customers.map((c) => (c.id === updatedUser.id ? updatedUser : c));
       setStorageItem(STORAGE_KEYS.session, updatedUser);

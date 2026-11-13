@@ -78,34 +78,48 @@ export function CartDrawer() {
             </button>
           </div>
 
-          {/* Installation Guarantee Banner */}
-          <div className="p-3.5 bg-blue-50/80 backdrop-blur-sm border-b border-blue-100 flex items-center gap-2 text-xs text-blue-950 font-medium">
-            <Truck className="w-4 h-4 text-blue-700 flex-shrink-0" />
-            <span>{t.cart.freeDeliveryUnlocked}</span>
+          {/* Installation Guarantee Banner with animated progress */}
+          <div className="p-3.5 bg-blue-50/90 backdrop-blur-sm border-b border-blue-100/80 text-xs text-blue-950">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="flex items-center gap-1.5 font-semibold text-blue-900">
+                <Truck className="w-3.5 h-3.5 text-blue-700 animate-pulse" />
+                <span>Complimentary Delivery & Certified In-Home Setup</span>
+              </span>
+              <span className="text-[10px] font-bold bg-blue-200/70 text-blue-900 px-2 py-0.5 rounded-full">
+                100% UNLOCKED
+              </span>
+            </div>
+            <div className="w-full bg-blue-200/50 h-1.5 rounded-full overflow-hidden">
+              <div className="bg-blue-600 h-full rounded-full transition-all duration-700 ease-out w-full" />
+            </div>
           </div>
 
           {/* Cart Items List */}
           <div className="flex-1 overflow-y-auto p-5 divide-y divide-gray-100">
             {cart.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4">
-                <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-blue-700">
+                <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-blue-700 transition-transform duration-300 hover:scale-110">
                   <ShoppingBag className="w-8 h-8 stroke-[1.2]" />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-[#111111]">{t.cart.emptyTitle}</h3>
-                  <p className="text-xs text-[#777777] mt-1 max-w-xs">{t.cart.emptyDesc}</p>
+                  <h3 className="text-base font-semibold text-[#111111]">Your Shopping Bag is Empty</h3>
+                  <p className="text-xs text-[#777777] mt-1 max-w-xs">Explore Enagic ionizers and certified filters to experience true hydration.</p>
                 </div>
                 <button
                   onClick={() => setIsCartDrawerOpen(false)}
-                  className="bg-[#111111] text-white px-6 py-2.5 rounded-xl text-xs font-semibold hover:bg-blue-900 transition-all shadow-md"
+                  className="bg-[#111111] text-white px-6 py-2.5 rounded-xs text-xs font-semibold uppercase tracking-wider hover:bg-blue-900 transition-all shadow-md active:scale-95"
                 >
-                  <Link href="/shop">{t.cart.startShopping}</Link>
+                  <Link href="/shop">Explore Collection</Link>
                 </button>
               </div>
             ) : (
-              cart.map((item) => (
-                <div key={item.id} className="py-4 flex gap-4">
-                  <div className="relative w-20 h-20 bg-white flex-shrink-0 rounded-lg overflow-hidden border border-[#EAEAEA] p-1 flex items-center justify-center">
+              cart.map((item, idx) => (
+                <div
+                  key={item.id}
+                  className="py-4 flex gap-4 animate-cart-item transition-all duration-200 hover:bg-black/[0.01] rounded-md px-1"
+                  style={{ animationDelay: `${idx * 45}ms` }}
+                >
+                  <div className="relative w-20 h-20 bg-white flex-shrink-0 rounded-lg overflow-hidden border border-[#EAEAEA] p-1 flex items-center justify-center group-hover:shadow-xs transition-shadow">
                     <Image src={item.image} alt={item.productName} fill className="object-contain p-1" sizes="80px" />
                   </div>
                   <div className="flex-1 flex flex-col justify-between">
@@ -119,9 +133,12 @@ export function CartDrawer() {
                           {item.productName}
                         </Link>
                         <button
-                          onClick={() => removeFromCart(item.id)}
-                          className="text-[#999999] hover:text-[#B74747] transition-colors"
-                          title={t.cart.remove}
+                          onClick={() => {
+                            removeFromCart(item.id);
+                            toast.info(`Removed ${item.productName} from bag`);
+                          }}
+                          className="text-[#999999] hover:text-[#B74747] transition-colors p-1"
+                          title="Remove item"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -133,17 +150,19 @@ export function CartDrawer() {
                     </div>
 
                     <div className="flex items-center gap-2 mt-2">
-                      <div className="flex items-center border border-[#E5E5E5] rounded-xs bg-white p-0.5">
+                      <div className="flex items-center border border-[#E5E5E5] rounded-xs bg-white p-0.5 shadow-2xs">
                         <button
                           onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
-                          className="p-1 text-[#555555] hover:text-[#111111]"
+                          className="p-1 text-[#555555] hover:text-[#111111] active:scale-75 transition-transform"
+                          aria-label="Decrease quantity"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="px-2.5 text-xs font-semibold text-[#111111]">{item.quantity}</span>
+                        <span className="px-2.5 text-xs font-bold text-[#111111] tabular-nums">{item.quantity}</span>
                         <button
                           onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
-                          className="p-1 text-[#555555] hover:text-[#111111]"
+                          className="p-1 text-[#555555] hover:text-[#111111] active:scale-75 transition-transform"
+                          aria-label="Increase quantity"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
@@ -159,15 +178,15 @@ export function CartDrawer() {
           {cart.length > 0 && (
             <div className="p-5 border-t border-[#E5E5E5] bg-white space-y-3">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-[#666666]">{t.cart.subtotal}</span>
+                <span className="text-[#666666]">Subtotal</span>
                 <span className="font-semibold text-sm text-[#111111]">{formatPrice(subtotal, currency)}</span>
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-[#666666]">{t.cart.shipping}</span>
-                <span className="font-semibold text-[#2D5A27]">{t.cart.shippingFree}</span>
+                <span className="text-[#666666]">Shipping & Technician Setup</span>
+                <span className="font-semibold text-[#2D5A27]">FREE (Included)</span>
               </div>
               <div className="pt-2 border-t border-[#E5E5E5] flex items-center justify-between text-sm">
-                <span className="font-semibold text-[#111111]">{t.cart.total}</span>
+                <span className="font-semibold text-[#111111]">Estimated Total</span>
                 <span className="font-bold text-base text-[#111111]">{formatPrice(subtotal, currency)}</span>
               </div>
 
@@ -175,23 +194,23 @@ export function CartDrawer() {
                 <Link
                   href="/checkout"
                   onClick={() => setIsCartDrawerOpen(false)}
-                  className="w-full bg-[#111111] hover:bg-[#262626] text-white py-3.5 rounded-xs text-xs uppercase tracking-wider font-semibold active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xs"
+                  className="w-full bg-[#111111] hover:bg-[#262626] text-white py-3.5 rounded-xs text-xs uppercase tracking-wider font-semibold active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xs group mirror-sheen"
                 >
-                  <span>{t.cart.checkout}</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span>Proceed to Checkout</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   href="/cart"
                   onClick={() => setIsCartDrawerOpen(false)}
                   className="w-full text-center block text-xs uppercase tracking-wider text-[#737373] hover:text-[#111111] hover:bg-[#F5F4F0] py-2.5 font-medium border border-[#E5E5E5] rounded-xs transition-colors"
                 >
-                  {t.cart.viewBag}
+                  View Full Bag
                 </Link>
               </div>
 
               <div className="flex items-center justify-center gap-1.5 text-[10px] text-[#737373] pt-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#111111]" />
-                <span>{t.cart.sslSecurity}</span>
+                <span>256-Bit SSL Encrypted Checkout</span>
               </div>
             </div>
           )}

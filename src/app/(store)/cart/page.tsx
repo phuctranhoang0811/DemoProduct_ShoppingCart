@@ -79,56 +79,83 @@ export default function CartPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
         {/* Cart items list (8 cols) */}
-        <div className="lg:col-span-8 divide-y divide-[#E5E5E5]">
-          {cart.map((item) => (
-            <div key={item.id} className="py-6 flex gap-4 sm:gap-6">
-              <div className="relative w-24 h-24 sm:w-28 sm:h-28 bg-white rounded-xs overflow-hidden flex-shrink-0 border border-[#E5E5E5] p-1.5 flex items-center justify-center">
-                <Image src={item.image} alt={item.productName} fill className="object-contain p-1" sizes="120px" />
-              </div>
-
-              <div className="flex-1 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-start justify-between gap-4">
-                    <Link
-                      href={`/product/${item.slug}`}
-                      className="text-sm sm:text-base font-semibold text-[#111111] hover:underline line-clamp-2"
-                    >
-                      {item.productName}
-                    </Link>
-                    <button
-                      onClick={() => removeFromCart(item.id)}
-                      className="text-[#999999] hover:text-[#B74747] transition-colors"
-                      title={t.cart.remove}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <p className="text-xs text-[#737373] mt-1">{item.size}</p>
-                  <span className="text-sm sm:text-base font-semibold text-[#111111] mt-2 block">
-                    {formatPrice(item.price, currency)}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3 pt-3">
-                  <div className="flex items-center border border-[#E5E5E5] rounded-xs bg-white p-1">
-                    <button
-                      onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
-                      className="p-1.5 text-[#555555] hover:text-[#111111]"
-                    >
-                      <Minus className="w-3.5 h-3.5" />
-                    </button>
-                    <span className="px-3 text-xs font-semibold text-[#111111]">{item.quantity}</span>
-                    <button
-                      onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
-                      className="p-1.5 text-[#555555] hover:text-[#111111]"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+        <div className="lg:col-span-8 space-y-4">
+          {/* Animated Free Setup & Delivery Meter */}
+          <div className="bg-blue-50/90 border border-blue-200/80 rounded-lg p-4 text-xs text-blue-950">
+            <div className="flex items-center justify-between mb-2">
+              <span className="flex items-center gap-2 font-semibold text-blue-900">
+                <Truck className="w-4 h-4 text-blue-700 animate-pulse" />
+                <span>Complimentary Delivery & Certified In-Home Installation Unlocked</span>
+              </span>
+              <span className="text-[10px] uppercase font-bold bg-blue-600 text-white px-2.5 py-0.5 rounded-full">
+                Eligible
+              </span>
             </div>
-          ))}
+            <div className="w-full bg-blue-200/60 h-2 rounded-full overflow-hidden">
+              <div className="bg-blue-600 h-full rounded-full transition-all duration-700 w-full" />
+            </div>
+          </div>
+
+          <div className="divide-y divide-[#E5E5E5] border border-[#E5E5E5] rounded-lg bg-white px-4">
+            {cart.map((item, idx) => (
+              <div
+                key={item.id}
+                className="py-6 flex gap-4 sm:gap-6 animate-cart-item transition-all"
+                style={{ animationDelay: `${idx * 40}ms` }}
+              >
+                <div className="relative w-24 h-24 sm:w-28 sm:h-28 bg-white rounded-md overflow-hidden flex-shrink-0 border border-[#E5E5E5] p-1.5 flex items-center justify-center">
+                  <Image src={item.image} alt={item.productName} fill className="object-contain p-1" sizes="120px" />
+                </div>
+
+                <div className="flex-1 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-start justify-between gap-4">
+                      <Link
+                        href={`/product/${item.slug}`}
+                        className="text-sm sm:text-base font-semibold text-[#111111] hover:underline line-clamp-2"
+                      >
+                        {item.productName}
+                      </Link>
+                      <button
+                        onClick={() => {
+                          removeFromCart(item.id);
+                          toast.info(`Removed ${item.productName} from bag`);
+                        }}
+                        className="text-[#999999] hover:text-[#B74747] transition-colors p-1"
+                        title="Remove item"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <p className="text-xs text-[#737373] mt-1">{item.size}</p>
+                    <span className="text-sm sm:text-base font-semibold text-[#111111] mt-2 block">
+                      {formatPrice(item.price, currency)}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-3">
+                    <div className="flex items-center border border-[#E5E5E5] rounded-xs bg-white p-1 shadow-2xs">
+                      <button
+                        onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
+                        className="p-1.5 text-[#555555] hover:text-[#111111] active:scale-75 transition-transform"
+                        aria-label="Decrease quantity"
+                      >
+                        <Minus className="w-3.5 h-3.5" />
+                      </button>
+                      <span className="px-3 text-xs font-bold text-[#111111] tabular-nums">{item.quantity}</span>
+                      <button
+                        onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
+                        className="p-1.5 text-[#555555] hover:text-[#111111] active:scale-75 transition-transform"
+                        aria-label="Increase quantity"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Order Summary (4 cols) */}

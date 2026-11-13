@@ -20,6 +20,7 @@ export function QuickAddModal({ product, isOpen, onClose }: QuickAddModalProps) 
   const [selectedColor, setSelectedColor] = useState<ProductColor>(product.colors[0]);
   const [selectedPackage, setSelectedPackage] = useState<string>(product.sizes[0]?.label || '');
   const addToCart = useCommerceStore((state) => state.addToCart);
+  const setIsCartDrawerOpen = useCommerceStore((state) => state.setIsCartDrawerOpen);
   const currency = useCommerceStore((state) => state.currency);
 
   if (!isOpen) return null;
@@ -45,12 +46,11 @@ export function QuickAddModal({ product, isOpen, onClose }: QuickAddModalProps) 
       stock: stockAvailable,
     });
 
-    toast.success(
-      language === 'vi'
-        ? `Đã thêm ${productName} vào giỏ hàng.`
-        : `Added ${productName} to your bag.`
-    );
+    toast.success(`Added ${productName} to your shopping bag.`);
     onClose();
+    setTimeout(() => {
+      setIsCartDrawerOpen(true);
+    }, 150);
   };
 
   return (

@@ -35,6 +35,13 @@ describe('Hellobee Multi-Tier Commission Engine', () => {
     expect(directCommission).toBe(450.0);
     expect(ownerOverride).toBe(45.0);
   });
+
+  it('credits 10% commission to employee and 1% override to owner when a new user buys a flagship K8 ionizer ($4,980)', () => {
+    const K8_PRICE = 4980;
+    const { directCommission, ownerOverride } = calculateCommissions(K8_PRICE, 'EMPLOYEE', true);
+    expect(directCommission).toBe(498.0);
+    expect(ownerOverride).toBe(49.8);
+  });
 });
 
 describe('Hellobee Rank Progression Ladder (1A - 5A)', () => {
