@@ -87,13 +87,18 @@ export function StoreHeader() {
             </button>
           </div>
 
-          {/* Minimalist Enagic Logo */}
+          {/* Brand Logo & Kangen Water */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <span className="text-xl sm:text-2xl font-light tracking-[0.22em] text-[#111111]">
-                ENAGIC
-              </span>
-              <span className="hidden sm:inline text-[9px] uppercase tracking-[0.26em] text-[#888888] font-semibold border-l border-gray-300 pl-2.5">
+              <Image
+                src="/images/logo.png"
+                alt="Logo"
+                width={120}
+                height={50}
+                priority
+                className="h-10 sm:h-12 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+              />
+              <span className="text-[10px] sm:text-xs uppercase tracking-[0.24em] text-[#333333] font-semibold border-l border-gray-300 pl-2.5">
                 KANGEN WATER®
               </span>
             </Link>
@@ -297,7 +302,18 @@ export function StoreHeader() {
           <div className="fixed inset-y-0 left-0 w-4/5 max-w-sm bg-white p-6 shadow-xl flex flex-col justify-between overflow-y-auto">
             <div>
               <div className="flex items-center justify-between pb-6 border-b border-[#E5E5E5]">
-                <span className="text-xl font-light tracking-[0.2em] text-[#111111]">ENAGIC</span>
+                <div className="flex items-center gap-2">
+                  <Image
+                    src="/images/logo.png"
+                    alt="Logo"
+                    width={90}
+                    height={40}
+                    className="h-9 w-auto object-contain"
+                  />
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-[#333333] font-semibold border-l border-gray-300 pl-2">
+                    KANGEN WATER®
+                  </span>
+                </div>
                 <button onClick={() => setIsMobileMenuOpen(false)} aria-label="Close menu">
                   <X className="w-5 h-5 text-[#111111]" />
                 </button>

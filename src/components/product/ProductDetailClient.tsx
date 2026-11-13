@@ -174,11 +174,11 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                   key={idx}
                   type="button"
                   onClick={() => setSelectedImage(img)}
-                  className={`relative w-20 h-20 md:w-22 md:h-22 flex-shrink-0 bg-white border rounded-md p-1 overflow-hidden transition-all ${
-                    activeImage === img ? 'border-[#111111] ring-1 ring-[#111111]' : 'border-[#EAEAEA] opacity-70 hover:opacity-100'
+                  className={`relative w-20 h-24 md:w-22 md:h-26 flex-shrink-0 border rounded-xs overflow-hidden transition-all ${
+                    activeImage === img ? 'border-[#111111] ring-1 ring-[#111111]' : 'border-transparent opacity-70 hover:opacity-100'
                   }`}
                 >
-                  <Image src={img} alt={`${productName} ${idx + 1}`} fill className="object-contain p-1" sizes="90px" />
+                  <Image src={img} alt={`${productName} ${idx + 1}`} fill className="object-cover" sizes="90px" />
                 </button>
               ))}
             </div>

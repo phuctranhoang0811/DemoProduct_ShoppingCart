@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { toast } from 'sonner';
 import { useTranslation } from '@/i18n/useTranslation';
 import { Sparkles, ArrowRight } from 'lucide-react';
@@ -26,11 +27,15 @@ export function StoreFooter() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-white/10">
           {/* Brand Identity & Tagline */}
           <div className="lg:col-span-2 space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-light tracking-[0.2em] text-white">
-                ENAGIC
-              </span>
-              <span className="text-[9px] uppercase tracking-[0.25em] text-[#888888] font-semibold border-l border-white/20 pl-2">
+            <div className="flex items-center gap-2.5">
+              <Image
+                src="/images/logo.png"
+                alt="Logo"
+                width={100}
+                height={45}
+                className="h-10 w-auto object-contain brightness-105"
+              />
+              <span className="text-[10px] uppercase tracking-[0.25em] text-[#CCCCCC] font-semibold border-l border-white/20 pl-2.5">
                 KANGEN WATER®
               </span>
             </div>

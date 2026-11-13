@@ -217,7 +217,7 @@ export default function HomePage() {
           playsInline
           preload="auto"
           className="absolute inset-0 w-full h-full object-cover opacity-75"
-          poster="https://images.unsplash.com/photo-1548839140-29a749e1bc4e?q=85&w=2200&auto=format&fit=crop"
+          poster="https://images.unsplash.com/photo-1546554137-f86b9593a222?q=85&w=2200&auto=format&fit=crop"
         >
           <source src="/videos/hero.mp4" type="video/mp4" />
         </video>
@@ -452,12 +452,12 @@ export default function HomePage() {
                 href={`/shop?category=${category.id}`}
                 className="group flex flex-col text-center"
               >
-                <div className="relative aspect-square w-full overflow-hidden bg-white rounded-xl border border-[#EAEAEA] p-3 flex items-center justify-center shadow-xs group-hover:shadow-md transition-all duration-300 mb-2.5">
+                <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F5F4F0] rounded-2xl border border-black/[0.04] shadow-xs group-hover:shadow-md transition-all duration-300 mb-2.5">
                   <Image
                     src={category.image}
                     alt={catName}
                     fill
-                    className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                     sizes="(max-width: 768px) 50vw, 20vw"
                   />
                 </div>
@@ -509,7 +509,7 @@ export default function HomePage() {
               playsInline
               preload="none"
               className="absolute inset-0 w-full h-full object-cover opacity-85"
-              poster="https://images.unsplash.com/photo-1548839140-29a749e1bc4e?q=80&w=1200"
+              poster="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=1200"
             >
               <source src="/videos/runway.mp4" type="video/mp4" />
             </video>

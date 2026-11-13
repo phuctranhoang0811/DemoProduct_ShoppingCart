@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?q=80&w=1200&auto=format&fit=crop',
+        url: 'https://images.unsplash.com/photo-1546554137-f86b9593a222?q=80&w=1200&auto=format&fit=crop',
         width: 1200,
         height: 630,
         alt: 'Enagic LeveLuk K8 & Kangen Water Flagship Devices',
@@ -73,8 +73,12 @@ export const metadata: Metadata = {
     description:
       'Exclusive Global Producer of Medical-Grade Kangen Water® Ionizers Since 1974.',
     images: [
-      'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1546554137-f86b9593a222?q=80&w=1200&auto=format&fit=crop',
     ],
+  },
+  icons: {
+    icon: '/images/logo.png',
+    apple: '/images/logo.png',
   },
   robots: {
     index: true,

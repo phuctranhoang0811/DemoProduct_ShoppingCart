@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
@@ -51,9 +52,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen bg-[#FBFBFA] flex flex-col md:flex-row text-[#111111]">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-[#111111] text-white flex-shrink-0 min-h-screen sticky top-0 h-screen">
-        <div className="p-6 border-b border-[#262626] flex items-center justify-between">
-          <Link href="/admin" className="flex items-center gap-2">
-            <span className="text-lg font-bold tracking-[0.2em] uppercase">COS</span>
+        <div className="p-5 border-b border-[#262626] flex items-center justify-between">
+          <Link href="/admin" className="flex items-center gap-2.5">
+            <Image
+              src="/images/logo.png"
+              alt="Logo"
+              width={80}
+              height={36}
+              className="h-8 w-auto object-contain"
+            />
             <span className="text-[10px] bg-[#333333] px-2 py-0.5 uppercase tracking-wider font-semibold text-[#B9A58B]">
               Admin
             </span>
@@ -147,7 +154,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="fixed inset-0 z-50 bg-black/60 flex md:hidden">
           <div className="bg-[#111111] text-white w-64 h-full flex flex-col p-6 animate-in slide-in-from-left duration-200">
             <div className="flex justify-between items-center pb-6 border-b border-[#262626]">
-              <span className="text-lg font-bold tracking-[0.2em] uppercase">COS ADMIN</span>
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/images/logo.png"
+                  alt="Logo"
+                  width={75}
+                  height={32}
+                  className="h-7 w-auto object-contain"
+                />
+                <span className="text-[10px] bg-[#333333] px-2 py-0.5 uppercase tracking-wider font-semibold text-[#B9A58B]">
+                  Admin
+                </span>
+              </div>
               <button onClick={() => setIsMobileOpen(false)}>
                 <X className="w-5 h-5 text-[#999999]" />
               </button>
