@@ -73,6 +73,7 @@ export function StoreFooter() {
               <li><Link href="/shop?category=cat-bottles" className="hover:text-white transition-colors">UV-Protection Bottles</Link></li>
               <li><Link href="/cart" className="hover:text-white transition-colors">{t.cart.title}</Link></li>
               <li><Link href="/wishlist" className="hover:text-white transition-colors">{t.nav.savedItems}</Link></li>
+              <li><Link href="/calculator" className="hover:text-white transition-colors">Tax Calculator (US & VN)</Link></li>
               <li><Link href="/admin" className="text-white hover:underline flex items-center gap-1">
                 <span>{t.nav.adminPortal}</span>
                 <Sparkles className="w-3 h-3 text-[#D2FF52]" />

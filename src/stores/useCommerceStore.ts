@@ -162,8 +162,8 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   inventoryMovements: initialInventoryMovements,
   settings: initialSettings,
   currentUser: null,
-  currency: 'VND',
-  language: 'vi',
+  currency: 'USD',
+  language: 'en',
   isCartDrawerOpen: false,
 
   setCurrency: (currency) => {
@@ -190,8 +190,8 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     const inventory = getStorageItem<InventoryMovement[]>(STORAGE_KEYS.inventory, initialInventoryMovements);
     const settings = getStorageItem<StoreSettings>(STORAGE_KEYS.settings, initialSettings);
     const sessionUser = getStorageItem<Customer | null>(STORAGE_KEYS.session, initialCustomers[0]);
-    const currency = getStorageItem<'USD' | 'VND'>(STORAGE_KEYS.currency, 'VND');
-    const language = getStorageItem<'vi' | 'en'>(STORAGE_KEYS.language, 'vi');
+    const currency = getStorageItem<'USD' | 'VND'>(STORAGE_KEYS.currency, 'USD');
+    const language = getStorageItem<'vi' | 'en'>(STORAGE_KEYS.language, 'en');
 
     set({
       isHydrated: true,
@@ -206,8 +206,8 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       inventoryMovements: inventory,
       settings,
       currentUser: sessionUser,
-      currency,
-      language,
+      currency: 'USD',
+      language: 'en',
     });
   },
 
@@ -228,8 +228,8 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       inventoryMovements: initialInventoryMovements,
       settings: initialSettings,
       currentUser: defaultUser,
-      currency: 'VND',
-      language: 'vi',
+      currency: 'USD',
+      language: 'en',
     });
     setStorageItem(STORAGE_KEYS.products, initialProducts);
     setStorageItem(STORAGE_KEYS.categories, initialCategories);

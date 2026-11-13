@@ -1,0 +1,209 @@
+// Prisma schema for Multi-Country Salary & Tax Calculator Engine
+// Compliant with Section 7 of Tax Calculation Implementation Specification
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RuleStatus {
+  DRAFT
+  VALIDATED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CalculationStatus {
+  COMPLETED
+  ESTIMATE
+  UNSUPPORTED_CALCULATION
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String?
+  role         String        @default("USER") // "USER" | "ADMIN"
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  calculations Calculation[]
+  auditLogs    AuditLog[]
+
+  @@map("users")
+}
+
+model Country {
+  id            String            @id
+  code          String            @unique // "US", "VN"
+  name          String
+  currency      String            // "USD", "VND"
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  jurisdictions TaxJurisdiction[]
+  ruleSets      TaxRuleSet[]
+  calculations  Calculation[]
+
+  @@map("countries")
+}
+
+model TaxJurisdiction {
+  id        String       @id @default(cuid())
+  countryId String
+  code      String       // "FEDERAL", "CA", "NY", "NATIONAL"
+  name      String
+  country   Country      @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  ruleSets  TaxRuleSet[]
+
+  @@unique([countryId, code])
+  @@map("tax_jurisdictions")
+}
+
+model TaxSource {
+  id               String       @id @default(cuid())
+  name             String       // "IRS", "General Department of Taxation"
+  url              String
+  verificationDate DateTime
+  notes            String?
+  ruleSets         TaxRuleSet[]
+  createdAt        DateTime     @default(now())
+
+  @@map("tax_sources")
+}
+
+model TaxRuleSet {
+  id              String            @id @default(cuid())
+  countryId       String
+  jurisdictionId  String
+  taxYear         Int
+  incomeType      String            // "1099", "W2", "SALARY"
+  filingStatus    String?           // "SINGLE", "MARRIED_FILING_JOINTLY", etc.
+  version         String            // "2026.1.0-official"
+  effectiveFrom   DateTime
+  effectiveTo     DateTime
+  status          RuleStatus        @default(DRAFT)
+  sourceId        String?
+  sourceReference String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  country         Country           @relation(fields: [countryId], references: [id])
+  jurisdiction    TaxJurisdiction   @relation(fields: [jurisdictionId], references: [id])
+  source          TaxSource?        @relation(fields: [sourceId], references: [id])
+
+  brackets        TaxBracket[]
+  deductions      TaxDeduction[]
+  contributions   TaxContribution[]
+  calculations    Calculation[]
+
+  @@index([countryId, taxYear, incomeType, status])
+  @@map("tax_rule_sets")
+}
+
+model TaxBracket {
+  id         String     @id @default(cuid())
+  ruleSetId  String
+  minIncome  Decimal    @db.Decimal(18, 2)
+  maxIncome  Decimal?   @db.Decimal(18, 2)
+  rate       Decimal    @db.Decimal(6, 4) // e.g. 0.1000
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  ruleSet    TaxRuleSet @relation(fields: [ruleSetId], references: [id], onDelete: Cascade)
+
+  @@index([ruleSetId])
+  @@map("tax_brackets")
+}
+
+model TaxDeduction {
+  id          String     @id @default(cuid())
+  ruleSetId   String
+  code        String     // "STANDARD_DEDUCTION", "PERSONAL_EXEMPTION", "DEPENDENT_EXEMPTION"
+  name        String
+  amount      Decimal    @db.Decimal(18, 2)
+  isItemized  Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  ruleSet     TaxRuleSet @relation(fields: [ruleSetId], references: [id], onDelete: Cascade)
+
+  @@index([ruleSetId, code])
+  @@map("tax_deductions")
+}
+
+model TaxContribution {
+  id          String     @id @default(cuid())
+  ruleSetId   String
+  code        String     // "SOCIAL_SECURITY", "MEDICARE", "BHXH", "BHYT", "BHTN"
+  name        String
+  rate        Decimal    @db.Decimal(6, 4)
+  wageBaseCap Decimal?   @db.Decimal(18, 2)
+  employerRate Decimal?  @db.Decimal(6, 4)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  ruleSet     TaxRuleSet @relation(fields: [ruleSetId], references: [id], onDelete: Cascade)
+
+  @@index([ruleSetId, code])
+  @@map("tax_contributions")
+}
+
+model Calculation {
+  id             String            @id @default(cuid())
+  userId         String?
+  countryId      String
+  ruleSetId      String?
+  taxYear        Int
+  incomeType     String
+  currency       String
+  grossIncome    Decimal           @db.Decimal(18, 2)
+  totalTax       Decimal           @db.Decimal(18, 2)
+  netIncome      Decimal           @db.Decimal(18, 2)
+  ruleVersion    String
+  status         CalculationStatus @default(COMPLETED)
+  inputSnapshot  Json
+  resultSnapshot Json
+  createdAt      DateTime          @default(now())
+
+  user           User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  country        Country           @relation(fields: [countryId], references: [id])
+  ruleSet        TaxRuleSet?       @relation(fields: [ruleSetId], references: [id], onDelete: SetNull)
+  items          CalculationItem[]
+
+  @@index([userId, createdAt])
+  @@index([countryId, taxYear])
+  @@map("calculations")
+}
+
+model CalculationItem {
+  id            String      @id @default(cuid())
+  calculationId String
+  category      String      // "FEDERAL_TAX", "STATE_TAX", "FICA", "INSURANCE", "DEDUCTION"
+  name          String
+  amount        Decimal     @db.Decimal(18, 2)
+  rate          Decimal?    @db.Decimal(6, 4)
+  calculation   Calculation @relation(fields: [calculationId], references: [id], onDelete: Cascade)
+
+  @@index([calculationId])
+  @@map("calculation_items")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String   // "CREATE_RULE", "UPDATE_RULE", "PUBLISH_RULE", "DELETE_CALCULATION"
+  entityType String   // "TaxRuleSet", "Calculation"
+  entityId   String
+  details    Json?
+  timestamp  DateTime @default(now())
+
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
+

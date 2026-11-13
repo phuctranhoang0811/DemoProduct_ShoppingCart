@@ -103,7 +103,7 @@ export default function RootLayout({
   const faqSchema = buildFAQSchema();
 
   return (
-    <html lang="vi">
+    <html lang="en">
       <head>
         <script
           type="application/ld+json"

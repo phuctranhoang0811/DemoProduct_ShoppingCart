@@ -200,49 +200,24 @@ export function StoreHeader() {
               onMouseEnter={() => setActiveDropdown(null)}
               className="py-7 border-b-2 border-transparent hover:border-[#111111] transition-all"
             >
-              {language === 'vi' ? 'Bộ Sưu Tập' : 'Collection'}
+              Collection
+            </Link>
+
+            <Link
+              href="/calculator"
+              onMouseEnter={() => setActiveDropdown(null)}
+              className="py-7 border-b-2 border-transparent hover:border-[#111111] transition-all font-medium text-[#111111]"
+            >
+              Tax Calculator
             </Link>
           </nav>
 
           {/* Right Action Icons: Language, Currency, Search, Wishlist, Cart */}
           <div className="flex items-center space-x-3 sm:space-x-4 text-[#111111]">
-            {/* Multi-language Switcher: VI | EN */}
-            <div className="flex items-center p-0.5 bg-[#F5F4F0] rounded-full border border-[#E5E5E5]">
-              <button
-                type="button"
-                onClick={() => setLanguage('vi')}
-                className={`px-2 py-0.5 text-[10px] font-bold rounded-full transition-all ${
-                  language === 'vi'
-                    ? 'bg-[#111111] text-white'
-                    : 'text-[#666666] hover:text-[#111111]'
-                }`}
-                title="Tiếng Việt (vi_VN)"
-              >
-                VI
-              </button>
-              <button
-                type="button"
-                onClick={() => setLanguage('en')}
-                className={`px-2 py-0.5 text-[10px] font-bold rounded-full transition-all ${
-                  language === 'en'
-                    ? 'bg-[#111111] text-white'
-                    : 'text-[#666666] hover:text-[#111111]'
-                }`}
-                title="English (en_US)"
-              >
-                EN
-              </button>
+            {/* Currency Badge - Locked to USD per instructions */}
+            <div className="hidden sm:flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-semibold rounded-full border border-[#E5E5E5] bg-[#F5F4F0] text-[#111111]">
+              <span>$ USD</span>
             </div>
-
-            {/* Currency Switcher */}
-            <button
-              type="button"
-              onClick={() => setCurrency(currency === 'USD' ? 'VND' : 'USD')}
-              className="hidden sm:flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-[#E5E5E5] hover:border-[#111111] transition-colors"
-              title={`Switch currency to ${currency === 'USD' ? 'VND' : 'USD'}`}
-            >
-              <span>{currency === 'USD' ? '$ USD' : '₫ VND'}</span>
-            </button>
 
             {/* Search Trigger */}
             <button
@@ -332,6 +307,9 @@ export function StoreHeader() {
                 <Link href="/shop?category=cat-filters" onClick={() => setIsMobileMenuOpen(false)} className="block py-1 hover:text-[#666666]">
                   {t.nav.accessories}
                 </Link>
+                <Link href="/calculator" onClick={() => setIsMobileMenuOpen(false)} className="block py-1 font-semibold text-[#111111]">
+                  Tax Calculator
+                </Link>
                 <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block py-1 text-blue-800">
                   Admin Portal
                 </Link>
@@ -339,26 +317,8 @@ export function StoreHeader() {
             </div>
 
             <div className="pt-6 border-t border-[#E5E5E5] flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setLanguage('vi')}
-                  className={`px-2.5 py-1 rounded font-bold ${language === 'vi' ? 'bg-[#111111] text-white' : 'text-[#666666]'}`}
-                >
-                  VI
-                </button>
-                <button
-                  onClick={() => setLanguage('en')}
-                  className={`px-2.5 py-1 rounded font-bold ${language === 'en' ? 'bg-[#111111] text-white' : 'text-[#666666]'}`}
-                >
-                  EN
-                </button>
-              </div>
-              <button
-                onClick={() => setCurrency(currency === 'USD' ? 'VND' : 'USD')}
-                className="px-2.5 py-1 border rounded font-semibold"
-              >
-                {currency}
-              </button>
+              <span className="text-[#666666] font-medium">Currency: USD ($)</span>
+              <span className="px-2.5 py-1 rounded bg-[#111111] text-white font-bold">EN</span>
             </div>
           </div>
         </div>
