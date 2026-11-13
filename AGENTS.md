@@ -39,8 +39,10 @@
 - **Badge Animations**: Use `.animate-badge-pop` for count updates and `.animate-heart-pop` for wishlist toggles.
 - **Back to Top**: Floating quick scroll button (`BackToTop.tsx`) with smooth window scrolling.
 
-### Authentication & RBAC
-- **Login Card**: Clean 440px card with 3 minimalist quick demo pills (`Admin`, `Staff`, `User`) linking directly to role workspaces. No redundant text or clutter.
+### Authentication & User Registration
+- **Login Card**: Clean 440px card with 3 minimalist quick demo pills (`Admin`, `Staff`, `User`), "Forgot password?" recovery link (`/forgot-password`), and a prominent "Register New Account" CTA.
+- **Password Reset**: Dedicated `/forgot-password` route providing streamlined, secure password recovery flows.
+- **US Phone Policy**: All phone inputs across the platform (Registration, Checkout, Account Profile) strictly utilize US phone formatting `+1 (XXX) XXX-XXXX` or `(XXX) XXX-XXXX`. All mock data seeds exclusively feature valid US phone patterns. Do not use Vietnamese `+84` prefixes.
 
 ---
 

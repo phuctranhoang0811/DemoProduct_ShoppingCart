@@ -80,7 +80,7 @@ export default function EmployeePage() {
     {
       id: 'lead-03',
       name: 'Marcus Lindqvist',
-      phone: '+84 912 345 678',
+      phone: '+1 (555) 912-3456',
       email: 'marcus.l@nordicminimal.com',
       interestedIn: 'Leveluk SD501 Platinum',
       status: 'Water Test Demo Requested',

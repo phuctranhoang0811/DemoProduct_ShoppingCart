@@ -5,7 +5,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9021',
     customerName: 'Elena Rostova',
     customerEmail: 'customer@example.com',
-    customerPhone: '+84 901 234 567',
+    customerPhone: '+1 (555) 201-2345',
     shippingAddress: {
       street: '72 Le Loi Boulevard, Suite 402',
       ward: 'Ben Nghe Ward',
@@ -50,7 +50,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9022',
     customerName: 'Elena Rostova',
     customerEmail: 'customer@example.com',
-    customerPhone: '+84 901 234 567',
+    customerPhone: '+1 (555) 201-2345',
     shippingAddress: {
       street: '72 Le Loi Boulevard, Suite 402',
       ward: 'Ben Nghe Ward',
@@ -83,7 +83,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9023',
     customerName: 'Marcus Lindqvist',
     customerEmail: 'marcus.l@nordicminimal.com',
-    customerPhone: '+84 912 345 678',
+    customerPhone: '+1 (555) 312-3456',
     shippingAddress: {
       street: '88 Nguyen Hue St',
       ward: 'Ben Nghe Ward',
@@ -127,7 +127,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9024',
     customerName: 'Sophie Laurent',
     customerEmail: 'sophie.laurent@atelier.fr',
-    customerPhone: '+84 987 654 321',
+    customerPhone: '+1 (555) 487-6543',
     shippingAddress: {
       street: '24 Xuan Thuy',
       ward: 'Thao Dien Ward',
@@ -161,7 +161,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9025',
     customerName: 'Liam Chen',
     customerEmail: 'liam.chen@architects.io',
-    customerPhone: '+84 933 112 233',
+    customerPhone: '+1 (555) 533-1122',
     shippingAddress: {
       street: '102 Tran Hung Dao',
       ward: 'Pham Ngu Lao Ward',
@@ -205,7 +205,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9026',
     customerName: 'Astrid Bergman',
     customerEmail: 'astrid.b@design.se',
-    customerPhone: '+84 944 556 677',
+    customerPhone: '+1 (555) 644-5566',
     shippingAddress: {
       street: '5 Pasteur',
       ward: 'Ben Nghe Ward',
@@ -238,7 +238,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9027',
     customerName: 'Oliver Wright',
     customerEmail: 'oliver.wright@studio-w.co.uk',
-    customerPhone: '+84 966 778 899',
+    customerPhone: '+1 (555) 766-7788',
     shippingAddress: {
       street: '45 Dong Khoi',
       ward: 'Ben Nghe Ward',
@@ -272,7 +272,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9028',
     customerName: 'Hana Tanaka',
     customerEmail: 'hana.t@craft-kyoto.jp',
-    customerPhone: '+84 977 889 900',
+    customerPhone: '+1 (555) 877-8899',
     shippingAddress: {
       street: '12 Le Duan',
       ward: 'Ben Nghe Ward',
@@ -316,7 +316,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9029',
     customerName: 'Clara Sorensen',
     customerEmail: 'clara@cph-nord.dk',
-    customerPhone: '+84 919 223 344',
+    customerPhone: '+1 (555) 219-2233',
     shippingAddress: {
       street: '88 Hai Ba Trung',
       ward: 'Ben Nghe Ward',
@@ -349,7 +349,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9030',
     customerName: 'Minh Nguyen',
     customerEmail: 'minh.nguyen@saigon-creatives.vn',
-    customerPhone: '+84 903 888 999',
+    customerPhone: '+1 (555) 303-8889',
     shippingAddress: {
       street: '33 Vo Van Tan',
       ward: 'Vo Thi Sau Ward',
@@ -392,7 +392,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9031',
     customerName: 'Maya Patel',
     customerEmail: 'maya.patel@textilearts.in',
-    customerPhone: '+84 905 444 333',
+    customerPhone: '+1 (555) 405-4443',
     shippingAddress: {
       street: '18 Nam Ky Khoi Nghia',
       ward: 'Nguyen Thai Binh Ward',
@@ -425,7 +425,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9032',
     customerName: 'Felix Meyer',
     customerEmail: 'felix.meyer@berlin-design.de',
-    customerPhone: '+84 909 777 666',
+    customerPhone: '+1 (555) 509-7776',
     shippingAddress: {
       street: '200 Nguyen Thi Minh Khai',
       ward: 'Ward 6',
@@ -468,7 +468,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9033',
     customerName: 'Elena Rostova',
     customerEmail: 'customer@example.com',
-    customerPhone: '+84 901 234 567',
+    customerPhone: '+1 (555) 201-2345',
     shippingAddress: {
       street: '72 Le Loi Boulevard, Suite 402',
       ward: 'Ben Nghe Ward',
@@ -501,7 +501,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9034',
     customerName: 'Marcus Lindqvist',
     customerEmail: 'marcus.l@nordicminimal.com',
-    customerPhone: '+84 912 345 678',
+    customerPhone: '+1 (555) 312-3456',
     shippingAddress: {
       street: '88 Nguyen Hue St',
       ward: 'Ben Nghe Ward',
@@ -534,7 +534,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9035',
     customerName: 'Elena Rostova',
     customerEmail: 'customer@example.com',
-    customerPhone: '+84 901 234 567',
+    customerPhone: '+1 (555) 201-2345',
     shippingAddress: {
       street: '72 Le Loi Boulevard, Suite 402',
       ward: 'Ben Nghe Ward',
@@ -568,7 +568,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9036',
     customerName: 'Liam Chen',
     customerEmail: 'liam.chen@architects.io',
-    customerPhone: '+84 933 112 233',
+    customerPhone: '+1 (555) 533-1122',
     shippingAddress: {
       street: '102 Tran Hung Dao',
       ward: 'Pham Ngu Lao Ward',
@@ -601,7 +601,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9037',
     customerName: 'Minh Nguyen',
     customerEmail: 'minh.nguyen@saigon-creatives.vn',
-    customerPhone: '+84 903 888 999',
+    customerPhone: '+1 (555) 303-8889',
     shippingAddress: {
       street: '33 Vo Van Tan',
       ward: 'Vo Thi Sau Ward',
@@ -634,7 +634,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9038',
     customerName: 'Sophie Laurent',
     customerEmail: 'sophie.laurent@atelier.fr',
-    customerPhone: '+84 987 654 321',
+    customerPhone: '+1 (555) 487-6543',
     shippingAddress: {
       street: '24 Xuan Thuy',
       ward: 'Thao Dien Ward',
@@ -667,7 +667,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9039',
     customerName: 'Oliver Wright',
     customerEmail: 'oliver.wright@studio-w.co.uk',
-    customerPhone: '+84 966 778 899',
+    customerPhone: '+1 (555) 766-7788',
     shippingAddress: {
       street: '45 Dong Khoi',
       ward: 'Ben Nghe Ward',
@@ -700,7 +700,7 @@ export const initialOrders: Order[] = [
     id: 'ORD-9040',
     customerName: 'Hana Tanaka',
     customerEmail: 'hana.t@craft-kyoto.jp',
-    customerPhone: '+84 977 889 900',
+    customerPhone: '+1 (555) 877-8899',
     shippingAddress: {
       street: '12 Le Duan',
       ward: 'Ben Nghe Ward',

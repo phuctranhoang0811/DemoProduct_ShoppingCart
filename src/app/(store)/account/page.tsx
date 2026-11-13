@@ -448,7 +448,7 @@ export default function AccountPage() {
                       value={profileForm.phone}
                       onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
                       className="w-full border border-[#D5D5D5] px-3.5 py-2.5 rounded-xs outline-none focus:border-[#111111] transition-colors bg-white text-xs"
-                      placeholder="e.g. +84 901 234 567"
+                      placeholder="e.g. +1 (555) 349-8201"
                     />
                   </div>
 
@@ -818,7 +818,7 @@ export default function AccountPage() {
                     value={addressForm.phone}
                     onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })}
                     className="w-full border border-[#D5D5D5] px-3 py-2 rounded-xs outline-none focus:border-[#111111]"
-                    placeholder="+84 901 234 567"
+                    placeholder="+1 (555) 349-8201"
                   />
                 </div>
 

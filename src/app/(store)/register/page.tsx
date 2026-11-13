@@ -7,6 +7,20 @@ import { ShieldCheck, Tag, Sparkles, CheckCircle, ArrowRight, UserCheck } from '
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { toast } from 'sonner';
 
+function formatUSPhoneNumber(value: string): string {
+  const digits = value.replace(/\D/g, '');
+  const clean = digits.startsWith('1') && digits.length > 10 ? digits.slice(1) : digits;
+  const limited = clean.slice(0, 10);
+  
+  if (limited.length <= 3) {
+    return limited ? `(${limited}` : '';
+  }
+  if (limited.length <= 6) {
+    return `(${limited.slice(0, 3)}) ${limited.slice(3)}`;
+  }
+  return `(${limited.slice(0, 3)}) ${limited.slice(3, 6)}-${limited.slice(6, 10)}`;
+}
+
 export default function RegisterPage() {
   const router = useRouter();
   const register = useCommerceStore((state) => state.register);
@@ -27,7 +41,7 @@ export default function RegisterPage() {
   const handleQuickFill = (code = 'HB-EMP-101') => {
     setName('Alexander Wright');
     setEmail(`alex.wright.${Math.floor(Math.random() * 900 + 100)}@example.com`);
-    setPhone('+1 (555) 349-8201');
+    setPhone('(555) 349-8201');
     setPassword('Password123');
     setReferralCode(code);
     toast.success('Sample customer credentials filled!');
@@ -35,12 +49,20 @@ export default function RegisterPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !email.trim() || !phone.trim()) {
+    if (!name.trim() || !email.trim() || !phone.trim() || !password.trim()) {
       toast.error('Please fill in all required fields (*).');
       return;
     }
 
-    register(name.trim(), email.trim(), phone.trim());
+    const digits = phone.replace(/\D/g, '');
+    const cleanDigits = digits.startsWith('1') && digits.length === 11 ? digits.slice(1) : digits;
+    if (cleanDigits.length !== 10) {
+      toast.error('Please enter a valid 10-digit US phone number, e.g. (555) 349-8201.');
+      return;
+    }
+
+    const fullUSPhone = `+1 ${phone}`;
+    register(name.trim(), email.trim(), fullUSPhone);
     if (recognizedSponsor) {
       toast.success(
         `Welcome ${name}! Linked with specialist ${recognizedSponsor.name} (${recognizedSponsor.referralCode}).`
@@ -115,17 +137,27 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="text-[11px] text-[#777777] uppercase tracking-wider block mb-1">
-            Phone Number *
-          </label>
-          <input
-            type="tel"
-            required
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="+1 (555) 349-8201"
-            className="w-full border border-[#E5E5E5] px-3.5 py-2.5 text-xs outline-none focus:border-[#111111] transition-colors rounded-xs"
-          />
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-[11px] text-[#777777] uppercase tracking-wider block">
+              US Phone Number *
+            </label>
+            <span className="text-[10px] text-[#888888]">10 digits • US format</span>
+          </div>
+          <div className="relative flex rounded-xs border border-[#E5E5E5] focus-within:border-[#111111] transition-colors overflow-hidden">
+            <div className="bg-[#FAF9F5] border-r border-[#E5E5E5] px-3 flex items-center gap-1.5 text-xs font-semibold text-[#111111] select-none shrink-0">
+              <span className="text-xs">🇺🇸</span>
+              <span>+1</span>
+            </div>
+            <input
+              type="tel"
+              required
+              value={phone}
+              onChange={(e) => setPhone(formatUSPhoneNumber(e.target.value))}
+              placeholder="(555) 349-8201"
+              maxLength={14}
+              className="w-full px-3.5 py-2.5 text-xs outline-none bg-white font-mono"
+            />
+          </div>
         </div>
 
         <div>

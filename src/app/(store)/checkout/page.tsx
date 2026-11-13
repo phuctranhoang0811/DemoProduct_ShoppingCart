@@ -332,14 +332,14 @@ function CheckoutContent() {
               </div>
               <div>
                 <label className="text-xs text-[#737373] block mb-1 font-medium">
-                  Contact Phone Number *
+                  Contact Phone Number (US) *
                 </label>
                 <input
                   type="tel"
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="e.g. +84 901 234 567"
+                  placeholder="e.g. +1 (555) 349-8201"
                   className="w-full text-xs p-3 rounded-xs border border-[#E5E5E5] bg-white outline-none focus:border-[#111111] transition-colors"
                 />
               </div>
