@@ -294,9 +294,6 @@ export function StoreHeader() {
               }`}
             >
               <span>Hellobee Network</span>
-              <span className="whitespace-nowrap shrink-0 inline-flex items-center leading-none px-1.5 py-0.5 bg-[#111111] text-white text-[9px] uppercase tracking-wider font-bold rounded-xs">
-                1A–5A
-              </span>
             </Link>
           </nav>
 
@@ -611,9 +608,6 @@ export function StoreHeader() {
                   className="flex items-center justify-between py-1 font-semibold text-[#111111] hover:text-[#666666] transition-colors"
                 >
                   <span>Hellobee Network</span>
-                  <span className="px-1.5 py-0.5 bg-[#111111] text-white text-[9px] uppercase tracking-wider font-bold rounded-xs">
-                    1A–5A
-                  </span>
                 </Link>
               </div>
 

@@ -91,12 +91,24 @@ export default function EmployeePage() {
   ]);
 
   // Current employee member record
-  const currentMember = hellobeeMembers.find((m) => m.role === 'EMPLOYEE') || hellobeeMembers[2];
+  const currentMember = hellobeeMembers.find((m) =>
+    currentUser?.role === 'employee'
+      ? m.referralCode === currentUser.referralCode || m.role === 'EMPLOYEE'
+      : m.role === 'EMPLOYEE'
+  ) || hellobeeMembers[2];
   const employeeCode = currentMember?.referralCode || 'HB-EMP-101';
   const assignedClients = customers.filter(
     (c) => c.referralCode?.toUpperCase() === employeeCode.toUpperCase()
   );
   const referralLink = `https://enagic-store.com/checkout?ref=${employeeCode}`;
+
+  // Employee sees only their own referral orders; admin sees all
+  const myOrders =
+    currentUser?.role === 'admin'
+      ? orders
+      : orders.filter(
+          (o) => o.referralCode?.toUpperCase() === employeeCode.toUpperCase()
+        );
 
   const isAuthorized = currentUser && (currentUser.role === 'employee' || currentUser.role === 'admin');
 
@@ -155,8 +167,8 @@ export default function EmployeePage() {
     );
   }
 
-  // Filtered orders
-  const filteredOrders = orders.filter((o) => {
+  // Filtered orders (scoped to employee's own referrals, or all for admin)
+  const filteredOrders = myOrders.filter((o) => {
     const matchesFilter = orderFilter === 'ALL' || o.status === orderFilter;
     const matchesSearch =
       o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -347,11 +359,11 @@ export default function EmployeePage() {
 
             <div className="bg-white p-4 rounded-lg border border-[#EBEBEB]">
               <span className="text-[11px] uppercase tracking-wider text-[#777777] font-medium block">
-                Active Orders in Store
+                {currentUser.role === 'admin' ? 'All Store Orders' : 'My Referral Orders'}
               </span>
-              <p className="text-xl font-bold text-[#111111] mt-1">{orders.length} Total</p>
+              <p className="text-xl font-bold text-[#111111] mt-1">{myOrders.length} Total</p>
               <p className="text-[10px] text-[#477A5A] font-semibold mt-0.5">
-                {orders.filter((o) => o.status === 'Pending').length} Pending Technician Dispatch
+                {myOrders.filter((o) => o.status === 'Pending').length} Pending Technician Dispatch
               </p>
             </div>
           </div>
@@ -367,7 +379,7 @@ export default function EmployeePage() {
                 : 'border-transparent text-[#777777] hover:text-[#111111]'
             }`}
           >
-            <ShoppingBag className="w-4 h-4" /> Order Fulfillment & Status ({orders.length})
+            <ShoppingBag className="w-4 h-4" /> Order Fulfillment & Status ({myOrders.length})
           </button>
           <button
             onClick={() => setActiveTab('leads')}
@@ -404,6 +416,45 @@ export default function EmployeePage() {
         {/* TAB 1: ORDER FULFILLMENT & STATUS */}
         {activeTab === 'orders' && (
           <div className="space-y-4">
+            {/* Admin leaderboard */}
+            {currentUser.role === 'admin' && (
+              <div className="bg-white border border-[#E5E5E5] rounded-lg p-5">
+                <h2 className="text-xs uppercase tracking-wider font-bold text-[#111111] mb-4 flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-[#2D5A27]" />
+                  Employee Revenue Leaderboard
+                </h2>
+                <div className="space-y-2">
+                  {hellobeeMembers.map((m, i) => {
+                    const memberOrders = orders.filter(
+                      (o) => o.referralCode?.toUpperCase() === m.referralCode?.toUpperCase()
+                    );
+                    return (
+                      <div
+                        key={m.id}
+                        className="flex items-center justify-between p-3 bg-[#FAF9F5] rounded-lg border border-[#EAE8E1]"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-[11px] font-bold text-[#777777] w-5">#{i + 1}</span>
+                          <div>
+                            <p className="text-xs font-semibold text-[#111111]">{m.name}</p>
+                            <p className="text-[10px] font-mono text-[#777777]">{m.referralCode}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs font-bold text-[#2D5A27]">
+                            {memberOrders.length} order{memberOrders.length !== 1 ? 's' : ''}
+                          </p>
+                          <p className="text-[10px] text-[#777777]">
+                            {formatPrice(m.totalCommissionEarned, currency)} commission
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Filter toolbar */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-lg border border-[#E5E5E5]">
               <div className="flex flex-wrap items-center gap-1.5 text-xs">

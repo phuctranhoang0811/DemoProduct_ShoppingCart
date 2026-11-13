@@ -24,6 +24,7 @@ import {
   Check,
   X,
   CreditCard,
+  Wifi,
 } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { Address } from '@/types';
@@ -134,9 +135,9 @@ export default function AccountPage() {
       street: '',
       ward: '',
       district: '',
-      city: 'Ho Chi Minh City',
-      postalCode: '700000',
-      country: 'Vietnam',
+      city: 'New York',
+      postalCode: '10001',
+      country: 'United States',
       deliveryNotes: '',
       isDefault: currentUser.addresses.length === 0,
     });
@@ -215,6 +216,27 @@ export default function AccountPage() {
     .join('')
     .toUpperCase();
 
+  // Compute 1A–5A rank from how many orders used this customer's referral code
+  const referredOrderCount = currentUser.referralCode
+    ? orders.filter(
+        (o) =>
+          o.referralCode &&
+          o.referralCode.toUpperCase() === currentUser.referralCode!.toUpperCase() &&
+          !o.customerEmail.toLowerCase().includes(currentUser.email.toLowerCase())
+      ).length
+    : 0;
+
+  const getRank = (count: number): string | null => {
+    if (count >= 625) return '5A';
+    if (count >= 125) return '4A';
+    if (count >= 25) return '3A';
+    if (count >= 5) return '2A';
+    if (count >= 1) return '1A';
+    return null;
+  };
+
+  const customerRank = getRank(referredOrderCount);
+
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       {/* Account Hero Card */}
@@ -229,10 +251,17 @@ export default function AccountPage() {
                 <h1 className="text-xl sm:text-2xl font-semibold text-[#111111]">
                   {currentUser.name}
                 </h1>
-                <span className="text-[10px] uppercase tracking-wider font-bold bg-[#EBF3EA] text-[#2D5A27] px-2.5 py-0.5 rounded-full border border-[#2D5A27]/20 flex items-center gap-1">
-                  <Award className="w-3 h-3" />
-                  {currentUser.membershipTier || 'VIP Member'}
-                </span>
+                {customerRank ? (
+                  <span className="text-[10px] uppercase tracking-wider font-bold bg-[#EBF3EA] text-[#2D5A27] px-2.5 py-0.5 rounded-full border border-[#2D5A27]/20 flex items-center gap-1">
+                    <Award className="w-3 h-3" />
+                    Rank {customerRank}
+                  </span>
+                ) : (
+                  <span className="text-[10px] uppercase tracking-wider font-bold bg-[#EAE8E1] text-[#555555] px-2.5 py-0.5 rounded-full border border-[#CCCCCC]/40 flex items-center gap-1">
+                    <Award className="w-3 h-3" />
+                    Member
+                  </span>
+                )}
                 <span className="text-[10px] uppercase tracking-wider font-mono bg-[#EAE8E1] text-[#555555] px-2 py-0.5 rounded-xs">
                   Role: {currentUser.role?.toUpperCase() || 'CUSTOMER'}
                 </span>
@@ -282,8 +311,12 @@ export default function AccountPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 pt-6 border-t border-[#EAE8E1] text-xs">
           <div className="bg-white p-3 rounded-lg border border-[#EBEBEB]">
             <span className="text-[11px] text-[#777777] block">Account Status</span>
-            <span className="font-semibold text-[#2D5A27] uppercase tracking-wider flex items-center gap-1 mt-0.5">
-              <CheckCircle className="w-3 h-3" /> Active & Verified
+            <span className="font-semibold text-[#2D5A27] uppercase tracking-wider flex items-center gap-1.5 mt-0.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+              Online
             </span>
           </div>
           <div className="bg-white p-3 rounded-lg border border-[#EBEBEB]">
