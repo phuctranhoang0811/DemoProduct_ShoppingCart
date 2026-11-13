@@ -1,18 +1,19 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShieldCheck, Truck, CreditCard, Banknote, CheckCircle, ArrowRight, PhoneCall } from 'lucide-react';
+import { ShieldCheck, Truck, CreditCard, Banknote, CheckCircle, ArrowRight, PhoneCall, Tag } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { useTranslation } from '@/i18n/useTranslation';
 import { PaymentMethod } from '@/types';
 import { formatPrice } from '@/lib/utils';
 import { toast } from 'sonner';
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t, language } = useTranslation();
 
   const cart = useCommerceStore((state) => state.cart);
@@ -24,6 +25,14 @@ export default function CheckoutPage() {
   const [fullName, setFullName] = useState(currentUser?.name || '');
   const [email, setEmail] = useState(currentUser?.email || '');
   const [phone, setPhone] = useState(currentUser?.phone || '');
+  const [referralCode, setReferralCode] = useState(searchParams?.get('ref') || '');
+
+  useEffect(() => {
+    const refFromUrl = searchParams?.get('ref');
+    if (refFromUrl) {
+      setReferralCode(refFromUrl);
+    }
+  }, [searchParams]);
 
   const defaultAddr = currentUser?.addresses.find((a) => a.isDefault) || currentUser?.addresses[0];
   const [street, setStreet] = useState(defaultAddr?.street || '');
@@ -81,6 +90,7 @@ export default function CheckoutPage() {
         discountAmount: 0,
         shippingFee: 0,
         total: grandTotal,
+        referralCode: referralCode.trim() || undefined,
         notes,
       });
 
@@ -255,6 +265,24 @@ export default function CheckoutPage() {
             </div>
           </div>
 
+          {/* Hellobee Referral / Sponsor Code */}
+          <div className="glass-card p-6 rounded-3xl border border-amber-200/60 bg-amber-50/20 shadow-xs space-y-3">
+            <div className="flex items-center gap-2 text-sm font-bold text-[#111111] uppercase tracking-wider">
+              <Tag className="w-4 h-4 text-amber-600" />
+              <span>Hellobee Referral Code (Optional)</span>
+            </div>
+            <p className="text-xs text-gray-500">
+              Enter your sponsor’s referral code (e.g. HB-EMP-101 or HB-OWNER-01) to support your Hellobee consultant and qualify for network benefits.
+            </p>
+            <input
+              type="text"
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+              placeholder="e.g. HB-EMP-101"
+              className="w-full text-xs p-3 rounded-xl border border-amber-300 bg-white uppercase font-mono font-bold tracking-wider outline-hidden focus:border-amber-600"
+            />
+          </div>
+
           {/* Step 3: Payment Method */}
           <div className="glass-card p-6 rounded-3xl border border-blue-100 shadow-sm space-y-4">
             <h2 className="text-sm font-bold text-[#111111] uppercase tracking-wider">
@@ -351,5 +379,13 @@ export default function CheckoutPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen py-16 text-center text-xs text-[#737373]">Loading checkout...</div>}>
+      <CheckoutContent />
+    </Suspense>
   );
 }

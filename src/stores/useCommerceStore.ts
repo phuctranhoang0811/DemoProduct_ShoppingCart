@@ -15,6 +15,14 @@ import {
   PaymentStatus,
   Address,
 } from '@/types';
+import {
+  HellobeeMember,
+  CommissionTransaction,
+  PayoutRequest,
+  HellobeeRole,
+  RankLevel,
+  PayoutStatus,
+} from '@/types/hellobee';
 import { initialProducts } from '@/data/products';
 import { initialCategories } from '@/data/categories';
 import { initialCustomers } from '@/data/customers';
@@ -23,6 +31,11 @@ import { initialDiscounts } from '@/data/discounts';
 import { initialReviews } from '@/data/reviews';
 import { initialInventoryMovements } from '@/data/inventory';
 import { initialSettings } from '@/data/settings';
+import {
+  initialHellobeeMembers,
+  initialCommissionTransactions,
+  initialPayoutRequests,
+} from '@/data/hellobeeMembers';
 import { generateId } from '@/lib/utils';
 
 const STORAGE_KEYS = {
@@ -39,6 +52,10 @@ const STORAGE_KEYS = {
   session: 'enagic_kangen_session_v2',
   currency: 'enagic_kangen_currency_v2',
   language: 'enagic_kangen_language_v2',
+  hellobeeMembers: 'hellobee_members_v1',
+  commissions: 'hellobee_commissions_v1',
+  payouts: 'hellobee_payouts_v1',
+  activeMemberId: 'hellobee_active_member_v1',
 };
 
 function getStorageItem<T>(key: string, defaultValue: T): T {
@@ -147,6 +164,39 @@ interface CommerceState {
   addAddress: (address: Omit<Address, 'id'>) => void;
   deleteAddress: (addressId: string) => void;
   setDefaultAddress: (addressId: string) => void;
+
+  // Hellobee Network & Commission System
+  hellobeeMembers: HellobeeMember[];
+  commissions: CommissionTransaction[];
+  payouts: PayoutRequest[];
+  activeMemberId: string;
+  setActiveMemberId: (id: string) => void;
+  registerHellobeeMember: (data: {
+    name: string;
+    email: string;
+    phone?: string;
+    role: HellobeeRole;
+    sponsorCode?: string;
+  }) => HellobeeMember;
+  recordReferralOrder: (
+    orderId: string,
+    orderNumber: string,
+    orderAmount: number,
+    buyerName: string,
+    referralCode?: string
+  ) => {
+    success: boolean;
+    commissionsAwarded: CommissionTransaction[];
+    upgrades: { memberName: string; oldRank: string; newRank: string }[];
+  };
+  requestPayout: (
+    memberId: string,
+    amount: number,
+    bankName: string,
+    bankAccountNumber: string,
+    bankAccountName: string
+  ) => PayoutRequest;
+  updatePayoutStatus: (payoutId: string, status: PayoutStatus) => void;
 }
 
 export const useCommerceStore = create<CommerceState>((set, get) => ({
@@ -165,6 +215,16 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   currency: 'USD',
   language: 'en',
   isCartDrawerOpen: false,
+
+  // Hellobee initial state
+  hellobeeMembers: initialHellobeeMembers,
+  commissions: initialCommissionTransactions,
+  payouts: initialPayoutRequests,
+  activeMemberId: 'usr_owner_01', // Default to Managing Owner
+  setActiveMemberId: (activeMemberId) => {
+    set({ activeMemberId });
+    setStorageItem(STORAGE_KEYS.activeMemberId, activeMemberId);
+  },
 
   setCurrency: (currency) => {
     set({ currency });
@@ -192,6 +252,22 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     const sessionUser = getStorageItem<Customer | null>(STORAGE_KEYS.session, initialCustomers[0]);
     const currency = getStorageItem<'USD' | 'VND'>(STORAGE_KEYS.currency, 'USD');
     const language = getStorageItem<'vi' | 'en'>(STORAGE_KEYS.language, 'en');
+    const hellobeeMembers = getStorageItem<HellobeeMember[]>(
+      STORAGE_KEYS.hellobeeMembers,
+      initialHellobeeMembers
+    );
+    const commissions = getStorageItem<CommissionTransaction[]>(
+      STORAGE_KEYS.commissions,
+      initialCommissionTransactions
+    );
+    const payouts = getStorageItem<PayoutRequest[]>(
+      STORAGE_KEYS.payouts,
+      initialPayoutRequests
+    );
+    const activeMemberId = getStorageItem<string>(
+      STORAGE_KEYS.activeMemberId,
+      'usr_owner_01'
+    );
 
     set({
       isHydrated: true,
@@ -208,6 +284,10 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       currentUser: sessionUser,
       currency: 'USD',
       language: 'en',
+      hellobeeMembers,
+      commissions,
+      payouts,
+      activeMemberId,
     });
   },
 
@@ -230,6 +310,10 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       currentUser: defaultUser,
       currency: 'USD',
       language: 'en',
+      hellobeeMembers: initialHellobeeMembers,
+      commissions: initialCommissionTransactions,
+      payouts: initialPayoutRequests,
+      activeMemberId: 'usr_owner_01',
     });
     setStorageItem(STORAGE_KEYS.products, initialProducts);
     setStorageItem(STORAGE_KEYS.categories, initialCategories);
@@ -506,6 +590,17 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       customers: updatedCustomers,
       cart: [],
     });
+
+    // If referral code is used, process commissions and rank updates
+    if (newOrder.referralCode) {
+      get().recordReferralOrder(
+        newOrder.id,
+        newOrder.id,
+        newOrder.total,
+        newOrder.customerName,
+        newOrder.referralCode
+      );
+    }
 
     return newOrder;
   },
@@ -890,5 +985,274 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       setStorageItem(STORAGE_KEYS.customers, updatedCustomers);
       return { currentUser: updatedUser, customers: updatedCustomers };
     });
+  },
+
+  // HELLOBEE REFERRAL & COMMISSION ENGINE
+  registerHellobeeMember: (data) => {
+    const state = get();
+    const isOwner = data.role === 'OWNER';
+    const prefix = isOwner ? 'HB-OWNER' : 'HB-EMP';
+    const randomSuffix = Math.floor(100 + Math.random() * 900);
+    const generatedReferralCode = `${prefix}-${randomSuffix}`;
+
+    // Find sponsor if provided
+    let sponsor = null;
+    if (data.sponsorCode) {
+      sponsor = state.hellobeeMembers.find(
+        (m) => m.referralCode.toUpperCase() === data.sponsorCode?.trim().toUpperCase()
+      );
+    }
+
+    const newMember: HellobeeMember = {
+      id: generateId(isOwner ? 'owner' : 'emp'),
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      role: data.role,
+      referralCode: generatedReferralCode,
+      referredById: sponsor ? sponsor.id : null,
+      sponsorCode: sponsor ? sponsor.referralCode : null,
+      ownerId: isOwner ? null : sponsor?.role === 'OWNER' ? sponsor.id : sponsor?.ownerId || null,
+      rank: '1A',
+      validOrdersCount: 0,
+      personalSalesVolume: 0,
+      networkSalesVolume: 0,
+      directInviteCount: 0,
+      totalCommissionEarned: 0,
+      availableBalance: 0,
+      hasPurchasedFiltrationDevice: false,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Update sponsor directInviteCount if applicable
+    let updatedMembers = [newMember, ...state.hellobeeMembers];
+    if (sponsor) {
+      updatedMembers = updatedMembers.map((m) =>
+        m.id === sponsor.id ? { ...m, directInviteCount: m.directInviteCount + 1 } : m
+      );
+    }
+
+    setStorageItem(STORAGE_KEYS.hellobeeMembers, updatedMembers);
+    set({ hellobeeMembers: updatedMembers, activeMemberId: newMember.id });
+    return newMember;
+  },
+
+  recordReferralOrder: (orderId, orderNumber, orderAmount, buyerName, referralCode) => {
+    if (!referralCode) {
+      return { success: false, commissionsAwarded: [], upgrades: [] };
+    }
+
+    const state = get();
+    const cleanCode = referralCode.trim().toUpperCase();
+    const beneficiary = state.hellobeeMembers.find(
+      (m) => m.referralCode.toUpperCase() === cleanCode
+    );
+
+    if (!beneficiary) {
+      return { success: false, commissionsAwarded: [], upgrades: [] };
+    }
+
+    const commissionsAwarded: CommissionTransaction[] = [];
+    const upgrades: { memberName: string; oldRank: string; newRank: string }[] = [];
+
+    let updatedMembers = [...state.hellobeeMembers];
+
+    // Case 1: Referral Code belongs to an Employee
+    if (beneficiary.role === 'EMPLOYEE') {
+      // 1. Direct 10% commission on order amount ($150 on $1,500)
+      const empCommissionAmount = Math.round(orderAmount * 0.1);
+      const empCommission: CommissionTransaction = {
+        id: generateId('comm'),
+        orderId,
+        orderNumber,
+        orderAmount,
+        buyerName,
+        beneficiaryId: beneficiary.id,
+        beneficiaryName: beneficiary.name,
+        beneficiaryRole: 'EMPLOYEE',
+        commissionType: 'DIRECT_10_PERCENT',
+        rate: 0.1,
+        amount: empCommissionAmount,
+        status: 'APPROVED',
+        notes: `10% Direct commission on order ${orderNumber}`,
+        createdAt: new Date().toISOString(),
+      };
+      commissionsAwarded.push(empCommission);
+
+      // Increment employee order count & volume, evaluate Rank advancement (1A -> 5A)
+      const newOrdersCount = beneficiary.validOrdersCount + 1;
+      let newRank: RankLevel = beneficiary.rank;
+
+      if (newOrdersCount >= 625) {
+        newRank = '5A';
+      } else if (newOrdersCount >= 125) {
+        newRank = '4A';
+      } else if (newOrdersCount >= 25) {
+        newRank = '3A';
+      } else if (newOrdersCount >= 5) {
+        newRank = '2A';
+      }
+
+      if (newRank !== beneficiary.rank) {
+        upgrades.push({
+          memberName: beneficiary.name,
+          oldRank: beneficiary.rank,
+          newRank,
+        });
+      }
+
+      updatedMembers = updatedMembers.map((m) => {
+        if (m.id === beneficiary.id) {
+          return {
+            ...m,
+            validOrdersCount: newOrdersCount,
+            personalSalesVolume: m.personalSalesVolume + orderAmount,
+            networkSalesVolume: m.networkSalesVolume + orderAmount,
+            totalCommissionEarned: m.totalCommissionEarned + empCommissionAmount,
+            availableBalance: m.availableBalance + empCommissionAmount,
+            rank: newRank,
+          };
+        }
+        return m;
+      });
+
+      // 2. Owner 1% override on Employee's total order ($15 on $1,500)
+      const ownerId = beneficiary.ownerId;
+      if (ownerId) {
+        const owner = updatedMembers.find((m) => m.id === ownerId);
+        if (owner) {
+          const ownerOverrideAmount = Math.round(orderAmount * 0.01);
+          const ownerCommission: CommissionTransaction = {
+            id: generateId('comm'),
+            orderId,
+            orderNumber,
+            orderAmount,
+            buyerName,
+            beneficiaryId: owner.id,
+            beneficiaryName: owner.name,
+            beneficiaryRole: 'OWNER',
+            commissionType: 'OWNER_OVERRIDE_1_PERCENT',
+            rate: 0.01,
+            amount: ownerOverrideAmount,
+            status: 'APPROVED',
+            notes: `1% Owner override on Employee ${beneficiary.name} invoice`,
+            createdAt: new Date().toISOString(),
+          };
+          commissionsAwarded.push(ownerCommission);
+
+          updatedMembers = updatedMembers.map((m) => {
+            if (m.id === owner.id) {
+              return {
+                ...m,
+                networkSalesVolume: m.networkSalesVolume + orderAmount,
+                totalCommissionEarned: m.totalCommissionEarned + ownerOverrideAmount,
+                availableBalance: m.availableBalance + ownerOverrideAmount,
+              };
+            }
+            return m;
+          });
+        }
+      }
+    } else if (beneficiary.role === 'OWNER') {
+      // Case 2: Referral Code belongs directly to an Owner -> 10% direct commission
+      const ownerDirectAmount = Math.round(orderAmount * 0.1);
+      const ownerCommission: CommissionTransaction = {
+        id: generateId('comm'),
+        orderId,
+        orderNumber,
+        orderAmount,
+        buyerName,
+        beneficiaryId: beneficiary.id,
+        beneficiaryName: beneficiary.name,
+        beneficiaryRole: 'OWNER',
+        commissionType: 'DIRECT_10_PERCENT',
+        rate: 0.1,
+        amount: ownerDirectAmount,
+        status: 'APPROVED',
+        notes: `10% Direct Owner commission on order ${orderNumber}`,
+        createdAt: new Date().toISOString(),
+      };
+      commissionsAwarded.push(ownerCommission);
+
+      updatedMembers = updatedMembers.map((m) => {
+        if (m.id === beneficiary.id) {
+          return {
+            ...m,
+            validOrdersCount: m.validOrdersCount + 1,
+            personalSalesVolume: m.personalSalesVolume + orderAmount,
+            networkSalesVolume: m.networkSalesVolume + orderAmount,
+            totalCommissionEarned: m.totalCommissionEarned + ownerDirectAmount,
+            availableBalance: m.availableBalance + ownerDirectAmount,
+          };
+        }
+        return m;
+      });
+    }
+
+    const allCommissions = [...commissionsAwarded, ...state.commissions];
+    setStorageItem(STORAGE_KEYS.hellobeeMembers, updatedMembers);
+    setStorageItem(STORAGE_KEYS.commissions, allCommissions);
+
+    set({
+      hellobeeMembers: updatedMembers,
+      commissions: allCommissions,
+    });
+
+    return {
+      success: true,
+      commissionsAwarded,
+      upgrades,
+    };
+  },
+
+  requestPayout: (memberId, amount, bankName, bankAccountNumber, bankAccountName) => {
+    const state = get();
+    const member = state.hellobeeMembers.find((m) => m.id === memberId);
+    if (!member) throw new Error('Member not found');
+    if (member.availableBalance < amount) throw new Error('Insufficient balance');
+
+    const newPayout: PayoutRequest = {
+      id: generateId('payout'),
+      memberId,
+      memberName: member.name,
+      memberRole: member.role,
+      amount,
+      bankName,
+      bankAccountNumber,
+      bankAccountName,
+      status: 'PENDING',
+      requestedAt: new Date().toISOString(),
+    };
+
+    const updatedMembers = state.hellobeeMembers.map((m) =>
+      m.id === memberId ? { ...m, availableBalance: Math.max(0, m.availableBalance - amount) } : m
+    );
+
+    const updatedPayouts = [newPayout, ...state.payouts];
+    setStorageItem(STORAGE_KEYS.hellobeeMembers, updatedMembers);
+    setStorageItem(STORAGE_KEYS.payouts, updatedPayouts);
+
+    set({
+      hellobeeMembers: updatedMembers,
+      payouts: updatedPayouts,
+    });
+
+    return newPayout;
+  },
+
+  updatePayoutStatus: (payoutId, status) => {
+    const state = get();
+    const updatedPayouts = state.payouts.map((p) =>
+      p.id === payoutId
+        ? {
+            ...p,
+            status,
+            processedAt: new Date().toISOString(),
+          }
+        : p
+    );
+    setStorageItem(STORAGE_KEYS.payouts, updatedPayouts);
+    set({ payouts: updatedPayouts });
   },
 }));

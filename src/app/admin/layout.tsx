@@ -20,6 +20,7 @@ import {
   ExternalLink,
   Shield,
   RotateCcw,
+  Network,
 } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { toast } from 'sonner';
@@ -30,6 +31,7 @@ const NAV_LINKS = [
   { label: 'Categories', href: '/admin/categories', icon: FolderTree },
   { label: 'Orders', href: '/admin/orders', icon: ShoppingBag },
   { label: 'Customers', href: '/admin/customers', icon: Users },
+  { label: 'Hellobee Network', href: '/admin/hellobee', icon: Network },
   { label: 'Inventory', href: '/admin/inventory', icon: Boxes },
   { label: 'Discounts', href: '/admin/discounts', icon: TicketPercent },
   { label: 'Reviews', href: '/admin/reviews', icon: MessageSquare },

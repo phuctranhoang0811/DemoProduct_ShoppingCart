@@ -173,6 +173,7 @@ export interface Order {
   discountCode?: string;
   shippingFee: number;
   total: number;
+  referralCode?: string;
   notes?: string;
   createdAt: string;
   statusHistory?: { status: OrderStatus; timestamp: string; note?: string }[];
