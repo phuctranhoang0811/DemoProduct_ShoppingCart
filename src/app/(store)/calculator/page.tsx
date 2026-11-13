@@ -667,10 +667,10 @@ export default function CalculatorPage() {
                   type="button"
                   onClick={handleCalculate}
                   disabled={isLoading}
-                  className="w-full py-3 bg-[#111111] hover:bg-black text-white font-medium rounded-lg transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                  className="w-full py-3 bg-[#111111] hover:bg-[#262626] text-white font-semibold rounded-xs uppercase tracking-wider text-xs transition-all flex items-center justify-center gap-2 shadow-xs disabled:opacity-50"
                 >
                   {isLoading ? (
-                    <span>Calculating...</span>
+                    <span>Calculating Breakdown...</span>
                   ) : (
                     <>
                       <span>Compute Tax Breakdown</span>

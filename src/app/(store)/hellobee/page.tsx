@@ -205,7 +205,7 @@ function HellobeePortalContent() {
             </div>
 
             {/* Persona Switcher for Live Demo */}
-            <div className="bg-[#F5F4F0] p-3 rounded-xl border border-[#E5E5E5] text-xs space-y-2">
+            <div className="bg-[#F5F4F0] p-3 rounded-xs border border-[#E5E5E5] text-xs space-y-2">
               <span className="text-[#777777] font-semibold uppercase tracking-wider block text-[10px]">
                 Simulate Demo Account Persona:
               </span>
@@ -215,14 +215,14 @@ function HellobeePortalContent() {
                     key={m.id}
                     type="button"
                     onClick={() => setActiveMemberId(m.id)}
-                    className={`px-2.5 py-1.5 rounded-md font-medium text-xs transition-all ${
+                    className={`px-3 py-1.5 rounded-xs font-medium text-xs uppercase tracking-wider transition-all ${
                       m.id === currentMember?.id
                         ? 'bg-[#111111] text-white shadow-xs font-semibold'
-                        : 'bg-white text-[#555555] hover:text-[#111111] border border-[#E0E0E0]'
+                        : 'bg-white text-[#555555] hover:text-[#111111] hover:bg-[#FAF9F5] border border-[#E0E0E0]'
                     }`}
                   >
                     <span>{m.name.split(' ')[0]}</span>
-                    <span className="text-[10px] opacity-70 ml-1">({m.role === 'OWNER' ? 'Owner' : m.rank})</span>
+                    <span className="text-[10px] opacity-75 ml-1">({m.role === 'OWNER' ? 'Owner' : m.rank})</span>
                   </button>
                 ))}
               </div>
@@ -233,10 +233,10 @@ function HellobeePortalContent() {
           <div className="flex items-center gap-2 mt-8 pt-4 border-t border-[#F0F0F0] text-xs font-medium overflow-x-auto">
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`px-4 py-2 rounded-lg transition-all ${
+              className={`px-4 py-2 rounded-xs uppercase tracking-wider text-xs transition-all ${
                 activeTab === 'dashboard'
                   ? 'bg-[#111111] text-white font-semibold'
-                  : 'text-[#666666] hover:bg-[#F5F4F0]'
+                  : 'text-[#666666] hover:bg-[#F5F4F0] hover:text-[#111111]'
               }`}
             >
               Overview Dashboard
@@ -244,10 +244,10 @@ function HellobeePortalContent() {
             {isOwner && (
               <button
                 onClick={() => setActiveTab('team')}
-                className={`px-4 py-2 rounded-lg transition-all ${
+                className={`px-4 py-2 rounded-xs uppercase tracking-wider text-xs transition-all ${
                   activeTab === 'team'
                     ? 'bg-[#111111] text-white font-semibold'
-                    : 'text-[#666666] hover:bg-[#F5F4F0]'
+                    : 'text-[#666666] hover:bg-[#F5F4F0] hover:text-[#111111]'
                 }`}
               >
                 Team Employees ({teamEmployees.length})
@@ -255,30 +255,30 @@ function HellobeePortalContent() {
             )}
             <button
               onClick={() => setActiveTab('commissions')}
-              className={`px-4 py-2 rounded-lg transition-all ${
+              className={`px-4 py-2 rounded-xs uppercase tracking-wider text-xs transition-all ${
                 activeTab === 'commissions'
                   ? 'bg-[#111111] text-white font-semibold'
-                  : 'text-[#666666] hover:bg-[#F5F4F0]'
+                  : 'text-[#666666] hover:bg-[#F5F4F0] hover:text-[#111111]'
               }`}
             >
               Commissions Ledger ({memberCommissions.length})
             </button>
             <button
               onClick={() => setActiveTab('payouts')}
-              className={`px-4 py-2 rounded-lg transition-all ${
+              className={`px-4 py-2 rounded-xs uppercase tracking-wider text-xs transition-all ${
                 activeTab === 'payouts'
                   ? 'bg-[#111111] text-white font-semibold'
-                  : 'text-[#666666] hover:bg-[#F5F4F0]'
+                  : 'text-[#666666] hover:bg-[#F5F4F0] hover:text-[#111111]'
               }`}
             >
               Payouts & Withdrawals
             </button>
             <button
               onClick={() => setActiveTab('register')}
-              className={`px-4 py-2 rounded-lg transition-all flex items-center gap-1.5 ${
+              className={`px-4 py-2 rounded-xs uppercase tracking-wider text-xs transition-all flex items-center gap-1.5 ${
                 activeTab === 'register'
                   ? 'bg-[#111111] text-white font-semibold'
-                  : 'text-amber-800 bg-amber-50 hover:bg-amber-100 font-semibold'
+                  : 'border border-[#E5E5E5] text-[#111111] bg-white hover:bg-[#F5F4F0]'
               }`}
             >
               <UserPlus className="w-3.5 h-3.5" />
@@ -317,7 +317,7 @@ function HellobeePortalContent() {
 
               {/* Referral Code & Share CTA */}
               <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                <div className="px-3.5 py-2 rounded-xl bg-[#F5F4F0] border border-[#E0E0E0] font-mono text-xs font-bold text-[#111111] flex items-center gap-2">
+                <div className="px-3.5 py-2 rounded-xs bg-[#F5F4F0] border border-[#E0E0E0] font-mono text-xs font-bold text-[#111111] flex items-center gap-2">
                   <span className="text-[#777777] font-normal text-[10px]">MY CODE:</span>
                   <span className="tracking-wider">{currentMember?.referralCode}</span>
                 </div>
@@ -325,19 +325,19 @@ function HellobeePortalContent() {
                 <button
                   type="button"
                   onClick={handleCopyReferralLink}
-                  className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-black font-semibold rounded-xl text-xs flex items-center gap-1.5 transition-all shadow-xs"
+                  className="px-4 py-2 border border-[#111111] bg-white text-[#111111] hover:bg-[#F5F4F0] font-semibold rounded-xs text-xs uppercase tracking-wider flex items-center gap-1.5 transition-colors shadow-2xs"
                 >
-                  {copiedCode ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedCode ? <CheckCircle className="w-3.5 h-3.5 text-[#2D5A27]" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copiedCode ? 'Copied Link!' : 'Copy Referral Link'}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handleSimulateSale}
-                  className="px-4 py-2 bg-[#111111] hover:bg-black text-white font-medium rounded-xl text-xs flex items-center gap-1.5 transition-all shadow-xs"
+                  className="px-4 py-2 bg-[#111111] hover:bg-[#262626] text-white font-semibold rounded-xs text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-xs"
                   title="Simulate a $1,500 Hellobee machine sale using this member's referral code"
                 >
-                  <ShoppingCart className="w-3.5 h-3.5 text-amber-400" />
+                  <ShoppingCart className="w-3.5 h-3.5 text-[#B9A58B]" />
                   <span>Simulate $1,500 Sale</span>
                 </button>
               </div>
@@ -437,9 +437,9 @@ function HellobeePortalContent() {
                   type="button"
                   onClick={() => setIsPayoutModalOpen(true)}
                   disabled={(currentMember?.availableBalance || 0) <= 0}
-                  className="mt-3 w-full py-2 bg-[#111111] hover:bg-black text-white rounded-lg text-xs font-semibold transition-all disabled:opacity-40"
+                  className="mt-3 w-full py-2.5 bg-[#111111] hover:bg-[#262626] text-white rounded-xs text-xs font-semibold uppercase tracking-wider transition-all disabled:opacity-40"
                 >
-                  Request Payout / Rút tiền
+                  Request Payout
                 </button>
               </div>
             </div>
@@ -813,7 +813,7 @@ function HellobeePortalContent() {
 
               <button
                 type="submit"
-                className="w-full py-3 bg-[#111111] hover:bg-black text-white font-semibold rounded-xl transition-all shadow-xs mt-4 text-xs"
+                className="w-full py-3 bg-[#111111] hover:bg-[#262626] text-white font-semibold rounded-xs uppercase tracking-wider transition-all shadow-xs mt-4 text-xs"
               >
                 Create Account & Generate Referral Code
               </button>
@@ -899,13 +899,13 @@ function HellobeePortalContent() {
                 <button
                   type="button"
                   onClick={() => setIsPayoutModalOpen(false)}
-                  className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50"
+                  className="px-4 py-2 border border-[#E5E5E5] rounded-xs text-xs uppercase tracking-wider text-[#737373] hover:text-[#111111] hover:bg-[#F5F4F0] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#111111] text-white rounded-lg font-semibold hover:bg-black"
+                  className="px-4 py-2 bg-[#111111] text-white rounded-xs text-xs uppercase tracking-wider font-semibold hover:bg-[#262626] transition-colors"
                 >
                   Submit Withdrawal Request
                 </button>

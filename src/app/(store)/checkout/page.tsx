@@ -104,40 +104,40 @@ function CheckoutContent() {
   if (orderPlacedId) {
     return (
       <div className="max-w-[800px] mx-auto px-4 py-20 text-center space-y-6">
-        <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto text-emerald-600 shadow-lg">
+        <div className="w-20 h-20 bg-[#F5F4F0] rounded-full flex items-center justify-center mx-auto text-[#2D5A27] border border-[#E5E5E5]">
           <CheckCircle className="w-10 h-10" />
         </div>
-        <span className="text-xs font-mono uppercase tracking-widest text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-          Mã Đơn: #{orderPlacedId.slice(-8).toUpperCase()}
+        <span className="text-xs font-mono uppercase tracking-widest text-[#2D5A27] bg-[#EBF3EA] px-3 py-1 rounded-xs border border-[#2D5A27]/20">
+          Order Number: #{orderPlacedId.slice(-8).toUpperCase()}
         </span>
-        <h1 className="text-2xl sm:text-4xl font-medium text-[#111111]">
+        <h1 className="text-2xl sm:text-4xl font-light text-[#111111]">
           {t.checkout.orderSuccessTitle}
         </h1>
-        <p className="text-xs sm:text-sm text-[#555555] max-w-lg mx-auto leading-relaxed">
+        <p className="text-xs sm:text-sm text-[#737373] max-w-lg mx-auto leading-relaxed">
           {t.checkout.orderSuccessDesc}
         </p>
-        <div className="p-5 rounded-2xl glass-card border border-blue-100 max-w-md mx-auto text-left text-xs space-y-2">
+        <div className="p-5 rounded-lg bg-white border border-[#E5E5E5] max-w-md mx-auto text-left text-xs space-y-2">
           <div className="flex justify-between">
-            <span className="text-gray-500">Khách hàng:</span>
-            <span className="font-semibold">{fullName}</span>
+            <span className="text-[#737373]">Customer:</span>
+            <span className="font-semibold text-[#111111]">{fullName}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">Số điện thoại:</span>
-            <span className="font-semibold">{phone}</span>
+            <span className="text-[#737373]">Phone:</span>
+            <span className="font-semibold text-[#111111]">{phone}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">Địa chỉ khảo sát:</span>
-            <span className="font-semibold">{street}, {ward}, {city}</span>
+            <span className="text-[#737373]">Delivery Address:</span>
+            <span className="font-semibold text-[#111111]">{street}, {ward}, {city}</span>
           </div>
-          <div className="flex justify-between border-t pt-2">
-            <span className="text-gray-500">Tổng thanh toán:</span>
-            <span className="font-bold text-blue-900">{formatPrice(grandTotal, currency)}</span>
+          <div className="flex justify-between border-t border-[#E5E5E5] pt-2">
+            <span className="text-[#737373]">Total Amount:</span>
+            <span className="font-bold text-[#111111]">{formatPrice(grandTotal, currency)}</span>
           </div>
         </div>
         <div className="pt-4 flex justify-center gap-4">
           <Link
             href="/shop"
-            className="bg-[#111111] text-white px-8 py-3 rounded-xl text-xs uppercase tracking-wider font-semibold hover:bg-blue-900 transition-all shadow-md"
+            className="bg-[#111111] text-white px-8 py-3 rounded-xs text-xs uppercase tracking-wider font-semibold hover:bg-[#262626] transition-all"
           >
             {t.cart.startShopping}
           </Link>
@@ -150,10 +150,10 @@ function CheckoutContent() {
     return (
       <div className="max-w-[1440px] mx-auto px-4 py-28 text-center space-y-4">
         <h1 className="text-2xl font-light text-[#111111]">{t.cart.emptyTitle}</h1>
-        <p className="text-xs text-[#777777]">{t.cart.emptyDesc}</p>
+        <p className="text-xs text-[#737373]">{t.cart.emptyDesc}</p>
         <Link
           href="/shop"
-          className="inline-block mt-4 bg-[#111111] text-white px-8 py-3 text-xs uppercase font-semibold tracking-wider rounded-xl hover:bg-blue-900 transition-all"
+          className="inline-block mt-4 bg-[#111111] text-white px-8 py-3 text-xs uppercase font-semibold tracking-wider rounded-xs hover:bg-[#262626] transition-all"
         >
           {t.cart.startShopping}
         </Link>
@@ -171,155 +171,155 @@ function CheckoutContent() {
         {/* Checkout Steps (8 cols) */}
         <div className="lg:col-span-8 space-y-8">
           {/* Step 1: Customer Contact */}
-          <div className="glass-card p-6 rounded-3xl border border-blue-100 shadow-sm space-y-4">
-            <h2 className="text-sm font-bold text-[#111111] uppercase tracking-wider">
+          <div className="bg-white p-6 rounded-lg border border-[#E5E5E5] shadow-xs space-y-4">
+            <h2 className="text-sm font-semibold text-[#111111] uppercase tracking-wider">
               {t.checkout.step1}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs text-gray-600 block mb-1 font-medium">{t.checkout.fullName}</label>
+                <label className="text-xs text-[#737373] block mb-1 font-medium">{t.checkout.fullName}</label>
                 <input
                   type="text"
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full text-xs p-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-blue-700"
+                  className="w-full text-xs p-3 rounded-xs border border-[#E5E5E5] bg-white outline-none focus:border-[#111111] transition-colors"
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-600 block mb-1 font-medium">{t.checkout.phone}</label>
+                <label className="text-xs text-[#737373] block mb-1 font-medium">{t.checkout.phone}</label>
                 <input
                   type="tel"
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full text-xs p-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-blue-700"
+                  className="w-full text-xs p-3 rounded-xs border border-[#E5E5E5] bg-white outline-none focus:border-[#111111] transition-colors"
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="text-xs text-gray-600 block mb-1 font-medium">{t.checkout.email}</label>
+                <label className="text-xs text-[#737373] block mb-1 font-medium">{t.checkout.email}</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full text-xs p-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-blue-700"
+                  className="w-full text-xs p-3 rounded-xs border border-[#E5E5E5] bg-white outline-none focus:border-[#111111] transition-colors"
                 />
               </div>
             </div>
           </div>
 
           {/* Step 2: Shipping / Installation Address */}
-          <div className="glass-card p-6 rounded-3xl border border-blue-100 shadow-sm space-y-4">
-            <h2 className="text-sm font-bold text-[#111111] uppercase tracking-wider">
+          <div className="bg-white p-6 rounded-lg border border-[#E5E5E5] shadow-xs space-y-4">
+            <h2 className="text-sm font-semibold text-[#111111] uppercase tracking-wider">
               {t.checkout.step2}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
-                <label className="text-xs text-gray-600 block mb-1 font-medium">{t.checkout.street}</label>
+                <label className="text-xs text-[#737373] block mb-1 font-medium">{t.checkout.street}</label>
                 <input
                   type="text"
                   required
                   value={street}
                   onChange={(e) => setStreet(e.target.value)}
-                  className="w-full text-xs p-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-blue-700"
+                  className="w-full text-xs p-3 rounded-xs border border-[#E5E5E5] bg-white outline-none focus:border-[#111111] transition-colors"
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-600 block mb-1 font-medium">{t.checkout.ward}</label>
+                <label className="text-xs text-[#737373] block mb-1 font-medium">{t.checkout.ward}</label>
                 <input
                   type="text"
                   value={ward}
                   onChange={(e) => setWard(e.target.value)}
-                  className="w-full text-xs p-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-blue-700"
+                  className="w-full text-xs p-3 rounded-xs border border-[#E5E5E5] bg-white outline-none focus:border-[#111111] transition-colors"
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-600 block mb-1 font-medium">{t.checkout.district}</label>
+                <label className="text-xs text-[#737373] block mb-1 font-medium">{t.checkout.district}</label>
                 <input
                   type="text"
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
-                  className="w-full text-xs p-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-blue-700"
+                  className="w-full text-xs p-3 rounded-xs border border-[#E5E5E5] bg-white outline-none focus:border-[#111111] transition-colors"
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="text-xs text-gray-600 block mb-1 font-medium">{t.checkout.city}</label>
+                <label className="text-xs text-[#737373] block mb-1 font-medium">{t.checkout.city}</label>
                 <input
                   type="text"
                   required
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full text-xs p-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-blue-700"
+                  className="w-full text-xs p-3 rounded-xs border border-[#E5E5E5] bg-white outline-none focus:border-[#111111] transition-colors"
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="text-xs text-gray-600 block mb-1 font-medium">{t.checkout.notes}</label>
+                <label className="text-xs text-[#737373] block mb-1 font-medium">{t.checkout.notes}</label>
                 <textarea
                   rows={2}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder={language === 'vi' ? 'Vd: Khảo sát vào thứ 7 hoặc buổi sáng...' : 'e.g. Please install on Saturday morning...'}
-                  className="w-full text-xs p-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-blue-700"
+                  placeholder="e.g. Please arrange delivery during office hours..."
+                  className="w-full text-xs p-3 rounded-xs border border-[#E5E5E5] bg-white outline-none focus:border-[#111111] transition-colors"
                 />
               </div>
             </div>
           </div>
 
           {/* Hellobee Referral / Sponsor Code */}
-          <div className="glass-card p-6 rounded-3xl border border-amber-200/60 bg-amber-50/20 shadow-xs space-y-3">
-            <div className="flex items-center gap-2 text-sm font-bold text-[#111111] uppercase tracking-wider">
-              <Tag className="w-4 h-4 text-amber-600" />
+          <div className="bg-[#FAF9F5] p-6 rounded-lg border border-[#E5E5E5] shadow-xs space-y-3">
+            <div className="flex items-center gap-2 text-sm font-semibold text-[#111111] uppercase tracking-wider">
+              <Tag className="w-4 h-4 text-[#B9A58B]" />
               <span>Hellobee Referral Code (Optional)</span>
             </div>
-            <p className="text-xs text-gray-500">
-              Enter your sponsor’s referral code (e.g. HB-EMP-101 or HB-OWNER-01) to support your Hellobee consultant and qualify for network benefits.
+            <p className="text-xs text-[#737373]">
+              Enter your sponsor’s referral code (e.g. ALEX10, SARAH10 or OWNER-MIKE) to credit your consultant and activate network benefits.
             </p>
             <input
               type="text"
               value={referralCode}
               onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-              placeholder="e.g. HB-EMP-101"
-              className="w-full text-xs p-3 rounded-xl border border-amber-300 bg-white uppercase font-mono font-bold tracking-wider outline-hidden focus:border-amber-600"
+              placeholder="e.g. ALEX10"
+              className="w-full text-xs p-3 rounded-xs border border-[#D5D5D5] bg-white uppercase font-mono font-semibold tracking-wider outline-none focus:border-[#111111]"
             />
           </div>
 
           {/* Step 3: Payment Method */}
-          <div className="glass-card p-6 rounded-3xl border border-blue-100 shadow-sm space-y-4">
-            <h2 className="text-sm font-bold text-[#111111] uppercase tracking-wider">
+          <div className="bg-white p-6 rounded-lg border border-[#E5E5E5] shadow-xs space-y-4">
+            <h2 className="text-sm font-semibold text-[#111111] uppercase tracking-wider">
               {t.checkout.step3}
             </h2>
             <div className="space-y-2">
-              <label className="flex items-center gap-3 p-3.5 rounded-xl border border-gray-200 hover:border-blue-700 cursor-pointer bg-white transition-colors">
+              <label className="flex items-center gap-3 p-3.5 rounded-xs border border-[#E5E5E5] hover:border-[#111111] cursor-pointer bg-white transition-colors">
                 <input
                   type="radio"
                   name="payment"
                   checked={paymentMethod === 'cod'}
                   onChange={() => setPaymentMethod('cod')}
-                  className="accent-blue-700"
+                  className="accent-[#111111]"
                 />
-                <Banknote className="w-4 h-4 text-emerald-600" />
+                <Banknote className="w-4 h-4 text-[#2D5A27]" />
                 <span className="text-xs font-medium text-[#111111]">{t.checkout.paymentCod}</span>
               </label>
-              <label className="flex items-center gap-3 p-3.5 rounded-xl border border-gray-200 hover:border-blue-700 cursor-pointer bg-white transition-colors">
+              <label className="flex items-center gap-3 p-3.5 rounded-xs border border-[#E5E5E5] hover:border-[#111111] cursor-pointer bg-white transition-colors">
                 <input
                   type="radio"
                   name="payment"
                   checked={paymentMethod === 'bank_transfer'}
                   onChange={() => setPaymentMethod('bank_transfer')}
-                  className="accent-blue-700"
+                  className="accent-[#111111]"
                 />
-                <CreditCard className="w-4 h-4 text-blue-700" />
+                <CreditCard className="w-4 h-4 text-[#111111]" />
                 <span className="text-xs font-medium text-[#111111]">{t.checkout.paymentBank}</span>
               </label>
-              <label className="flex items-center gap-3 p-3.5 rounded-xl border border-gray-200 hover:border-blue-700 cursor-pointer bg-white transition-colors">
+              <label className="flex items-center gap-3 p-3.5 rounded-xs border border-[#E5E5E5] hover:border-[#111111] cursor-pointer bg-white transition-colors">
                 <input
                   type="radio"
                   name="payment"
                   checked={paymentMethod === 'online_simulation'}
                   onChange={() => setPaymentMethod('online_simulation')}
-                  className="accent-blue-700"
+                  className="accent-[#111111]"
                 />
-                <CreditCard className="w-4 h-4 text-purple-700" />
+                <CreditCard className="w-4 h-4 text-[#737373]" />
                 <span className="text-xs font-medium text-[#111111]">{t.checkout.paymentInstallment}</span>
               </label>
             </div>
@@ -328,51 +328,51 @@ function CheckoutContent() {
 
         {/* Order Summary Column (4 cols) */}
         <div className="lg:col-span-4">
-          <div className="glass-card p-6 rounded-3xl border border-blue-100 shadow-md space-y-4 sticky top-28">
-            <h3 className="text-sm font-bold text-[#111111] border-b pb-3 uppercase tracking-wider">
-              {language === 'vi' ? 'Thiết Bị Của Bạn' : 'Your Equipment'} ({cart.length})
+          <div className="bg-white p-6 rounded-lg border border-[#E5E5E5] shadow-xs space-y-4 sticky top-28">
+            <h3 className="text-sm font-semibold text-[#111111] border-b border-[#E5E5E5] pb-3 uppercase tracking-wider">
+              {language === 'vi' ? 'Thiết Bị Của Bạn' : 'Order Summary'} ({cart.length})
             </h3>
-            <div className="divide-y divide-gray-100 max-h-72 overflow-y-auto">
+            <div className="divide-y divide-[#E5E5E5] max-h-72 overflow-y-auto">
               {cart.map((item) => (
                 <div key={item.id} className="py-3 flex gap-3 text-xs">
-                  <div className="relative w-12 h-12 bg-white rounded-lg border border-[#EAEAEA] p-0.5 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                  <div className="relative w-12 h-12 bg-white rounded-xs border border-[#E5E5E5] p-0.5 overflow-hidden flex-shrink-0 flex items-center justify-center">
                     <Image src={item.image} alt={item.productName} fill className="object-contain" sizes="50px" />
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold text-[#111111] line-clamp-1">{item.productName}</p>
-                    <p className="text-[11px] text-gray-500">{item.size} x {item.quantity}</p>
-                    <p className="font-semibold text-blue-900 mt-0.5">{formatPrice(item.price * item.quantity, currency)}</p>
+                    <p className="text-[11px] text-[#737373]">{item.size} x {item.quantity}</p>
+                    <p className="font-semibold text-[#111111] mt-0.5">{formatPrice(item.price * item.quantity, currency)}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="border-t pt-3 space-y-2 text-xs">
-              <div className="flex justify-between text-gray-600">
+            <div className="border-t border-[#E5E5E5] pt-3 space-y-2 text-xs">
+              <div className="flex justify-between text-[#737373]">
                 <span>{t.cart.subtotal}</span>
                 <span className="font-semibold text-[#111111]">{formatPrice(subtotal, currency)}</span>
               </div>
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-[#737373]">
                 <span>{t.cart.shipping}</span>
-                <span className="font-semibold text-emerald-700">{t.cart.shippingFree}</span>
+                <span className="font-semibold text-[#2D5A27]">{t.cart.shippingFree}</span>
               </div>
-              <div className="border-t pt-3 flex justify-between text-base font-bold text-[#111111]">
+              <div className="border-t border-[#E5E5E5] pt-3 flex justify-between text-base font-semibold text-[#111111]">
                 <span>{t.cart.total}</span>
-                <span className="text-xl text-blue-900">{formatPrice(grandTotal, currency)}</span>
+                <span className="text-lg font-bold text-[#111111]">{formatPrice(grandTotal, currency)}</span>
               </div>
             </div>
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-gradient-to-r from-blue-700 to-cyan-700 hover:from-blue-600 hover:to-cyan-600 text-white py-3.5 rounded-xl text-xs uppercase tracking-wider font-bold shadow-lg shadow-blue-500/25 active:scale-95 transition-all flex items-center justify-center gap-2 mirror-sheen"
+              className="w-full bg-[#111111] hover:bg-[#262626] disabled:bg-[#888888] text-white py-3.5 rounded-xs text-xs uppercase tracking-wider font-semibold active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xs"
             >
-              <span>{isSubmitting ? 'Đang Xử Lý...' : t.checkout.placeOrder}</span>
+              <span>{isSubmitting ? 'Processing Order...' : t.checkout.placeOrder}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-500 pt-2 border-t">
-              <ShieldCheck className="w-4 h-4 text-blue-700" />
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#737373] pt-2 border-t border-[#E5E5E5]">
+              <ShieldCheck className="w-4 h-4 text-[#111111]" />
               <span>{t.cart.sslSecurity}</span>
             </div>
           </div>

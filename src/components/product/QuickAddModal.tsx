@@ -99,14 +99,14 @@ export function QuickAddModal({ product, isOpen, onClose }: QuickAddModalProps) 
                 <button
                   key={s.id}
                   onClick={() => setSelectedPackage(s.label)}
-                  className={`w-full p-2.5 rounded-lg border text-left text-xs transition-all flex items-center justify-between ${
+                  className={`w-full p-2.5 rounded-xs border text-left text-xs transition-all flex items-center justify-between ${
                     pkgLabel === s.label
-                      ? 'border-blue-700 bg-blue-50 text-blue-950 font-semibold'
+                      ? 'border-[#111111] bg-[#F5F4F0] text-[#111111] font-semibold'
                       : 'border-[#E5E5E5] bg-white text-[#444444] hover:border-[#111111]'
                   }`}
                 >
                   <span>{s.label}</span>
-                  {pkgLabel === s.label && <Check className="w-4 h-4 text-blue-700" />}
+                  {pkgLabel === s.label && <Check className="w-3.5 h-3.5 text-[#111111]" />}
                 </button>
               ))}
             </div>
@@ -115,9 +115,9 @@ export function QuickAddModal({ product, isOpen, onClose }: QuickAddModalProps) 
 
         <button
           onClick={handleAddToCart}
-          className="w-full bg-gradient-to-r from-blue-700 to-cyan-700 hover:from-blue-600 hover:to-cyan-600 text-white py-3 rounded-xl text-xs uppercase tracking-wider font-bold shadow-md active:scale-95 transition-all mirror-sheen"
+          className="w-full bg-[#111111] hover:bg-[#262626] text-white py-3 rounded-xs text-xs uppercase tracking-wider font-semibold active:scale-[0.98] transition-all shadow-xs flex items-center justify-center gap-2"
         >
-          {t.productDetail.addToCart}
+          <span>{t.productDetail.addToCart}</span>
         </button>
       </div>
     </div>

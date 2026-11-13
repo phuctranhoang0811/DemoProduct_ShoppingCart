@@ -214,10 +214,12 @@ export function StoreHeader() {
             <Link
               href="/hellobee"
               onMouseEnter={() => setActiveDropdown(null)}
-              className="py-7 border-b-2 border-transparent hover:border-[#111111] transition-all font-medium text-amber-700 flex items-center gap-1"
+              className="py-7 border-b-2 border-transparent hover:border-[#111111] transition-all font-medium text-[#111111] flex items-center gap-1.5"
             >
               <span>Hellobee Network</span>
-              <span className="px-1.5 py-0.2 bg-amber-100 text-amber-800 text-[10px] rounded font-bold">1A-5A</span>
+              <span className="px-1.5 py-0.5 bg-[#111111] text-white text-[9px] uppercase tracking-wider font-semibold rounded-xs">
+                1A–5A
+              </span>
             </Link>
           </nav>
 
@@ -319,10 +321,11 @@ export function StoreHeader() {
                 <Link href="/calculator" onClick={() => setIsMobileMenuOpen(false)} className="block py-1 font-semibold text-[#111111]">
                   Tax Calculator
                 </Link>
-                <Link href="/hellobee" onClick={() => setIsMobileMenuOpen(false)} className="block py-1 font-semibold text-amber-700">
-                  Hellobee Network (1A-5A)
+                <Link href="/hellobee" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between py-1 font-semibold text-[#111111]">
+                  <span>Hellobee Network</span>
+                  <span className="px-1.5 py-0.5 bg-[#111111] text-white text-[9px] uppercase tracking-wider font-semibold rounded-xs">1A–5A</span>
                 </Link>
-                <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block py-1 text-blue-800">
+                <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block py-1 text-[#111111] hover:text-[#666666]">
                   Admin Portal
                 </Link>
               </div>

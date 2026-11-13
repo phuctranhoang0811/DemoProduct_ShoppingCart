@@ -54,16 +54,16 @@ export default function CartPage() {
   if (cart.length === 0) {
     return (
       <div className="max-w-[1440px] mx-auto px-4 py-28 text-center space-y-4">
-        <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto text-blue-700">
+        <div className="w-16 h-16 bg-[#F5F4F0] rounded-full flex items-center justify-center mx-auto text-[#111111] border border-[#E5E5E5]">
           <ShoppingBag className="w-8 h-8 stroke-[1.2]" />
         </div>
         <h1 className="text-2xl font-light text-[#111111]">{t.cart.emptyTitle}</h1>
-        <p className="text-xs text-[#777777] max-w-sm mx-auto">
+        <p className="text-xs text-[#737373] max-w-sm mx-auto">
           {t.cart.emptyDesc}
         </p>
         <Link
           href="/shop"
-          className="inline-block mt-4 bg-[#111111] text-white px-8 py-3 text-xs uppercase font-semibold tracking-wider rounded-xl hover:bg-blue-900 transition-all shadow-md"
+          className="inline-block mt-4 bg-[#111111] text-white px-8 py-3 text-xs uppercase font-semibold tracking-wider rounded-xs hover:bg-[#262626] transition-all"
         >
           {t.cart.startShopping}
         </Link>
@@ -82,7 +82,7 @@ export default function CartPage() {
         <div className="lg:col-span-8 divide-y divide-[#E5E5E5]">
           {cart.map((item) => (
             <div key={item.id} className="py-6 flex gap-4 sm:gap-6">
-              <div className="relative w-24 h-24 sm:w-28 sm:h-28 bg-white rounded-xl overflow-hidden flex-shrink-0 border border-[#EAEAEA] p-1.5 flex items-center justify-center">
+              <div className="relative w-24 h-24 sm:w-28 sm:h-28 bg-white rounded-xs overflow-hidden flex-shrink-0 border border-[#E5E5E5] p-1.5 flex items-center justify-center">
                 <Image src={item.image} alt={item.productName} fill className="object-contain p-1" sizes="120px" />
               </div>
 
@@ -91,36 +91,36 @@ export default function CartPage() {
                   <div className="flex items-start justify-between gap-4">
                     <Link
                       href={`/product/${item.slug}`}
-                      className="text-sm sm:text-base font-semibold text-[#111111] hover:text-blue-700 line-clamp-2"
+                      className="text-sm sm:text-base font-semibold text-[#111111] hover:underline line-clamp-2"
                     >
                       {item.productName}
                     </Link>
                     <button
                       onClick={() => removeFromCart(item.id)}
-                      className="text-gray-400 hover:text-red-600 transition-colors"
+                      className="text-[#999999] hover:text-[#B74747] transition-colors"
                       title={t.cart.remove}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
-                  <p className="text-xs text-[#777777] mt-1">{item.size}</p>
-                  <span className="text-sm sm:text-base font-semibold text-blue-900 mt-2 block">
+                  <p className="text-xs text-[#737373] mt-1">{item.size}</p>
+                  <span className="text-sm sm:text-base font-semibold text-[#111111] mt-2 block">
                     {formatPrice(item.price, currency)}
                   </span>
                 </div>
 
                 <div className="flex items-center gap-3 pt-3">
-                  <div className="flex items-center border border-gray-200 rounded-xl bg-white p-1">
+                  <div className="flex items-center border border-[#E5E5E5] rounded-xs bg-white p-1">
                     <button
                       onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
-                      className="p-1.5 text-gray-500 hover:text-black"
+                      className="p-1.5 text-[#555555] hover:text-[#111111]"
                     >
                       <Minus className="w-3.5 h-3.5" />
                     </button>
-                    <span className="px-3 text-xs font-semibold">{item.quantity}</span>
+                    <span className="px-3 text-xs font-semibold text-[#111111]">{item.quantity}</span>
                     <button
                       onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
-                      className="p-1.5 text-gray-500 hover:text-black"
+                      className="p-1.5 text-[#555555] hover:text-[#111111]"
                     >
                       <Plus className="w-3.5 h-3.5" />
                     </button>
@@ -133,29 +133,29 @@ export default function CartPage() {
 
         {/* Order Summary (4 cols) */}
         <div className="lg:col-span-4">
-          <div className="glass-card p-6 rounded-3xl border border-blue-100 shadow-md space-y-5 sticky top-28">
-            <h2 className="text-base font-semibold text-[#111111] border-b pb-3">
+          <div className="bg-white p-6 rounded-lg border border-[#E5E5E5] shadow-xs space-y-5 sticky top-28">
+            <h2 className="text-base font-semibold text-[#111111] border-b border-[#E5E5E5] pb-3 uppercase tracking-wider">
               {language === 'vi' ? 'Tóm Tắt Đơn Hàng' : 'Order Summary'}
             </h2>
 
             <div className="space-y-3 text-xs">
-              <div className="flex justify-between text-[#666666]">
+              <div className="flex justify-between text-[#737373]">
                 <span>{t.cart.subtotal}</span>
                 <span className="font-semibold text-sm text-[#111111]">{formatPrice(subtotal, currency)}</span>
               </div>
-              <div className="flex justify-between text-[#666666]">
+              <div className="flex justify-between text-[#737373]">
                 <span>{t.cart.shipping}</span>
-                <span className="font-semibold text-emerald-700">{t.cart.shippingFree}</span>
+                <span className="font-semibold text-[#2D5A27]">{t.cart.shippingFree}</span>
               </div>
               {appliedDiscount && (
-                <div className="flex justify-between text-emerald-700">
-                  <span>Ưu đãi ({appliedDiscount.code})</span>
+                <div className="flex justify-between text-[#2D5A27]">
+                  <span>Promo ({appliedDiscount.code})</span>
                   <span className="font-semibold">-{formatPrice(appliedDiscount.amount, currency)}</span>
                 </div>
               )}
-              <div className="border-t pt-3 flex justify-between text-sm font-bold text-[#111111]">
+              <div className="border-t border-[#E5E5E5] pt-3 flex justify-between text-sm font-semibold text-[#111111]">
                 <span>{t.cart.total}</span>
-                <span className="text-xl text-blue-900">{formatPrice(grandTotal, currency)}</span>
+                <span className="text-xl font-bold text-[#111111]">{formatPrice(grandTotal, currency)}</span>
               </div>
             </div>
 
@@ -166,11 +166,11 @@ export default function CartPage() {
                 placeholder={t.cart.promoPlaceholder}
                 value={promoCode}
                 onChange={(e) => setPromoCode(e.target.value)}
-                className="flex-1 text-xs p-2.5 rounded-xl border border-gray-200 outline-none uppercase font-mono focus:border-blue-700 bg-white"
+                className="flex-1 text-xs p-2.5 rounded-xs border border-[#E5E5E5] outline-none uppercase font-mono focus:border-[#111111] bg-white transition-colors"
               />
               <button
                 type="submit"
-                className="bg-gray-900 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-black transition-all"
+                className="bg-[#111111] text-white px-4 py-2.5 rounded-xs text-xs font-semibold uppercase tracking-wider hover:bg-[#262626] transition-all"
               >
                 {t.cart.applyCode}
               </button>
@@ -178,14 +178,14 @@ export default function CartPage() {
 
             <Link
               href="/checkout"
-              className="w-full bg-gradient-to-r from-blue-700 to-cyan-700 hover:from-blue-600 hover:to-cyan-600 text-white py-3.5 rounded-xl text-xs uppercase tracking-wider font-bold shadow-lg shadow-blue-500/25 active:scale-95 transition-all flex items-center justify-center gap-2 mirror-sheen"
+              className="w-full bg-[#111111] hover:bg-[#262626] text-white py-3.5 rounded-xs text-xs uppercase tracking-wider font-semibold active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xs"
             >
               <span>{t.cart.checkout}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
 
-            <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-500 pt-2 border-t">
-              <ShieldCheck className="w-4 h-4 text-blue-700" />
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#737373] pt-2 border-t border-[#E5E5E5]">
+              <ShieldCheck className="w-4 h-4 text-[#111111]" />
               <span>{t.cart.sslSecurity}</span>
             </div>
           </div>
