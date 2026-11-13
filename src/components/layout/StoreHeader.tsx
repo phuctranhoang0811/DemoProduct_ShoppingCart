@@ -11,14 +11,9 @@ import {
   User,
   Menu,
   X,
-  Shield,
   ChevronDown,
   ArrowRight,
-  Droplets,
   Sparkles,
-  PhoneCall,
-  Award,
-  Globe,
 } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { useTranslation } from '@/i18n/useTranslation';
@@ -30,14 +25,13 @@ export function StoreHeader() {
   const { t, language, setLanguage } = useTranslation();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<'ionizers' | 'waters' | null>(null);
+  const [activeDropdown, setActiveDropdown] = useState<'ionizers' | null>(null);
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const cart = useCommerceStore((state) => state.cart);
   const wishlist = useCommerceStore((state) => state.wishlist);
   const currentUser = useCommerceStore((state) => state.currentUser);
-  const categories = useCommerceStore((state) => state.categories);
   const products = useCommerceStore((state) => state.products);
   const currency = useCommerceStore((state) => state.currency);
   const setCurrency = useCommerceStore((state) => state.setCurrency);
@@ -62,7 +56,7 @@ export function StoreHeader() {
     setIsCartDrawerOpen(false);
   }, [pathname, setIsCartDrawerOpen]);
 
-  const handleMouseEnter = (menu: 'ionizers' | 'waters') => {
+  const handleMouseEnter = (menu: 'ionizers') => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setActiveDropdown(menu);
   };
@@ -73,64 +67,59 @@ export function StoreHeader() {
     }, 200);
   };
 
-  const ionizerProducts = products.filter((p) => p.categoryId === 'cat-ionizers' || p.categoryId === 'cat-spa');
+  const ionizerProducts = products.filter((p) => p.categoryId === 'cat-ionizers' || p.categoryId === 'cat-spa').slice(0, 4);
 
   return (
     <>
       <header
-        className="sticky top-0 z-40 glass-nav transition-all duration-300 border-b border-[#0055A5]/10 bg-white/80 backdrop-blur-xl"
+        className="sticky top-0 z-40 transition-all duration-300 border-b border-[#E5E5E5] bg-white/95 backdrop-blur-md"
         onMouseLeave={handleMouseLeave}
       >
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between">
           {/* Mobile menu trigger */}
           <div className="flex items-center lg:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 -ml-2 text-[#002B5C]"
+              className="p-2 -ml-2 text-[#111111]"
               aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
 
-          {/* Enagic & Kangen Water Brand Identity */}
+          {/* Minimalist Enagic Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#0055A5] via-[#0072CE] to-[#00A3E0] flex items-center justify-center text-white shadow-md shadow-[#0055A5]/30 group-hover:scale-105 transition-transform">
-                <Droplets className="w-5 h-5 fill-white stroke-[1.5]" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xl font-extrabold tracking-[0.16em] text-[#002B5C] leading-none flex items-center">
-                  ENAGIC<sup className="text-[10px] font-bold text-[#00A3E0] ml-0.5">®</sup>
-                </span>
-                <span className="text-[9px] uppercase tracking-[0.26em] font-extrabold text-[#0072CE] mt-0.5">
-                  KANGEN WATER<sup className="text-[7px]">®</sup>
-                </span>
-              </div>
+              <span className="text-xl sm:text-2xl font-light tracking-[0.22em] text-[#111111]">
+                ENAGIC
+              </span>
+              <span className="hidden sm:inline text-[9px] uppercase tracking-[0.26em] text-[#888888] font-semibold border-l border-gray-300 pl-2.5">
+                KANGEN WATER®
+              </span>
             </Link>
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-7 text-[13px] uppercase tracking-[0.12em] font-semibold text-[#1B365D] h-full">
+          <nav className="hidden lg:flex items-center space-x-8 text-xs uppercase tracking-[0.14em] font-medium text-[#111111] h-full">
             <Link
               href="/"
               onMouseEnter={() => setActiveDropdown(null)}
-              className="py-7 border-b-2 border-transparent hover:border-[#0055A5] hover:text-[#0055A5] transition-all"
+              className="py-7 border-b-2 border-transparent hover:border-[#111111] transition-all"
             >
               {t.nav.home}
             </Link>
 
-            {/* Máy Điện Giải with Hover Mega Menu */}
+            {/* Máy Điện Giải with Hover Dropdown */}
             <div
               className="relative h-full flex items-center"
               onMouseEnter={() => handleMouseEnter('ionizers')}
             >
               <Link
                 href="/shop"
-                className={`py-7 border-b-2 transition-all flex items-center gap-1.5 ${
+                className={`py-7 border-b-2 transition-all flex items-center gap-1 ${
                   activeDropdown === 'ionizers'
-                    ? 'border-[#0055A5] text-[#0055A5]'
-                    : 'border-transparent hover:border-[#0055A5] hover:text-[#0055A5]'
+                    ? 'border-[#111111] text-[#111111]'
+                    : 'border-transparent hover:border-[#111111]'
                 }`}
               >
                 <span>{t.nav.products}</span>
@@ -140,326 +129,226 @@ export function StoreHeader() {
                   }`}
                 />
               </Link>
+
+              {/* Minimal Dropdown Menu */}
+              {activeDropdown === 'ionizers' && (
+                <div
+                  className="absolute top-full left-0 w-[560px] bg-white border border-[#E5E5E5] shadow-xl p-6 z-50 animate-in fade-in slide-in-from-top-1 rounded-sm"
+                  onMouseEnter={() => handleMouseEnter('ionizers')}
+                >
+                  <div className="grid grid-cols-2 gap-4">
+                    {ionizerProducts.map((p) => {
+                      const pName = language === 'vi' ? p.nameVi || p.name : p.nameEn || p.name;
+                      return (
+                        <Link
+                          key={p.id}
+                          href={`/product/${p.slug}`}
+                          onClick={() => setActiveDropdown(null)}
+                          className="flex gap-3 p-2 hover:bg-[#F9F9F9] rounded-sm transition-colors group"
+                        >
+                          <div className="relative w-14 h-16 bg-[#F5F4F0] flex-shrink-0 rounded-xs overflow-hidden">
+                            <Image src={p.images[0]} alt={pName} fill className="object-cover" sizes="60px" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-[#111111] group-hover:underline line-clamp-1">
+                              {pName}
+                            </p>
+                            <p className="text-[11px] text-[#777777] font-mono mt-0.5">{p.sku}</p>
+                            <p className="text-xs font-medium text-[#111111] mt-1">{formatPrice(p.price, currency)}</p>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-[#EEEEEE] flex justify-between text-xs">
+                    <Link
+                      href="/shop"
+                      onClick={() => setActiveDropdown(null)}
+                      className="font-semibold text-[#111111] hover:underline flex items-center gap-1"
+                    >
+                      <span>{t.showcase.viewAll}</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* 5 Loại Nước Kangen */}
             <Link
-              href="/#waters-section"
+              href="/shop?category=cat-spa"
               onMouseEnter={() => setActiveDropdown(null)}
-              className="py-7 border-b-2 border-transparent hover:border-[#0055A5] hover:text-[#0055A5] transition-all flex items-center gap-1.5"
+              className="py-7 border-b-2 border-transparent hover:border-[#111111] transition-all"
             >
-              <span className="text-[#0072CE]">&bull;</span>
-              <span>{t.nav.waterTypes}</span>
+              Anespa Spa
             </Link>
 
-            {/* Lõi Lọc & Phụ Kiện */}
             <Link
               href="/shop?category=cat-filters"
               onMouseEnter={() => setActiveDropdown(null)}
-              className="py-7 border-b-2 border-transparent hover:border-[#0055A5] hover:text-[#0055A5] transition-all"
+              className="py-7 border-b-2 border-transparent hover:border-[#111111] transition-all"
             >
               {t.nav.accessories}
             </Link>
 
-            {/* Chứng Nhận Y Tế */}
             <Link
-              href="/#certifications"
+              href="/shop"
               onMouseEnter={() => setActiveDropdown(null)}
-              className="py-7 border-b-2 border-transparent hover:border-[#0055A5] hover:text-[#0055A5] transition-all flex items-center gap-1"
+              className="py-7 border-b-2 border-transparent hover:border-[#111111] transition-all"
             >
-              <Award className="w-3.5 h-3.5 text-[#C5A059]" />
-              <span>{t.nav.certifications}</span>
+              {language === 'vi' ? 'Bộ Sưu Tập' : 'Collection'}
             </Link>
           </nav>
 
-          {/* Right Action Icons: Language, Currency, Search, Wishlist, Cart, Admin */}
-          <div className="flex items-center space-x-2.5 sm:space-x-3.5 text-[#002B5C]">
+          {/* Right Action Icons: Language, Currency, Search, Wishlist, Cart */}
+          <div className="flex items-center space-x-3 sm:space-x-4 text-[#111111]">
             {/* Multi-language Switcher: VI | EN */}
-            <div className="flex items-center p-0.5 bg-[#EDF3F8] rounded-full border border-[#0055A5]/15 shadow-2xs">
+            <div className="flex items-center p-0.5 bg-[#F5F4F0] rounded-full border border-[#E5E5E5]">
               <button
                 type="button"
                 onClick={() => setLanguage('vi')}
-                className={`px-2.5 py-1 text-[11px] font-bold rounded-full transition-all ${
+                className={`px-2 py-0.5 text-[10px] font-bold rounded-full transition-all ${
                   language === 'vi'
-                    ? 'bg-[#0055A5] text-white shadow-xs scale-105'
-                    : 'text-[#4A6B82] hover:text-[#002B5C]'
+                    ? 'bg-[#111111] text-white'
+                    : 'text-[#666666] hover:text-[#111111]'
                 }`}
                 title="Tiếng Việt (vi_VN)"
-                aria-label="Switch to Vietnamese"
               >
                 VI
               </button>
               <button
                 type="button"
                 onClick={() => setLanguage('en')}
-                className={`px-2.5 py-1 text-[11px] font-bold rounded-full transition-all ${
+                className={`px-2 py-0.5 text-[10px] font-bold rounded-full transition-all ${
                   language === 'en'
-                    ? 'bg-[#0055A5] text-white shadow-xs scale-105'
-                    : 'text-[#4A6B82] hover:text-[#002B5C]'
+                    ? 'bg-[#111111] text-white'
+                    : 'text-[#666666] hover:text-[#111111]'
                 }`}
                 title="English (en_US)"
-                aria-label="Switch to English"
               >
                 EN
               </button>
             </div>
 
-            {/* Currency Switcher (VND / USD) */}
+            {/* Currency Switcher */}
             <button
               type="button"
               onClick={() => setCurrency(currency === 'USD' ? 'VND' : 'USD')}
-              className="glass-btn hidden sm:flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full text-[#002B5C] border-[#0055A5]/20 hover:border-[#0055A5]"
-              title={`Switch currency to ${currency === 'USD' ? 'VND (₫)' : 'USD ($)'}`}
-              aria-label="Toggle currency"
+              className="hidden sm:flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full border border-[#E5E5E5] hover:border-[#111111] transition-colors"
+              title={`Switch currency to ${currency === 'USD' ? 'VND' : 'USD'}`}
             >
-              <span className="text-[11px] font-mono font-bold text-[#0072CE]">{currency === 'USD' ? '$' : '₫'}</span>
-              <span className="text-[11px] font-bold text-[#002B5C]">{currency}</span>
+              <span>{currency === 'USD' ? '$ USD' : '₫ VND'}</span>
             </button>
 
-            {/* Desktop Instant Search Trigger with Shortcut */}
+            {/* Search Trigger */}
             <button
               type="button"
               onClick={() => setIsSearchOpen(true)}
-              className="glass-btn hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#4A6B82] font-medium hover:text-[#002B5C] border-[#0055A5]/20"
-              aria-label="Open search dialog"
-            >
-              <Search className="w-3.5 h-3.5 text-[#0055A5] stroke-[2]" />
-              <span className="text-[12px] text-[#4A6B82] line-clamp-1 max-w-[130px]">{t.nav.searchPlaceholder}</span>
-              <kbd className="text-[10px] bg-white border border-[#0055A5]/20 rounded px-1.5 py-0.2 font-mono font-bold text-[#0055A5] shadow-2xs">
-                ⌘K
-              </kbd>
-            </button>
-
-            {/* Mobile Search Icon */}
-            <button
-              onClick={() => setIsSearchOpen(true)}
-              className="md:hidden p-1.5 hover:text-[#0055A5] transition-colors"
+              className="p-1 hover:text-[#666666] transition-colors flex items-center gap-1.5"
               aria-label="Search"
             >
-              <Search className="w-5 h-5 stroke-[1.8]" />
+              <Search className="w-4 h-4 stroke-[1.5]" />
+              <span className="hidden md:inline text-xs text-[#777777] font-normal">Search</span>
             </button>
-
-            {/* Account */}
-            <Link
-              href={currentUser ? '/account' : '/login'}
-              className="p-1 hover:text-[#0055A5] transition-colors hidden sm:inline-block relative group"
-              aria-label="Account"
-              title={currentUser ? `Signed in as ${currentUser.name}` : 'Sign In'}
-            >
-              <User className="w-5 h-5 stroke-[1.7]" />
-              {currentUser && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-[#00A3E0] rounded-full ring-2 ring-white" />
-              )}
-            </Link>
 
             {/* Wishlist */}
             <Link
               href="/wishlist"
-              className="p-1 hover:text-[#0055A5] transition-colors relative"
+              className="p-1 hover:text-[#666666] transition-colors relative"
               aria-label="Wishlist"
-              title={t.nav.savedItems}
             >
-              <Heart className="w-5 h-5 stroke-[1.7]" />
+              <Heart className="w-4 h-4 stroke-[1.5]" />
               {wishlist.length > 0 && (
-                <span className="absolute -top-1 -right-1.5 bg-[#0055A5] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                <span className="absolute -top-1 -right-1 bg-[#111111] text-white text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
                   {wishlist.length}
                 </span>
               )}
             </Link>
 
-            {/* Cart Trigger -> Opens Full Slide-Over Cart Drawer */}
+            {/* Shopping Bag Trigger */}
             <button
               type="button"
               onClick={() => setIsCartDrawerOpen(true)}
-              className="p-1 hover:text-[#0055A5] transition-colors relative flex items-center"
-              aria-label="Open shopping bag drawer"
-              title={t.nav.shoppingBag}
+              className="p-1 hover:text-[#666666] transition-colors relative"
+              aria-label="Shopping Bag"
             >
-              <ShoppingBag className="w-5 h-5 stroke-[1.7]" />
+              <ShoppingBag className="w-4 h-4 stroke-[1.5]" />
               {totalCartItems > 0 && (
-                <span className="absolute -top-1 -right-1.5 bg-[#0072CE] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold animate-in zoom-in-75">
+                <span className="absolute -top-1 -right-1 bg-[#111111] text-white text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
                   {totalCartItems}
                 </span>
               )}
             </button>
 
-            {/* Admin Portal Pill (Preserved as explicitly requested) */}
+            {/* Admin Portal shortcut */}
             <Link
               href="/admin"
-              className="hidden sm:flex items-center gap-1 px-3 py-1.5 text-[11px] uppercase tracking-wider font-bold bg-[#002B5C] text-white hover:bg-[#0055A5] transition-all rounded-full shadow-xs"
+              className="hidden md:inline-flex items-center gap-1 text-[11px] uppercase tracking-wider text-[#777777] hover:text-[#111111] font-semibold border-l border-[#E5E5E5] pl-3"
               title="Admin Portal"
             >
-              <Shield className="w-3 h-3 text-[#00A3E0]" />
-              <span>{t.nav.adminPortal}</span>
+              <span>Admin</span>
             </Link>
           </div>
         </div>
-
-        {/* Dropdown Mega Menu for Kangen Ionizers */}
-        {activeDropdown === 'ionizers' && (
-          <div
-            className="hidden lg:block absolute left-0 right-0 top-full glass-card border-b border-[#0055A5]/20 shadow-2xl animate-in fade-in duration-150 before:absolute before:-top-3 before:h-3 before:w-full before:content-['']"
-            onMouseEnter={() => {
-              if (timeoutRef.current) clearTimeout(timeoutRef.current);
-            }}
-            onMouseLeave={handleMouseLeave}
-          >
-            <div className="max-w-[1440px] mx-auto px-8 py-8 grid grid-cols-12 gap-8">
-              {/* Column 1: Core Models List */}
-              <div className="col-span-4 space-y-3 border-r border-[#E5E5E5] pr-6">
-                <span className="text-[11px] uppercase tracking-[0.2em] font-extrabold text-[#0055A5] flex items-center gap-1.5">
-                  <Award className="w-3.5 h-3.5 text-[#C5A059]" />
-                  <span>Dòng Máy Điện Giải Y Tế Chuẩn Nhật Bản</span>
-                </span>
-                <ul className="space-y-2 pt-1 text-xs">
-                  {ionizerProducts.slice(0, 5).map((prod) => (
-                    <li key={prod.id}>
-                      <Link
-                        href={`/product/${prod.slug}`}
-                        onClick={() => setActiveDropdown(null)}
-                        className="p-2 rounded-lg hover:bg-[#EDF4FA] transition-all flex items-center justify-between group"
-                      >
-                        <div>
-                          <p className="font-bold text-[#002B5C] group-hover:text-[#0055A5]">
-                            {language === 'vi' ? prod.nameVi || prod.name : prod.nameEn || prod.name}
-                          </p>
-                          <p className="text-[11px] text-[#666666] line-clamp-1">{prod.materials}</p>
-                        </div>
-                        <span className="text-[12px] font-bold text-[#0055A5] font-mono ml-2">
-                          {formatPrice(prod.price, currency)}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Column 2: 5 Water Types Overview */}
-              <div className="col-span-4 space-y-3 border-r border-[#E5E5E5] pr-6">
-                <span className="text-[11px] uppercase tracking-[0.2em] font-extrabold text-[#0072CE]">
-                  Công Dụng 5 Loại Nước Kangen®
-                </span>
-                <div className="space-y-2 text-xs">
-                  <div className="p-2.5 rounded-lg bg-[#EBF6FC] border border-[#00A3E0]/20">
-                    <p className="font-bold text-[#0055A5]">1. Nước Kangen Uống (pH 8.5 - 9.5)</p>
-                    <p className="text-[11px] text-[#4A6B82]">Giàu Hydro chống lão hóa, thanh lọc cơ thể, nấu ăn ngon.</p>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-[#FDF7E7] border border-[#C5A059]/20">
-                    <p className="font-bold text-[#8A6D2B]">2. Nước Kiềm Mạnh (pH 11.5)</p>
-                    <p className="text-[11px] text-[#6E5A2A]">Bóc tách thuốc trừ sâu, chất bảo quản và dầu bóng trên rau củ quả.</p>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-[#FDEEEF] border border-[#B74747]/20">
-                    <p className="font-bold text-[#B74747]">3. Nước Axit Mạnh (pH 2.5)</p>
-                    <p className="text-[11px] text-[#7A3333]">Diệt khuẩn 99.99% vết thương, sát trùng dao thớt dụng cụ nhà bếp.</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Column 3: Flagship LeveLuk K8 Highlight Banner */}
-              <div className="col-span-4 pl-2 flex flex-col justify-center">
-                <div className="relative w-full aspect-[16/10] overflow-hidden rounded-2xl bg-gradient-to-tr from-[#002B5C] to-[#0055A5] p-6 text-white shadow-lg flex flex-col justify-between">
-                  <div>
-                    <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#00A3E0] text-[10px] font-extrabold uppercase tracking-wider text-white mb-2">
-                      Flagship Model
-                    </span>
-                    <h4 className="text-xl font-bold leading-tight">Enagic LeveLuk K8</h4>
-                    <p className="text-xs text-[#D8E6F3] mt-1 line-clamp-2">
-                      8 Tấm điện cực Titan phủ Bạch kim, màn hình cảm ứng LCD 8 thứ tiếng.
-                    </p>
-                  </div>
-                  <Link
-                    href="/product/enagic-leveluk-k8"
-                    onClick={() => setActiveDropdown(null)}
-                    className="inline-flex items-center gap-1.5 bg-white text-[#002B5C] px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-[#00A3E0] hover:text-white transition-all self-start shadow-md"
-                  >
-                    <span>Khám Phá K8</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Mobile Navigation Drawer */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden border-t border-[#0055A5]/20 glass-card px-6 py-6 animate-in slide-in-from-top duration-200 max-h-[85vh] overflow-y-auto shadow-2xl bg-white/95">
-            <div className="flex items-center justify-between pb-4 border-b border-[#E5E5E5] mb-4">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#0055A5]">
-                Enagic® Kangen Water® Menu
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setLanguage(language === 'vi' ? 'en' : 'vi')}
-                  className="px-2.5 py-1 text-xs font-bold rounded-full bg-[#0055A5] text-white"
-                >
-                  {language.toUpperCase()}
-                </button>
-                <button
-                  onClick={() => setCurrency(currency === 'USD' ? 'VND' : 'USD')}
-                  className="px-2 py-1 text-xs font-bold rounded-full border border-black/20 text-[#111111]"
-                >
-                  {currency}
-                </button>
-              </div>
-            </div>
-
-            <nav className="flex flex-col space-y-3 text-xs uppercase tracking-widest font-semibold text-[#002B5C]">
-              <Link
-                href="/"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="py-2.5 border-b border-[#F5F4F0] flex items-center justify-between"
-              >
-                <span>{t.nav.home}</span>
-              </Link>
-
-              <Link
-                href="/shop"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="py-2.5 border-b border-[#F5F4F0] flex items-center justify-between text-[#0055A5] font-bold"
-              >
-                <span>{t.nav.products} (LeveLuk K8, SD501...)</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-
-              <Link
-                href="/#waters-section"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="py-2.5 border-b border-[#F5F4F0] flex items-center justify-between"
-              >
-                <span>{t.nav.waterTypes}</span>
-              </Link>
-
-              <Link
-                href="/shop?category=cat-filters"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="py-2.5 border-b border-[#F5F4F0] flex items-center justify-between"
-              >
-                <span>{t.nav.accessories}</span>
-              </Link>
-
-              <Link
-                href="/#certifications"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="py-2.5 border-b border-[#F5F4F0] flex items-center justify-between"
-              >
-                <span>{t.nav.certifications}</span>
-              </Link>
-
-              <Link
-                href="/admin"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="mt-4 py-3 bg-[#002B5C] text-white text-center rounded-xl font-bold flex items-center justify-center gap-2 shadow-md"
-              >
-                <Shield className="w-4 h-4 text-[#00A3E0]" />
-                <span>{t.nav.adminPortal}</span>
-              </Link>
-            </nav>
-          </div>
-        )}
       </header>
 
-      {/* Instant Search Dialog */}
+      {/* Mobile Navigation Drawer */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden bg-black/50 backdrop-blur-sm">
+          <div className="fixed inset-y-0 left-0 w-4/5 max-w-sm bg-white p-6 shadow-xl flex flex-col justify-between overflow-y-auto">
+            <div>
+              <div className="flex items-center justify-between pb-6 border-b border-[#E5E5E5]">
+                <span className="text-xl font-light tracking-[0.2em] text-[#111111]">ENAGIC</span>
+                <button onClick={() => setIsMobileMenuOpen(false)} aria-label="Close menu">
+                  <X className="w-5 h-5 text-[#111111]" />
+                </button>
+              </div>
+
+              <div className="py-6 space-y-4 text-sm uppercase tracking-wider font-semibold text-[#111111]">
+                <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="block py-1 hover:text-[#666666]">
+                  {t.nav.home}
+                </Link>
+                <Link href="/shop" onClick={() => setIsMobileMenuOpen(false)} className="block py-1 hover:text-[#666666]">
+                  {t.nav.products}
+                </Link>
+                <Link href="/shop?category=cat-spa" onClick={() => setIsMobileMenuOpen(false)} className="block py-1 hover:text-[#666666]">
+                  Anespa Mineral Spa
+                </Link>
+                <Link href="/shop?category=cat-filters" onClick={() => setIsMobileMenuOpen(false)} className="block py-1 hover:text-[#666666]">
+                  {t.nav.accessories}
+                </Link>
+                <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block py-1 text-blue-800">
+                  Admin Portal
+                </Link>
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-[#E5E5E5] flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setLanguage('vi')}
+                  className={`px-2.5 py-1 rounded font-bold ${language === 'vi' ? 'bg-[#111111] text-white' : 'text-[#666666]'}`}
+                >
+                  VI
+                </button>
+                <button
+                  onClick={() => setLanguage('en')}
+                  className={`px-2.5 py-1 rounded font-bold ${language === 'en' ? 'bg-[#111111] text-white' : 'text-[#666666]'}`}
+                >
+                  EN
+                </button>
+              </div>
+              <button
+                onClick={() => setCurrency(currency === 'USD' ? 'VND' : 'USD')}
+                className="px-2.5 py-1 border rounded font-semibold"
+              >
+                {currency}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Search Modal */}
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>
   );
