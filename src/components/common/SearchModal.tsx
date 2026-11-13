@@ -93,7 +93,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             {t.shop.allCategories}
           </button>
           {categories.map((c) => {
-            const catName = language === 'vi' ? c.nameVi || c.name : c.nameEn || c.name;
+            const catName = c.nameEn || c.name;
             return (
               <button
                 key={c.id}
@@ -119,7 +119,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           ) : results.length > 0 ? (
             results.map((product) => {
-              const pName = language === 'vi' ? product.nameVi || product.name : product.nameEn || product.name;
+              const pName = product.nameEn || product.name;
               return (
                 <Link
                   key={product.id}
@@ -145,9 +145,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             })
           ) : (
             <div className="py-6 text-center text-xs text-[#888888]">
-              {language === 'vi'
-                ? 'Gợi ý: Tìm "K8", "SD501", "FC1", "Anespa", "Titanium"...'
-                : 'Suggestions: Try searching "K8", "SD501", "FC1", "Anespa"...'}
+              Suggestions: Try searching &quot;K8&quot;, &quot;SD501&quot;, &quot;FC1&quot;, &quot;Anespa&quot;, &quot;Titanium&quot;...
             </div>
           )}
         </div>

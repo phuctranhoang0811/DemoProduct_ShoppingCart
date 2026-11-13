@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { ArrowUp } from 'lucide-react';
-import { useTranslation } from '@/i18n/useTranslation';
 
 export function BackToTop() {
-  const { language } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -34,8 +32,8 @@ export function BackToTop() {
           ? 'opacity-100 translate-y-0 pointer-events-auto'
           : 'opacity-0 translate-y-6 pointer-events-none'
       }`}
-      aria-label={language === 'vi' ? 'Lên đầu trang' : 'Back to top'}
-      title={language === 'vi' ? 'Lên đầu trang' : 'Back to top'}
+      aria-label="Back to top"
+      title="Back to top"
     >
       <ArrowUp className="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-0.5" />
     </button>

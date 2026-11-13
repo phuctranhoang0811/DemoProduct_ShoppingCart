@@ -17,7 +17,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, density = 'catalog' }: ProductCardProps) {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const [selectedColorIdx, setSelectedColorIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
@@ -27,7 +27,7 @@ export function ProductCard({ product, density = 'catalog' }: ProductCardProps) 
   const isInWishlist = useCommerceStore((state) => state.isInWishlist(product.id));
   const currency = useCommerceStore((state) => state.currency);
 
-  const localizedName = language === 'vi' ? product.nameVi || product.name : product.nameEn || product.name;
+  const localizedName = product.nameEn || product.name;
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -36,9 +36,9 @@ export function ProductCard({ product, density = 'catalog' }: ProductCardProps) 
     setTimeout(() => setIsHeartPopping(false), 500);
     toggleWishlist(product.id);
     if (!isInWishlist) {
-      toast.success(language === 'vi' ? `Đã lưu vào danh sách yêu thích.` : `Saved to wishlist.`);
+      toast.success('Saved to wishlist.');
     } else {
-      toast.info(language === 'vi' ? `Đã bỏ khỏi danh sách yêu thích.` : `Removed from wishlist.`);
+      toast.info('Removed from wishlist.');
     }
   };
 
@@ -80,7 +80,7 @@ export function ProductCard({ product, density = 'catalog' }: ProductCardProps) 
           <div className="absolute top-1.5 left-1.5 flex flex-col gap-1 z-10 pointer-events-none">
             {product.specifications?.electrodes && (
               <span className="bg-black/85 text-white text-[10px] font-medium uppercase px-2 py-0.5 rounded-sm shadow-xs transition-transform duration-200 group-hover:translate-x-0.5">
-                {product.specifications.electrodes} {language === 'vi' ? 'Tấm' : 'Plates'}
+                {product.specifications.electrodes} Plates
               </span>
             )}
             {discountPercent && (

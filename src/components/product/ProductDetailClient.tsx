@@ -83,10 +83,10 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     return (
       <div className="max-w-[1440px] mx-auto px-4 py-28 text-center space-y-4">
         <h1 className="text-2xl font-light text-[#111111]">
-          {language === 'vi' ? 'Không Tìm Thấy Sản Phẩm' : 'Product Not Found'}
+          Product Not Found
         </h1>
         <p className="text-xs text-[#777777]">
-          {language === 'vi' ? 'Sản phẩm không tồn tại hoặc đã được gỡ xuống.' : 'The requested product does not exist.'}
+          The requested medical device or accessory does not exist or has been retired.
         </p>
         <Link
           href="/shop"
@@ -98,9 +98,9 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     );
   }
 
-  const productName = language === 'vi' ? product.nameVi || product.name : product.nameEn || product.name;
-  const productDesc = language === 'vi' ? product.descriptionVi || product.description : product.descriptionEn || product.description;
-  const productDetails = (language === 'vi' ? product.detailsVi || product.details : product.detailsEn || product.details) || [];
+  const productName = product.nameEn || product.name;
+  const productDesc = product.descriptionEn || product.description;
+  const productDetails = product.detailsEn || product.details || [];
 
   const handleAddToCart = () => {
     const pkgLabel = selectedPackage || product.sizes[0]?.label || 'Standard';
@@ -119,17 +119,13 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       stock: stockAvailable,
     });
 
-    toast.success(
-      language === 'vi'
-        ? `Đã thêm ${quantity}x "${productName}" vào túi hàng.`
-        : `Added ${quantity}x "${productName}" to your bag.`
-    );
+    toast.success(`Added ${quantity}x "${productName}" to your bag.`);
   };
 
   const handleReviewSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!reviewName.trim() || !reviewComment.trim()) {
-      toast.error(language === 'vi' ? 'Vui lòng điền đủ họ tên và nội dung.' : 'Please complete required fields.');
+      toast.error('Please complete all required fields.');
       return;
     }
 
@@ -148,7 +144,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       setReviewName('');
       setReviewEmail('');
       setReviewComment('');
-      toast.success(language === 'vi' ? 'Cảm ơn đánh giá của bạn!' : 'Thank you for your review!');
+      toast.success('Thank you for your product review!');
     }, 400);
   };
 
@@ -196,7 +192,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
             />
             {product.specifications?.electrodes && (
               <span className="absolute top-4 left-4 bg-black/80 text-white text-[11px] font-medium px-3 py-1 rounded-sm shadow-xs">
-                {product.specifications.electrodes} {language === 'vi' ? 'Tấm Titan Bạch Kim' : 'Plates'}
+                {product.specifications.electrodes} Solid Titanium Plates
               </span>
             )}
           </div>
@@ -346,7 +342,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                   <div className="pb-4 text-xs space-y-1.5 text-[#555555]">
                     <div className="flex justify-between py-1 border-b border-gray-100">
                       <span className="text-[#888888]">{t.showcase.electrodes}:</span>
-                      <span className="font-medium text-[#111111]">{product.specifications.electrodes} Tấm Titan Bạch Kim</span>
+                      <span className="font-medium text-[#111111]">{product.specifications.electrodes} Solid Platinum-Dipped Titanium Plates</span>
                     </div>
                     <div className="flex justify-between py-1 border-b border-gray-100">
                       <span className="text-[#888888]">{t.showcase.phRange}:</span>
@@ -374,7 +370,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                 onClick={() => setOpenAccordion(openAccordion === 'details' ? null : 'details')}
                 className="w-full py-3 flex items-center justify-between text-xs font-semibold text-[#111111] uppercase tracking-wider"
               >
-                <span>{language === 'vi' ? 'Đặc Điểm Nổi Bật' : 'Key Highlights'}</span>
+                <span>Key Highlights</span>
                 {openAccordion === 'details' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
               {openAccordion === 'details' && (
@@ -396,7 +392,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
             <div className="flex items-center justify-between border-b pb-3">
               <h3 className="text-sm font-semibold text-[#111111] uppercase tracking-wider flex items-center gap-2">
                 <Wrench className="w-4 h-4" />
-                <span>{language === 'vi' ? 'Sơ Đồ & Yêu Cầu Lắp Đặt' : 'Installation Requirements'}</span>
+                <span>Installation Requirements</span>
               </h3>
               <button onClick={() => setIsInstallGuideOpen(false)} className="text-[#777777] hover:text-[#111111]">
                 ✕
@@ -404,24 +400,24 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
             </div>
             <div className="space-y-3 text-xs text-[#555555] leading-relaxed">
               <div className="p-3 bg-[#FAF9F5] border border-[#E5E5E5]">
-                <h4 className="font-semibold text-[#111111] mb-0.5">1. Lắp Đặt Để Bàn (Countertop)</h4>
-                <p>Nối trực tiếp vào đầu vòi rửa gia đình thông qua đầu chia vòi thông minh kèm theo máy.</p>
+                <h4 className="font-semibold text-[#111111] mb-0.5">1. Countertop Installation</h4>
+                <p>Connects directly to your standard kitchen faucet via the smart diverter adapter included with the machine.</p>
               </div>
               <div className="p-3 bg-[#FAF9F5] border border-[#E5E5E5]">
-                <h4 className="font-semibold text-[#111111] mb-0.5">2. Lắp Đặt Dưới Chậu Rửa (Under-sink)</h4>
-                <p>Sử dụng bộ vòi điện tử chuyên dụng đưa lên mặt bồn, thân máy đặt kín đáo bên dưới tủ bếp.</p>
+                <h4 className="font-semibold text-[#111111] mb-0.5">2. Under-Sink Installation</h4>
+                <p>Equipped with a dedicated electronic faucet kit mounted on the sink counter while the ionizer unit rests discreetly below.</p>
               </div>
               <div className="p-3 bg-[#FAF9F5] border border-[#E5E5E5]">
-                <h4 className="font-semibold text-[#111111] mb-0.5">3. Nguồn Nước & Áp Lực</h4>
-                <p>Nước máy sinh hoạt đã qua bộ tiền lọc nano xử lý thô. Áp lực nước 0.1 - 0.5 MPa.</p>
+                <h4 className="font-semibold text-[#111111] mb-0.5">3. Water Source & Pressure</h4>
+                <p>Standard municipal tap water passed through a certified pre-filtration sediment and dual-carbon filter. Water pressure 0.1 - 0.5 MPa.</p>
               </div>
             </div>
             <div className="pt-2 text-right">
               <button
                 onClick={() => setIsInstallGuideOpen(false)}
-                className="bg-[#111111] text-white px-5 py-2 text-xs font-semibold"
+                className="bg-[#111111] text-white px-5 py-2 text-xs font-semibold btn-tactile"
               >
-                {language === 'vi' ? 'Đóng' : 'Close'}
+                Close
               </button>
             </div>
           </div>
@@ -476,7 +472,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
             </div>
             <textarea
               rows={3}
-              placeholder={language === 'vi' ? 'Nội dung nhận xét...' : 'Write your review...'}
+              placeholder="Write your review..."
               value={reviewComment}
               onChange={(e) => setReviewComment(e.target.value)}
               className="w-full text-xs p-2.5 border border-[#E5E5E5] bg-white outline-none"
@@ -497,7 +493,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       {relatedProducts.length > 0 && (
         <section className="mt-16 border-t border-[#E5E5E5] pt-10">
           <h2 className="text-lg font-normal text-[#111111] mb-6">
-            {language === 'vi' ? 'Sản Phẩm Tương Thích' : 'Related Equipment'}
+            Related Equipment
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-7">
             {relatedProducts.map((p) => (

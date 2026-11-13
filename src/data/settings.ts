@@ -1,13 +1,13 @@
 import { StoreSettings } from '@/types';
 
 export const initialSettings: StoreSettings = {
-  storeName: 'ENAGIC® VIETNAM | KANGEN WATER®',
-  storeDescription: 'Nhà sản xuất độc quyền toàn cầu máy tạo nước ion kiềm y tế Kangen® từ năm 1974. Thay đổi nguồn nước, thay đổi cuộc sống®.',
-  contactEmail: 'support@enagic-kangen.vn',
-  contactPhone: '1900 866 814',
+  storeName: 'ENAGIC® KANGEN WATER® & HELLOBEE NETWORK',
+  storeDescription: 'Official OEM manufacturer of medical-grade ionized alkaline Kangen Water® machines since 1974. Change Your Water, Change Your Life.®',
+  contactEmail: 'support@hellobee.com',
+  contactPhone: '+1 (800) 555-KANGEN',
   shippingFee: 0,
   freeShippingThreshold: 0,
-  currency: 'VND',
-  announcementText: 'ENAGIC® CHÍNH HÃNG NHẬT BẢN | MIỄN PHÍ KHẢO SÁT NGUỒN NƯỚC & LẮP ĐẶT TẬN NHÀ TOÀN QUỐC',
+  currency: 'USD',
+  announcementText: 'AUTHENTIC ENAGIC® JAPAN • COMPLIMENTARY WATER TESTING & EXPERT INSTALLATION NATIONWIDE',
   lowStockThreshold: 3,
 };

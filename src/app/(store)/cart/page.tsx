@@ -32,13 +32,11 @@ export default function CartPage() {
 
     const res = validateDiscount(promoCode, subtotal);
     if (!res.valid) {
-      toast.error(res.error || (language === 'vi' ? 'Mã ưu đãi không hợp lệ.' : 'Invalid promotional code.'));
+      toast.error(res.error || 'Invalid promotional code.');
       setAppliedDiscount(null);
     } else {
       toast.success(
-        language === 'vi'
-          ? `Mã ${promoCode.toUpperCase()} đã được áp dụng! Tiết kiệm ${formatPrice(res.discountAmount, currency)}`
-          : `Code ${promoCode.toUpperCase()} applied! Saved ${formatPrice(res.discountAmount, currency)}`
+        `Code ${promoCode.toUpperCase()} applied! Saved ${formatPrice(res.discountAmount, currency)}`
       );
       setAppliedDiscount({
         code: promoCode.toUpperCase(),
@@ -162,7 +160,7 @@ export default function CartPage() {
         <div className="lg:col-span-4">
           <div className="bg-white p-6 rounded-lg border border-[#E5E5E5] shadow-xs space-y-5 sticky top-28">
             <h2 className="text-base font-semibold text-[#111111] border-b border-[#E5E5E5] pb-3 uppercase tracking-wider">
-              {language === 'vi' ? 'Tóm Tắt Đơn Hàng' : 'Order Summary'}
+              Order Summary
             </h2>
 
             <div className="space-y-3 text-xs">

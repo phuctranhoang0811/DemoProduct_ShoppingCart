@@ -31,9 +31,7 @@ const IONIZER_REELS = [
     poster: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1016_1_1.png',
     label: 'LeveLuk K8',
     title: 'The Mighty 8-Plate',
-    titleVi: 'Đỉnh Cao 8 Tấm Titan',
-    subtitle: 'Full-color multi-language touchscreen',
-    subtitleVi: 'Màn hình cảm ứng 8 thứ tiếng, ORP -850mV',
+    subtitle: 'Full-color multi-language touchscreen, ORP -850mV',
     link: '/product/enagic-leveluk-k8',
   },
   {
@@ -42,9 +40,7 @@ const IONIZER_REELS = [
     poster: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1064_1.png',
     label: 'LeveLuk SD501',
     title: 'The Global Icon',
-    titleVi: 'Biểu Tượng Toàn Cầu',
-    subtitle: '7 Large solid platinum-coated plates',
-    subtitleVi: '7 Tấm điện cực lớn, độ bền trên 25 năm',
+    subtitle: '7 Large solid platinum-coated plates, 25+ yr durability',
     link: '/product/enagic-leveluk-sd501',
   },
   {
@@ -53,9 +49,7 @@ const IONIZER_REELS = [
     poster: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1041_1.jpg',
     label: 'Anespa DX',
     title: 'Mineral Ion Spa',
-    titleVi: 'Khoáng Tắm Onsen Nhật',
-    subtitle: 'Removes 100% residual chlorine',
-    subtitleVi: 'Loại bỏ hoàn toàn Clo, dưỡng da và tóc',
+    subtitle: 'Removes residual chlorine, protects hair and skin',
     link: '/product/enagic-anespa-dx',
   },
   {
@@ -64,15 +58,12 @@ const IONIZER_REELS = [
     poster: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1007_01.jpg',
     label: 'Super 501',
     title: 'Commercial Output',
-    titleVi: 'Công Suất Lớn 12 Tấm',
-    subtitle: 'Dual chambers for clinics & heavy use',
-    subtitleVi: 'Buồng điện phân kép cho phòng khám & gia đình',
+    subtitle: 'Dual chambers with 12 plates for clinics & heavy use',
     link: '/product/enagic-leveluk-super-501',
   },
 ];
 
 function ReelCard({ reel }: { reel: (typeof IONIZER_REELS)[0] }) {
-  const { language } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -85,9 +76,6 @@ function ReelCard({ reel }: { reel: (typeof IONIZER_REELS)[0] }) {
       videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
     }
   };
-
-  const title = language === 'vi' ? reel.titleVi : reel.title;
-  const subtitle = language === 'vi' ? reel.subtitleVi : reel.subtitle;
 
   return (
     <div
@@ -106,7 +94,7 @@ function ReelCard({ reel }: { reel: (typeof IONIZER_REELS)[0] }) {
     >
       <Image
         src={reel.poster}
-        alt={title}
+        alt={reel.title}
         fill
         className={`object-cover transition-opacity duration-300 ${isPlaying ? 'opacity-0' : 'opacity-100'}`}
         sizes="280px"
@@ -135,14 +123,14 @@ function ReelCard({ reel }: { reel: (typeof IONIZER_REELS)[0] }) {
       {/* Bottom Content */}
       <div className="absolute bottom-0 inset-x-0 p-4 sm:p-5">
         <span className="text-[10px] text-cyan-300 uppercase tracking-widest font-semibold drop-shadow-sm">{reel.label}</span>
-        <h3 className="text-white font-medium text-base sm:text-lg leading-tight mt-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">{title}</h3>
-        <p className="text-[#E0E0E0] text-xs mt-0.5 mb-3 line-clamp-1 drop-shadow-sm">{subtitle}</p>
+        <h3 className="text-white font-medium text-base sm:text-lg leading-tight mt-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">{reel.title}</h3>
+        <p className="text-[#E0E0E0] text-xs mt-0.5 mb-3 line-clamp-1 drop-shadow-sm">{reel.subtitle}</p>
         <Link
           href={reel.link}
           onClick={(e) => e.stopPropagation()}
           className="inline-flex items-center gap-1.5 bg-white text-[#111111] text-[11px] uppercase tracking-wider px-3.5 py-1.5 rounded-full font-semibold hover:bg-[#F5F4F0] active:scale-95 transition-all shadow-md mirror-sheen"
         >
-          <span>{language === 'vi' ? 'Xem Máy' : 'Explore'}</span>
+          <span>Explore</span>
           <ArrowUpRight className="w-3 h-3" />
         </Link>
       </div>
@@ -151,7 +139,7 @@ function ReelCard({ reel }: { reel: (typeof IONIZER_REELS)[0] }) {
 }
 
 export default function HomePage() {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const products = useCommerceStore((state) => state.products);
   const categories = useCommerceStore((state) => state.categories);
 
@@ -196,12 +184,12 @@ export default function HomePage() {
   const bestSellers = products.filter((p) => p.bestSeller && p.status === 'active').slice(0, 8);
 
   const quickCategories = [
-    { label: language === 'vi' ? 'Tất Cả Thiết Bị' : 'All Products', href: '/shop' },
-    { label: language === 'vi' ? 'Máy Điện Giải (K8 / SD501)' : 'Ionizers (K8 / SD501)', href: '/shop?category=cat-ionizers' },
-    { label: language === 'vi' ? 'Khoáng Tắm Anespa' : 'Mineral Spa (Anespa)', href: '/shop?category=cat-spa' },
-    { label: language === 'vi' ? 'Lõi Lọc Chính Hãng FC1' : 'High-Grade Filters', href: '/shop?category=cat-filters' },
-    { label: language === 'vi' ? 'Muối & Bộ Vệ Sinh E-Cleaner' : 'Care & Maintenance', href: '/shop?category=cat-accessories' },
-    { label: language === 'vi' ? 'Bình Chống Tia UV' : 'Water Bottles & Tanks', href: '/shop?category=cat-bottles' },
+    { label: 'All Products', href: '/shop' },
+    { label: 'Ionizers (K8 / SD501)', href: '/shop?category=cat-ionizers' },
+    { label: 'Mineral Spa (Anespa)', href: '/shop?category=cat-spa' },
+    { label: 'High-Grade Filters', href: '/shop?category=cat-filters' },
+    { label: 'Care & Maintenance', href: '/shop?category=cat-accessories' },
+    { label: 'Water Bottles & Tanks', href: '/shop?category=cat-bottles' },
   ];
 
   return (
@@ -317,7 +305,7 @@ export default function HomePage() {
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1">
           <span className="text-xs uppercase tracking-wider font-semibold text-[#777777] mr-1 flex-shrink-0">
-            {language === 'vi' ? 'Nhóm Máy:' : 'Quick Shop:'}
+            Quick Shop:
           </span>
           {quickCategories.map((cat) => (
             <Link
@@ -363,10 +351,10 @@ export default function HomePage() {
         <div className="flex items-end justify-between mb-6 pb-3 border-b border-[#E5E5E5]">
           <div>
             <span className="text-xs uppercase tracking-widest text-[#777777] font-semibold">
-              {language === 'vi' ? 'Công Nghệ Điện Phân' : 'Engineering in Motion'}
+              Engineering in Motion
             </span>
             <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-[#111111] mt-0.5">
-              {language === 'vi' ? 'Dòng Máy LeveLuk Series' : 'LeveLuk Series'}
+              LeveLuk Series
             </h2>
           </div>
           <div className="flex items-center gap-2">
@@ -405,12 +393,10 @@ export default function HomePage() {
             </div>
             <div>
               <h3 className="text-white font-medium text-lg">
-                {language === 'vi' ? 'Tiêu Chuẩn Y Tế' : 'Medical Grade'}
+                Medical Grade
               </h3>
               <p className="text-xs text-[#AAAAAA] mt-1 leading-relaxed">
-                {language === 'vi'
-                  ? 'Sản xuất đồng bộ 100% tại nhà máy Enagic Osaka, Nhật Bản.'
-                  : 'Hand-assembled under strict ISO 13485 standards in Osaka, Japan.'}
+                Hand-assembled under strict ISO 13485 standards in Osaka, Japan.
               </p>
             </div>
             <Link
@@ -428,7 +414,7 @@ export default function HomePage() {
         <div className="flex items-end justify-between mb-6 pb-3 border-b border-[#E5E5E5]">
           <div>
             <span className="text-xs uppercase tracking-widest text-[#777777] font-semibold">
-              {language === 'vi' ? 'Danh Mục Sản Phẩm' : 'Explore Taxonomy'}
+              Explore Taxonomy
             </span>
             <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-[#111111] mt-0.5">
               {t.shop.categories}
@@ -445,7 +431,7 @@ export default function HomePage() {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
           {categories.map((category) => {
-            const catName = language === 'vi' ? category.nameVi || category.name : category.nameEn || category.name;
+            const catName = category.nameEn || category.name;
             return (
               <Link
                 key={category.id}
@@ -524,34 +510,28 @@ export default function HomePage() {
           {/* Text side */}
           <div className="flex flex-col justify-center p-8 sm:p-12 lg:p-16 space-y-5 text-white">
             <span className="text-xs uppercase tracking-widest text-[#B9A58B] font-semibold">
-              {language === 'vi' ? 'Triết Lý Chế Tác Y Khoa' : 'The Manufacturing Philosophy'}
+              The Manufacturing Philosophy
             </span>
             <h2 className="text-white text-3xl sm:text-4xl font-normal tracking-tight leading-[1.15] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-              {language === 'vi' ? (
-                <>Chuẩn Mực Y Tế &<br />Độ Bền Vượt Thời Gian.</>
-              ) : (
-                <>Medical Precision &<br />Uncompromising Purity.</>
-              )}
+              Medical Precision &<br />Uncompromising Purity.
             </h2>
             <p className="text-sm text-[#CCCCCC] leading-relaxed font-normal max-w-md drop-shadow-sm">
-              {language === 'vi'
-                ? 'Mỗi thiết bị Enagic được sản xuất đồng bộ tại Osaka, Nhật Bản với tấm điện cực Titan phủ Bạch Kim nguyên chất 99.97% — tạo nguồn nước chống oxy hóa bền bỉ suốt nhiều thập kỷ.'
-                : 'Every Enagic ionizer is manufactured under one roof in Osaka, Japan with 99.97% pure platinum-dipped titanium plates — delivering active hydrogen antioxidant water built to last.'}
+              Every Enagic ionizer is manufactured under one roof in Osaka, Japan with 99.97% pure platinum-dipped titanium plates — delivering active hydrogen antioxidant water built to last.
             </p>
 
             {/* Quick stats */}
             <div className="grid grid-cols-3 gap-3 pt-2">
               <div className="glass-dark rounded-md p-3 text-center border border-white/20">
-                <p className="text-white font-bold text-lg leading-none">8 Tấm</p>
+                <p className="text-white font-bold text-lg leading-none">8 Plates</p>
                 <p className="text-[#AAAAAA] text-[11px] font-medium uppercase tracking-wider mt-1">Titanium</p>
               </div>
               <div className="glass-dark rounded-md p-3 text-center border border-white/20">
                 <p className="text-white font-bold text-lg leading-none">-850 mV</p>
-                <p className="text-[#AAAAAA] text-[11px] font-medium uppercase tracking-wider mt-1">ORP Âm</p>
+                <p className="text-[#AAAAAA] text-[11px] font-medium uppercase tracking-wider mt-1">Neg ORP</p>
               </div>
               <div className="glass-dark rounded-md p-3 text-center border border-white/20">
-                <p className="text-white font-bold text-lg leading-none">5 Năm</p>
-                <p className="text-[#AAAAAA] text-[11px] font-medium uppercase tracking-wider mt-1">Bảo Hành</p>
+                <p className="text-white font-bold text-lg leading-none">5 Years</p>
+                <p className="text-[#AAAAAA] text-[11px] font-medium uppercase tracking-wider mt-1">Warranty</p>
               </div>
             </div>
 

@@ -8,16 +8,16 @@ import { useTranslation } from '@/i18n/useTranslation';
 import { Sparkles, ArrowRight } from 'lucide-react';
 
 export function StoreFooter() {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
-      toast.error(language === 'vi' ? 'Vui lòng nhập địa chỉ email hợp lệ.' : 'Please enter a valid email.');
+      toast.error('Please enter a valid email address.');
       return;
     }
-    toast.success(language === 'vi' ? 'Đăng ký thành công!' : 'Subscribed successfully!');
+    toast.success('Subscribed successfully to our newsletter!');
     setEmail('');
   };
 

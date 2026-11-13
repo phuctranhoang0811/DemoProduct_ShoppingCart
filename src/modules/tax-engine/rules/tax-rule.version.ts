@@ -35,9 +35,9 @@ export interface TaxRuleSetDefinition {
   additionalMedicareThreshold?: number;
   additionalMedicareRate?: number;
 
-  // Vietnam specific
-  baseSalary?: number; // mức lương cơ sở (2,340,000)
-  regionalMinSalary?: number; // mức lương tối thiểu vùng (4,960,000 for Region 1)
+  // Statutory insurance parameters
+  baseSalary?: number; // Base statutory salary benchmark
+  regionalMinSalary?: number; // Regional minimum statutory salary
   bhxhEmployeeRate?: number; // 0.08
   bhytEmployeeRate?: number; // 0.015
   bhtnEmployeeRate?: number; // 0.01

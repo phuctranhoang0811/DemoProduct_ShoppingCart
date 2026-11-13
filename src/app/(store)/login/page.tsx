@@ -5,12 +5,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowRight, UserCheck, Shield } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
-import { useTranslation } from '@/i18n/useTranslation';
 import { toast } from 'sonner';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { language } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const loginWithEmail = useCommerceStore((state) => state.loginWithEmail);
@@ -19,7 +17,7 @@ export default function LoginPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) {
-      toast.error(language === 'vi' ? 'Vui lòng nhập địa chỉ email.' : 'Please enter an email address.');
+      toast.error('Please enter an email address.');
       return;
     }
 
@@ -27,7 +25,7 @@ export default function LoginPage() {
     const success = loginWithEmail(clean);
 
     if (success) {
-      toast.success(language === 'vi' ? 'Đăng nhập thành công!' : 'Signed in successfully!');
+      toast.success('Signed in successfully!');
       if (clean.includes('admin') || clean.includes('owner')) {
         router.push('/admin');
       } else if (clean.includes('employee') || clean.includes('staff')) {
@@ -36,17 +34,13 @@ export default function LoginPage() {
         router.push('/account');
       }
     } else {
-      toast.error(
-        language === 'vi'
-          ? 'Email không tồn tại trong hệ thống demo.'
-          : 'Account not recognized. Please pick one of the demo role accounts.'
-      );
+      toast.error('Account not recognized. Please pick one of the demo role accounts.');
     }
   };
 
   const handleQuickLogin = (role: 'customer' | 'employee' | 'admin', name: string) => {
     loginAsDemo(role);
-    toast.success(`${language === 'vi' ? 'Đã đăng nhập vai trò' : 'Signed in as'}: ${name}`);
+    toast.success(`Signed in as: ${name}`);
     if (role === 'admin') {
       router.push('/admin');
     } else if (role === 'employee') {
@@ -61,12 +55,10 @@ export default function LoginPage() {
       {/* Clean Header */}
       <div className="text-center space-y-2 mb-8">
         <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-[#111111]">
-          {language === 'vi' ? 'Đăng Nhập' : 'Sign In'}
+          Sign In
         </h1>
         <p className="text-xs text-[#777777]">
-          {language === 'vi'
-            ? 'Đăng nhập vào tài khoản Enagic® Kangen Water® của bạn'
-            : 'Sign in to access your account'}
+          Sign in to access your Enagic® Kangen Water® account
         </p>
       </div>
 
@@ -89,7 +81,7 @@ export default function LoginPage() {
 
           <div>
             <label className="text-[11px] text-[#555555] uppercase tracking-wider font-semibold block mb-1.5">
-              {language === 'vi' ? 'Mật khẩu' : 'Password'}
+              Password
             </label>
             <input
               type="password"
@@ -104,14 +96,14 @@ export default function LoginPage() {
             type="submit"
             className="w-full bg-[#111111] hover:bg-[#262626] text-white py-3 text-xs uppercase tracking-[0.12em] font-semibold transition-all rounded-xs shadow-xs hover:shadow-md btn-tactile mt-2"
           >
-            {language === 'vi' ? 'Đăng Nhập' : 'Sign In'}
+            Sign In
           </button>
         </form>
 
         {/* Quick Demo Logins - Minimalist 3-Pill Grid */}
         <div className="pt-5 border-t border-[#F0F0F0]">
           <p className="text-[10px] uppercase tracking-wider text-[#888888] font-semibold text-center mb-3">
-            {language === 'vi' ? 'Đăng nhập nhanh' : 'Quick Demo Access'}
+            Quick Demo Access
           </p>
           <div className="grid grid-cols-3 gap-2">
             {/* Admin */}
@@ -159,9 +151,9 @@ export default function LoginPage() {
       {/* Navigation Footer */}
       <div className="mt-6 text-center text-xs text-[#777777]">
         <p>
-          {language === 'vi' ? 'Chưa có tài khoản?' : 'New to Enagic?'}{' '}
+          New to Enagic?{' '}
           <Link href="/register" className="text-[#111111] underline font-semibold hover:text-black">
-            {language === 'vi' ? 'Đăng ký tài khoản mới &rarr;' : 'Create an account &rarr;'}
+            Create an account &rarr;
           </Link>
         </p>
       </div>

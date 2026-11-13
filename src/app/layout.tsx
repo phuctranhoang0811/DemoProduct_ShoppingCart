@@ -14,30 +14,28 @@ import {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Enagic® Kangen Water® | Máy Tạo Nước Điện Giải Ion Kiềm Chuẩn Y Tế Nhật Bản',
+    default: 'Enagic® Kangen Water® | Japanese Medical-Grade Water Ionizers',
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    'Nhà phân phối máy điện giải ion kiềm y tế Kangen® chính hãng Enagic Nhật Bản: LeveLuk K8, SD501, Super 501, Anespa DX. Tạo 5 nguồn nước giàu hydro chống oxy hóa, hỗ trợ tiêu hóa và nâng tầm sức khỏe. Miễn phí khảo sát & lắp đặt toàn quốc.',
+    'Official distributor of Enagic® Kangen Water® medical-grade water ionizers: LeveLuk K8, SD501, Super 501, Anespa DX. Producing 5 types of antioxidant-rich alkaline ionized water. Certified Medical Device.',
   keywords: [
-    'máy lọc nước kangen',
-    'máy điện giải kangen',
     'kangen water',
     'enagic kangen',
+    'water ionizer',
     'leveluk k8',
     'leveluk sd501',
     'sd501 platinum',
     'anespa dx',
-    'nước ion kiềm kangen',
-    'máy tạo nước điện giải nhật bản',
-    'nước kangen 9.5',
-    'thay đổi nguồn nước thay đổi cuộc sống',
-    'enagic usa',
-    'enagic việt nam',
+    'alkaline water machine',
+    'electrolyzed water',
+    'medical grade water ionizer',
+    'enagic international',
+    'change your water change your life',
   ],
   authors: [{ name: 'Enagic International Japan', url: SITE_URL }],
   creator: 'Enagic International',
-  publisher: 'Enagic® Kangen Water® Vietnam',
+  publisher: 'Enagic® Kangen Water®',
   formatDetection: {
     email: false,
     address: false,
@@ -45,18 +43,14 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: '/',
-    languages: {
-      'vi-VN': `${SITE_URL}`,
-      'en-US': `${SITE_URL}?lang=en`,
-    },
   },
   openGraph: {
-    title: 'Enagic® Kangen Water® | Máy Tạo Nước Điện Giải Ion Kiềm Y Tế Nhật Bản',
+    title: 'Enagic® Kangen Water® | Japanese Medical-Grade Water Ionizers',
     description:
-      'Độc quyền sản xuất máy điện giải ion kiềm chuẩn thiết bị y tế từ 1974. Sở hữu 8 tấm điện cực Titan phủ Bạch kim, tạo 5 loại nước chăm sóc sức khỏe trọn vẹn.',
+      'Pioneer in electrolyzed water ionizer systems since 1974. Featuring solid medical-grade titanium platinum-coated plates producing 5 types of functional waters.',
     url: SITE_URL,
     siteName: SITE_NAME,
-    locale: 'vi_VN',
+    locale: 'en_US',
     type: 'website',
     images: [
       {

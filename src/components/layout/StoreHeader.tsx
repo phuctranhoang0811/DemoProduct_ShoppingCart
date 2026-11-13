@@ -26,7 +26,7 @@ import { formatPrice } from '@/lib/utils';
 
 export function StoreHeader() {
   const pathname = usePathname();
-  const { t, language, setLanguage } = useTranslation();
+  const { t } = useTranslation();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<'ionizers' | null>(null);
@@ -190,7 +190,7 @@ export function StoreHeader() {
                 >
                   <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#F0F0F0]">
                     <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#777777]">
-                      {language === 'vi' ? 'Thiết Bị Điện Giải Chuẩn Y Tế' : 'Flagship Medical Ionizers'}
+                      Flagship Medical Ionizers
                     </span>
                     <Link
                       href="/shop"
@@ -204,7 +204,7 @@ export function StoreHeader() {
 
                   <div className="grid grid-cols-2 gap-3.5">
                     {ionizerProducts.map((p) => {
-                      const pName = language === 'vi' ? p.nameVi || p.name : p.nameEn || p.name;
+                      const pName = p.nameEn || p.name;
                       return (
                         <Link
                           key={p.id}
@@ -238,7 +238,7 @@ export function StoreHeader() {
                   <div className="mt-4 pt-3 border-t border-[#F0F0F0] flex items-center justify-between text-[11px] text-[#666666]">
                     <span className="flex items-center gap-1">
                       <ShieldCheck className="w-3.5 h-3.5 text-[#477A5A]" />
-                      <span>{language === 'vi' ? 'Bảo hành chính hãng Enagic 3-5 năm' : 'Official Enagic 3-5 Year Warranty'}</span>
+                      <span>Official Enagic 3-5 Year Warranty</span>
                     </span>
                     <Link
                       href="/shop?category=cat-filters"
@@ -281,7 +281,7 @@ export function StoreHeader() {
                   : 'border-transparent text-[#444444] hover:text-[#111111] hover:border-[#111111]'
               }`}
             >
-              {language === 'vi' ? 'Tính Thuế' : 'Tax Calculator'}
+              Tax Calculator
             </Link>
 
             <Link
@@ -300,46 +300,16 @@ export function StoreHeader() {
             </Link>
           </nav>
 
-          {/* Right Action Icons: Language, Currency, Search, Wishlist, User, Cart, Portals */}
+          {/* Right Action Icons: Currency, Search, Wishlist, User, Cart, Portals */}
           <div className="flex items-center shrink-0 pl-3 sm:pl-5 xl:pl-7 border-l border-[#E5E5E5]/80 gap-2 sm:gap-3 text-[#111111]">
-            {/* Language & Currency Group */}
+            {/* Interactive Currency Toggle */}
             <div className="flex items-center gap-1.5 shrink-0">
-              {/* Language Switcher Toggle */}
-              <div className="flex items-center border border-[#E5E5E5] rounded-full p-0.5 bg-[#F5F4F0] text-[10px] font-bold tracking-wider shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setLanguage('vi')}
-                  className={`px-2 py-0.5 rounded-full transition-all ${
-                    language === 'vi'
-                      ? 'bg-[#111111] text-white shadow-xs'
-                      : 'text-[#666666] hover:text-[#111111]'
-                  }`}
-                  title="Tiếng Việt"
-                  aria-label="Tiếng Việt"
-                >
-                  VI
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLanguage('en')}
-                  className={`px-2 py-0.5 rounded-full transition-all ${
-                    language === 'en'
-                      ? 'bg-[#111111] text-white shadow-xs'
-                      : 'text-[#666666] hover:text-[#111111]'
-                  }`}
-                  title="English"
-                  aria-label="English"
-                >
-                  EN
-                </button>
-              </div>
-
-              {/* Interactive Currency Toggle */}
               <button
                 type="button"
                 onClick={() => setCurrency(currency === 'USD' ? 'VND' : 'USD')}
-                className="hidden xl:inline-flex items-center px-2 py-0.5 text-[10px] font-bold rounded-full border border-[#E5E5E5] bg-[#F5F4F0] text-[#333333] hover:border-gray-300 hover:bg-[#EAE8E3] transition-colors shrink-0"
-                title={language === 'vi' ? 'Nhấn để đổi tiền tệ (USD / VND)' : 'Click to toggle currency (USD / VND)'}
+                className="inline-flex items-center px-2.5 py-1 text-[10px] font-bold rounded-full border border-[#E5E5E5] bg-[#F5F4F0] text-[#333333] hover:border-gray-300 hover:bg-[#EAE8E3] transition-colors shrink-0 btn-tactile"
+                title="Click to toggle currency ($ USD / ₫ VND)"
+                aria-label="Toggle currency"
               >
                 <span>{currency === 'USD' ? '$ USD' : '₫ VND'}</span>
               </button>
@@ -356,7 +326,7 @@ export function StoreHeader() {
                 onClick={() => setIsSearchOpen(true)}
                 className="p-2 text-[#222222] hover:text-black hover:bg-[#F5F4F0] rounded-full transition-all duration-150 flex items-center justify-center shrink-0 btn-tactile hover:scale-105"
                 aria-label="Search"
-                title={language === 'vi' ? 'Tìm kiếm (Cmd+K / Ctrl+K)' : 'Search (Cmd+K / Ctrl+K)'}
+                title="Search (Cmd+K / Ctrl+K)"
               >
                 <Search className="w-4 h-4 stroke-[1.8]" />
               </button>
@@ -366,7 +336,7 @@ export function StoreHeader() {
                 href="/wishlist"
                 className="p-2 text-[#222222] hover:text-black hover:bg-[#F5F4F0] rounded-full transition-all duration-150 relative flex items-center justify-center shrink-0 btn-tactile hover:scale-105"
                 aria-label="Wishlist"
-                title={language === 'vi' ? 'Danh sách yêu thích' : 'Wishlist'}
+                title="Wishlist"
               >
                 <Heart className="w-4 h-4 stroke-[1.8]" />
                 {wishlist.length > 0 && (
@@ -384,9 +354,7 @@ export function StoreHeader() {
                   aria-label="User Account"
                   title={
                     currentUser
-                      ? `${language === 'vi' ? 'Tài khoản' : 'Account'}: ${currentUser.name}`
-                      : language === 'vi'
-                      ? 'Đăng nhập'
+                      ? `Account: ${currentUser.name}`
                       : 'Sign In'
                   }
                 >
@@ -412,13 +380,13 @@ export function StoreHeader() {
                           href="/account"
                           className="flex items-center px-3.5 py-2 text-[#333333] hover:bg-[#F9F9F8] transition-colors"
                         >
-                          {language === 'vi' ? 'Tài khoản của tôi' : 'My Account'}
+                          My Account
                         </Link>
                         <Link
                           href="/orders"
                           className="flex items-center px-3.5 py-2 text-[#333333] hover:bg-[#F9F9F8] transition-colors"
                         >
-                          {language === 'vi' ? 'Lịch sử đơn hàng' : 'Order History'}
+                          Order History
                         </Link>
                         {currentUser.role === 'employee' && (
                           <Link
@@ -445,7 +413,7 @@ export function StoreHeader() {
                             className="w-full flex items-center gap-1.5 px-3.5 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
                           >
                             <LogOut className="w-3.5 h-3.5" />
-                            <span>{language === 'vi' ? 'Đăng xuất' : 'Sign Out'}</span>
+                            <span>Sign Out</span>
                           </button>
                         </div>
                       </>
@@ -453,20 +421,20 @@ export function StoreHeader() {
                       <>
                         <div className="px-3.5 py-2 border-b border-[#F0F0F0]">
                           <p className="text-[11px] font-semibold text-[#111111]">
-                            {language === 'vi' ? 'Tài khoản Enagic®' : 'Enagic® Account'}
+                            Enagic® Account
                           </p>
                         </div>
                         <Link
                           href="/login"
                           className="flex items-center px-3.5 py-2 text-[#111111] hover:bg-[#F9F9F8] font-semibold transition-colors"
                         >
-                          {language === 'vi' ? 'Đăng nhập' : 'Sign In'}
+                          Sign In
                         </Link>
                         <Link
                           href="/register"
                           className="flex items-center px-3.5 py-2 text-[#555555] hover:bg-[#F9F9F8] transition-colors"
                         >
-                          {language === 'vi' ? 'Đăng ký tài khoản' : 'Create Account'}
+                          Create Account
                         </Link>
                       </>
                     )}
@@ -593,7 +561,7 @@ export function StoreHeader() {
                 className="w-full mt-4 flex items-center gap-2.5 px-3.5 py-2.5 rounded-md bg-[#F5F4F0] border border-[#E5E5E5] text-xs text-[#777777] hover:bg-[#EEEEEE] transition-colors"
               >
                 <Search className="w-4 h-4 text-[#777777]" />
-                <span>{language === 'vi' ? 'Tìm kiếm máy, phụ kiện...' : 'Search products, parts...'}</span>
+                <span>Search products, parts...</span>
               </button>
 
               {/* Navigation Links */}
@@ -610,7 +578,7 @@ export function StoreHeader() {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block py-1 hover:text-[#666666] transition-colors"
                 >
-                  {t.nav.products} ({language === 'vi' ? 'Máy Điện Giải' : 'Ionizers'})
+                  {t.nav.products} (Ionizers)
                 </Link>
                 <Link
                   href="/shop?category=cat-spa"
@@ -631,7 +599,7 @@ export function StoreHeader() {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block py-1 font-semibold text-[#111111] hover:text-[#666666] transition-colors"
                 >
-                  {language === 'vi' ? 'Công Cụ Tính Thuế' : 'Tax Calculator (US & VN)'}
+                  Tax Calculator (US & VN)
                 </Link>
                 <Link
                   href="/hellobee"
@@ -655,9 +623,7 @@ export function StoreHeader() {
                   <User className="w-4 h-4" />
                   <span>
                     {currentUser
-                      ? `${language === 'vi' ? 'Tài khoản' : 'Account'} (${currentUser.name})`
-                      : language === 'vi'
-                      ? 'Đăng nhập / Đăng ký'
+                      ? `Account (${currentUser.name})`
                       : 'Sign In / Register'}
                   </span>
                 </Link>
@@ -669,7 +635,7 @@ export function StoreHeader() {
                 >
                   <span className="flex items-center gap-2.5">
                     <Heart className="w-4 h-4" />
-                    <span>{language === 'vi' ? 'Sản phẩm yêu thích' : 'Wishlist'}</span>
+                    <span>Wishlist</span>
                   </span>
                   {wishlist.length > 0 && (
                     <span className="px-2 py-0.5 bg-[#111111] text-white text-[10px] font-bold rounded-full">
@@ -717,35 +683,16 @@ export function StoreHeader() {
               </div>
             </div>
 
-            {/* Drawer Footer with Working Language Toggle & Interactive Currency */}
+            {/* Drawer Footer with Interactive Currency */}
             <div className="pt-5 border-t border-[#E5E5E5] flex items-center justify-between text-xs">
+              <span className="text-[11px] text-[#777777] font-medium">Currency</span>
               <button
                 type="button"
                 onClick={() => setCurrency(currency === 'USD' ? 'VND' : 'USD')}
                 className="px-2.5 py-1 text-[11px] font-bold rounded-full border border-[#E5E5E5] bg-[#F5F4F0] text-[#333333] hover:bg-[#EAE8E3] transition-colors"
               >
-                {language === 'vi' ? 'Tiền tệ: ' : 'Currency: '}{currency === 'USD' ? '$ USD' : '₫ VND'}
+                {currency === 'USD' ? '$ USD' : '₫ VND'}
               </button>
-              <div className="flex items-center gap-1 border border-[#E5E5E5] rounded-full p-0.5 bg-[#F5F4F0]">
-                <button
-                  type="button"
-                  onClick={() => setLanguage('vi')}
-                  className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
-                    language === 'vi' ? 'bg-[#111111] text-white' : 'text-[#666666]'
-                  }`}
-                >
-                  VI
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLanguage('en')}
-                  className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
-                    language === 'en' ? 'bg-[#111111] text-white' : 'text-[#666666]'
-                  }`}
-                >
-                  EN
-                </button>
-              </div>
             </div>
           </div>
         </div>

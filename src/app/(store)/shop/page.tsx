@@ -180,7 +180,7 @@ function ShopContent() {
                   {t.shop.allCategories}
                 </button>
                 {categories.map((cat) => {
-                  const catName = language === 'vi' ? cat.nameVi || cat.name : cat.nameEn || cat.name;
+                  const catName = cat.nameEn || cat.name;
                   return (
                     <button
                       key={cat.id}
@@ -219,7 +219,7 @@ function ShopContent() {
                         : 'bg-white text-[#666666] border-[#E5E5E5] hover:border-[#111111]'
                     }`}
                   >
-                    {language === 'vi' ? 'Tất Cả' : 'All'}
+                    All
                   </button>
                   {electrodeOptions.map((count) => (
                     <button
@@ -234,7 +234,7 @@ function ShopContent() {
                           : 'bg-white text-[#666666] border-[#E5E5E5] hover:border-[#111111]'
                       }`}
                     >
-                      {count} {language === 'vi' ? 'Tấm' : 'Plates'}
+                      {count} Plates
                     </button>
                   ))}
                 </div>
@@ -311,7 +311,7 @@ function ShopContent() {
               )}
               {selectedElectrode !== 'all' && (
                 <span className="inline-flex items-center gap-1 text-xs bg-[#F5F4F0] text-[#111111] px-2.5 py-1 rounded-full">
-                  {selectedElectrode} {language === 'vi' ? 'Tấm' : 'Plates'}
+                  {selectedElectrode} Plates
                   <button onClick={() => setSelectedElectrode('all')}>
                     <X className="w-3 h-3" />
                   </button>
@@ -362,7 +362,7 @@ function ShopContent() {
                 onClick={() => setPage((p) => p + 1)}
                 className="bg-white text-[#111111] px-8 py-3 rounded-xs text-xs uppercase tracking-wider font-semibold border border-[#E5E5E5] hover:border-[#111111] transition-colors"
               >
-                {language === 'vi' ? 'Xem Thêm' : 'Load More'}
+                Load More
               </button>
             </div>
           )}
