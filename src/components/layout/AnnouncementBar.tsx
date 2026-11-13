@@ -1,18 +1,24 @@
 'use client';
 
-import { useCommerceStore } from '@/stores/useCommerceStore';
 import Link from 'next/link';
+import { useTranslation } from '@/i18n/useTranslation';
+import { Sparkles, ShieldCheck } from 'lucide-react';
 
 export function AnnouncementBar() {
-  const settings = useCommerceStore((state) => state.settings);
-
-  if (!settings.announcementText) return null;
+  const { t } = useTranslation();
 
   return (
-    <div className="bg-[#111111] text-white py-2 px-4 text-center text-xs tracking-wider uppercase font-medium flex items-center justify-center gap-4">
-      <span>{settings.announcementText}</span>
-      <Link href="/admin" className="underline hover:text-[#B9A58B] transition-colors ml-2 hidden sm:inline">
-        Admin Demo &rarr;
+    <div className="bg-[#002B5C] text-white py-2 px-4 text-center text-[11px] sm:text-xs tracking-wider uppercase font-medium flex items-center justify-center gap-2 sm:gap-4 border-b border-white/10">
+      <div className="flex items-center gap-1.5 line-clamp-1">
+        <ShieldCheck className="w-3.5 h-3.5 text-[#00A3E0] flex-shrink-0" />
+        <span>{t.brand.announcement}</span>
+      </div>
+      <Link
+        href="/admin"
+        className="hidden md:inline-flex items-center gap-1 text-[#00A3E0] hover:text-white underline font-semibold transition-colors ml-2 flex-shrink-0"
+      >
+        <span>Admin Portal</span>
+        <Sparkles className="w-3 h-3" />
       </Link>
     </div>
   );

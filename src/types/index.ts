@@ -21,14 +21,42 @@ export interface ProductVariant {
   stock: number;
 }
 
+export interface ProductSpecification {
+  electrodes?: number | string;
+  phRange?: string;
+  orp?: string;
+  warranty?: string;
+  origin?: string;
+  languages?: number | string;
+  weight?: string;
+  powerConsumption?: string;
+  productionRate?: string;
+  capacity?: string;
+  compatibility?: string;
+  removalRate?: string;
+  flowRate?: string;
+  packageIncludes?: string;
+  minerals?: string;
+  dimensions?: string;
+  materialDetail?: string;
+  [key: string]: any;
+}
+
 export interface Product {
   id: string;
   name: string;
+  nameVi?: string;
+  nameEn?: string;
   slug: string;
   sku: string;
   description: string;
+  descriptionVi?: string;
+  descriptionEn?: string;
   details?: string[];
+  detailsVi?: string[];
+  detailsEn?: string[];
   materials?: string;
+  specifications?: ProductSpecification;
   price: number;
   originalPrice?: number;
   categoryId: string;
@@ -48,8 +76,12 @@ export interface Product {
 export interface Category {
   id: string;
   name: string;
+  nameVi?: string;
+  nameEn?: string;
   slug: string;
   description: string;
+  descriptionVi?: string;
+  descriptionEn?: string;
   image: string;
   status: 'active' | 'inactive';
 }

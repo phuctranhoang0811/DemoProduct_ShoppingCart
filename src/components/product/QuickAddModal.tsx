@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { X, Check } from 'lucide-react';
 import { Product, ProductColor } from '@/types';
 import { useCommerceStore } from '@/stores/useCommerceStore';
+import { useTranslation } from '@/i18n/useTranslation';
 import { formatPrice } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -15,156 +16,108 @@ interface QuickAddModalProps {
 }
 
 export function QuickAddModal({ product, isOpen, onClose }: QuickAddModalProps) {
+  const { t, language } = useTranslation();
   const [selectedColor, setSelectedColor] = useState<ProductColor>(product.colors[0]);
-  const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedPackage, setSelectedPackage] = useState<string>(product.sizes[0]?.label || '');
   const addToCart = useCommerceStore((state) => state.addToCart);
   const currency = useCommerceStore((state) => state.currency);
 
   if (!isOpen) return null;
 
+  const productName = language === 'vi' ? product.nameVi || product.name : product.nameEn || product.name;
+  const pkgLabel = selectedPackage || product.sizes[0]?.label || 'Standard';
+
   const handleAddToCart = () => {
-    if (!selectedSize) {
-      toast.error('Please select a size first.');
-      return;
-    }
-
-    const sizeObj = product.sizes.find((s) => s.label === selectedSize);
-    const stockAvailable = sizeObj ? sizeObj.stock : 0;
-
-    if (stockAvailable <= 0) {
-      toast.error('Selected size is out of stock.');
-      return;
-    }
+    const pkgObj = product.sizes.find((s) => s.label === pkgLabel) || product.sizes[0];
+    const stockAvailable = pkgObj ? pkgObj.stock : 10;
 
     addToCart({
-      id: `${product.id}-${selectedColor.id}-${selectedSize}`,
+      id: `${product.id}-${selectedColor?.id || 'default'}-${pkgLabel}`,
       productId: product.id,
-      productName: product.name,
+      productName,
       slug: product.slug,
-      image: selectedColor.image || product.images[0],
+      image: selectedColor?.image || product.images[0],
       price: product.price,
       originalPrice: product.originalPrice,
-      color: selectedColor,
-      size: selectedSize,
+      color: selectedColor || { id: 'c-default', name: 'Standard', hex: '#111111' },
+      size: pkgLabel,
       quantity: 1,
       stock: stockAvailable,
     });
 
-    toast.success(`Added ${product.name} (${selectedSize}) to bag.`);
+    toast.success(
+      language === 'vi'
+        ? `Đã thêm ${productName} vào giỏ hàng.`
+        : `Added ${productName} to your bag.`
+    );
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="glass-card max-w-md w-full p-6 border border-white/60 relative shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
+      <div className="glass-modal max-w-md w-full p-6 border border-white/80 relative shadow-2xl animate-in fade-in zoom-in-95 duration-150 rounded-2xl">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1 text-[#777777] hover:text-[#111111]"
+          className="absolute top-4 right-4 p-1.5 rounded-full text-[#777777] hover:text-[#111111] hover:bg-white/80 transition-colors"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="flex gap-4 mb-5">
-          <div className="relative w-20 h-26 bg-[#F5F4F0] flex-shrink-0">
+          <div className="relative w-20 h-24 bg-[#F5F8FA] flex-shrink-0 rounded-xl overflow-hidden border border-black/5 shadow-2xs">
             <Image
-              src={selectedColor.image || product.images[0]}
-              alt={product.name}
+              src={selectedColor?.image || product.images[0]}
+              alt={productName}
               fill
               className="object-cover"
               sizes="80px"
             />
           </div>
           <div>
-            <h3 className="text-sm font-medium text-[#111111]">{product.name}</h3>
+            <h3 className="text-sm font-semibold text-[#111111]">{productName}</h3>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-sm font-semibold">{formatPrice(product.price, currency)}</span>
+              <span className="text-sm font-semibold text-blue-900">{formatPrice(product.price, currency)}</span>
               {product.originalPrice && (
                 <span className="text-xs text-[#777777] line-through">
                   {formatPrice(product.originalPrice, currency)}
                 </span>
               )}
             </div>
-            <p className="text-xs text-[#777777] mt-1">SKU: {product.sku}</p>
+            <p className="text-xs text-[#777777] mt-1 font-mono">SKU: {product.sku}</p>
           </div>
         </div>
 
-        {/* Colors */}
-        {product.colors.length > 0 && (
-          <div className="mb-4">
-            <div className="flex justify-between text-xs mb-2">
-              <span className="text-[#777777]">Color</span>
-              <span className="font-medium text-[#111111]">{selectedColor.name}</span>
-            </div>
-            <div className="flex gap-2">
-              {product.colors.map((c) => (
+        {/* Package configuration selection */}
+        {product.sizes.length > 0 && (
+          <div className="mb-5 space-y-2">
+            <span className="text-xs font-semibold text-[#777777] uppercase tracking-wider block">
+              {t.productDetail.packages}
+            </span>
+            <div className="space-y-1.5">
+              {product.sizes.map((s) => (
                 <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => setSelectedColor(c)}
-                  className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all ${
-                    selectedColor.id === c.id
-                      ? 'border-[#111111] ring-1 ring-[#111111] ring-offset-2'
-                      : 'border-transparent hover:scale-105'
+                  key={s.id}
+                  onClick={() => setSelectedPackage(s.label)}
+                  className={`w-full p-2.5 rounded-lg border text-left text-xs transition-all flex items-center justify-between ${
+                    pkgLabel === s.label
+                      ? 'border-blue-700 bg-blue-50 text-blue-950 font-semibold'
+                      : 'border-[#E5E5E5] bg-white text-[#444444] hover:border-[#111111]'
                   }`}
-                  style={{ backgroundColor: c.hex }}
-                  title={c.name}
                 >
-                  {selectedColor.id === c.id && (
-                    <Check
-                      className={`w-3.5 h-3.5 ${
-                        c.hex.toLowerCase() === '#ffffff' || c.hex.toLowerCase() === '#f9f9f9'
-                          ? 'text-black'
-                          : 'text-white'
-                      }`}
-                    />
-                  )}
+                  <span>{s.label}</span>
+                  {pkgLabel === s.label && <Check className="w-4 h-4 text-blue-700" />}
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* Sizes */}
-        <div className="mb-6">
-          <div className="flex justify-between text-xs mb-2">
-            <span className="text-[#777777]">Select Size</span>
-            <span className="text-[11px] text-[#777777] underline">True to size</span>
-          </div>
-          <div className="grid grid-cols-4 gap-2">
-            {product.sizes.map((s) => {
-              const isOut = s.stock <= 0;
-              const isSelected = selectedSize === s.label;
-              return (
-                <button
-                  key={s.id}
-                  disabled={isOut}
-                  onClick={() => setSelectedSize(s.label)}
-                  className={`py-2 text-xs font-medium border text-center transition-all ${
-                    isOut
-                      ? 'bg-[#F5F4F0] text-[#A0A0A0] border-[#E5E5E5] cursor-not-allowed line-through'
-                      : isSelected
-                      ? 'bg-[#111111] text-white border-[#111111]'
-                      : 'border-[#E5E5E5] text-[#111111] hover:border-[#111111]'
-                  }`}
-                >
-                  {s.label}
-                  {s.stock > 0 && s.stock <= 3 && (
-                    <span className="block text-[9px] text-[#B74747] font-normal">
-                      Only {s.stock} left
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
         <button
           onClick={handleAddToCart}
-          className="w-full bg-[#111111] text-white py-3 text-xs uppercase tracking-widest font-semibold hover:bg-[#262626] transition-colors"
+          className="w-full bg-gradient-to-r from-blue-700 to-cyan-700 hover:from-blue-600 hover:to-cyan-600 text-white py-3 rounded-xl text-xs uppercase tracking-wider font-bold shadow-md active:scale-95 transition-all mirror-sheen"
         >
-          Add to Bag
+          {t.productDetail.addToCart}
         </button>
       </div>
     </div>

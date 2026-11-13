@@ -11,13 +11,19 @@ import {
   Truck,
   RotateCcw,
   Sparkles,
-  Ruler,
   Star,
   ChevronDown,
   ChevronUp,
   ShieldCheck,
+  Award,
+  Droplets,
+  Zap,
+  PhoneCall,
+  Wrench,
+  CheckCircle2,
 } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
+import { useTranslation } from '@/i18n/useTranslation';
 import { ProductCard } from '@/components/product/ProductCard';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -27,6 +33,7 @@ interface ProductDetailClientProps {
 }
 
 export function ProductDetailClient({ slug }: ProductDetailClientProps) {
+  const { t, language } = useTranslation();
   const products = useCommerceStore((state) => state.products);
   const reviews = useCommerceStore((state) => state.reviews);
   const addReview = useCommerceStore((state) => state.addReview);
@@ -41,11 +48,10 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
 
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState(product?.colors[0]);
-  const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedPackage, setSelectedPackage] = useState<string>(product?.sizes[0]?.label || '');
   const [quantity, setQuantity] = useState(1);
-  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
-  const [sizeUnit, setSizeUnit] = useState<'cm' | 'in'>('cm');
-  const [openAccordion, setOpenAccordion] = useState<string | null>('details');
+  const [isInstallGuideOpen, setIsInstallGuideOpen] = useState(false);
+  const [openAccordion, setOpenAccordion] = useState<string | null>('specs');
 
   // Review submission form state
   const [reviewRating, setReviewRating] = useState(5);
@@ -59,8 +65,8 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
 
   const isInWishlist = product ? isInWishlistStore(product.id) : false;
 
-  const currentSizeObj = product?.sizes.find((s) => s.label === selectedSize);
-  const stockAvailable = currentSizeObj ? currentSizeObj.stock : 0;
+  const currentPkgObj = product?.sizes.find((s) => s.label === selectedPackage) || product?.sizes[0];
+  const stockAvailable = currentPkgObj ? currentPkgObj.stock : 10;
 
   const relatedProducts = useMemo(() => {
     if (!product) return [];
@@ -75,60 +81,65 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   }, [reviews, product]);
 
   const averageRating = useMemo(() => {
-    if (approvedReviews.length === 0) return 5;
+    if (approvedReviews.length === 0) return '5.0';
     const sum = approvedReviews.reduce((acc, r) => acc + r.rating, 0);
     return (sum / approvedReviews.length).toFixed(1);
   }, [approvedReviews]);
 
   if (!product) {
     return (
-      <div className="max-w-[1440px] mx-auto px-4 py-28 text-center">
-        <h1 className="text-2xl font-light">Product Not Found</h1>
-        <p className="text-xs text-[#777777] mt-2">
-          The requested garment does not exist or may have been unlisted.
+      <div className="max-w-[1440px] mx-auto px-4 py-28 text-center space-y-4">
+        <Droplets className="w-12 h-12 text-blue-500 mx-auto" />
+        <h1 className="text-2xl font-light text-[#111111]">
+          {language === 'vi' ? 'Không Tìm Thấy Thiết Bị' : 'Product Not Found'}
+        </h1>
+        <p className="text-xs text-[#777777] max-w-md mx-auto">
+          {language === 'vi'
+            ? 'Thiết bị bạn đang tìm kiếm có thể đã được cập nhật hoặc không khả dụng.'
+            : 'The requested product does not exist or may have been unlisted.'}
         </p>
         <Link
           href="/shop"
-          className="inline-block mt-6 bg-[#111111] text-white px-8 py-3 text-xs uppercase font-semibold tracking-wider hover:bg-[#333333]"
+          className="inline-block bg-[#111111] text-white px-8 py-3 text-xs uppercase font-semibold tracking-wider rounded-xl hover:bg-blue-900 transition-all shadow-md"
         >
-          Return to Shop
+          {t.shop.allCategories}
         </Link>
       </div>
     );
   }
 
-  const handleAddToCart = () => {
-    if (!selectedSize) {
-      toast.error('Please choose your size before adding to bag.');
-      return;
-    }
+  const productName = language === 'vi' ? product.nameVi || product.name : product.nameEn || product.name;
+  const productDesc = language === 'vi' ? product.descriptionVi || product.description : product.descriptionEn || product.description;
+  const productDetails = (language === 'vi' ? product.detailsVi || product.details : product.detailsEn || product.details) || [];
 
-    if (stockAvailable <= 0) {
-      toast.error(`Size ${selectedSize} is currently out of stock.`);
-      return;
-    }
+  const handleAddToCart = () => {
+    const pkgLabel = selectedPackage || product.sizes[0]?.label || 'Standard';
 
     addToCart({
-      id: `${product.id}-${activeColor?.id || 'default'}-${selectedSize}`,
+      id: `${product.id}-${activeColor?.id || 'default'}-${pkgLabel}`,
       productId: product.id,
-      productName: product.name,
+      productName,
       slug: product.slug,
       image: activeImage || product.images[0],
       price: product.price,
       originalPrice: product.originalPrice,
       color: activeColor || { id: 'c-default', name: 'Default', hex: '#111111' },
-      size: selectedSize,
+      size: pkgLabel,
       quantity,
       stock: stockAvailable,
     });
 
-    toast.success(`Added ${quantity}x "${product.name}" (${selectedSize}) to bag.`);
+    toast.success(
+      language === 'vi'
+        ? `Đã thêm ${quantity}x "${productName}" vào giỏ hàng.`
+        : `Added ${quantity}x "${productName}" to your bag.`
+    );
   };
 
   const handleReviewSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!reviewName.trim() || !reviewComment.trim()) {
-      toast.error('Please complete required fields.');
+      toast.error(language === 'vi' ? 'Vui lòng điền đầy đủ họ tên và nhận xét.' : 'Please complete required fields.');
       return;
     }
 
@@ -136,9 +147,9 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     setTimeout(() => {
       addReview({
         productId: product.id,
-        productName: product.name,
+        productName,
         customerName: reviewName,
-        customerEmail: reviewEmail || 'customer@example.com',
+        customerEmail: reviewEmail || 'customer@enagic.vn',
         rating: reviewRating,
         comment: reviewComment,
       });
@@ -147,7 +158,11 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       setReviewName('');
       setReviewEmail('');
       setReviewComment('');
-      toast.success('Thank you! Your feedback has been queued for moderation.');
+      toast.success(
+        language === 'vi'
+          ? 'Cảm ơn bạn! Đánh giá đã được gửi và đang chờ phê duyệt.'
+          : 'Thank you! Your feedback has been queued for moderation.'
+      );
     }, 400);
   };
 
@@ -155,18 +170,17 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       {/* Breadcrumb Navigation */}
       <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-xs text-[#777777]">
-        <Link href="/" className="hover:text-[#111111]">Home</Link>
+        <Link href="/" className="hover:text-blue-700">{t.nav.home}</Link>
         <span>/</span>
-        <Link href="/shop" className="hover:text-[#111111]">Shop</Link>
+        <Link href="/shop" className="hover:text-blue-700">{t.nav.products}</Link>
         <span>/</span>
-        <span className="text-[#111111] font-medium line-clamp-1">{product.name}</span>
+        <span className="text-[#111111] font-medium line-clamp-1">{productName}</span>
       </nav>
 
-      {/* Main Grid: Gallery (7 cols) + Purchase Info (5 cols) */}
+      {/* Main Grid: Gallery + Purchase Column */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14">
-        {/* Left Gallery */}
+        {/* Left Gallery (7 cols) */}
         <div className="lg:col-span-7 flex flex-col-reverse md:flex-row gap-4">
-          {/* Thumbnails column */}
           {product.images.length > 1 && (
             <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-visible">
               {product.images.map((img, idx) => (
@@ -174,56 +188,61 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                   key={idx}
                   type="button"
                   onClick={() => setSelectedImage(img)}
-                  className={`relative w-20 h-28 md:w-22 md:h-30 flex-shrink-0 border transition-all ${
-                    activeImage === img ? 'border-[#111111]' : 'border-transparent opacity-70 hover:opacity-100'
+                  className={`relative w-20 h-24 md:w-22 md:h-26 flex-shrink-0 border rounded-2xl overflow-hidden transition-all ${
+                    activeImage === img ? 'border-blue-700 ring-2 ring-blue-700/30' : 'border-transparent opacity-70 hover:opacity-100'
                   }`}
                 >
-                  <Image src={img} alt={`${product.name} perspective ${idx + 1}`} fill className="object-cover" sizes="90px" />
+                  <Image src={img} alt={`${productName} perspective ${idx + 1}`} fill className="object-cover" sizes="90px" />
                 </button>
               ))}
             </div>
           )}
 
           {/* Primary View */}
-          <div className="relative aspect-[3/4] w-full bg-[#F5F4F0] overflow-hidden flex-1">
+          <div className="relative aspect-square sm:aspect-[4/3] w-full bg-[#F5F8FA] overflow-hidden flex-1 rounded-3xl border border-blue-100 shadow-md">
             <Image
               src={activeImage}
-              alt={product.name}
+              alt={productName}
               fill
               priority
               className="object-cover"
               sizes="(max-width: 1024px) 100vw, 55vw"
             />
-            {product.sale && (
-              <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-[#9E3A3A] border border-[#9E3A3A]/25 text-[10px] uppercase font-medium tracking-[0.2em] px-3 py-1 rounded-full shadow-xs">
-                Sale
+            {product.specifications?.electrodes && (
+              <span className="absolute top-4 left-4 glass-dark text-cyan-300 border border-cyan-400/30 text-xs font-semibold px-3 py-1.5 rounded-full shadow-md flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5 text-cyan-400" />
+                <span>{product.specifications.electrodes} {language === 'vi' ? 'Tấm Titan Bạch Kim' : 'Plates'}</span>
+              </span>
+            )}
+            {product.specifications?.origin && (
+              <span className="absolute top-4 right-4 glass-modal text-blue-900 border border-blue-200 text-[11px] font-bold px-3 py-1 rounded-full shadow-xs">
+                Made in Japan 🇯🇵
               </span>
             )}
           </div>
         </div>
 
-        {/* Right Purchase Column */}
+        {/* Right Purchase Column (5 cols) */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="border-b border-[#E5E5E5] pb-6 space-y-2">
+          <div className="border-b border-[#E5E5E5] pb-6 space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] uppercase tracking-widest text-[#777777] font-mono">
+              <span className="text-xs uppercase tracking-widest text-blue-700 font-mono font-semibold">
                 {product.sku}
               </span>
-              {approvedReviews.length > 0 && (
-                <div className="flex items-center gap-1.5 text-xs">
-                  <Star className="w-3.5 h-3.5 fill-[#111111] text-[#111111]" />
-                  <span className="font-semibold">{averageRating}</span>
-                  <span className="text-[#777777]">({approvedReviews.length})</span>
-                </div>
-              )}
+              <div className="flex items-center gap-1.5 text-xs">
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <span className="font-semibold">{averageRating}</span>
+                <span className="text-[#777777]">({approvedReviews.length})</span>
+              </div>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl font-normal tracking-tight text-[#111111]">
-              {product.name}
+            <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-[#111111]">
+              {productName}
             </h1>
 
+            {/* Price */}
             <div className="flex items-center gap-3 pt-1">
-              <span className="text-xl sm:text-2xl font-normal text-[#111111]">
+              <span className="text-2xl sm:text-3xl font-semibold text-blue-900">
                 {formatPrice(product.price, currency)}
               </span>
               {product.originalPrice && (
@@ -231,465 +250,291 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                   {formatPrice(product.originalPrice, currency)}
                 </span>
               )}
-              {product.originalPrice && (
-                <span className="text-xs text-[#B74747] font-semibold bg-[#FBEAEA] px-2 py-0.5">
-                  Save {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
-                </span>
-              )}
             </div>
 
-            <p className="text-sm sm:text-[15px] text-[#555555] leading-relaxed pt-2">
-              {product.description}
+            <p className="text-xs sm:text-sm text-[#555555] leading-relaxed pt-1">
+              {productDesc}
             </p>
           </div>
 
-          {/* Color Selection */}
-          {product.colors.length > 0 && (
-            <div>
-              <div className="flex justify-between text-xs mb-2">
-                <span className="text-[#777777] uppercase tracking-wider">Colour</span>
-                <span className="font-medium text-[#111111]">{activeColor?.name}</span>
+          {/* Package Configuration Selection */}
+          {product.sizes.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-[#111111] uppercase tracking-wider">
+                  {t.productDetail.packages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsInstallGuideOpen(true)}
+                  className="text-blue-700 hover:underline flex items-center gap-1 text-[11px] font-medium"
+                >
+                  <Wrench className="w-3 h-3" />
+                  <span>{t.productDetail.sizeGuide}</span>
+                </button>
               </div>
-              <div className="flex gap-2.5">
-                {product.colors.map((c) => (
+              <div className="space-y-2">
+                {product.sizes.map((s) => (
                   <button
-                    key={c.id}
+                    key={s.id}
                     type="button"
-                    onClick={() => {
-                      setSelectedColor(c);
-                      if (c.image) setSelectedImage(c.image);
-                    }}
-                    className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${
-                      activeColor?.id === c.id
-                        ? 'border-[#111111] ring-1 ring-[#111111] ring-offset-2'
-                        : 'border-black/10 hover:scale-105'
+                    onClick={() => setSelectedPackage(s.label)}
+                    className={`w-full p-3 rounded-xl border text-left text-xs transition-all flex items-center justify-between ${
+                      (selectedPackage || product.sizes[0].label) === s.label
+                        ? 'border-blue-700 bg-blue-50/60 font-semibold text-blue-950 shadow-xs'
+                        : 'border-[#E5E5E5] bg-white text-[#444444] hover:border-[#111111]'
                     }`}
-                    style={{ backgroundColor: c.hex }}
-                    title={c.name}
                   >
-                    {activeColor?.id === c.id && (
-                      <Check
-                        className={`w-4 h-4 ${
-                          c.hex.toLowerCase() === '#ffffff' || c.hex.toLowerCase() === '#f9f9f9'
-                            ? 'text-black'
-                            : 'text-white'
-                        }`}
-                      />
-                    )}
+                    <span>{s.label}</span>
+                    <span className="text-[11px] text-emerald-700 font-medium">
+                      {s.stock > 0 ? t.productDetail.inStock : t.productDetail.lowStock}
+                    </span>
                   </button>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Size Selection */}
-          <div>
-            <div className="flex justify-between text-xs mb-2">
-              <span className="text-[#777777] uppercase tracking-wider">Select Size</span>
-              <button
-                type="button"
-                onClick={() => setIsSizeGuideOpen(true)}
-                className="text-xs text-[#111111] hover:underline flex items-center gap-1"
-              >
-                <Ruler className="w-3.5 h-3.5" /> Size Guide
-              </button>
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-              {product.sizes.map((s) => {
-                const isOutOfStock = s.stock <= 0;
-                const isSelected = selectedSize === s.label;
-                return (
-                  <button
-                    key={s.id}
-                    disabled={isOutOfStock}
-                    onClick={() => setSelectedSize(s.label)}
-                    className={`py-3 text-xs uppercase font-medium border text-center transition-all ${
-                      isOutOfStock
-                        ? 'bg-[#F5F4F0] text-[#A0A0A0] border-[#E5E5E5] line-through cursor-not-allowed'
-                        : isSelected
-                        ? 'bg-[#111111] text-white border-[#111111]'
-                        : 'border-[#E5E5E5] text-[#111111] hover:border-[#111111]'
-                    }`}
-                  >
-                    {s.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            {selectedSize && (
-              <p className="text-[11px] text-[#777777] mt-2">
-                {stockAvailable > 5 ? (
-                  <span className="text-[#477A5A]">In stock — ready for dispatch</span>
-                ) : stockAvailable > 0 ? (
-                  <span className="text-[#B74747]">Only {stockAvailable} left in size {selectedSize}</span>
-                ) : (
-                  <span className="text-[#B74747]">Out of stock</span>
-                )}
-              </p>
-            )}
-          </div>
-
-          {/* Quantity & CTA */}
+          {/* Quantity & Add to Cart */}
           <div className="space-y-3 pt-2">
-            <div className="flex gap-3">
-              <div className="flex items-center border border-[#E5E5E5] h-12 px-3">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center border border-[#CCCCCC] rounded-xl bg-white p-1">
                 <button
-                  type="button"
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="p-1 hover:text-[#777777]"
-                  disabled={quantity <= 1}
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="p-2 text-[#555555] hover:text-[#111111]"
+                  aria-label="Decrease quantity"
                 >
                   <Minus className="w-3.5 h-3.5" />
                 </button>
-                <span className="px-3 text-xs font-semibold font-mono w-8 text-center">
-                  {quantity}
-                </span>
+                <span className="px-4 text-xs font-semibold">{quantity}</span>
                 <button
-                  type="button"
-                  onClick={() => setQuantity((q) => Math.min(stockAvailable || 10, q + 1))}
-                  className="p-1 hover:text-[#777777]"
-                  disabled={selectedSize ? quantity >= stockAvailable : false}
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="p-2 text-[#555555] hover:text-[#111111]"
+                  aria-label="Increase quantity"
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
               </div>
 
               <button
-                type="button"
                 onClick={handleAddToCart}
-                disabled={selectedSize ? stockAvailable <= 0 : false}
-                className="flex-1 bg-[#111111] text-white h-12 text-xs uppercase tracking-[0.16em] font-semibold hover:bg-[#333333] transition-colors disabled:bg-[#CCCCCC] disabled:cursor-not-allowed"
+                className="flex-1 bg-gradient-to-r from-blue-700 to-cyan-700 hover:from-blue-600 hover:to-cyan-600 text-white py-3.5 rounded-xl text-xs uppercase tracking-wider font-bold shadow-lg shadow-blue-500/25 active:scale-95 transition-all mirror-sheen"
               >
-                {selectedSize && stockAvailable <= 0 ? 'Out of Stock' : 'Add to Bag'}
+                {t.productDetail.addToCart}
               </button>
 
               <button
-                type="button"
-                onClick={() => {
-                  toggleWishlist(product.id);
-                  if (!isInWishlist) toast.success('Saved to wishlist.');
-                  else toast.info('Removed from wishlist.');
-                }}
-                className={`h-12 w-12 border flex items-center justify-center transition-colors ${
-                  isInWishlist
-                    ? 'border-[#B74747] text-[#B74747]'
-                    : 'border-[#E5E5E5] text-[#111111] hover:border-[#111111]'
+                onClick={() => toggleWishlist(product.id)}
+                className={`p-3.5 rounded-xl border transition-all ${
+                  isInWishlist ? 'border-red-500 bg-red-50 text-red-500' : 'border-[#CCCCCC] text-[#555555] hover:border-[#111111]'
                 }`}
-                aria-label="Wishlist"
+                aria-label="Add to wishlist"
               >
-                <Heart className={`w-4 h-4 ${isInWishlist ? 'fill-[#B74747]' : ''}`} />
+                <Heart className={`w-4 h-4 ${isInWishlist ? 'fill-red-500' : ''}`} />
               </button>
             </div>
+
+            {/* Medical Trust Badges */}
+            <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-100 text-xs space-y-2">
+              <div className="flex items-center gap-2 text-blue-900 font-semibold">
+                <ShieldCheck className="w-4 h-4 text-blue-700" />
+                <span>{t.productDetail.japanCertified}</span>
+              </div>
+              <div className="flex items-center gap-2 text-[#444444]">
+                <Truck className="w-4 h-4 text-emerald-600" />
+                <span>{t.productDetail.freeInstallation}</span>
+              </div>
+              <div className="flex items-center gap-2 text-[#444444]">
+                <Award className="w-4 h-4 text-amber-600" />
+                <span>{t.productDetail.fiveYearWarranty}</span>
+              </div>
+            </div>
           </div>
 
-          {/* Delivery & Assurance Pills */}
-          <div className="border-t border-[#E5E5E5] pt-4 space-y-2 text-xs text-[#555555]">
-            <div className="flex items-center gap-2">
-              <Truck className="w-4 h-4 text-[#111111]" />
-              <span>Complimentary standard delivery on orders over {formatPrice(100, currency)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <RotateCcw className="w-4 h-4 text-[#111111]" />
-              <span>30-day effortless returns and exchanges</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#111111]" />
-              <span>Crafted from certified responsible natural fibers</span>
-            </div>
-          </div>
+          {/* Accordion Sections: Specs & Details */}
+          <div className="border-t border-[#E5E5E5] divide-y divide-[#E5E5E5] pt-2">
+            {/* Tech Specs */}
+            {product.specifications && (
+              <div>
+                <button
+                  onClick={() => setOpenAccordion(openAccordion === 'specs' ? null : 'specs')}
+                  className="w-full py-3 flex items-center justify-between text-xs font-semibold text-[#111111] uppercase tracking-wider"
+                >
+                  <span>{t.productDetail.specsTitle}</span>
+                  {openAccordion === 'specs' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                {openAccordion === 'specs' && (
+                  <div className="pb-4 text-xs space-y-2 text-[#444444]">
+                    <div className="grid grid-cols-2 gap-2 py-1 border-b border-gray-100">
+                      <span className="text-[#777777]">{t.showcase.electrodes}:</span>
+                      <span className="font-semibold text-[#111111]">{product.specifications.electrodes} Tấm Titan Phủ Bạch Kim</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 py-1 border-b border-gray-100">
+                      <span className="text-[#777777]">{t.showcase.phRange}:</span>
+                      <span className="font-semibold text-blue-700">{product.specifications.phRange}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 py-1 border-b border-gray-100">
+                      <span className="text-[#777777]">{t.showcase.orpLevel}:</span>
+                      <span className="font-semibold text-emerald-700">{product.specifications.orp}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 py-1 border-b border-gray-100">
+                      <span className="text-[#777777]">{t.showcase.warranty}:</span>
+                      <span className="font-semibold text-[#111111]">{product.specifications.warranty}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 py-1 border-b border-gray-100">
+                      <span className="text-[#777777]">{t.showcase.origin}:</span>
+                      <span className="font-semibold text-[#111111]">{product.specifications.origin}</span>
+                    </div>
+                    {product.specifications.languages && (
+                      <div className="grid grid-cols-2 gap-2 py-1 border-b border-gray-100">
+                        <span className="text-[#777777]">{language === 'vi' ? 'Ngôn ngữ hiển thị' : 'Languages'}:</span>
+                        <span className="font-semibold text-[#111111]">{product.specifications.languages}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
-          {/* Accordion Specs */}
-          <div className="border-t border-[#E5E5E5] divide-y divide-[#E5E5E5]">
+            {/* Key Features Bullets */}
             <div>
               <button
-                type="button"
                 onClick={() => setOpenAccordion(openAccordion === 'details' ? null : 'details')}
-                className="w-full py-4 flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-[#111111]"
+                className="w-full py-3 flex items-center justify-between text-xs font-semibold text-[#111111] uppercase tracking-wider"
               >
-                <span>Product Details & Cut</span>
+                <span>{language === 'vi' ? 'Đặc Điểm Nổi Bật' : 'Key Highlights'}</span>
                 {openAccordion === 'details' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
               {openAccordion === 'details' && (
-                <div className="pb-4 text-xs text-[#555555] space-y-2 leading-relaxed">
-                  <ul className="list-disc pl-4 space-y-1">
-                    {(product.details || []).map((d, i) => (
-                      <li key={i}>{d}</li>
-                    ))}
-                  </ul>
-                  <p className="pt-2 text-[11px] text-[#777777]">
-                    Model is 178cm / 5&apos;10&quot; wearing size S.
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div>
-              <button
-                type="button"
-                onClick={() => setOpenAccordion(openAccordion === 'materials' ? null : 'materials')}
-                className="w-full py-4 flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-[#111111]"
-              >
-                <span>Materials & Garment Care</span>
-                {openAccordion === 'materials' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-              {openAccordion === 'materials' && (
-                <div className="pb-4 text-xs text-[#555555] space-y-2 leading-relaxed">
-                  <p>{product.materials}</p>
-                  <p className="text-[11px] text-[#777777]">
-                    Dry clean or gentle cycle inside out. Reshape while damp. Do not tumble dry.
-                  </p>
-                </div>
+                <ul className="pb-4 text-xs space-y-1.5 text-[#444444] list-disc pl-4">
+                  {productDetails.map((d, i) => (
+                    <li key={i}>{d}</li>
+                  ))}
+                </ul>
               )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Reviews & Social Proof Section */}
-      <section className="mt-20 border-t border-[#E5E5E5] pt-12">
-        <div className="max-w-3xl">
-          <div className="flex items-baseline justify-between mb-8">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-light text-[#111111]">
-                Customer Reviews
-              </h2>
-              <div className="flex items-center gap-2 mt-1 text-xs">
-                <div className="flex">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star
-                      key={s}
-                      className={`w-3.5 h-3.5 ${
-                        s <= Math.round(Number(averageRating))
-                          ? 'fill-[#111111] text-[#111111]'
-                          : 'text-[#E5E5E5]'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <span className="font-semibold text-sm">{averageRating}</span>
-                <span className="text-[#777777]">({approvedReviews.length} approved ratings)</span>
+      {/* ─── INSTALLATION BLUEPRINT MODAL ─── */}
+      {isInstallGuideOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="glass-modal max-w-xl w-full p-6 sm:p-8 rounded-3xl border border-white/80 space-y-4 shadow-2xl animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between border-b pb-3">
+              <h3 className="text-base font-semibold text-[#111111] flex items-center gap-2">
+                <Wrench className="w-5 h-5 text-blue-700" />
+                <span>{language === 'vi' ? 'Sơ Đồ & Yêu Cầu Lắp Đặt Chuẩn Enagic' : 'Enagic Standard Installation Blueprint'}</span>
+              </h3>
+              <button onClick={() => setIsInstallGuideOpen(false)} className="text-gray-500 hover:text-black">
+                ✕
+              </button>
+            </div>
+            <div className="space-y-3 text-xs text-[#444444] leading-relaxed">
+              <div className="p-3 bg-blue-50 rounded-xl border border-blue-100">
+                <h4 className="font-bold text-blue-900 mb-1">1. Lắp Đặt Để Bàn (Countertop)</h4>
+                <p>Nối trực tiếp vào đầu vòi rửa bát gia đình thông qua đầu chia vòi thông minh kèm theo máy. Thao tác trong 15 phút, không khoan đục mặt đá.</p>
+              </div>
+              <div className="p-3 bg-blue-50 rounded-xl border border-blue-100">
+                <h4 className="font-bold text-blue-900 mb-1">2. Lắp Đặt Dưới Chậu Rửa (Under-sink)</h4>
+                <p>Sử dụng bộ vòi điện tử chuyên dụng đưa lên mặt bồn, thân máy đặt kín đáo bên dưới tủ bếp, giữ trọn thẩm mỹ không gian bếp hiện đại.</p>
+              </div>
+              <div className="p-3 bg-amber-50 rounded-xl border border-amber-200">
+                <h4 className="font-bold text-amber-900 mb-1">3. Yêu Cầu Nguồn Nước & Điện Áp</h4>
+                <p>Nguồn nước thủy cục (nước máy sinh hoạt) đã qua bộ tiền lọc nano xử lý thô. Áp lực nước 0.1 - 0.5 MPa. Nguồn điện 100V - 240V 50/60Hz.</p>
               </div>
             </div>
+            <div className="pt-2 text-right">
+              <button
+                onClick={() => setIsInstallGuideOpen(false)}
+                className="bg-[#111111] text-white px-5 py-2 rounded-xl text-xs font-semibold"
+              >
+                {language === 'vi' ? 'Đã Hiểu' : 'Got It'}
+              </button>
+            </div>
           </div>
+        </div>
+      )}
 
-          {/* Existing Reviews */}
-          <div className="space-y-6 divide-y divide-[#E5E5E5]">
+      {/* ─── REVIEWS SECTION ─── */}
+      <section className="mt-16 sm:mt-24 border-t border-[#E5E5E5] pt-12">
+        <div className="max-w-3xl space-y-6">
+          <h2 className="text-xl sm:text-2xl font-medium text-[#111111]">
+            {t.productDetail.reviewsTitle} ({approvedReviews.length})
+          </h2>
+
+          {/* Review List */}
+          <div className="space-y-4">
             {approvedReviews.map((r) => (
-              <div key={r.id} className="pt-6 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-[#111111]">{r.customerName}</span>
-                    <span className="text-[10px] bg-[#EAF3ED] text-[#477A5A] px-1.5 py-0.5 uppercase tracking-wider font-bold">
-                      Verified Client
-                    </span>
+              <div key={r.id} className="p-4 rounded-2xl glass-card border border-blue-100 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-[#111111]">{r.customerName}</span>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-3.5 h-3.5 ${i < r.rating ? 'fill-amber-400 text-amber-400' : 'text-gray-300'}`}
+                      />
+                    ))}
                   </div>
-                  <span className="text-[#777777]">{formatDate(r.createdAt)}</span>
                 </div>
-                <div className="flex">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star
-                      key={s}
-                      className={`w-3 h-3 ${
-                        s <= r.rating ? 'fill-[#111111] text-[#111111]' : 'text-[#E5E5E5]'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <p className="text-xs text-[#555555] leading-relaxed">{r.comment}</p>
+                <p className="text-xs text-[#555555]">{r.comment}</p>
+                <span className="text-[10px] text-[#999999] block">{formatDate(r.createdAt)}</span>
               </div>
             ))}
-
-            {approvedReviews.length === 0 && (
-              <p className="text-xs text-[#777777] py-4">
-                No customer reviews yet. Be the first to share your experience with this garment.
-              </p>
-            )}
           </div>
 
-          {/* Submission Form */}
-          <div className="mt-12 bg-[#F5F4F0] p-6 space-y-4">
-            <h3 className="text-xs uppercase tracking-widest font-semibold text-[#111111]">
-              Write a Garment Review
-            </h3>
-            <form onSubmit={handleReviewSubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="block text-[#777777] mb-1">Your Rating *</label>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setReviewRating(s)}
-                      className="p-1"
-                    >
-                      <Star
-                        className={`w-5 h-5 ${
-                          s <= reviewRating
-                            ? 'fill-[#111111] text-[#111111]'
-                            : 'text-[#CCCCCC]'
-                        }`}
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[#777777] mb-1">Name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={reviewName}
-                    onChange={(e) => setReviewName(e.target.value)}
-                    placeholder="e.g. Elena V."
-                    className="w-full bg-white border border-[#E5E5E5] px-3 py-2 outline-none focus:border-[#111111]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[#777777] mb-1">Email</label>
-                  <input
-                    type="email"
-                    value={reviewEmail}
-                    onChange={(e) => setReviewEmail(e.target.value)}
-                    placeholder="Optional for verification"
-                    className="w-full bg-white border border-[#E5E5E5] px-3 py-2 outline-none focus:border-[#111111]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[#777777] mb-1">Comment & Fit Details *</label>
-                <textarea
-                  required
-                  rows={3}
-                  value={reviewComment}
-                  onChange={(e) => setReviewComment(e.target.value)}
-                  placeholder="Share details on texture, silhouette drape, and sizing fidelity..."
-                  className="w-full bg-white border border-[#E5E5E5] p-3 outline-none focus:border-[#111111]"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmittingReview}
-                className="bg-[#111111] text-white px-6 py-2.5 text-xs uppercase tracking-wider font-semibold hover:bg-[#333333] transition-colors"
-              >
-                {isSubmittingReview ? 'Submitting...' : 'Submit for Review'}
-              </button>
-            </form>
-          </div>
+          {/* Add Review Form */}
+          <form onSubmit={handleReviewSubmit} className="glass-card p-6 rounded-2xl border border-blue-100 space-y-4 mt-6">
+            <h3 className="text-sm font-semibold text-[#111111]">{t.productDetail.writeReview}</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <input
+                type="text"
+                placeholder={t.checkout.fullName}
+                value={reviewName}
+                onChange={(e) => setReviewName(e.target.value)}
+                className="text-xs p-3 rounded-xl border border-[#E5E5E5] bg-white outline-none focus:border-blue-700"
+                required
+              />
+              <input
+                type="email"
+                placeholder={t.checkout.email}
+                value={reviewEmail}
+                onChange={(e) => setReviewEmail(e.target.value)}
+                className="text-xs p-3 rounded-xl border border-[#E5E5E5] bg-white outline-none focus:border-blue-700"
+              />
+            </div>
+            <textarea
+              rows={3}
+              placeholder={language === 'vi' ? 'Chia sẻ trải nghiệm sử dụng nước Kangen của bạn...' : 'Share your Kangen water experience...'}
+              value={reviewComment}
+              onChange={(e) => setReviewComment(e.target.value)}
+              className="w-full text-xs p-3 rounded-xl border border-[#E5E5E5] bg-white outline-none focus:border-blue-700"
+              required
+            />
+            <button
+              type="submit"
+              disabled={isSubmittingReview}
+              className="bg-[#111111] text-white px-6 py-2.5 rounded-xl text-xs font-semibold hover:bg-blue-900 transition-all"
+            >
+              {isSubmittingReview ? 'Đang gửi...' : t.productDetail.writeReview}
+            </button>
+          </form>
         </div>
       </section>
 
-      {/* Related Products Section */}
+      {/* ─── RELATED PRODUCTS ─── */}
       {relatedProducts.length > 0 && (
-        <section className="mt-20 border-t border-[#E5E5E5] pt-12">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl sm:text-2xl font-light text-[#111111]">
-              Complementary Silhouette
-            </h2>
-            <Link
-              href={`/shop?category=${product.categoryId}`}
-              className="text-xs uppercase tracking-wider font-semibold hover:underline"
-            >
-              View Collection &rarr;
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <section className="mt-16 sm:mt-24 border-t border-[#E5E5E5] pt-12">
+          <h2 className="text-xl sm:text-2xl font-medium text-[#111111] mb-6">
+            {language === 'vi' ? 'Sản Phẩm Tương Thích & Đề Xuất' : 'Recommended Ecosystem Equipment'}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {relatedProducts.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
         </section>
-      )}
-
-      {/* Size Guide Modal */}
-      {isSizeGuideOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-white max-w-lg w-full p-6 sm:p-8 border border-[#E5E5E5] animate-in fade-in duration-150">
-            <div className="flex items-center justify-between pb-4 border-b border-[#E5E5E5] mb-4">
-              <h3 className="text-sm uppercase tracking-widest font-semibold text-[#111111]">
-                Size & Fit Blueprint
-              </h3>
-              <div className="flex border border-[#111111] text-xs">
-                <button
-                  type="button"
-                  onClick={() => setSizeUnit('cm')}
-                  className={`px-3 py-1 font-semibold transition-colors ${
-                    sizeUnit === 'cm' ? 'bg-[#111111] text-white' : 'text-[#111111]'
-                  }`}
-                >
-                  CM
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSizeUnit('in')}
-                  className={`px-3 py-1 font-semibold transition-colors ${
-                    sizeUnit === 'in' ? 'bg-[#111111] text-white' : 'text-[#111111]'
-                  }`}
-                >
-                  IN
-                </button>
-              </div>
-            </div>
-
-            <p className="text-xs text-[#777777] mb-4 leading-relaxed">
-              Our tailoring embodies a relaxed Scandinavian proportion. For a sharper contoured fit, select one size below your usual tag.
-            </p>
-
-            <table className="w-full text-xs text-left border-collapse">
-              <thead>
-                <tr className="border-b border-[#111111]">
-                  <th className="py-2">Standard</th>
-                  <th className="py-2">Chest ({sizeUnit})</th>
-                  <th className="py-2">Waist ({sizeUnit})</th>
-                  <th className="py-2">Hips ({sizeUnit})</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#E5E5E5] text-[#555555]">
-                <tr>
-                  <td className="py-2 font-medium">XS / 34</td>
-                  <td>{sizeUnit === 'cm' ? '82-86' : '32-34'}</td>
-                  <td>{sizeUnit === 'cm' ? '64-68' : '25-27'}</td>
-                  <td>{sizeUnit === 'cm' ? '90-94' : '35-37'}</td>
-                </tr>
-                <tr>
-                  <td className="py-2 font-medium">S / 36</td>
-                  <td>{sizeUnit === 'cm' ? '86-90' : '34-36'}</td>
-                  <td>{sizeUnit === 'cm' ? '68-72' : '27-29'}</td>
-                  <td>{sizeUnit === 'cm' ? '94-98' : '37-39'}</td>
-                </tr>
-                <tr>
-                  <td className="py-2 font-medium">M / 38</td>
-                  <td>{sizeUnit === 'cm' ? '90-96' : '36-38'}</td>
-                  <td>{sizeUnit === 'cm' ? '72-78' : '29-31'}</td>
-                  <td>{sizeUnit === 'cm' ? '98-104' : '39-41'}</td>
-                </tr>
-                <tr>
-                  <td className="py-2 font-medium">L / 40</td>
-                  <td>{sizeUnit === 'cm' ? '96-102' : '38-40'}</td>
-                  <td>{sizeUnit === 'cm' ? '78-84' : '31-33'}</td>
-                  <td>{sizeUnit === 'cm' ? '104-110' : '41-43'}</td>
-                </tr>
-                <tr>
-                  <td className="py-2 font-medium">XL / 42</td>
-                  <td>{sizeUnit === 'cm' ? '102-108' : '40-42'}</td>
-                  <td>{sizeUnit === 'cm' ? '84-90' : '33-35'}</td>
-                  <td>{sizeUnit === 'cm' ? '110-116' : '43-45'}</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <button
-              onClick={() => setIsSizeGuideOpen(false)}
-              className="mt-6 w-full bg-[#111111] text-white py-2.5 text-xs uppercase tracking-wider font-semibold hover:bg-[#333333]"
-            >
-              Close
-            </button>
-          </div>
-        </div>
       )}
     </div>
   );

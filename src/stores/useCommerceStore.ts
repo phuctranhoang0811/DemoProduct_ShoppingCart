@@ -26,18 +26,19 @@ import { initialSettings } from '@/data/settings';
 import { generateId } from '@/lib/utils';
 
 const STORAGE_KEYS = {
-  products: 'fashion_products_v1',
-  categories: 'fashion_categories_v1',
-  cart: 'fashion_cart_v1',
-  wishlist: 'fashion_wishlist_v1',
-  orders: 'fashion_orders_v1',
-  customers: 'fashion_customers_v1',
-  discounts: 'fashion_discounts_v1',
-  reviews: 'fashion_reviews_v1',
-  inventory: 'fashion_inventory_v1',
-  settings: 'fashion_settings_v1',
-  session: 'fashion_session_v1',
-  currency: 'fashion_currency_v1',
+  products: 'enagic_kangen_products_v2',
+  categories: 'enagic_kangen_categories_v2',
+  cart: 'enagic_kangen_cart_v2',
+  wishlist: 'enagic_kangen_wishlist_v2',
+  orders: 'enagic_kangen_orders_v2',
+  customers: 'enagic_kangen_customers_v2',
+  discounts: 'enagic_kangen_discounts_v2',
+  reviews: 'enagic_kangen_reviews_v2',
+  inventory: 'enagic_kangen_inventory_v2',
+  settings: 'enagic_kangen_settings_v2',
+  session: 'enagic_kangen_session_v2',
+  currency: 'enagic_kangen_currency_v2',
+  language: 'enagic_kangen_language_v2',
 };
 
 function getStorageItem<T>(key: string, defaultValue: T): T {
@@ -75,11 +76,13 @@ interface CommerceState {
   settings: StoreSettings;
   currentUser: Customer | null;
   currency: 'USD' | 'VND';
+  language: 'vi' | 'en';
   isCartDrawerOpen: boolean;
 
   initHydrate: () => void;
   resetDemoData: () => void;
   setCurrency: (currency: 'USD' | 'VND') => void;
+  setLanguage: (language: 'vi' | 'en') => void;
   setIsCartDrawerOpen: (open: boolean) => void;
 
   // Products
@@ -159,12 +162,17 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   inventoryMovements: initialInventoryMovements,
   settings: initialSettings,
   currentUser: null,
-  currency: 'USD',
+  currency: 'VND',
+  language: 'vi',
   isCartDrawerOpen: false,
 
   setCurrency: (currency) => {
     set({ currency });
     setStorageItem(STORAGE_KEYS.currency, currency);
+  },
+  setLanguage: (language) => {
+    set({ language });
+    setStorageItem(STORAGE_KEYS.language, language);
   },
   setIsCartDrawerOpen: (isCartDrawerOpen) => set({ isCartDrawerOpen }),
 
@@ -174,7 +182,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     const products = getStorageItem<Product[]>(STORAGE_KEYS.products, initialProducts);
     const categories = getStorageItem<Category[]>(STORAGE_KEYS.categories, initialCategories);
     const cart = getStorageItem<CartItem[]>(STORAGE_KEYS.cart, []);
-    const wishlist = getStorageItem<string[]>(STORAGE_KEYS.wishlist, ['prod-01', 'prod-03']);
+    const wishlist = getStorageItem<string[]>(STORAGE_KEYS.wishlist, ['kangen-k8', 'kangen-sd501']);
     const orders = getStorageItem<Order[]>(STORAGE_KEYS.orders, initialOrders);
     const customers = getStorageItem<Customer[]>(STORAGE_KEYS.customers, initialCustomers);
     const discounts = getStorageItem<Discount[]>(STORAGE_KEYS.discounts, initialDiscounts);
@@ -182,7 +190,8 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     const inventory = getStorageItem<InventoryMovement[]>(STORAGE_KEYS.inventory, initialInventoryMovements);
     const settings = getStorageItem<StoreSettings>(STORAGE_KEYS.settings, initialSettings);
     const sessionUser = getStorageItem<Customer | null>(STORAGE_KEYS.session, initialCustomers[0]);
-    const currency = getStorageItem<'USD' | 'VND'>(STORAGE_KEYS.currency, 'USD');
+    const currency = getStorageItem<'USD' | 'VND'>(STORAGE_KEYS.currency, 'VND');
+    const language = getStorageItem<'vi' | 'en'>(STORAGE_KEYS.language, 'vi');
 
     set({
       isHydrated: true,
@@ -198,6 +207,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       settings,
       currentUser: sessionUser,
       currency,
+      language,
     });
   },
 
@@ -210,7 +220,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       products: initialProducts,
       categories: initialCategories,
       cart: [],
-      wishlist: ['prod-01', 'prod-03'],
+      wishlist: ['kangen-k8', 'kangen-sd501'],
       orders: initialOrders,
       customers: initialCustomers,
       discounts: initialDiscounts,
@@ -218,6 +228,8 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       inventoryMovements: initialInventoryMovements,
       settings: initialSettings,
       currentUser: defaultUser,
+      currency: 'VND',
+      language: 'vi',
     });
     setStorageItem(STORAGE_KEYS.products, initialProducts);
     setStorageItem(STORAGE_KEYS.categories, initialCategories);

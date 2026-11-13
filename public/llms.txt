@@ -1,32 +1,36 @@
-# COS Minimal — Modern Scandinavian Fashion & Architectural Tailoring
+# ENAGIC® KANGEN WATER® — CHANGE YOUR WATER, CHANGE YOUR LIFE®
 
-> Timeless wardrobe essentials conceived for everyday living. Inspired by Scandinavian architectural minimalism, tactile natural textiles, and calm monochrome palettes.
+> Exclusive Global Producer of Medical-Grade Kangen Water® Ionizers since 1974. Manufactured exclusively in Osaka, Japan with solid platinum-coated medical titanium electrode plates, generating 5 distinct types of ionized antioxidant, micro-clustered water.
 
-## Store Information
+## Store & Corporate Information
 - **Domain:** https://demo-product-shopping-cart.vercel.app
-- **Brand:** COS Minimal
-- **Core Aesthetic:** Minimalist, Editorial, Scandinavian Contemporary
-- **Target Audience:** Modern design-conscious individuals seeking durable, timeless wardrobe pieces over fast fashion.
+- **Brand:** ENAGIC® INTERNATIONAL | KANGEN WATER®
+- **Corporate Motto:** Change Your Water, Change Your Life® (Thay Đổi Nguồn Nước, Thay Đổi Cuộc Sống®)
+- **Headquarters:** Osaka, Japan (Factory OEM Medical Device) & Tokyo, Japan
+- **Vietnam Support Hotline:** 1900 866 814
+- **Email:** support@enagic-kangen.vn
+- **Core Industry:** Medical Device Water Ionizers, Electrolysis Technology, Alkaline Water Systems
 
-## Main Collections & Routes
+## Medical & Quality Certifications
+- **ISO 13485:** Medical Device Quality Management System (Ministry of Health Japan License No. 27BZ006010)
+- **JAPA Endorsement:** Endorsed by the Japanese Association of Preventive Medicine for Adult Diseases (6,500+ Japanese physicians)
+- **WQA Gold Seal:** Certified to NSF/ANSI standards by the Water Quality Association USA
+- **ISO 9001 & ISO 14001:** Environmental & Quality Management Systems
+
+## Main Product Catalog & Routes
 - **Homepage:** https://demo-product-shopping-cart.vercel.app/
-- **Shop All Garments:** https://demo-product-shopping-cart.vercel.app/shop
-- **Shirts & Tops:** https://demo-product-shopping-cart.vercel.app/shop?category=cat-shirts
-- **Tailored Trousers:** https://demo-product-shopping-cart.vercel.app/shop?category=cat-trousers
-- **Outerwear & Coats:** https://demo-product-shopping-cart.vercel.app/shop?category=cat-outerwear
-- **Dresses:** https://demo-product-shopping-cart.vercel.app/shop?category=cat-dresses
-- **Accessories:** https://demo-product-shopping-cart.vercel.app/shop?category=cat-accessories
+- **Catalog & Ionizers:** https://demo-product-shopping-cart.vercel.app/shop
+- **Flagship LeveLuk K8 (8 Plates, ORP -850mV):** https://demo-product-shopping-cart.vercel.app/product/enagic-leveluk-k8
+- **Classic LeveLuk SD501 (7 Plates, Flagship):** https://demo-product-shopping-cart.vercel.app/product/enagic-leveluk-sd501
+- **Heavy-Duty Super 501 (12 Plates, Commercial & Clinics):** https://demo-product-shopping-cart.vercel.app/product/enagic-leveluk-super-501
+- **Compact LeveLuk JRIV (4 Plates, Energy Efficient):** https://demo-product-shopping-cart.vercel.app/product/enagic-leveluk-jriv
+- **Anespa DX Home Mineral Spa System:** https://demo-product-shopping-cart.vercel.app/product/enagic-anespa-dx
+- **Official High-Grade Filter FC1:** https://demo-product-shopping-cart.vercel.app/product/enagic-filter-fc1
+- **E-Cleaner Maintenance Kit:** https://demo-product-shopping-cart.vercel.app/product/enagic-e-cleaner-kit
 
-## Signature Garments
-- Oversized Poplin Shirt (Pure organic cotton poplin, stepped hem, concealed placket)
-- Wide-Leg Tailored Wool Trousers (RWS-certified wool twill, fluid drape, pressed creases)
-- Double-Faced Wool Cocoon Coat (Unlined double-face wool, curved silhouette)
-- Asymmetric Draped Midi Dress (Sculptural gather, fluid matte jersey)
-- Minimalist Cashmere Crewneck Knit (Grade-A recycled cashmere, ribbed trims)
-- Sculptural Leather Crossbody Bag (Supple Italian nappa leather, magnetic clasp)
-
-## Quality & Sustainability Commitment
-- RWS (Responsible Wool Standard) certified virgin and recycled wools.
-- GOTS-certified 100% organic cotton shirting.
-- Plastic-free packaging and transparent ethical fabrication.
-- Complimentary standard shipping on orders over $150.
+## 5 Types of Kangen Water® Produced
+1. **Strong Kangen Water (pH 11.5):** Emulsifies oils, lifts pesticides and waxes from fresh produce, non-chemical deep cleaning.
+2. **Kangen Drinking Water (pH 8.5 - 9.5):** Ionized alkaline water rich in active molecular hydrogen (H2), micro-clustered for superior hydration and deep cellular detoxification.
+3. **Clean Water (pH 7.0):** Neutral purified water filtered through silver-activated carbon for taking medications and baby formula preparation.
+4. **Beauty Water (pH 6.0):** Mildly acidic astringent water matching natural skin pH; tightens pores, tones facial skin, and conditions hair.
+5. **Strong Acidic Water (pH 2.5):** Contains hypochlorous acid (HOCl) with powerful 99.99% antibacterial and antimicrobial properties for sanitization and infection control.

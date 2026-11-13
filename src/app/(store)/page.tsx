@@ -1,550 +1,567 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
   ArrowRight,
-  Sparkles,
-  ShieldCheck,
-  Leaf,
-  RefreshCw,
-  Truck,
-  Volume2,
-  VolumeX,
-  Pause,
-  Play,
   ArrowUpRight,
-  ChevronLeft,
-  ChevronRight,
-  Tag,
+  ShieldCheck,
+  Award,
+  Sparkles,
+  Droplets,
+  HeartPulse,
+  Activity,
+  CheckCircle2,
+  PhoneCall,
+  Zap,
+  Layers,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
+import { useTranslation } from '@/i18n/useTranslation';
 import { ProductCard } from '@/components/product/ProductCard';
-import { formatPrice } from '@/lib/utils';
-
-const RUNWAY_REELS = [
-  {
-    id: 1,
-    videoSrc: '/videos/runway.mp4',
-    poster: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=800',
-    label: 'Outerwear',
-    title: 'Cocoon Silhouettes',
-    subtitle: 'Double-faced wool architecture',
-    link: '/shop?category=cat-outerwear',
-  },
-  {
-    id: 2,
-    videoSrc: '/videos/hero.mp4',
-    poster: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800',
-    label: 'Shirts',
-    title: 'Fluid Precision',
-    subtitle: 'Organic poplin & satin weaves',
-    link: '/shop?category=cat-shirts',
-  },
-  {
-    id: 3,
-    videoSrc: '/videos/nature.mp4',
-    poster: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800',
-    label: 'Knitwear',
-    title: 'Tactile Warmth',
-    subtitle: 'Recycled cashmere & merino',
-    link: '/shop?category=cat-knitwear',
-  },
-  {
-    id: 4,
-    videoSrc: '/videos/runway.mp4',
-    poster: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=800',
-    label: 'Trousers',
-    title: 'Architectural Drape',
-    subtitle: 'Japanese wool twill & flannel',
-    link: '/shop?category=cat-trousers',
-  },
-];
-
-function ReelCard({ reel }: { reel: (typeof RUNWAY_REELS)[0] }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  const handlePlayToggle = () => {
-    if (!videoRef.current) return;
-    if (isPlaying) {
-      videoRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
-    }
-  };
-
-  return (
-    <div
-      className="group relative aspect-[9/16] overflow-hidden bg-[#111111] rounded-sm flex-shrink-0 w-[220px] sm:w-[260px] lg:w-[280px] shadow-md"
-      onMouseEnter={() => {
-        videoRef.current?.play().then(() => setIsPlaying(true)).catch(() => {});
-      }}
-      onMouseLeave={() => {
-        if (videoRef.current) {
-          videoRef.current.pause();
-          videoRef.current.currentTime = 0;
-          setIsPlaying(false);
-        }
-      }}
-      onClick={handlePlayToggle}
-    >
-      <Image
-        src={reel.poster}
-        alt={reel.title}
-        fill
-        className={`object-cover transition-opacity duration-300 ${isPlaying ? 'opacity-0' : 'opacity-100'}`}
-        sizes="280px"
-      />
-      <video
-        ref={videoRef}
-        src={reel.videoSrc}
-        muted
-        loop
-        playsInline
-        preload="none"
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
-          isPlaying ? 'opacity-100' : 'opacity-0'
-        }`}
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30 pointer-events-none" />
-
-      {/* Play/Pause Status Pill */}
-      <div className="absolute top-3 right-3 pointer-events-none">
-        <span className="glass-dark text-white text-[10px] font-medium tracking-wider px-2.5 py-1 flex items-center gap-1 rounded-full shadow-xs">
-          {isPlaying ? <Pause className="w-2.5 h-2.5 fill-white" /> : <Play className="w-2.5 h-2.5 fill-white" />}
-          <span>{isPlaying ? 'Playing' : 'Preview'}</span>
-        </span>
-      </div>
-
-      {/* Bottom Content */}
-      <div className="absolute bottom-0 inset-x-0 p-4 sm:p-5">
-        <span className="text-[10px] text-[#B9A58B] uppercase tracking-widest font-semibold">{reel.label}</span>
-        <h3 className="text-white font-medium text-base sm:text-lg leading-tight mt-1">{reel.title}</h3>
-        <p className="text-[#CCCCCC] text-xs mt-0.5 mb-3 line-clamp-1">{reel.subtitle}</p>
-        <Link
-          href={reel.link}
-          onClick={(e) => e.stopPropagation()}
-          className="inline-flex items-center gap-1.5 bg-white text-[#111111] text-[11px] uppercase tracking-wider px-3.5 py-1.5 rounded-full font-semibold hover:bg-[#F5F4F0] active:scale-95 transition-all"
-        >
-          <span>Shop Look</span>
-          <ArrowUpRight className="w-3 h-3" />
-        </Link>
-      </div>
-    </div>
-  );
-}
 
 export default function HomePage() {
+  const { t, language } = useTranslation();
   const products = useCommerceStore((state) => state.products);
   const categories = useCommerceStore((state) => state.categories);
-  const currency = useCommerceStore((state) => state.currency);
 
-  const heroVideoRef = useRef<HTMLVideoElement>(null);
-  const [heroMuted, setHeroMuted] = useState(true);
-  const [heroPaused, setHeroPaused] = useState(false);
-  const reelScrollRef = useRef<HTMLDivElement>(null);
+  const [activeWaterTab, setActiveWaterTab] = useState<number>(1);
 
-  useEffect(() => {
-    if (heroVideoRef.current) {
-      heroVideoRef.current.defaultMuted = true;
-      heroVideoRef.current.muted = true;
-      heroVideoRef.current.play().catch(() => {});
-    }
-  }, []);
+  const flagshipIonizers = products.filter(
+    (p) => (p.categoryId === 'cat-ionizers' || p.categoryId === 'cat-spa') && p.status === 'active'
+  ).slice(0, 4);
 
-  const toggleMute = () => {
-    if (heroVideoRef.current) {
-      heroVideoRef.current.muted = !heroMuted;
-      setHeroMuted(!heroMuted);
-    }
-  };
+  const accessoriesAndFilters = products.filter(
+    (p) => (p.categoryId === 'cat-filters' || p.categoryId === 'cat-accessories' || p.categoryId === 'cat-bottles') && p.status === 'active'
+  ).slice(0, 4);
 
-  const togglePause = () => {
-    if (heroVideoRef.current) {
-      if (heroPaused) {
-        heroVideoRef.current.play();
-      } else {
-        heroVideoRef.current.pause();
-      }
-      setHeroPaused(!heroPaused);
-    }
-  };
-
-  const scrollReels = (dir: 'left' | 'right') => {
-    if (reelScrollRef.current) {
-      reelScrollRef.current.scrollBy({ left: dir === 'left' ? -300 : 300, behavior: 'smooth' });
-    }
-  };
-
-  const newArrivals = products.filter((p) => p.newArrival && p.status === 'active').slice(0, 8);
-  const bestSellers = products.filter((p) => p.bestSeller && p.status === 'active').slice(0, 8);
-
-  const quickCategories = [
-    { label: 'All Garments', href: '/shop' },
-    { label: "Women's Collection", href: '/shop?gender=women' },
-    { label: "Men's Collection", href: '/shop?gender=men' },
-    { label: 'New Arrivals', href: '/shop?filter=new' },
-    { label: 'Seasonal Sale', href: '/shop?filter=sale' },
-    { label: 'Coats & Jackets', href: '/shop?category=cat-outerwear' },
-    { label: 'Tailored Trousers', href: '/shop?category=cat-trousers' },
-    { label: 'Poplin Shirts', href: '/shop?category=cat-shirts' },
+  const waterTypes = [
+    {
+      id: 0,
+      title: t.watersSection.water1Title,
+      ph: t.watersSection.water1Ph,
+      color: 'from-purple-600 to-indigo-600',
+      badgeBg: 'bg-purple-100 text-purple-900 border-purple-200',
+      glow: 'shadow-purple-500/20',
+      desc: t.watersSection.water1Desc,
+      usage: t.watersSection.water1Usage,
+      tag: language === 'vi' ? 'Bóc Tách Dầu & Thuốc Sâu' : 'Pesticide & Oil Emulsifier',
+      icon: '🛡️',
+    },
+    {
+      id: 1,
+      title: t.watersSection.water2Title,
+      ph: t.watersSection.water2Ph,
+      color: 'from-blue-600 to-cyan-500',
+      badgeBg: 'bg-blue-100 text-blue-900 border-blue-200',
+      glow: 'shadow-blue-500/20',
+      desc: t.watersSection.water2Desc,
+      usage: t.watersSection.water2Usage,
+      tag: language === 'vi' ? 'Giàu Hydro Chống Oxy Hóa' : 'Hydrogen Anti-Oxidant',
+      icon: '💧',
+    },
+    {
+      id: 2,
+      title: t.watersSection.water3Title,
+      ph: t.watersSection.water3Ph,
+      color: 'from-emerald-600 to-teal-500',
+      badgeBg: 'bg-emerald-100 text-emerald-900 border-emerald-200',
+      glow: 'shadow-emerald-500/20',
+      desc: t.watersSection.water3Desc,
+      usage: t.watersSection.water3Usage,
+      tag: language === 'vi' ? 'Tinh Khiết Chuẩn Y Khoa' : 'Purified Medical Standard',
+      icon: '✨',
+    },
+    {
+      id: 3,
+      title: t.watersSection.water4Title,
+      ph: t.watersSection.water4Ph,
+      color: 'from-amber-500 to-rose-400',
+      badgeBg: 'bg-rose-100 text-rose-900 border-rose-200',
+      glow: 'shadow-rose-500/20',
+      desc: t.watersSection.water4Desc,
+      usage: t.watersSection.water4Usage,
+      tag: language === 'vi' ? 'Chăm Sóc & Săn Chắc Da' : 'Skin Toning & Conditioning',
+      icon: '🌸',
+    },
+    {
+      id: 4,
+      title: t.watersSection.water5Title,
+      ph: t.watersSection.water5Ph,
+      color: 'from-red-600 to-orange-600',
+      badgeBg: 'bg-red-100 text-red-900 border-red-200',
+      glow: 'shadow-red-500/20',
+      desc: t.watersSection.water5Desc,
+      usage: t.watersSection.water5Usage,
+      tag: language === 'vi' ? 'Diệt Khuẩn 99.99% Y Tế' : '99.99% Medical Sanitization',
+      icon: '⚡',
+    },
   ];
 
   return (
-    <div className="space-y-14 sm:space-y-20 pb-16">
-      {/* ─── 1. BALANCED VIDEO HERO ─── */}
-      <section className="relative h-[65vh] min-h-[460px] sm:h-[72vh] w-full bg-[#0A0A0A] overflow-hidden">
-        {/* Ambient Video */}
-        <video
-          ref={heroVideoRef}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover opacity-80"
-          poster="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=85&w=2200&auto=format&fit=crop"
-        >
-          <source src="/videos/hero.mp4" type="video/mp4" />
-        </video>
+    <div className="space-y-16 sm:space-y-24 pb-20">
+      {/* ─── 1. HERO SECTION ─── */}
+      <section className="relative min-h-[580px] sm:min-h-[660px] w-full bg-gradient-to-b from-[#0B1528] via-[#0D2040] to-[#0A162B] text-white overflow-hidden flex items-center">
+        {/* Ambient lighting & mesh gradients */}
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-10 w-[500px] h-[500px] bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <div className="lg:col-span-7 space-y-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-dark border border-cyan-400/30 text-cyan-300 text-xs font-medium tracking-wide">
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+              <span>{t.hero.badge}</span>
+            </div>
 
-        {/* Gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/35" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent" />
-
-        {/* Hero text */}
-        <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-12 lg:p-20 max-w-[1440px] mx-auto">
-          <div className="max-w-xl text-white space-y-4 animate-in fade-in slide-in-from-bottom-6 duration-500">
-            <span className="inline-block bg-white/20 backdrop-blur-md text-white text-xs font-semibold tracking-wider uppercase px-3 py-1 rounded-full border border-white/20">
-              Spring / Summer 2026 Archive
-            </span>
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-normal tracking-tight leading-[1.1]">
-              Timeless Simplicity.<br />Architectural Form.
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-light tracking-tight leading-[1.12]">
+              <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-100 to-blue-200">
+                {t.hero.titleLine1}
+              </span>
+              <br />
+              <span className="text-cyan-400 font-medium">
+                {t.hero.titleLine2}
+              </span>
             </h1>
-            <p className="text-sm sm:text-base text-[#D4D4D4] font-normal leading-relaxed max-w-md">
-              Enduring wardrobe essentials crafted from organic cotton, heavyweight wool, and recycled cashmere.
+
+            <p className="text-sm sm:text-base text-blue-100/90 leading-relaxed max-w-xl font-light">
+              {t.hero.subtitle}
             </p>
-            <div className="pt-2 flex flex-wrap items-center gap-3">
+
+            {/* CTAs */}
+            <div className="pt-2 flex flex-wrap items-center gap-4">
               <Link
                 href="/shop"
-                className="bg-white text-[#111111] px-7 py-3 text-xs uppercase tracking-wider font-semibold hover:bg-[#F5F4F0] active:scale-[0.98] transition-all rounded-xs shadow-md"
+                className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white px-7 py-3.5 text-xs uppercase tracking-wider font-semibold rounded-xl shadow-lg shadow-blue-500/25 active:scale-95 transition-all flex items-center gap-2 mirror-sheen"
               >
-                Shop All Collection
+                <span>{t.hero.ctaPrimary}</span>
+                <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link
-                href="/shop?filter=sale"
-                className="glass text-white px-7 py-3 text-xs uppercase tracking-wider font-semibold hover:bg-white/20 active:scale-[0.98] transition-all rounded-xs flex items-center gap-1.5"
+              <a
+                href="#waters-section"
+                className="glass-dark-btn text-white px-6 py-3.5 text-xs uppercase tracking-wider font-medium rounded-xl border border-white/20 hover:border-cyan-400/50 hover:bg-white/10 active:scale-95 transition-all flex items-center gap-2"
               >
-                <Tag className="w-3.5 h-3.5 text-[#D2FF52]" />
-                <span>Explore Sale</span>
-              </Link>
+                <Droplets className="w-4 h-4 text-cyan-400" />
+                <span>{t.hero.ctaSecondary}</span>
+              </a>
             </div>
-          </div>
-        </div>
 
-        {/* Video controls */}
-        <div className="absolute bottom-6 right-6 sm:bottom-10 sm:right-10 flex items-center gap-2 z-10">
-          <button
-            onClick={togglePause}
-            className="glass-dark text-white p-2.5 rounded-full hover:bg-white/20 active:scale-95 transition-all shadow-md"
-            aria-label={heroPaused ? 'Play video' : 'Pause video'}
-            title={heroPaused ? 'Play' : 'Pause'}
-          >
-            {heroPaused ? <Play className="w-4 h-4 fill-white" /> : <Pause className="w-4 h-4" />}
-          </button>
-          <button
-            onClick={toggleMute}
-            className="glass-dark text-white p-2.5 rounded-full hover:bg-white/20 active:scale-95 transition-all shadow-md"
-            aria-label={heroMuted ? 'Unmute' : 'Mute'}
-            title={heroMuted ? 'Unmute sound' : 'Mute sound'}
-          >
-            {heroMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-          </button>
-        </div>
-      </section>
-
-      {/* ─── 2. TRUST & SHOPPER VALUE BAR ─── */}
-      <section className="border-y border-[#E5E5E5] bg-[#FAF9F5] py-4">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 text-center lg:text-left">
-            <div className="flex items-center justify-center lg:justify-start gap-3">
-              <Truck className="w-5 h-5 text-[#111111] flex-shrink-0" />
-              <div>
-                <p className="text-xs font-semibold text-[#111111]">Free Worldwide Delivery</p>
-                <p className="text-[11px] text-[#666666]">On all orders over {formatPrice(100, currency)}</p>
+            {/* Trust Badges Bar */}
+            <div className="pt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-white/10">
+              <div className="glass-dark p-3 rounded-lg border border-white/10 text-center">
+                <span className="block text-cyan-400 text-base font-bold">8</span>
+                <span className="text-[11px] text-blue-200/90 leading-tight block mt-0.5">{t.hero.trustPlates}</span>
               </div>
-            </div>
-            <div className="flex items-center justify-center lg:justify-start gap-3">
-              <RefreshCw className="w-5 h-5 text-[#111111] flex-shrink-0" />
-              <div>
-                <p className="text-xs font-semibold text-[#111111]">30-Day Easy Returns</p>
-                <p className="text-[11px] text-[#666666]">Complimentary home exchange</p>
+              <div className="glass-dark p-3 rounded-lg border border-white/10 text-center">
+                <span className="block text-cyan-400 text-base font-bold">-850 mV</span>
+                <span className="text-[11px] text-blue-200/90 leading-tight block mt-0.5">{t.hero.trustOrp}</span>
               </div>
-            </div>
-            <div className="flex items-center justify-center lg:justify-start gap-3">
-              <Leaf className="w-5 h-5 text-[#111111] flex-shrink-0" />
-              <div>
-                <p className="text-xs font-semibold text-[#111111]">100% Certified Fabrics</p>
-                <p className="text-[11px] text-[#666666]">Organic cotton & RWS wool</p>
+              <div className="glass-dark p-3 rounded-lg border border-white/10 text-center">
+                <span className="block text-cyan-400 text-base font-bold">5 Năm</span>
+                <span className="text-[11px] text-blue-200/90 leading-tight block mt-0.5">{t.hero.trustWarranty}</span>
               </div>
-            </div>
-            <div className="flex items-center justify-center lg:justify-start gap-3">
-              <ShieldCheck className="w-5 h-5 text-[#111111] flex-shrink-0" />
-              <div>
-                <p className="text-xs font-semibold text-[#111111]">Guaranteed Security</p>
-                <p className="text-[11px] text-[#666666]">Encrypted checkout & Apple Pay</p>
+              <div className="glass-dark p-3 rounded-lg border border-white/10 text-center">
+                <span className="block text-cyan-400 text-base font-bold">ISO 13485</span>
+                <span className="text-[11px] text-blue-200/90 leading-tight block mt-0.5">{t.hero.trustMedical}</span>
               </div>
             </div>
           </div>
+
+          {/* Right Hero Visual Card */}
+          <div className="lg:col-span-5 relative">
+            <div className="relative mx-auto max-w-md aspect-[4/5] rounded-3xl overflow-hidden glass-card p-4 border border-white/20 shadow-2xl">
+              <div className="relative w-full h-full rounded-2xl overflow-hidden">
+                <Image
+                  src="https://images.unsplash.com/photo-1548839140-29a749e1bc4e?q=80&w=1200&auto=format&fit=crop"
+                  alt="Enagic LeveLuk K8 Ionizer Medical Device"
+                  fill
+                  priority
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 40vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0B1528] via-transparent to-black/20" />
+                <div className="absolute top-4 left-4 glass-dark text-cyan-300 text-[11px] font-semibold tracking-wider uppercase px-3 py-1.5 rounded-full border border-cyan-400/30 flex items-center gap-1.5">
+                  <Award className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>LeveLuk K8 Flagship</span>
+                </div>
+                <div className="absolute bottom-4 inset-x-4 glass-modal p-4 rounded-xl border border-white/60 text-[#111111]">
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <span className="font-semibold text-blue-900">Enagic® Osaka Japan</span>
+                    <span className="text-emerald-700 font-bold">OEM Medical Certified</span>
+                  </div>
+                  <p className="text-xs text-[#444444] line-clamp-2">
+                    {language === 'vi'
+                      ? 'Trang bị 8 tấm điện cực Titan phủ Bạch kim 99.97% nguyên chất, tạo nước giàu hydro hoạt tính.'
+                      : '8 Solid platinum-coated titanium plates generating hydrogen-rich micro-clustered water.'}
+                  </p>
+                  <Link
+                    href="/product/enagic-leveluk-k8"
+                    className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 hover:text-blue-900"
+                  >
+                    <span>{t.showcase.viewPiece}</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ─── 3. QUICK ACCESS CATEGORY PILLS ─── */}
+      {/* ─── 2. TRUST & MEDICAL VALUE PILLARS ─── */}
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1">
-          <span className="text-xs uppercase tracking-wider font-semibold text-[#777777] mr-1 flex-shrink-0">
-            Quick Shop:
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="glass-card p-5 rounded-2xl border border-blue-100 flex items-start gap-3.5 hover:shadow-md transition-shadow">
+            <div className="p-2.5 rounded-xl bg-blue-50 text-blue-700 flex-shrink-0">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-xs uppercase tracking-wider font-bold text-[#111111]">
+                {t.trustBar.item1Title}
+              </h3>
+              <p className="text-xs text-[#555555] mt-1 leading-relaxed">
+                {t.trustBar.item1Desc}
+              </p>
+            </div>
+          </div>
+
+          <div className="glass-card p-5 rounded-2xl border border-blue-100 flex items-start gap-3.5 hover:shadow-md transition-shadow">
+            <div className="p-2.5 rounded-xl bg-cyan-50 text-cyan-700 flex-shrink-0">
+              <Zap className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-xs uppercase tracking-wider font-bold text-[#111111]">
+                {t.trustBar.item2Title}
+              </h3>
+              <p className="text-xs text-[#555555] mt-1 leading-relaxed">
+                {t.trustBar.item2Desc}
+              </p>
+            </div>
+          </div>
+
+          <div className="glass-card p-5 rounded-2xl border border-blue-100 flex items-start gap-3.5 hover:shadow-md transition-shadow">
+            <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 flex-shrink-0">
+              <Award className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-xs uppercase tracking-wider font-bold text-[#111111]">
+                {t.trustBar.item3Title}
+              </h3>
+              <p className="text-xs text-[#555555] mt-1 leading-relaxed">
+                {t.trustBar.item3Desc}
+              </p>
+            </div>
+          </div>
+
+          <div className="glass-card p-5 rounded-2xl border border-blue-100 flex items-start gap-3.5 hover:shadow-md transition-shadow">
+            <div className="p-2.5 rounded-xl bg-amber-50 text-amber-700 flex-shrink-0">
+              <Droplets className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-xs uppercase tracking-wider font-bold text-[#111111]">
+                {t.trustBar.item4Title}
+              </h3>
+              <p className="text-xs text-[#555555] mt-1 leading-relaxed">
+                {t.trustBar.item4Desc}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 3. INTERACTIVE 5 WATERS SECTION ─── */}
+      <section id="waters-section" className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
+        <div className="text-center max-w-3xl mx-auto mb-10 space-y-2">
+          <span className="inline-block text-xs uppercase tracking-widest font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+            {t.watersSection.badge}
           </span>
-          {quickCategories.map((cat) => (
-            <Link
-              key={cat.label}
-              href={cat.href}
-              className="flex-shrink-0 px-4 py-2 rounded-full border border-[#E5E5E5] bg-white text-xs font-medium text-[#111111] hover:border-[#111111] hover:bg-[#111111] hover:text-white transition-all duration-150 shadow-2xs"
+          <h2 className="text-2xl sm:text-4xl font-normal tracking-tight text-[#111111]">
+            {t.watersSection.title}
+          </h2>
+          <p className="text-xs sm:text-sm text-[#555555] leading-relaxed">
+            {t.watersSection.subtitle}
+          </p>
+        </div>
+
+        {/* Tab Selector */}
+        <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto scrollbar-hide pb-3">
+          {waterTypes.map((w) => (
+            <button
+              key={w.id}
+              onClick={() => setActiveWaterTab(w.id)}
+              className={`flex-shrink-0 px-4 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-all flex items-center gap-2 border ${
+                activeWaterTab === w.id
+                  ? 'bg-[#111111] text-white border-[#111111] shadow-md scale-105'
+                  : 'bg-white text-[#555555] border-[#E5E5E5] hover:border-[#111111] hover:text-[#111111]'
+              }`}
             >
-              {cat.label}
-            </Link>
+              <span>{w.icon}</span>
+              <span>{w.ph}</span>
+            </button>
           ))}
         </div>
+
+        {/* Active Water Detail Banner */}
+        <div className="mt-4 glass-card p-6 sm:p-10 rounded-3xl border border-blue-100 shadow-xl bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/40 relative overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-8 space-y-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${waterTypes[activeWaterTab].badgeBg}`}>
+                  {waterTypes[activeWaterTab].ph}
+                </span>
+                <span className="text-xs font-medium text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+                  {waterTypes[activeWaterTab].tag}
+                </span>
+              </div>
+
+              <h3 className="text-2xl sm:text-3xl font-medium text-[#111111]">
+                {waterTypes[activeWaterTab].title}
+              </h3>
+
+              <p className="text-sm sm:text-base text-[#444444] leading-relaxed">
+                {waterTypes[activeWaterTab].desc}
+              </p>
+
+              <div className="p-4 rounded-xl bg-white/80 border border-black/5 shadow-2xs space-y-1">
+                <span className="text-xs uppercase tracking-wider font-semibold text-blue-900 block">
+                  {language === 'vi' ? 'Công dụng thực tế:' : 'Practical Applications:'}
+                </span>
+                <p className="text-xs sm:text-sm text-[#333333]">
+                  {waterTypes[activeWaterTab].usage}
+                </p>
+              </div>
+
+              <div className="pt-2 flex items-center gap-4">
+                <Link
+                  href="/shop?category=cat-ionizers"
+                  className="inline-flex items-center gap-2 bg-[#111111] text-white px-5 py-2.5 rounded-xl text-xs font-semibold hover:bg-blue-950 transition-all shadow-md"
+                >
+                  <span>{t.showcase.viewAll}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            <div className="lg:col-span-4 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-blue-900 to-indigo-950 text-white text-center shadow-lg">
+              <span className="text-4xl sm:text-5xl font-extralight tracking-tight text-cyan-300">
+                {waterTypes[activeWaterTab].ph}
+              </span>
+              <span className="text-xs uppercase tracking-widest text-blue-200 mt-2 font-medium">
+                {waterTypes[activeWaterTab].title}
+              </span>
+              <p className="text-xs text-blue-100/80 mt-3 leading-relaxed">
+                {language === 'vi'
+                  ? 'Được sản xuất trực tiếp qua buồng điện giải tấm Titanium Bạch Kim Enagic Nhật Bản.'
+                  : 'Electrolyzed on demand through Enagic solid Platinum-dipped Titanium plates.'}
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* ─── 4. NEW ARRIVALS (8 ITEMS) ─── */}
+      {/* ─── 4. FLAGSHIP IONIZERS SHOWCASE ─── */}
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between mb-6 pb-3 border-b border-[#E5E5E5]">
+        <div className="flex items-end justify-between mb-8 pb-3 border-b border-[#E5E5E5]">
           <div>
-            <span className="text-xs uppercase tracking-widest text-[#777777] font-semibold">
-              Seasonal Drop
+            <span className="text-xs uppercase tracking-widest text-blue-700 font-semibold">
+              {t.showcase.bestSellersBadge}
             </span>
             <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-[#111111] mt-0.5">
-              New Arrivals
+              {t.showcase.bestSellersTitle}
             </h2>
           </div>
           <Link
-            href="/shop?filter=new"
-            className="text-xs uppercase tracking-wider font-semibold hover:underline flex items-center gap-1.5 text-[#111111]"
+            href="/shop?category=cat-ionizers"
+            className="text-xs uppercase tracking-wider font-semibold hover:underline flex items-center gap-1.5 text-blue-700"
           >
-            <span>View All ({newArrivals.length})</span>
+            <span>{t.showcase.viewAll}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-7">
-          {newArrivals.map((product) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {flagshipIonizers.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </section>
 
-      {/* ─── 5. RUNWAY IN MOTION CAROUSEL ─── */}
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between mb-6 pb-3 border-b border-[#E5E5E5]">
-          <div>
-            <span className="text-xs uppercase tracking-widest text-[#777777] font-semibold">
-              Fabric in Motion
+      {/* ─── 5. MEDICAL CERTIFICATIONS & JAPANESE HERITAGE ─── */}
+      <section id="certifications" className="bg-[#0B1528] text-white py-16 sm:py-20 scroll-mt-20">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <span className="text-xs uppercase tracking-widest text-cyan-400 font-semibold">
+              {language === 'vi' ? 'Tiêu Chuẩn Toàn Cầu' : 'Global Standards'}
             </span>
-            <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-[#111111] mt-0.5">
-              Runway Series
+            <h2 className="text-2xl sm:text-4xl font-light tracking-tight">
+              {language === 'vi'
+                ? 'Chứng Nhận Thiết Bị Y Tế & Con Dấu Vàng Quốc Tế'
+                : 'Medical Device Certifications & International Gold Seals'}
             </h2>
+            <p className="text-xs sm:text-sm text-blue-200/80 leading-relaxed font-light">
+              {language === 'vi'
+                ? 'Enagic® là thương hiệu máy điện giải duy nhất sở hữu quy trình sản xuất khép kín OEM đạt chứng nhận ISO 13485 dành riêng cho thiết bị y tế.'
+                : 'Enagic® is the only water ionizer manufacturer worldwide to hold full OEM medical device ISO 13485 certification.'}
+            </p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => scrollReels('left')}
-              className="p-2 rounded-full border border-[#E5E5E5] hover:border-[#111111] hover:bg-[#111111] hover:text-white transition-all shadow-xs"
-              aria-label="Scroll left"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => scrollReels('right')}
-              className="p-2 rounded-full border border-[#E5E5E5] hover:border-[#111111] hover:bg-[#111111] hover:text-white transition-all shadow-xs"
-              aria-label="Scroll right"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
 
-        <div
-          ref={reelScrollRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide pb-3 snap-x snap-mandatory"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {RUNWAY_REELS.map((reel) => (
-            <div key={reel.id} className="snap-start flex-shrink-0">
-              <ReelCard reel={reel} />
-            </div>
-          ))}
-
-          {/* Explore Catalog CTA Tile */}
-          <div className="snap-start flex-shrink-0 w-[220px] sm:w-[260px] lg:w-[280px] aspect-[9/16] bg-[#111111] rounded-sm flex flex-col items-center justify-center gap-5 p-8 text-center">
-            <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-[#D2FF52]" />
-            </div>
-            <div>
-              <h3 className="text-white font-medium text-lg">Curated Capsule</h3>
-              <p className="text-xs text-[#AAAAAA] mt-1 leading-relaxed">
-                24 timeless pieces engineered for quiet elegance.
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="glass-dark p-6 rounded-2xl border border-white/10 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-cyan-400 flex items-center justify-center font-bold">
+                ISO
+              </div>
+              <h3 className="text-sm font-semibold text-white">ISO 13485</h3>
+              <p className="text-xs text-blue-200/80 leading-relaxed">
+                {language === 'vi'
+                  ? 'Chứng nhận hệ thống quản lý chất lượng thiết bị y tế quốc tế và giấy phép Bộ Y Tế Nhật Bản số 27BZ006010.'
+                  : 'International Medical Device Quality Management System and Ministry of Health Japan license.'}
               </p>
             </div>
-            <Link
-              href="/shop"
-              className="bg-white text-[#111111] px-6 py-2.5 text-xs uppercase tracking-wider font-semibold hover:bg-[#F5F4F0] active:scale-95 transition-all rounded-xs w-full"
-            >
-              Explore All Styles
-            </Link>
+
+            <div className="glass-dark p-6 rounded-2xl border border-white/10 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                WQA
+              </div>
+              <h3 className="text-sm font-semibold text-white">WQA Gold Seal</h3>
+              <p className="text-xs text-blue-200/80 leading-relaxed">
+                {language === 'vi'
+                  ? 'Con dấu vàng chứng nhận chất lượng nước cao cấp nhất từ Hiệp hội Chất lượng Nước Hoa Kỳ (Water Quality Association).'
+                  : 'Gold Seal certification of the highest water quality standard by the Water Quality Association USA.'}
+              </p>
+            </div>
+
+            <div className="glass-dark p-6 rounded-2xl border border-white/10 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">
+                JAPA
+              </div>
+              <h3 className="text-sm font-semibold text-white">Hiệp Hội Bác Sĩ JAPA</h3>
+              <p className="text-xs text-blue-200/80 leading-relaxed">
+                {language === 'vi'
+                  ? 'Được hơn 6,500 bác sĩ của Hiệp hội Phòng Bệnh Người Cao Tuổi Nhật Bản (JAPA) chính thức công nhận và khuyên dùng.'
+                  : 'Officially endorsed by 6,500+ physicians of the Japanese Association of Preventive Medicine for Adult Diseases.'}
+              </p>
+            </div>
+
+            <div className="glass-dark p-6 rounded-2xl border border-white/10 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                OEM
+              </div>
+              <h3 className="text-sm font-semibold text-white">100% Made In Osaka</h3>
+              <p className="text-xs text-blue-200/80 leading-relaxed">
+                {language === 'vi'
+                  ? 'Sản xuất đồng bộ và kiểm định nghiêm ngặt tại nhà máy Enagic Osaka, Nhật Bản từ năm 1974.'
+                  : 'Engineered and hand-assembled under strict quality control at Enagic Osaka factory since 1974.'}
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ─── 6. CATEGORIES VISUAL GRID ─── */}
+      {/* ─── 6. CATEGORIES NAVIGATION ─── */}
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between mb-6 pb-3 border-b border-[#E5E5E5]">
+        <div className="flex items-end justify-between mb-8 pb-3 border-b border-[#E5E5E5]">
           <div>
-            <span className="text-xs uppercase tracking-widest text-[#777777] font-semibold">
-              Explore Taxonomy
+            <span className="text-xs uppercase tracking-widest text-blue-700 font-semibold">
+              {t.shop.categories}
             </span>
             <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-[#111111] mt-0.5">
-              Shop by Category
+              {language === 'vi' ? 'Hệ Sinh Thái Enagic® Kangen' : 'Enagic® Product Ecosystem'}
             </h2>
           </div>
           <Link
             href="/shop"
-            className="text-xs uppercase tracking-wider font-semibold hover:underline flex items-center gap-1.5 text-[#111111]"
+            className="text-xs uppercase tracking-wider font-semibold hover:underline flex items-center gap-1.5 text-blue-700"
           >
-            <span>All Categories</span>
+            <span>{t.shop.allCategories}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              href={`/shop?category=${category.id}`}
-              className="group flex flex-col text-center"
-            >
-              <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F5F4F0] rounded-xs mb-2.5">
-                <Image
-                  src={category.image}
-                  alt={category.name}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(max-width: 768px) 50vw, 16vw"
-                />
-              </div>
-              <h3 className="text-xs uppercase tracking-wider font-semibold text-[#111111] group-hover:underline transition-colors">
-                {category.name}
-              </h3>
-            </Link>
-          ))}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+          {categories.map((cat) => {
+            const catName = language === 'vi' ? cat.nameVi || cat.name : cat.nameEn || cat.name;
+            return (
+              <Link
+                key={cat.id}
+                href={`/shop?category=${cat.id}`}
+                className="group flex flex-col text-center"
+              >
+                <div className="relative aspect-square w-full overflow-hidden bg-[#F5F4F0] rounded-2xl border border-black/[0.04] shadow-xs group-hover:shadow-md transition-all duration-300 mb-2.5">
+                  <Image
+                    src={cat.image}
+                    alt={catName}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 768px) 50vw, 20vw"
+                  />
+                </div>
+                <h3 className="text-xs uppercase tracking-wider font-semibold text-[#111111] group-hover:text-blue-700 transition-colors">
+                  {catName}
+                </h3>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
-      {/* ─── 7. BEST SELLERS (8 ITEMS) ─── */}
+      {/* ─── 7. FILTERS & OFFICIAL ACCESSORIES ─── */}
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between mb-6 pb-3 border-b border-[#E5E5E5]">
+        <div className="flex items-end justify-between mb-8 pb-3 border-b border-[#E5E5E5]">
           <div>
-            <span className="text-xs uppercase tracking-widest text-[#777777] font-semibold">
-              Customer Favorites
+            <span className="text-xs uppercase tracking-widest text-blue-700 font-semibold">
+              {language === 'vi' ? 'Bảo Dưỡng & Phụ Kiện' : 'Care & Maintenance'}
             </span>
             <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-[#111111] mt-0.5">
-              Signature Best Sellers
+              {language === 'vi' ? 'Lõi Lọc & Phụ Kiện Chính Hãng Enagic®' : 'Authentic Replacement Filters & Care'}
             </h2>
           </div>
           <Link
-            href="/shop?filter=popular"
-            className="text-xs uppercase tracking-wider font-semibold hover:underline flex items-center gap-1.5 text-[#111111]"
+            href="/shop?category=cat-filters"
+            className="text-xs uppercase tracking-wider font-semibold hover:underline flex items-center gap-1.5 text-blue-700"
           >
-            <span>View All ({bestSellers.length})</span>
+            <span>{t.showcase.viewAll}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-7">
-          {bestSellers.map((product) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {accessoriesAndFilters.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </section>
 
-      {/* ─── 8. SPLIT-SCREEN SOURCING MANIFESTO ─── */}
-      <section className="bg-[#0A0A0A] overflow-hidden">
-        <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 min-h-[480px]">
-          {/* Video side */}
-          <div className="relative min-h-[300px] lg:min-h-[480px] overflow-hidden">
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="none"
-              className="absolute inset-0 w-full h-full object-cover opacity-90"
-              poster="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1200"
-            >
-              <source src="/videos/runway.mp4" type="video/mp4" />
-            </video>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/30" />
-            <div className="absolute bottom-6 left-6">
-              <span className="glass-dark text-[#B9A58B] text-xs uppercase tracking-widest px-3 py-1.5 rounded-full font-semibold">
-                Atelier Film &bull; SS26
-              </span>
-            </div>
-          </div>
-
-          {/* Text side */}
-          <div className="flex flex-col justify-center p-8 sm:p-12 lg:p-16 space-y-5 text-white">
-            <span className="text-xs uppercase tracking-widest text-[#B9A58B] font-semibold">
-              The Sourcing Philosophy
+      {/* ─── 8. WATER TEST & DOCTOR CONSULTATION CTA BANNER ─── */}
+      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="rounded-3xl bg-gradient-to-r from-blue-900 via-indigo-900 to-cyan-900 text-white p-8 sm:p-14 relative overflow-hidden shadow-2xl">
+          <div className="max-w-2xl space-y-4 relative z-10">
+            <span className="inline-block text-xs uppercase tracking-widest font-semibold px-3 py-1 rounded-full bg-cyan-400/20 text-cyan-300 border border-cyan-400/30">
+              {language === 'vi' ? 'Khảo Sát Nước Miễn Phí Tại Nhà' : 'Complimentary In-Home Water Testing'}
             </span>
-            <h2 className="text-3xl sm:text-4xl font-normal tracking-tight leading-[1.15]">
-              Quiet Luxury &<br />Conscious Craft.
+            <h2 className="text-2xl sm:text-4xl font-light tracking-tight leading-tight">
+              {language === 'vi'
+                ? 'Đo Đạc Chỉ Số Nguồn Nước & Tư Vấn Cấu Hình Điện Giải'
+                : 'Schedule a Comprehensive Water Analysis & Ionizer Consultation'}
             </h2>
-            <p className="text-sm text-[#CCCCCC] leading-relaxed font-normal max-w-md">
-              Every silhouette is cut from responsibly sourced Japanese twill, heavyweight mulberry silk, and
-              Mongolian cashmere &mdash; designed to outlive ephemeral seasonal trends.
+            <p className="text-xs sm:text-sm text-blue-100/90 leading-relaxed font-light">
+              {language === 'vi'
+                ? 'Chuyên viên kỹ thuật Enagic sẽ đến tận nhà kiểm tra độ pH, nồng độ Clo dư, kim loại nặng và tư vấn bộ tiền lọc tối ưu nhất cho gia đình bạn hoàn toàn miễn phí.'
+                : 'Our certified Enagic technicians will test your tap water pH, ORP, residual chlorine, and recommend the ideal pre-filtration setup free of charge.'}
             </p>
-
-            {/* Quick stats */}
-            <div className="grid grid-cols-3 gap-3 pt-2">
-              <div className="glass-dark rounded-md p-3 text-center">
-                <p className="text-white font-bold text-lg leading-none">100%</p>
-                <p className="text-[#AAAAAA] text-[11px] uppercase tracking-wider mt-1">Organic</p>
-              </div>
-              <div className="glass-dark rounded-md p-3 text-center">
-                <p className="text-white font-bold text-lg leading-none">24</p>
-                <p className="text-[#AAAAAA] text-[11px] uppercase tracking-wider mt-1">Styles</p>
-              </div>
-              <div className="glass-dark rounded-md p-3 text-center">
-                <p className="text-white font-bold text-lg leading-none">30-Day</p>
-                <p className="text-[#AAAAAA] text-[11px] uppercase tracking-wider mt-1">Returns</p>
-              </div>
-            </div>
-
-            <div className="pt-2 flex flex-wrap gap-3">
+            <div className="pt-2 flex flex-wrap items-center gap-4">
+              <a
+                href="tel:1900866814"
+                className="bg-white text-blue-950 px-6 py-3 rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-blue-50 active:scale-95 transition-all flex items-center gap-2 shadow-lg"
+              >
+                <PhoneCall className="w-4 h-4 text-blue-700" />
+                <span>Hotline: 1900 866 814</span>
+              </a>
               <Link
                 href="/shop"
-                className="inline-flex items-center gap-1.5 bg-white text-[#111111] px-6 py-3 text-xs uppercase tracking-wider font-semibold hover:bg-[#F5F4F0] active:scale-95 transition-all rounded-xs"
+                className="glass-dark-btn text-white px-6 py-3 rounded-xl text-xs uppercase tracking-wider font-semibold border border-white/20 hover:border-cyan-400/50 active:scale-95 transition-all"
               >
-                <span>Shop the Edit</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </Link>
-              <Link
-                href="/shop?category=cat-outerwear"
-                className="inline-flex items-center gap-1.5 glass text-white px-6 py-3 text-xs uppercase tracking-wider font-medium hover:bg-white/10 active:scale-95 transition-all rounded-xs"
-              >
-                Outerwear
+                {t.hero.ctaPrimary}
               </Link>
             </div>
           </div>

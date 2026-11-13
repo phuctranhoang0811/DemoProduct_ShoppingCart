@@ -1,30 +1,27 @@
 'use client';
 
-import { useState, useMemo, useEffect, Suspense, Fragment } from 'react';
-import Image from 'next/image';
+import { useState, useMemo, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { SlidersHorizontal, ArrowUpDown, X, Tag, LayoutGrid, Columns, ArrowUpRight } from 'lucide-react';
+import { SlidersHorizontal, ArrowUpDown, X, Tag, LayoutGrid, Columns, Sparkles, Droplets, Zap, ShieldCheck } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
+import { useTranslation } from '@/i18n/useTranslation';
 import { ProductCard } from '@/components/product/ProductCard';
 import { formatPrice } from '@/lib/utils';
 
 function ShopContent() {
   const searchParams = useSearchParams();
+  const { t, language } = useTranslation();
   const products = useCommerceStore((state) => state.products);
   const categories = useCommerceStore((state) => state.categories);
   const currency = useCommerceStore((state) => state.currency);
 
-  // Filters state
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
-  const [selectedGender, setSelectedGender] = useState(searchParams.get('gender') || 'all');
+  const [selectedElectrode, setSelectedElectrode] = useState<number | 'all'>('all');
   const [selectedSpecial, setSelectedSpecial] = useState(searchParams.get('filter') || 'all');
-  const [selectedSize, setSelectedSize] = useState('all');
-  const [selectedColor, setSelectedColor] = useState('all');
-  const [priceRange, setPriceRange] = useState<number>(500);
-  const [sortBy, setSortBy] = useState<'newest' | 'price-asc' | 'price-desc' | 'popular'>('newest');
-  const [gridDensity, setGridDensity] = useState<'catalog' | 'editorial'>('catalog');
+  const [priceRange, setPriceRange] = useState<number>(currency === 'VND' ? 200000000 : 7000);
+  const [sortBy, setSortBy] = useState<'newest' | 'price-asc' | 'price-desc' | 'popular'>('popular');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [page, setPage] = useState(1);
   const ITEMS_PER_PAGE = 8;
@@ -34,23 +31,24 @@ function ShopContent() {
     if (q !== null) setSearchQuery(q);
     const cat = searchParams.get('category');
     if (cat !== null) setSelectedCategory(cat);
-    const gen = searchParams.get('gender');
-    if (gen !== null) setSelectedGender(gen);
     const fil = searchParams.get('filter');
     if (fil !== null) setSelectedSpecial(fil);
   }, [searchParams]);
 
-  // Extract all unique sizes and colors
-  const allSizes = useMemo(() => {
-    const sizes = new Set<string>();
-    products.forEach((p) => p.sizes.forEach((s) => sizes.add(s.label)));
-    return Array.from(sizes);
-  }, [products]);
+  useEffect(() => {
+    setPriceRange(currency === 'VND' ? 200000000 : 7000);
+  }, [currency]);
 
-  const allColors = useMemo(() => {
-    const map = new Map<string, string>();
-    products.forEach((p) => p.colors.forEach((c) => map.set(c.name, c.hex)));
-    return Array.from(map.entries()).map(([name, hex]) => ({ name, hex }));
+  // Available electrode options from products
+  const electrodeOptions = useMemo(() => {
+    const set = new Set<number>();
+    products.forEach((p) => {
+      if (p.specifications?.electrodes) {
+        const val = Number(p.specifications.electrodes);
+        if (!isNaN(val)) set.add(val);
+      }
+    });
+    return Array.from(set).sort((a, b) => b - a);
   }, [products]);
 
   // Filtered & Sorted products
@@ -61,10 +59,18 @@ function ShopContent() {
       // Search query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
+        const nameVi = p.nameVi?.toLowerCase() || '';
+        const nameEn = p.nameEn?.toLowerCase() || '';
+        const descVi = p.descriptionVi?.toLowerCase() || '';
+        const descEn = p.descriptionEn?.toLowerCase() || '';
         const match =
           p.name.toLowerCase().includes(q) ||
           p.sku.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q);
+          p.description.toLowerCase().includes(q) ||
+          nameVi.includes(q) ||
+          nameEn.includes(q) ||
+          descVi.includes(q) ||
+          descEn.includes(q);
         if (!match) return false;
       }
 
@@ -73,29 +79,19 @@ function ShopContent() {
         return false;
       }
 
-      // Gender
-      if (selectedGender !== 'all') {
-        if (p.gender !== selectedGender && p.gender !== 'unisex') return false;
-      }
-
       // Special filters
       if (selectedSpecial === 'new' && !p.newArrival) return false;
       if (selectedSpecial === 'sale' && !p.sale) return false;
+      if (selectedSpecial === 'popular' && !p.bestSeller) return false;
+
+      // Electrodes filter
+      if (selectedElectrode !== 'all') {
+        if (Number(p.specifications?.electrodes) !== selectedElectrode) return false;
+      }
 
       // Price
-      if (p.price > priceRange) return false;
-
-      // Size
-      if (selectedSize !== 'all') {
-        const hasSize = p.sizes.some((s) => s.label === selectedSize && s.stock > 0);
-        if (!hasSize) return false;
-      }
-
-      // Color
-      if (selectedColor !== 'all') {
-        const hasColor = p.colors.some((c) => c.name.toLowerCase() === selectedColor.toLowerCase());
-        if (!hasColor) return false;
-      }
+      const itemPrice = currency === 'VND' ? p.price * 25000 : p.price;
+      if (itemPrice > priceRange) return false;
 
       return true;
     }).sort((a, b) => {
@@ -108,551 +104,318 @@ function ShopContent() {
     products,
     searchQuery,
     selectedCategory,
-    selectedGender,
+    selectedElectrode,
     selectedSpecial,
     priceRange,
-    selectedSize,
-    selectedColor,
+    currency,
     sortBy,
   ]);
 
   const displayedProducts = filteredProducts.slice(0, page * ITEMS_PER_PAGE);
   const hasMore = displayedProducts.length < filteredProducts.length;
 
-  const resetFilters = () => {
+  const resetAllFilters = () => {
     setSearchQuery('');
     setSelectedCategory('all');
-    setSelectedGender('all');
+    setSelectedElectrode('all');
     setSelectedSpecial('all');
-    setSelectedSize('all');
-    setSelectedColor('all');
-    setPriceRange(500);
-    setSortBy('newest');
-    setPage(1);
+    setPriceRange(currency === 'VND' ? 200000000 : 7000);
+    setSortBy('popular');
   };
 
   const hasActiveFilters =
-    Boolean(searchQuery) ||
     selectedCategory !== 'all' ||
-    selectedGender !== 'all' ||
+    selectedElectrode !== 'all' ||
     selectedSpecial !== 'all' ||
-    selectedSize !== 'all' ||
-    selectedColor !== 'all' ||
-    priceRange < 500;
+    searchQuery.trim().length > 0;
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-      {/* Editorial Header Banner */}
+      {/* Header */}
       <div className="mb-8 border-b border-[#E5E5E5] pb-6">
-        <h1 className="text-3xl sm:text-5xl font-normal tracking-tight text-[#111111]">
-          {selectedCategory !== 'all'
-            ? categories.find((c) => c.id === selectedCategory)?.name || 'Collection'
-            : selectedSpecial === 'new'
-            ? 'New Arrivals'
-            : selectedSpecial === 'sale'
-            ? 'Seasonal Archive & Sale'
-            : selectedGender === 'women'
-            ? "Women's Collection"
-            : selectedGender === 'men'
-            ? "Men's Collection"
-            : 'All Garments'}
+        <span className="text-xs uppercase tracking-widest text-blue-700 font-semibold block mb-1">
+          {t.brand.name}
+        </span>
+        <h1 className="text-2xl sm:text-4xl font-light tracking-tight text-[#111111]">
+          {t.shop.pageTitle}
         </h1>
-        <p className="text-sm sm:text-base text-[#666666] mt-2 max-w-xl font-normal leading-relaxed">
-          Tactile textures, architectural silhouettes, and calm Scandinavian palettes conceived for
-          longevity and quiet luxury.
+        <p className="text-xs sm:text-sm text-[#555555] mt-1 max-w-2xl">
+          {t.shop.pageSubtitle}
         </p>
       </div>
 
-      {/* Control bar: count, mobile filter trigger, sort */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 mb-6 border-b border-[#E5E5E5] gap-4">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => setIsMobileFilterOpen(true)}
-            className="lg:hidden flex items-center gap-2 px-3.5 py-2 border border-[#111111] text-xs uppercase font-medium"
-          >
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-            Filters {hasActiveFilters && '(Active)'}
-          </button>
-          <span className="text-sm text-[#666666] tracking-normal">
-            Showing <strong className="text-[#111111] font-semibold">{filteredProducts.length}</strong> styles
-          </span>
-          {hasActiveFilters && (
-            <button
-              onClick={resetFilters}
-              className="text-xs uppercase tracking-wider text-[#777777] hover:text-[#111111] underline transition-colors"
-            >
-              Reset all filters
-            </button>
-          )}
-        </div>
-
-        {/* Controls: Grid View Switcher + Sort Selector */}
-        <div className="flex items-center gap-6 self-end sm:self-auto">
-          {/* Grid View Switcher */}
-          <div className="hidden sm:flex items-center gap-1 border-r border-[#E5E5E5] pr-4">
-            <button
-              type="button"
-              onClick={() => setGridDensity('catalog')}
-              className={`p-1.5 transition-colors ${
-                gridDensity === 'catalog'
-                  ? 'text-[#111111] bg-[#F5F4F0]'
-                  : 'text-[#999999] hover:text-[#111111]'
-              }`}
-              title="Catalog Grid (3 Columns)"
-              aria-label="Switch to 3 column catalog view"
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setGridDensity('editorial')}
-              className={`p-1.5 transition-colors ${
-                gridDensity === 'editorial'
-                  ? 'text-[#111111] bg-[#F5F4F0]'
-                  : 'text-[#999999] hover:text-[#111111]'
-              }`}
-              title="Editorial View (2 Columns)"
-              aria-label="Switch to 2 column editorial view"
-            >
-              <Columns className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Sort Selector */}
-          <div className="flex items-center gap-2">
-            <label htmlFor="sort-select" className="text-xs text-[#666666] flex items-center gap-1 uppercase tracking-wider font-medium">
-              <ArrowUpDown className="w-3.5 h-3.5" /> Sort:
-            </label>
-            <select
-              id="sort-select"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="text-xs uppercase font-medium bg-transparent border-b border-[#111111] py-1 pl-1 pr-6 outline-none cursor-pointer tracking-wider"
-            >
-              <option value="newest">Newest Arrivals</option>
-              <option value="popular">Best Selling</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Active Filter Pills (Click to remove single filter) */}
-      {hasActiveFilters && (
-        <div className="flex flex-wrap items-center gap-2 mb-8 animate-in fade-in duration-150">
-          <span className="text-[11px] text-[#777777] uppercase tracking-wider mr-1">Active:</span>
-
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F5F4F0] border border-[#E5E5E5] text-[11px] hover:border-[#111111] transition-colors"
-            >
-              <span>Query: &ldquo;{searchQuery}&rdquo;</span>
-              <X className="w-3 h-3 text-[#777777]" />
-            </button>
-          )}
-
-          {selectedCategory !== 'all' && (
-            <button
-              onClick={() => setSelectedCategory('all')}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F5F4F0] border border-[#E5E5E5] text-[11px] hover:border-[#111111] transition-colors"
-            >
-              <span>{categories.find((c) => c.id === selectedCategory)?.name}</span>
-              <X className="w-3 h-3 text-[#777777]" />
-            </button>
-          )}
-
-          {selectedGender !== 'all' && (
-            <button
-              onClick={() => setSelectedGender('all')}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F5F4F0] border border-[#E5E5E5] text-[11px] capitalize hover:border-[#111111] transition-colors"
-            >
-              <span>Gender: {selectedGender}</span>
-              <X className="w-3 h-3 text-[#777777]" />
-            </button>
-          )}
-
-          {selectedSpecial !== 'all' && (
-            <button
-              onClick={() => setSelectedSpecial('all')}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F5F4F0] border border-[#E5E5E5] text-[11px] capitalize hover:border-[#111111] transition-colors"
-            >
-              <span>{selectedSpecial === 'new' ? 'New Arrivals' : 'Sale Archive'}</span>
-              <X className="w-3 h-3 text-[#777777]" />
-            </button>
-          )}
-
-          {selectedSize !== 'all' && (
-            <button
-              onClick={() => setSelectedSize('all')}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F5F4F0] border border-[#E5E5E5] text-[11px] hover:border-[#111111] transition-colors"
-            >
-              <span>Size: {selectedSize}</span>
-              <X className="w-3 h-3 text-[#777777]" />
-            </button>
-          )}
-
-          {selectedColor !== 'all' && (
-            <button
-              onClick={() => setSelectedColor('all')}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F5F4F0] border border-[#E5E5E5] text-[11px] hover:border-[#111111] transition-colors"
-            >
-              <span>Color: {selectedColor}</span>
-              <X className="w-3 h-3 text-[#777777]" />
-            </button>
-          )}
-
-          {priceRange < 500 && (
-            <button
-              onClick={() => setPriceRange(500)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F5F4F0] border border-[#E5E5E5] text-[11px] hover:border-[#111111] transition-colors"
-            >
-              <span>Under {formatPrice(priceRange, currency)}</span>
-              <X className="w-3 h-3 text-[#777777]" />
-            </button>
-          )}
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Desktop Sticky Sidebar Filters */}
-        <aside className="hidden lg:block space-y-8 pr-6 border-r border-[#E5E5E5] sticky top-28 self-start max-h-[80vh] overflow-y-auto">
-          {/* Categories */}
-          <div>
-            <h3 className="text-xs uppercase tracking-widest font-semibold text-[#111111] mb-3">
-              Categories
-            </h3>
-            <ul className="space-y-1 text-xs text-[#555555]">
-              <li>
+      {/* Main Grid: Sidebar Filters + Products */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Desktop Filter Sidebar (3 cols) */}
+        <aside className="hidden lg:block lg:col-span-3 space-y-6 sticky top-28">
+          <div className="glass-card p-5 rounded-2xl border border-blue-100 shadow-sm space-y-6">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
+              <span className="text-xs uppercase tracking-wider font-bold text-[#111111] flex items-center gap-2">
+                <SlidersHorizontal className="w-4 h-4 text-blue-700" />
+                {t.shop.filters}
+              </span>
+              {hasActiveFilters && (
                 <button
-                  onClick={() => { setSelectedCategory('all'); setPage(1); }}
-                  className={`w-full text-left py-1 hover:text-[#111111] transition-colors flex items-center justify-between ${
-                    selectedCategory === 'all' ? 'font-semibold text-[#111111]' : ''
+                  onClick={resetAllFilters}
+                  className="text-[11px] text-blue-700 hover:underline font-semibold"
+                >
+                  {t.shop.resetFilters}
+                </button>
+              )}
+            </div>
+
+            {/* Categories */}
+            <div className="space-y-2">
+              <span className="text-xs font-semibold text-[#111111] uppercase tracking-wider block">
+                {t.shop.categories}
+              </span>
+              <div className="space-y-1">
+                <button
+                  onClick={() => {
+                    setSelectedCategory('all');
+                    setPage(1);
+                  }}
+                  className={`w-full text-left text-xs px-3 py-2 rounded-lg transition-all ${
+                    selectedCategory === 'all'
+                      ? 'bg-blue-900 text-white font-semibold shadow-xs'
+                      : 'text-[#444444] hover:bg-blue-50'
                   }`}
                 >
-                  <span>All Categories</span>
-                  <span className="text-[10px] text-[#999999]">{products.length}</span>
+                  {t.shop.allCategories}
                 </button>
-              </li>
-              {categories.map((c) => {
-                const count = products.filter((p) => p.categoryId === c.id).length;
-                return (
-                  <li key={c.id}>
+                {categories.map((cat) => {
+                  const catName = language === 'vi' ? cat.nameVi || cat.name : cat.nameEn || cat.name;
+                  return (
                     <button
-                      onClick={() => { setSelectedCategory(c.id); setPage(1); }}
-                      className={`w-full text-left py-1 hover:text-[#111111] transition-colors flex items-center justify-between ${
-                        selectedCategory === c.id ? 'font-semibold text-[#111111]' : ''
+                      key={cat.id}
+                      onClick={() => {
+                        setSelectedCategory(cat.id);
+                        setPage(1);
+                      }}
+                      className={`w-full text-left text-xs px-3 py-2 rounded-lg transition-all ${
+                        selectedCategory === cat.id
+                          ? 'bg-blue-900 text-white font-semibold shadow-xs'
+                          : 'text-[#444444] hover:bg-blue-50'
                       }`}
                     >
-                      <span>{c.name}</span>
-                      <span className="text-[10px] text-[#999999]">{count}</span>
+                      {catName}
                     </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-
-          {/* Gender */}
-          <div>
-            <h3 className="text-xs uppercase tracking-widest font-semibold text-[#111111] mb-3">
-              Gender Direction
-            </h3>
-            <div className="flex flex-wrap gap-1.5">
-              {['all', 'women', 'men'].map((g) => (
-                <button
-                  key={g}
-                  onClick={() => { setSelectedGender(g); setPage(1); }}
-                  className={`px-3 py-1.5 text-xs uppercase border transition-all ${
-                    selectedGender === g
-                      ? 'bg-[#111111] text-white border-[#111111] font-medium'
-                      : 'border-[#E5E5E5] text-[#111111] hover:border-[#111111]'
-                  }`}
-                >
-                  {g === 'all' ? 'All' : g}
-                </button>
-              ))}
+                  );
+                })}
+              </div>
             </div>
-          </div>
 
-          {/* Price Range */}
-          <div>
-            <div className="flex justify-between items-center text-xs mb-2">
-              <span className="uppercase tracking-widest font-semibold text-[#111111]">Max Price</span>
-              <span className="font-semibold font-mono text-[#111111]">{formatPrice(priceRange, currency)}</span>
-            </div>
-            <input
-              type="range"
-              min="50"
-              max="500"
-              step="10"
-              value={priceRange}
-              onChange={(e) => { setPriceRange(Number(e.target.value)); setPage(1); }}
-              className="w-full accent-[#111111]"
-            />
-            <div className="flex justify-between text-[10px] text-[#777777] mt-1">
-              <span>{formatPrice(50, currency)}</span>
-              <span>{formatPrice(500, currency)}</span>
-            </div>
-          </div>
+            {/* Electrode Plates Filter */}
+            {electrodeOptions.length > 0 && (
+              <div className="space-y-2 pt-2 border-t border-[#E5E5E5]">
+                <span className="text-xs font-semibold text-[#111111] uppercase tracking-wider block">
+                  {t.shop.electrodesFilter}
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    onClick={() => {
+                      setSelectedElectrode('all');
+                      setPage(1);
+                    }}
+                    className={`text-xs px-2.5 py-1.5 rounded-lg border transition-all ${
+                      selectedElectrode === 'all'
+                        ? 'bg-[#111111] text-white border-[#111111] font-semibold'
+                        : 'bg-white text-[#555555] border-[#E5E5E5] hover:border-[#111111]'
+                    }`}
+                  >
+                    {language === 'vi' ? 'Tất Cả' : 'All'}
+                  </button>
+                  {electrodeOptions.map((count) => (
+                    <button
+                      key={count}
+                      onClick={() => {
+                        setSelectedElectrode(count);
+                        setPage(1);
+                      }}
+                      className={`text-xs px-2.5 py-1.5 rounded-lg border transition-all ${
+                        selectedElectrode === count
+                          ? 'bg-[#111111] text-white border-[#111111] font-semibold'
+                          : 'bg-white text-[#555555] border-[#E5E5E5] hover:border-[#111111]'
+                      }`}
+                    >
+                      {count} {language === 'vi' ? 'Tấm' : 'Plates'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
-          {/* Sizes */}
-          <div>
-            <h3 className="text-xs uppercase tracking-widest font-semibold text-[#111111] mb-3">
-              Sizes
-            </h3>
-            <div className="grid grid-cols-3 gap-1.5">
-              <button
-                onClick={() => { setSelectedSize('all'); setPage(1); }}
-                className={`py-1.5 text-xs text-center border transition-all ${
-                  selectedSize === 'all'
-                    ? 'bg-[#111111] text-white border-[#111111]'
-                    : 'border-[#E5E5E5] hover:border-[#111111]'
-                }`}
-              >
-                All
-              </button>
-              {allSizes.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => { setSelectedSize(s); setPage(1); }}
-                  className={`py-1.5 text-xs text-center border transition-all ${
-                    selectedSize === s
-                      ? 'bg-[#111111] text-white border-[#111111]'
-                      : 'border-[#E5E5E5] hover:border-[#111111]'
-                  }`}
-                >
-                  {s}
-                </button>
-              ))}
+            {/* Special collections */}
+            <div className="space-y-2 pt-2 border-t border-[#E5E5E5]">
+              <span className="text-xs font-semibold text-[#111111] uppercase tracking-wider block">
+                {language === 'vi' ? 'Phân Loại Nổi Bật' : 'Featured Highlights'}
+              </span>
+              <div className="space-y-1">
+                {[
+                  { id: 'all', label: language === 'vi' ? 'Tất cả thiết bị' : 'All Equipment' },
+                  { id: 'popular', label: language === 'vi' ? 'Dòng máy biểu tượng' : 'Flagship Icons' },
+                  { id: 'new', label: language === 'vi' ? 'Thế hệ mới 2026' : 'New 2026 Generation' },
+                  { id: 'sale', label: language === 'vi' ? 'Ưu đãi & Quà tặng kèm' : 'Special Promotions' },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setSelectedSpecial(item.id);
+                      setPage(1);
+                    }}
+                    className={`w-full text-left text-xs px-3 py-1.5 rounded-lg transition-all ${
+                      selectedSpecial === item.id
+                        ? 'text-blue-700 font-semibold bg-blue-50'
+                        : 'text-[#555555] hover:text-[#111111]'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Colors */}
-          <div>
-            <h3 className="text-xs uppercase tracking-widest font-semibold text-[#111111] mb-3">
-              Colour Palette
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => { setSelectedColor('all'); setPage(1); }}
-                className={`px-2.5 py-1 text-xs border ${
-                  selectedColor === 'all' ? 'border-[#111111] bg-[#111111] text-white' : 'border-[#E5E5E5]'
-                }`}
-              >
-                All
-              </button>
-              {allColors.map((c) => (
-                <button
-                  key={c.name}
-                  onClick={() => { setSelectedColor(c.name); setPage(1); }}
-                  className={`w-6 h-6 rounded-full border transition-all ${
-                    selectedColor.toLowerCase() === c.name.toLowerCase()
-                      ? 'ring-2 ring-[#111111] ring-offset-2'
-                      : 'border-black/10 hover:scale-110'
-                  }`}
-                  style={{ backgroundColor: c.hex }}
-                  title={c.name}
-                />
-              ))}
+            {/* Price slider */}
+            <div className="space-y-2 pt-2 border-t border-[#E5E5E5]">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-[#111111] uppercase tracking-wider">
+                  {t.shop.priceRange}
+                </span>
+                <span className="font-semibold text-blue-700">
+                  {formatPrice(currency === 'VND' ? priceRange / 25000 : priceRange, currency)}
+                </span>
+              </div>
+              <input
+                type="range"
+                min={currency === 'VND' ? 500000 : 50}
+                max={currency === 'VND' ? 200000000 : 7000}
+                step={currency === 'VND' ? 1000000 : 50}
+                value={priceRange}
+                onChange={(e) => setPriceRange(Number(e.target.value))}
+                className="w-full accent-blue-700 cursor-pointer"
+              />
             </div>
           </div>
         </aside>
 
-        {/* Product Grid Area */}
-        <div className="lg:col-span-3">
-          {filteredProducts.length > 0 ? (
-            <>
-              <div
-                className={
-                  gridDensity === 'editorial'
-                    ? 'grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12'
-                    : 'grid grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8'
-                }
-              >
-                {displayedProducts.map((product, idx) => (
-                  <Fragment key={product.id}>
-                    <ProductCard product={product} density={gridDensity} />
-
-                    {/* Editorial Breather 1: SS26 Philosophy quote after 3rd item */}
-                    {idx === 2 && (
-                      <div
-                        className={`my-2 py-10 px-6 sm:px-12 bg-[#F5F4F0] border border-[#E5E5E5] flex flex-col items-center justify-center text-center ${
-                          gridDensity === 'editorial' ? 'col-span-1 md:col-span-2' : 'col-span-2 md:col-span-3'
-                        }`}
-                      >
-                        <span className="text-[10px] uppercase tracking-[0.28em] text-[#777777] font-semibold mb-2">
-                          SS26 Philosophy
-                        </span>
-                        <p className="font-serif italic text-lg sm:text-2xl text-[#111111] max-w-xl leading-relaxed">
-                          &ldquo;Form follows silence &mdash; enduring garments crafted from tactile organic fibres and architectural tailoring.&rdquo;
-                        </p>
-                        <div className="w-8 h-[1px] bg-[#111111] mt-4 mb-2" />
-                        <span className="text-[10px] uppercase tracking-widest text-[#555555]">Copenhagen Atelier</span>
-                      </div>
-                    )}
-
-                    {/* Editorial Breather 2: Archive series lookbook split card after 6th item */}
-                    {idx === 5 && (
-                      <div
-                        className={`my-2 grid grid-cols-1 md:grid-cols-2 bg-[#111111] text-white overflow-hidden ${
-                          gridDensity === 'editorial' ? 'col-span-1 md:col-span-2' : 'col-span-2 md:col-span-3'
-                        }`}
-                      >
-                        <div className="relative aspect-[4/3] md:aspect-auto min-h-[220px]">
-                          <Image
-                            src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1000&q=80"
-                            alt="Tactile tailoring"
-                            fill
-                            className="object-cover opacity-90"
-                          />
-                        </div>
-                        <div className="p-6 sm:p-10 flex flex-col justify-center">
-                          <span className="text-[10px] uppercase tracking-[0.25em] text-[#B9A58B] font-semibold mb-2">
-                            The Archive Series
-                          </span>
-                          <h3 className="font-serif text-xl sm:text-2xl text-white font-normal mb-2">
-                            Quiet Luxury & Conscious Materiality
-                          </h3>
-                          <p className="text-xs text-[#CCCCCC] leading-relaxed mb-5 font-light">
-                            Every silhouette is cut from responsibly sourced Japanese twill, heavyweight mulberry silk, and Mongolian cashmere &mdash; designed to outlive ephemeral seasonal trends.
-                          </p>
-                          <Link
-                            href="/about"
-                            className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-white border-b border-white pb-0.5 self-start hover:text-[#B9A58B] hover:border-[#B9A58B] transition-colors"
-                          >
-                            <span>Read Sourcing Manifesto</span>
-                            <ArrowUpRight className="w-3.5 h-3.5" />
-                          </Link>
-                        </div>
-                      </div>
-                    )}
-                  </Fragment>
-                ))}
-              </div>
-
-              {/* Load More Button */}
-              {hasMore && (
-                <div className="pt-12 text-center">
-                  <button
-                    onClick={() => setPage((prev) => prev + 1)}
-                    className="border border-[#111111] text-[#111111] px-12 py-3.5 text-xs uppercase tracking-[0.18em] font-semibold hover:bg-[#111111] hover:text-white transition-colors"
-                  >
-                    Load More Styles
-                  </button>
-                  <p className="text-[11px] text-[#777777] mt-2">
-                    Viewing {displayedProducts.length} of {filteredProducts.length} pieces
-                  </p>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="py-20 text-center border border-dashed border-[#E5E5E5] p-8">
-              <p className="text-base text-[#111111] font-medium">No garments match your active filters.</p>
-              <p className="text-xs text-[#777777] mt-1">
-                Try clearing one or more filters to discover related pieces.
-              </p>
+        {/* Product Catalog Grid (9 cols) */}
+        <main className="lg:col-span-9 space-y-6">
+          {/* Top Bar: Count & Sort */}
+          <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl glass-card border border-blue-100">
+            <div className="flex items-center gap-3">
               <button
-                onClick={resetFilters}
-                className="mt-6 bg-[#111111] text-white px-8 py-3 text-xs uppercase tracking-wider font-semibold hover:bg-[#333333]"
+                onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
+                className="lg:hidden inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#E5E5E5] text-xs font-semibold text-[#111111]"
               >
-                Clear All Filters
+                <SlidersHorizontal className="w-3.5 h-3.5 text-blue-700" />
+                <span>{t.shop.filters}</span>
+              </button>
+
+              <span className="text-xs text-[#555555]">
+                {t.shop.showingResults} <strong className="text-[#111111] font-semibold">{filteredProducts.length}</strong> {language === 'vi' ? 'sản phẩm' : 'products'}
+              </span>
+            </div>
+
+            {/* Sort Selector */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-[#777777] hidden sm:inline">{t.shop.sortBy}</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="text-xs bg-white border border-[#E5E5E5] rounded-lg px-3 py-1.5 outline-none font-medium text-[#111111] cursor-pointer"
+              >
+                <option value="popular">{t.shop.sortPopular}</option>
+                <option value="newest">{t.shop.sortNewest}</option>
+                <option value="price-asc">{t.shop.sortPriceAsc}</option>
+                <option value="price-desc">{t.shop.sortPriceDesc}</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Active Filter Chips */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <span className="text-xs text-[#777777]">{t.shop.activeFilters}</span>
+              {selectedCategory !== 'all' && (
+                <span className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">
+                  {categories.find((c) => c.id === selectedCategory)?.name}
+                  <button onClick={() => setSelectedCategory('all')} className="hover:text-blue-950">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {selectedElectrode !== 'all' && (
+                <span className="inline-flex items-center gap-1 text-xs bg-cyan-50 text-cyan-800 px-2.5 py-1 rounded-full border border-cyan-200">
+                  {selectedElectrode} {language === 'vi' ? 'Tấm điện cực' : 'Plates'}
+                  <button onClick={() => setSelectedElectrode('all')} className="hover:text-cyan-950">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {searchQuery && (
+                <span className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-800 px-2.5 py-1 rounded-full">
+                  &ldquo;{searchQuery}&rdquo;
+                  <button onClick={() => setSearchQuery('')} className="hover:text-black">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              <button
+                onClick={resetAllFilters}
+                className="text-xs text-red-600 hover:underline font-medium ml-2"
+              >
+                {t.shop.clearFilters}
               </button>
             </div>
           )}
-        </div>
+
+          {/* Product Grid */}
+          {filteredProducts.length === 0 ? (
+            <div className="py-20 text-center glass-card p-10 rounded-3xl border border-blue-100 space-y-4">
+              <Droplets className="w-12 h-12 text-blue-400 mx-auto" />
+              <h3 className="text-lg font-semibold text-[#111111]">{t.shop.noResultsTitle}</h3>
+              <p className="text-xs text-[#666666] max-w-sm mx-auto">{t.shop.noResultsDesc}</p>
+              <button
+                onClick={resetAllFilters}
+                className="inline-block bg-[#111111] text-white px-6 py-2.5 rounded-xl text-xs font-semibold hover:bg-blue-900 transition-all shadow-md"
+              >
+                {t.shop.clearFilters}
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayedProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
+
+          {/* Load More Button */}
+          {hasMore && (
+            <div className="text-center pt-8">
+              <button
+                onClick={() => setPage((p) => p + 1)}
+                className="glass-dark-btn text-[#111111] px-8 py-3 rounded-xl text-xs uppercase tracking-wider font-semibold border border-[#E5E5E5] hover:border-[#111111] transition-all"
+              >
+                {language === 'vi' ? 'Xem Thêm Thiết Bị' : 'Load More Products'}
+              </button>
+            </div>
+          )}
+        </main>
       </div>
-
-      {/* Mobile Filters Drawer */}
-      {isMobileFilterOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex justify-end lg:hidden">
-          <div className="bg-white w-full max-w-xs h-full p-6 overflow-y-auto space-y-6">
-            <div className="flex justify-between items-center border-b pb-4">
-              <span className="text-xs uppercase tracking-widest font-semibold">Filter Catalog</span>
-              <button onClick={() => setIsMobileFilterOpen(false)}>
-                <X className="w-5 h-5 text-[#777777]" />
-              </button>
-            </div>
-
-            {/* Mobile Category */}
-            <div>
-              <p className="text-xs uppercase font-semibold mb-2">Category</p>
-              <div className="space-y-1">
-                <button
-                  onClick={() => setSelectedCategory('all')}
-                  className={`block text-xs py-1 ${selectedCategory === 'all' ? 'font-bold' : ''}`}
-                >
-                  All Categories
-                </button>
-                {categories.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => setSelectedCategory(c.id)}
-                    className={`block text-xs py-1 ${selectedCategory === c.id ? 'font-bold' : ''}`}
-                  >
-                    {c.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Mobile Gender */}
-            <div>
-              <p className="text-xs uppercase font-semibold mb-2">Gender</p>
-              <div className="flex gap-2">
-                {['all', 'women', 'men'].map((g) => (
-                  <button
-                    key={g}
-                    onClick={() => setSelectedGender(g)}
-                    className={`px-3 py-1 text-xs border ${
-                      selectedGender === g ? 'bg-black text-white' : ''
-                    }`}
-                  >
-                    {g}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Price */}
-            <div>
-              <p className="text-xs uppercase font-semibold mb-2">Max Price ({formatPrice(priceRange, currency)})</p>
-              <input
-                type="range"
-                min="50"
-                max="500"
-                step="10"
-                value={priceRange}
-                onChange={(e) => setPriceRange(Number(e.target.value))}
-                className="w-full accent-black"
-              />
-            </div>
-
-            <div className="pt-6 border-t flex gap-3">
-              <button
-                onClick={resetFilters}
-                className="flex-1 py-2.5 border border-black text-xs uppercase"
-              >
-                Reset
-              </button>
-              <button
-                onClick={() => setIsMobileFilterOpen(false)}
-                className="flex-1 py-2.5 bg-black text-white text-xs uppercase"
-              >
-                Apply
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
 export default function ShopPage() {
   return (
-    <Suspense fallback={<div className="py-20 text-center text-sm text-[#777]">Loading shop...</div>}>
+    <Suspense
+      fallback={
+        <div className="max-w-[1440px] mx-auto px-4 py-20 text-center text-xs text-[#777777]">
+          Đang tải danh mục thiết bị Enagic...
+        </div>
+      }
+    >
       <ShopContent />
     </Suspense>
   );
