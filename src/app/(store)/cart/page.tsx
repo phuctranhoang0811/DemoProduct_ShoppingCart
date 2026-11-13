@@ -82,8 +82,8 @@ export default function CartPage() {
         <div className="lg:col-span-8 divide-y divide-[#E5E5E5]">
           {cart.map((item) => (
             <div key={item.id} className="py-6 flex gap-4 sm:gap-6">
-              <div className="relative w-24 h-28 sm:w-28 sm:h-32 bg-[#F5F8FA] rounded-2xl overflow-hidden flex-shrink-0 border border-black/5">
-                <Image src={item.image} alt={item.productName} fill className="object-cover" sizes="120px" />
+              <div className="relative w-24 h-24 sm:w-28 sm:h-28 bg-white rounded-xl overflow-hidden flex-shrink-0 border border-[#EAEAEA] p-1.5 flex items-center justify-center">
+                <Image src={item.image} alt={item.productName} fill className="object-contain p-1" sizes="120px" />
               </div>
 
               <div className="flex-1 flex flex-col justify-between">

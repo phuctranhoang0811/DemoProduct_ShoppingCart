@@ -302,7 +302,7 @@ export default function AdminProductsPage() {
             className="flex items-center gap-1.5 px-4 py-2 bg-[#111111] text-white text-xs uppercase tracking-wider font-semibold hover:bg-[#333333] transition-colors"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Garment</span>
+            <span>Add Product</span>
           </button>
         </div>
       </div>
@@ -390,8 +390,8 @@ export default function AdminProductsPage() {
                   </td>
                   <td className="py-3.5 px-3">
                     <div className="flex items-center gap-3">
-                      <div className="relative w-10 h-14 bg-[#F5F4F0] flex-shrink-0 border border-[#E5E5E5] overflow-hidden">
-                        <Image src={p.images[0]} alt={p.name} fill className="object-cover" sizes="40px" />
+                      <div className="relative w-11 h-11 bg-white rounded-sm flex-shrink-0 border border-[#E5E5E5] p-0.5 overflow-hidden flex items-center justify-center">
+                        <Image src={p.images[0]} alt={p.name} fill className="object-contain" sizes="44px" />
                       </div>
                       <div>
                         <Link

@@ -15,6 +15,18 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'images.pexels.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'e-store.enagic.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.enagic.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'enagic.com',
+      },
     ],
   },
 };

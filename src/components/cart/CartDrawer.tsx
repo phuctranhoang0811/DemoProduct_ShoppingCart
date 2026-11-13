@@ -105,8 +105,8 @@ export function CartDrawer() {
             ) : (
               cart.map((item) => (
                 <div key={item.id} className="py-4 flex gap-4">
-                  <div className="relative w-20 h-22 bg-[#F5F8FA] flex-shrink-0 rounded-xl overflow-hidden border border-black/5">
-                    <Image src={item.image} alt={item.productName} fill className="object-cover" sizes="80px" />
+                  <div className="relative w-20 h-20 bg-white flex-shrink-0 rounded-lg overflow-hidden border border-[#EAEAEA] p-1 flex items-center justify-center">
+                    <Image src={item.image} alt={item.productName} fill className="object-contain p-1" sizes="80px" />
                   </div>
                   <div className="flex-1 flex flex-col justify-between">
                     <div>

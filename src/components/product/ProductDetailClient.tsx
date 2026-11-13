@@ -174,28 +174,28 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                   key={idx}
                   type="button"
                   onClick={() => setSelectedImage(img)}
-                  className={`relative w-20 h-24 md:w-22 md:h-26 flex-shrink-0 border rounded-xs overflow-hidden transition-all ${
-                    activeImage === img ? 'border-[#111111] ring-1 ring-[#111111]' : 'border-transparent opacity-70 hover:opacity-100'
+                  className={`relative w-20 h-20 md:w-22 md:h-22 flex-shrink-0 bg-white border rounded-md p-1 overflow-hidden transition-all ${
+                    activeImage === img ? 'border-[#111111] ring-1 ring-[#111111]' : 'border-[#EAEAEA] opacity-70 hover:opacity-100'
                   }`}
                 >
-                  <Image src={img} alt={`${productName} ${idx + 1}`} fill className="object-cover" sizes="90px" />
+                  <Image src={img} alt={`${productName} ${idx + 1}`} fill className="object-contain p-1" sizes="90px" />
                 </button>
               ))}
             </div>
           )}
 
           {/* Primary View */}
-          <div className="relative aspect-[3/4] w-full bg-[#F5F4F0] overflow-hidden flex-1 rounded-xs border border-black/[0.04]">
+          <div className="relative aspect-square w-full bg-white overflow-hidden flex-1 rounded-lg border border-[#E5E5E5] p-6 flex items-center justify-center">
             <Image
               src={activeImage}
               alt={productName}
               fill
               priority
-              className="object-cover"
+              className="object-contain p-2"
               sizes="(max-width: 1024px) 100vw, 55vw"
             />
             {product.specifications?.electrodes && (
-              <span className="absolute top-4 left-4 bg-white/90 text-[#111111] border border-black/10 text-[11px] font-medium px-3 py-1 rounded-full shadow-2xs">
+              <span className="absolute top-4 left-4 bg-black/80 text-white text-[11px] font-medium px-3 py-1 rounded-sm shadow-xs">
                 {product.specifications.electrodes} {language === 'vi' ? 'Tấm Titan Bạch Kim' : 'Plates'}
               </span>
             )}

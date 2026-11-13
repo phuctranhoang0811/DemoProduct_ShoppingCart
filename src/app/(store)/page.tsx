@@ -28,7 +28,7 @@ const IONIZER_REELS = [
   {
     id: 1,
     videoSrc: '/videos/hero.mp4',
-    poster: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?q=80&w=800',
+    poster: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1016_1_1.png',
     label: 'LeveLuk K8',
     title: 'The Mighty 8-Plate',
     titleVi: 'Đỉnh Cao 8 Tấm Titan',
@@ -39,7 +39,7 @@ const IONIZER_REELS = [
   {
     id: 2,
     videoSrc: '/videos/nature.mp4',
-    poster: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=800',
+    poster: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1064_1.png',
     label: 'LeveLuk SD501',
     title: 'The Global Icon',
     titleVi: 'Biểu Tượng Toàn Cầu',
@@ -50,7 +50,7 @@ const IONIZER_REELS = [
   {
     id: 3,
     videoSrc: '/videos/runway.mp4',
-    poster: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=800',
+    poster: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1041_1.jpg',
     label: 'Anespa DX',
     title: 'Mineral Ion Spa',
     titleVi: 'Khoáng Tắm Onsen Nhật',
@@ -61,7 +61,7 @@ const IONIZER_REELS = [
   {
     id: 4,
     videoSrc: '/videos/hero.mp4',
-    poster: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?q=80&w=800',
+    poster: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1007_01.jpg',
     label: 'Super 501',
     title: 'Commercial Output',
     titleVi: 'Công Suất Lớn 12 Tấm',
@@ -452,12 +452,12 @@ export default function HomePage() {
                 href={`/shop?category=${category.id}`}
                 className="group flex flex-col text-center"
               >
-                <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F5F4F0] rounded-2xl border border-black/[0.04] shadow-xs group-hover:shadow-md transition-all duration-300 mb-2.5">
+                <div className="relative aspect-square w-full overflow-hidden bg-white rounded-xl border border-[#EAEAEA] p-3 flex items-center justify-center shadow-xs group-hover:shadow-md transition-all duration-300 mb-2.5">
                   <Image
                     src={category.image}
                     alt={catName}
                     fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
                     sizes="(max-width: 768px) 50vw, 20vw"
                   />
                 </div>

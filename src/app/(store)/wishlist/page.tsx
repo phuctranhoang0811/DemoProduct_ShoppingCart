@@ -43,7 +43,7 @@ export default function WishlistPage() {
           </div>
           <h2 className="text-xl font-light text-[#111111]">Your Wishlist is Empty</h2>
           <p className="text-xs text-[#777777] mt-2 leading-relaxed">
-            As you explore our collection, click the heart icon on any garment to preserve it here for
+            As you explore our collection, click the heart icon on any product to preserve it here for
             future review.
           </p>
           <Link

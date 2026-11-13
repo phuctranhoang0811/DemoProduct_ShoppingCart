@@ -10,7 +10,7 @@ export const initialCategories: Category[] = [
     description: 'Dòng máy tạo nước ion kiềm y tế chuẩn Nhật Bản từ 4 đến 12 tấm điện cực Titan phủ Bạch kim.',
     descriptionVi: 'Dòng máy tạo nước ion kiềm y tế chuẩn Nhật Bản từ 4 đến 12 tấm điện cực Titan phủ Bạch kim.',
     descriptionEn: 'Flagship medical-grade alkaline water ionizers with 4 to 12 titanium-platinum electroplates.',
-    image: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1016_1_1.png',
     status: 'active',
   },
   {
@@ -22,7 +22,7 @@ export const initialCategories: Category[] = [
     description: 'Hệ thống khoáng ion suối nước nóng Onsen Nhật Bản loại bỏ 100% Clo dư, dưỡng ẩm da và mượt tóc.',
     descriptionVi: 'Hệ thống khoáng ion suối nước nóng Onsen Nhật Bản loại bỏ 100% Clo dư, dưỡng ẩm da và mượt tóc.',
     descriptionEn: 'Japanese home Onsen mineral spa system removing 100% chlorine for radiant skin and hair.',
-    image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1041_1.jpg',
     status: 'active',
   },
   {
@@ -34,7 +34,7 @@ export const initialCategories: Category[] = [
     description: 'Lõi lọc than hoạt tính kháng khuẩn phủ bạc cao cấp sản xuất tại Osaka, Nhật Bản.',
     descriptionVi: 'Lõi lọc than hoạt tính kháng khuẩn phủ bạc cao cấp sản xuất tại Osaka, Nhật Bản.',
     descriptionEn: 'High-grade silver-impregnated activated carbon filters manufactured in Osaka, Japan.',
-    image: 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/3/0/3061_1.jpg',
     status: 'active',
   },
   {
@@ -46,7 +46,7 @@ export const initialCategories: Category[] = [
     description: 'Dung dịch tăng cường điện phân nước 2.5/11.5 và bột axit citric bảo dưỡng điện cực định kỳ.',
     descriptionVi: 'Dung dịch tăng cường điện phân nước 2.5/11.5 và bột axit citric bảo dưỡng điện cực định kỳ.',
     descriptionEn: 'Electrolysis enhancer fluids for 2.5/11.5 water and Citric Acid E-cleaner deep maintenance kits.',
-    image: 'https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/3/0/3055_3.png',
     status: 'active',
   },
   {
@@ -58,7 +58,7 @@ export const initialCategories: Category[] = [
     description: 'Bình Tritan y tế cản quang chống tia UV, bảo toàn hoạt tính Hydro và chỉ số ORP âm sâu lên đến 48 giờ.',
     descriptionVi: 'Bình Tritan y tế cản quang chống tia UV, bảo toàn hoạt tính Hydro và chỉ số ORP âm sâu lên đến 48 giờ.',
     descriptionEn: 'Medical-grade BPA-free Tritan bottles preserving active hydrogen and negative ORP.',
-    image: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/4/0/4003_1.jpg',
     status: 'active',
   },
 ];

@@ -65,19 +65,19 @@ export function QuickAddModal({ product, isOpen, onClose }: QuickAddModalProps) 
         </button>
 
         <div className="flex gap-4 mb-5">
-          <div className="relative w-20 h-24 bg-[#F5F8FA] flex-shrink-0 rounded-xl overflow-hidden border border-black/5 shadow-2xs">
+          <div className="relative w-20 h-20 bg-white flex-shrink-0 rounded-md overflow-hidden border border-[#E5E5E5] p-1.5">
             <Image
               src={selectedColor?.image || product.images[0]}
               alt={productName}
               fill
-              className="object-cover"
+              className="object-contain"
               sizes="80px"
             />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-[#111111]">{productName}</h3>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-sm font-semibold text-blue-900">{formatPrice(product.price, currency)}</span>
+              <span className="text-sm font-semibold text-[#111111]">{formatPrice(product.price, currency)}</span>
               {product.originalPrice && (
                 <span className="text-xs text-[#777777] line-through">
                   {formatPrice(product.originalPrice, currency)}
