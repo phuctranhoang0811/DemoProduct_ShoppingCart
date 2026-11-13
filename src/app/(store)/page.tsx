@@ -228,8 +228,8 @@ export default function HomePage() {
 
         {/* Hero text */}
         <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-12 lg:p-20 max-w-[1440px] mx-auto z-10 pointer-events-none">
-          <div className="max-w-xl text-white space-y-4 animate-in fade-in slide-in-from-bottom-6 duration-500 pointer-events-auto">
-            <span className="inline-block glass-dark text-white text-xs font-semibold tracking-wider uppercase px-3.5 py-1.5 rounded-full border border-white/25 shadow-md">
+          <div className="max-w-xl text-white space-y-4 animate-fade-up pointer-events-auto">
+            <span className="inline-block glass-dark text-white text-xs font-semibold tracking-wider uppercase px-3.5 py-1.5 rounded-full border border-white/25 shadow-md animate-pulse-subtle">
               {t.hero.badge}
             </span>
             <h1 className="text-white text-3xl sm:text-5xl lg:text-6xl font-normal tracking-tight leading-[1.1] drop-shadow-[0_2px_14px_rgba(0,0,0,0.9)]">
@@ -241,13 +241,13 @@ export default function HomePage() {
             <div className="pt-2 flex flex-wrap items-center gap-3">
               <Link
                 href="/shop"
-                className="bg-white text-[#111111] px-7 py-3 text-xs uppercase tracking-wider font-semibold hover:bg-[#F5F4F0] active:scale-[0.98] transition-all rounded-xs shadow-lg mirror-sheen"
+                className="bg-white text-[#111111] px-7 py-3 text-xs uppercase tracking-wider font-semibold hover:bg-[#F5F4F0] btn-tactile transition-all rounded-xs shadow-lg mirror-sheen hover:shadow-xl"
               >
                 {t.hero.ctaPrimary}
               </Link>
               <Link
                 href="/shop?category=cat-ionizers"
-                className="glass-dark-btn text-white px-7 py-3 text-xs uppercase tracking-wider font-semibold active:scale-[0.98] transition-all rounded-xs flex items-center gap-2 mirror-sheen border border-white/30 shadow-lg hover:border-white/60"
+                className="glass-dark-btn text-white px-7 py-3 text-xs uppercase tracking-wider font-semibold btn-tactile transition-all rounded-xs flex items-center gap-2 mirror-sheen border border-white/30 shadow-lg hover:border-white/60"
               >
                 <Droplets className="w-3.5 h-3.5 text-cyan-300" />
                 <span className="text-white font-medium">{t.hero.ctaSecondary}</span>

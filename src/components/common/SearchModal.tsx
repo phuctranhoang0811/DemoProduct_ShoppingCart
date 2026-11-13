@@ -56,8 +56,8 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md flex justify-center pt-12 sm:pt-20 px-4">
-      <div className="glass-modal w-full max-w-2xl shadow-2xl p-6 self-start border border-white/80 animate-in fade-in zoom-in-95 duration-200 rounded-2xl">
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md flex justify-center pt-12 sm:pt-20 px-4 animate-in fade-in duration-200">
+      <div className="glass-modal w-full max-w-2xl shadow-2xl p-6 self-start border border-white/80 animate-scale-in duration-200 rounded-2xl">
         {/* Search Input Bar */}
         <div className="flex items-center justify-between pb-4 border-b border-white/60">
           <div className="flex items-center gap-3 w-full">
@@ -73,7 +73,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-[#777777] hover:text-[#111111] hover:bg-white/80 transition-colors"
+            className="p-1.5 rounded-full text-[#777777] hover:text-[#111111] hover:bg-white/80 transition-colors btn-tactile"
             aria-label="Close search"
           >
             <X className="w-5 h-5" />
@@ -84,9 +84,9 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
         <div className="flex items-center gap-1.5 pt-3 pb-2 overflow-x-auto scrollbar-hide">
           <button
             onClick={() => setSelectedCategory('all')}
-            className={`text-xs px-3 py-1 rounded-full whitespace-nowrap transition-colors ${
+            className={`text-xs px-3 py-1 rounded-full whitespace-nowrap transition-all duration-150 btn-tactile ${
               selectedCategory === 'all'
-                ? 'bg-blue-900 text-white font-medium'
+                ? 'bg-blue-900 text-white font-medium shadow-xs'
                 : 'text-[#666666] hover:bg-blue-50'
             }`}
           >
@@ -98,9 +98,9 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
               <button
                 key={c.id}
                 onClick={() => setSelectedCategory(c.id)}
-                className={`text-xs px-3 py-1 rounded-full whitespace-nowrap transition-colors ${
+                className={`text-xs px-3 py-1 rounded-full whitespace-nowrap transition-all duration-150 btn-tactile ${
                   selectedCategory === c.id
-                    ? 'bg-blue-900 text-white font-medium'
+                    ? 'bg-blue-900 text-white font-medium shadow-xs'
                     : 'text-[#666666] hover:bg-blue-50'
                 }`}
               >

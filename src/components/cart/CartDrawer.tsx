@@ -153,7 +153,7 @@ export function CartDrawer() {
                       <div className="flex items-center border border-[#E5E5E5] rounded-xs bg-white p-0.5 shadow-2xs">
                         <button
                           onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
-                          className="p-1 text-[#555555] hover:text-[#111111] active:scale-75 transition-transform"
+                          className="p-1 text-[#555555] hover:text-[#111111] btn-tactile transition-all"
                           aria-label="Decrease quantity"
                         >
                           <Minus className="w-3 h-3" />
@@ -161,7 +161,7 @@ export function CartDrawer() {
                         <span className="px-2.5 text-xs font-bold text-[#111111] tabular-nums">{item.quantity}</span>
                         <button
                           onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
-                          className="p-1 text-[#555555] hover:text-[#111111] active:scale-75 transition-transform"
+                          className="p-1 text-[#555555] hover:text-[#111111] btn-tactile transition-all"
                           aria-label="Increase quantity"
                         >
                           <Plus className="w-3 h-3" />
@@ -194,15 +194,15 @@ export function CartDrawer() {
                 <Link
                   href="/checkout"
                   onClick={() => setIsCartDrawerOpen(false)}
-                  className="w-full bg-[#111111] hover:bg-[#262626] text-white py-3.5 rounded-xs text-xs uppercase tracking-wider font-semibold active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xs group mirror-sheen"
+                  className="w-full bg-[#111111] hover:bg-[#262626] text-white py-3.5 rounded-xs text-xs uppercase tracking-wider font-semibold btn-tactile transition-all flex items-center justify-center gap-2 shadow-xs group mirror-sheen hover:shadow-md"
                 >
                   <span>Proceed to Checkout</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-200" />
                 </Link>
                 <Link
                   href="/cart"
                   onClick={() => setIsCartDrawerOpen(false)}
-                  className="w-full text-center block text-xs uppercase tracking-wider text-[#737373] hover:text-[#111111] hover:bg-[#F5F4F0] py-2.5 font-medium border border-[#E5E5E5] rounded-xs transition-colors"
+                  className="w-full text-center block text-xs uppercase tracking-wider text-[#737373] hover:text-[#111111] hover:bg-[#F5F4F0] py-2.5 font-medium border border-[#E5E5E5] rounded-xs transition-all duration-150 btn-tactile"
                 >
                   View Full Bag
                 </Link>

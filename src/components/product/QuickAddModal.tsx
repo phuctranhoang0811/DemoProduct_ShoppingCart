@@ -54,18 +54,18 @@ export function QuickAddModal({ product, isOpen, onClose }: QuickAddModalProps) 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="glass-modal max-w-md w-full p-6 border border-white/80 relative shadow-2xl animate-in fade-in zoom-in-95 duration-150 rounded-2xl">
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="glass-modal max-w-md w-full p-6 border border-white/80 relative shadow-2xl animate-scale-in duration-200 rounded-2xl">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-full text-[#777777] hover:text-[#111111] hover:bg-white/80 transition-colors"
+          className="absolute top-4 right-4 p-1.5 rounded-full text-[#777777] hover:text-[#111111] hover:bg-white/80 transition-all duration-200 btn-tactile"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="flex gap-4 mb-5">
-          <div className="relative w-20 h-20 bg-white flex-shrink-0 rounded-md overflow-hidden border border-[#E5E5E5] p-1.5">
+          <div className="relative w-20 h-20 bg-white flex-shrink-0 rounded-md overflow-hidden border border-[#E5E5E5] p-1.5 transition-transform duration-300 hover:scale-105">
             <Image
               src={selectedColor?.image || product.images[0]}
               alt={productName}
@@ -99,14 +99,14 @@ export function QuickAddModal({ product, isOpen, onClose }: QuickAddModalProps) 
                 <button
                   key={s.id}
                   onClick={() => setSelectedPackage(s.label)}
-                  className={`w-full p-2.5 rounded-xs border text-left text-xs transition-all flex items-center justify-between ${
+                  className={`w-full p-2.5 rounded-xs border text-left text-xs transition-all duration-150 flex items-center justify-between btn-tactile ${
                     pkgLabel === s.label
-                      ? 'border-[#111111] bg-[#F5F4F0] text-[#111111] font-semibold'
+                      ? 'border-[#111111] bg-[#F5F4F0] text-[#111111] font-semibold shadow-xs'
                       : 'border-[#E5E5E5] bg-white text-[#444444] hover:border-[#111111]'
                   }`}
                 >
                   <span>{s.label}</span>
-                  {pkgLabel === s.label && <Check className="w-3.5 h-3.5 text-[#111111]" />}
+                  {pkgLabel === s.label && <Check className="w-3.5 h-3.5 text-[#111111] animate-in zoom-in duration-150" />}
                 </button>
               ))}
             </div>
@@ -115,7 +115,7 @@ export function QuickAddModal({ product, isOpen, onClose }: QuickAddModalProps) 
 
         <button
           onClick={handleAddToCart}
-          className="w-full bg-[#111111] hover:bg-[#262626] text-white py-3 rounded-xs text-xs uppercase tracking-wider font-semibold active:scale-[0.98] transition-all shadow-xs flex items-center justify-center gap-2"
+          className="w-full bg-[#111111] hover:bg-[#262626] text-white py-3 rounded-xs text-xs uppercase tracking-wider font-semibold transition-all duration-200 shadow-xs hover:shadow-md btn-tactile flex items-center justify-center gap-2"
         >
           <span>{t.productDetail.addToCart}</span>
         </button>

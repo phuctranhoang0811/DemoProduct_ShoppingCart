@@ -2,6 +2,7 @@ import { AnnouncementBar } from '@/components/layout/AnnouncementBar';
 import { StoreHeader } from '@/components/layout/StoreHeader';
 import { StoreFooter } from '@/components/layout/StoreFooter';
 import { CartDrawer } from '@/components/cart/CartDrawer';
+import { BackToTop } from '@/components/common/BackToTop';
 
 export default function StoreLayout({
   children,
@@ -15,6 +16,7 @@ export default function StoreLayout({
       <main className="flex-1">{children}</main>
       <StoreFooter />
       <CartDrawer />
+      <BackToTop />
     </div>
   );
 }

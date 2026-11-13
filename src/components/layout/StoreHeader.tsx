@@ -16,6 +16,8 @@ import {
   ShieldCheck,
   Globe,
   SlidersHorizontal,
+  Briefcase,
+  LogOut,
 } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { useTranslation } from '@/i18n/useTranslation';
@@ -38,6 +40,8 @@ export function StoreHeader() {
   const currentUser = useCommerceStore((state) => state.currentUser);
   const products = useCommerceStore((state) => state.products);
   const currency = useCommerceStore((state) => state.currency);
+  const setCurrency = useCommerceStore((state) => state.setCurrency);
+  const logout = useCommerceStore((state) => state.logout);
   const setIsCartDrawerOpen = useCommerceStore((state) => state.setIsCartDrawerOpen);
 
   const totalCartItems = cart.reduce((total, item) => total + item.quantity, 0);
@@ -119,8 +123,8 @@ export function StoreHeader() {
           </div>
 
           {/* Brand Logo & Medical Tagline */}
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="flex items-center shrink-0 pr-4 sm:pr-6 xl:pr-8 border-r border-[#E5E5E5]/80">
+            <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
               <Image
                 src="/images/logo.png"
                 alt="Enagic Kangen Water Logo"
@@ -131,21 +135,26 @@ export function StoreHeader() {
                   isScrolled ? 'h-9 sm:h-10' : 'h-10 sm:h-11 lg:h-12'
                 }`}
               />
-              <span className="hidden sm:inline-block text-[10px] tracking-[0.22em] text-[#333333] font-semibold border-l border-gray-300 pl-2.5 uppercase">
-                KANGEN WATER®
-              </span>
+              <div className="hidden sm:flex flex-col">
+                <span className="text-[10px] xl:text-[11px] tracking-[0.22em] text-[#111111] font-bold uppercase whitespace-nowrap leading-tight">
+                  KANGEN WATER®
+                </span>
+                <span className="text-[8px] tracking-[0.14em] text-[#888888] font-medium uppercase whitespace-nowrap leading-tight mt-0.5">
+                  ENAGIC JAPAN
+                </span>
+              </div>
             </Link>
           </div>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-5 xl:space-x-7 text-[11px] xl:text-xs uppercase tracking-[0.12em] font-medium text-[#111111] h-full">
+          {/* Desktop Navigation Links - Centered Zone */}
+          <nav className="hidden lg:flex items-center justify-center flex-1 gap-4 xl:gap-6 2xl:gap-8 text-[11px] xl:text-xs uppercase tracking-[0.08em] xl:tracking-[0.12em] font-medium text-[#111111] h-full px-3 xl:px-6">
             <Link
               href="/"
               onMouseEnter={() => setActiveDropdown(null)}
-              className={`h-full flex items-center border-b-2 transition-colors ${
+              className={`whitespace-nowrap shrink-0 h-full flex items-center border-b-2 transition-colors ${
                 pathname === '/'
                   ? 'border-[#111111] text-[#111111] font-semibold'
-                  : 'border-transparent text-[#222222] hover:text-[#111111] hover:border-[#111111]'
+                  : 'border-transparent text-[#444444] hover:text-[#111111] hover:border-[#111111]'
               }`}
             >
               {t.nav.home}
@@ -153,15 +162,15 @@ export function StoreHeader() {
 
             {/* Products Dropdown Anchor */}
             <div
-              className="relative h-full flex items-center"
+              className="relative h-full flex items-center shrink-0"
               onMouseEnter={() => handleMouseEnter('ionizers')}
             >
               <Link
                 href="/shop"
-                className={`h-full flex items-center gap-1 border-b-2 transition-colors ${
+                className={`whitespace-nowrap shrink-0 h-full flex items-center gap-1 border-b-2 transition-colors ${
                   activeDropdown === 'ionizers' || pathname.startsWith('/shop')
                     ? 'border-[#111111] text-[#111111] font-semibold'
-                    : 'border-transparent text-[#222222] hover:text-[#111111] hover:border-[#111111]'
+                    : 'border-transparent text-[#444444] hover:text-[#111111] hover:border-[#111111]'
                 }`}
               >
                 <span>{t.nav.products}</span>
@@ -175,7 +184,7 @@ export function StoreHeader() {
               {/* Flyout Mega Dropdown */}
               {activeDropdown === 'ionizers' && (
                 <div
-                  className="absolute top-full left-0 w-[580px] bg-white border border-[#E5E5E5] shadow-2xl p-6 z-50 rounded-b-md animate-in fade-in slide-in-from-top-1 duration-150"
+                  className="absolute top-full left-1/2 -translate-x-1/2 w-[580px] bg-white border border-[#E5E5E5] shadow-2xl p-6 z-50 rounded-b-md animate-scale-in duration-200"
                   onMouseEnter={() => handleMouseEnter('ionizers')}
                   onMouseLeave={handleMouseLeave}
                 >
@@ -246,10 +255,10 @@ export function StoreHeader() {
             <Link
               href="/shop?category=cat-spa"
               onMouseEnter={() => setActiveDropdown(null)}
-              className={`h-full flex items-center border-b-2 transition-colors ${
+              className={`whitespace-nowrap shrink-0 h-full flex items-center border-b-2 transition-colors ${
                 pathname === '/shop' && typeof window !== 'undefined' && window.location.search.includes('cat-spa')
                   ? 'border-[#111111] text-[#111111] font-semibold'
-                  : 'border-transparent text-[#222222] hover:text-[#111111] hover:border-[#111111]'
+                  : 'border-transparent text-[#444444] hover:text-[#111111] hover:border-[#111111]'
               }`}
             >
               Anespa Spa
@@ -258,7 +267,7 @@ export function StoreHeader() {
             <Link
               href="/shop?category=cat-filters"
               onMouseEnter={() => setActiveDropdown(null)}
-              className="h-full flex items-center border-b-2 border-transparent text-[#222222] hover:text-[#111111] hover:border-[#111111] transition-colors"
+              className="whitespace-nowrap shrink-0 h-full flex items-center border-b-2 border-transparent text-[#444444] hover:text-[#111111] hover:border-[#111111] transition-colors"
             >
               {t.nav.accessories}
             </Link>
@@ -266,10 +275,10 @@ export function StoreHeader() {
             <Link
               href="/calculator"
               onMouseEnter={() => setActiveDropdown(null)}
-              className={`h-full flex items-center border-b-2 transition-colors ${
+              className={`whitespace-nowrap shrink-0 h-full flex items-center border-b-2 transition-colors ${
                 pathname === '/calculator'
                   ? 'border-[#111111] text-[#111111] font-semibold'
-                  : 'border-transparent text-[#222222] hover:text-[#111111] hover:border-[#111111]'
+                  : 'border-transparent text-[#444444] hover:text-[#111111] hover:border-[#111111]'
               }`}
             >
               {language === 'vi' ? 'Tính Thuế' : 'Tax Calculator'}
@@ -278,161 +287,261 @@ export function StoreHeader() {
             <Link
               href="/hellobee"
               onMouseEnter={() => setActiveDropdown(null)}
-              className={`h-full flex items-center gap-1.5 border-b-2 transition-colors ${
+              className={`whitespace-nowrap shrink-0 h-full flex items-center gap-1.5 border-b-2 transition-colors ${
                 pathname === '/hellobee'
                   ? 'border-[#111111] text-[#111111] font-semibold'
-                  : 'border-transparent text-[#222222] hover:text-[#111111] hover:border-[#111111]'
+                  : 'border-transparent text-[#444444] hover:text-[#111111] hover:border-[#111111]'
               }`}
             >
               <span>Hellobee Network</span>
-              <span className="px-1.5 py-0.5 bg-[#111111] text-white text-[9px] uppercase tracking-wider font-bold rounded-xs">
+              <span className="whitespace-nowrap shrink-0 inline-flex items-center leading-none px-1.5 py-0.5 bg-[#111111] text-white text-[9px] uppercase tracking-wider font-bold rounded-xs">
                 1A–5A
               </span>
             </Link>
           </nav>
 
-          {/* Right Action Icons: Language, Search, Wishlist, User, Cart */}
-          <div className="flex items-center space-x-2 sm:space-x-3 text-[#111111]">
-            {/* Language Switcher Toggle */}
-            <div className="flex items-center border border-[#E5E5E5] rounded-full p-0.5 bg-[#F5F4F0] text-[10px] font-bold tracking-wider">
-              <button
-                type="button"
-                onClick={() => setLanguage('vi')}
-                className={`px-2 py-0.5 rounded-full transition-all ${
-                  language === 'vi'
-                    ? 'bg-[#111111] text-white shadow-xs'
-                    : 'text-[#666666] hover:text-[#111111]'
-                }`}
-                title="Tiếng Việt"
-                aria-label="Tiếng Việt"
-              >
-                VI
-              </button>
-              <button
-                type="button"
-                onClick={() => setLanguage('en')}
-                className={`px-2 py-0.5 rounded-full transition-all ${
-                  language === 'en'
-                    ? 'bg-[#111111] text-white shadow-xs'
-                    : 'text-[#666666] hover:text-[#111111]'
-                }`}
-                title="English"
-                aria-label="English"
-              >
-                EN
-              </button>
-            </div>
-
-            {/* Currency Badge */}
-            <div className="hidden xl:flex items-center px-2 py-0.5 text-[10px] font-bold rounded-full border border-[#E5E5E5] bg-[#F5F4F0] text-[#333333]">
-              <span>$ USD</span>
-            </div>
-
-            {/* Instant Search Trigger */}
-            <button
-              type="button"
-              onClick={() => setIsSearchOpen(true)}
-              className="p-2 text-[#222222] hover:text-black hover:bg-[#F5F4F0] rounded-full transition-colors flex items-center gap-1.5"
-              aria-label="Search"
-              title="Search (Cmd+K / Ctrl+K)"
-            >
-              <Search className="w-4 h-4 stroke-[1.75]" />
-              <span className="hidden xl:inline text-xs text-[#777777] font-normal">
-                {language === 'vi' ? 'Tìm...' : 'Search'}
-              </span>
-            </button>
-
-            {/* Wishlist */}
-            <Link
-              href="/wishlist"
-              className="p-2 text-[#222222] hover:text-black hover:bg-[#F5F4F0] rounded-full transition-colors relative"
-              aria-label="Wishlist"
-              title={language === 'vi' ? 'Danh sách yêu thích' : 'Wishlist'}
-            >
-              <Heart className="w-4 h-4 stroke-[1.75]" />
-              {wishlist.length > 0 && (
-                <span className="absolute top-0 right-0 bg-[#111111] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                  {wishlist.length}
-                </span>
-              )}
-            </Link>
-
-            {/* User Account Link */}
-            <Link
-              href={currentUser ? '/account' : '/login'}
-              className="p-2 text-[#222222] hover:text-black hover:bg-[#F5F4F0] rounded-full transition-colors relative"
-              aria-label="User Account"
-              title={
-                currentUser
-                  ? `${language === 'vi' ? 'Tài khoản' : 'Account'}: ${currentUser.name}`
-                  : language === 'vi'
-                  ? 'Đăng nhập'
-                  : 'Sign In'
-              }
-            >
-              <User className="w-4 h-4 stroke-[1.75]" />
-              {currentUser && (
-                <span className="absolute bottom-1 right-1 w-1.5 h-1.5 bg-[#477A5A] rounded-full ring-1 ring-white" />
-              )}
-            </Link>
-
-            {/* Shopping Bag Trigger with spring animation */}
-            <button
-              type="button"
-              onClick={() => setIsCartDrawerOpen(true)}
-              className={`p-2 text-[#222222] hover:text-black hover:bg-[#F5F4F0] rounded-full transition-all relative ${
-                isCartBounced ? 'animate-cart-bounce text-blue-900 scale-110' : ''
-              }`}
-              aria-label="Shopping Bag"
-              title="Shopping Bag"
-            >
-              <ShoppingBag className="w-4 h-4 stroke-[1.75]" />
-              {totalCartItems > 0 && (
-                <span
-                  className={`absolute top-0 right-0 bg-[#111111] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold transition-transform ${
-                    isCartBounced ? 'animate-badge-pop bg-blue-900 scale-125' : ''
+          {/* Right Action Icons: Language, Currency, Search, Wishlist, User, Cart, Portals */}
+          <div className="flex items-center shrink-0 pl-3 sm:pl-5 xl:pl-7 border-l border-[#E5E5E5]/80 gap-2 sm:gap-3 text-[#111111]">
+            {/* Language & Currency Group */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {/* Language Switcher Toggle */}
+              <div className="flex items-center border border-[#E5E5E5] rounded-full p-0.5 bg-[#F5F4F0] text-[10px] font-bold tracking-wider shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setLanguage('vi')}
+                  className={`px-2 py-0.5 rounded-full transition-all ${
+                    language === 'vi'
+                      ? 'bg-[#111111] text-white shadow-xs'
+                      : 'text-[#666666] hover:text-[#111111]'
                   }`}
+                  title="Tiếng Việt"
+                  aria-label="Tiếng Việt"
                 >
-                  {totalCartItems}
-                </span>
-              )}
-            </button>
+                  VI
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLanguage('en')}
+                  className={`px-2 py-0.5 rounded-full transition-all ${
+                    language === 'en'
+                      ? 'bg-[#111111] text-white shadow-xs'
+                      : 'text-[#666666] hover:text-[#111111]'
+                  }`}
+                  title="English"
+                  aria-label="English"
+                >
+                  EN
+                </button>
+              </div>
 
-            {/* Portal Shortcuts depending on Role */}
+              {/* Interactive Currency Toggle */}
+              <button
+                type="button"
+                onClick={() => setCurrency(currency === 'USD' ? 'VND' : 'USD')}
+                className="hidden xl:inline-flex items-center px-2 py-0.5 text-[10px] font-bold rounded-full border border-[#E5E5E5] bg-[#F5F4F0] text-[#333333] hover:border-gray-300 hover:bg-[#EAE8E3] transition-colors shrink-0"
+                title={language === 'vi' ? 'Nhấn để đổi tiền tệ (USD / VND)' : 'Click to toggle currency (USD / VND)'}
+              >
+                <span>{currency === 'USD' ? '$ USD' : '₫ VND'}</span>
+              </button>
+            </div>
+
+            {/* Subtle Divider */}
+            <div className="hidden sm:block h-4 w-px bg-[#E5E5E5]" />
+
+            {/* Core Action Icons */}
+            <div className="flex items-center gap-0.5 sm:gap-1.5 shrink-0">
+              {/* Instant Search Trigger */}
+              <button
+                type="button"
+                onClick={() => setIsSearchOpen(true)}
+                className="p-2 text-[#222222] hover:text-black hover:bg-[#F5F4F0] rounded-full transition-all duration-150 flex items-center justify-center shrink-0 btn-tactile hover:scale-105"
+                aria-label="Search"
+                title={language === 'vi' ? 'Tìm kiếm (Cmd+K / Ctrl+K)' : 'Search (Cmd+K / Ctrl+K)'}
+              >
+                <Search className="w-4 h-4 stroke-[1.8]" />
+              </button>
+
+              {/* Wishlist */}
+              <Link
+                href="/wishlist"
+                className="p-2 text-[#222222] hover:text-black hover:bg-[#F5F4F0] rounded-full transition-all duration-150 relative flex items-center justify-center shrink-0 btn-tactile hover:scale-105"
+                aria-label="Wishlist"
+                title={language === 'vi' ? 'Danh sách yêu thích' : 'Wishlist'}
+              >
+                <Heart className="w-4 h-4 stroke-[1.8]" />
+                {wishlist.length > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-[#111111] text-white text-[9px] min-w-4 h-4 px-1 rounded-full flex items-center justify-center font-bold animate-badge-pop">
+                    {wishlist.length}
+                  </span>
+                )}
+              </Link>
+
+              {/* User Account with Dropdown */}
+              <div className="relative group/user shrink-0">
+                <Link
+                  href={currentUser ? '/account' : '/login'}
+                  className="p-2 text-[#222222] hover:text-black hover:bg-[#F5F4F0] rounded-full transition-all duration-150 relative flex items-center justify-center btn-tactile hover:scale-105"
+                  aria-label="User Account"
+                  title={
+                    currentUser
+                      ? `${language === 'vi' ? 'Tài khoản' : 'Account'}: ${currentUser.name}`
+                      : language === 'vi'
+                      ? 'Đăng nhập'
+                      : 'Sign In'
+                  }
+                >
+                  <User className="w-4 h-4 stroke-[1.8]" />
+                  {currentUser && (
+                    <span className="absolute bottom-1 right-1 w-1.5 h-1.5 bg-[#477A5A] rounded-full ring-1 ring-white" />
+                  )}
+                </Link>
+
+                {/* Account Dropdown Menu */}
+                <div className="absolute right-0 top-full pt-1.5 hidden group-hover/user:block z-50 animate-scale-in duration-200">
+                  <div className="w-56 bg-white border border-[#E5E5E5] shadow-xl rounded-md py-2 text-xs">
+                    {currentUser ? (
+                      <>
+                        <div className="px-3.5 py-2 border-b border-[#F0F0F0]">
+                          <p className="font-semibold text-[#111111] truncate">{currentUser.name}</p>
+                          <p className="text-[10px] text-[#777777] truncate">{currentUser.email}</p>
+                          <span className="inline-block mt-1 px-1.5 py-0.5 bg-[#F5F4F0] text-[9px] uppercase font-bold text-[#555555] rounded">
+                            {currentUser.role}
+                          </span>
+                        </div>
+                        <Link
+                          href="/account"
+                          className="flex items-center px-3.5 py-2 text-[#333333] hover:bg-[#F9F9F8] transition-colors"
+                        >
+                          {language === 'vi' ? 'Tài khoản của tôi' : 'My Account'}
+                        </Link>
+                        <Link
+                          href="/orders"
+                          className="flex items-center px-3.5 py-2 text-[#333333] hover:bg-[#F9F9F8] transition-colors"
+                        >
+                          {language === 'vi' ? 'Lịch sử đơn hàng' : 'Order History'}
+                        </Link>
+                        {currentUser.role === 'employee' && (
+                          <Link
+                            href="/employee"
+                            className="flex items-center gap-1.5 px-3.5 py-2 text-[#2D5A27] bg-[#EBF3EA]/60 hover:bg-[#EBF3EA] font-semibold transition-colors"
+                          >
+                            <Briefcase className="w-3.5 h-3.5" />
+                            <span>Staff Workspace</span>
+                          </Link>
+                        )}
+                        {currentUser.role === 'admin' && (
+                          <Link
+                            href="/admin"
+                            className="flex items-center gap-1.5 px-3.5 py-2 text-[#111111] bg-[#F5F4F0] hover:bg-[#EEEEEE] font-semibold transition-colors"
+                          >
+                            <SlidersHorizontal className="w-3.5 h-3.5" />
+                            <span>Admin Console</span>
+                          </Link>
+                        )}
+                        <div className="border-t border-[#F0F0F0] mt-1 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => logout()}
+                            className="w-full flex items-center gap-1.5 px-3.5 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            <LogOut className="w-3.5 h-3.5" />
+                            <span>{language === 'vi' ? 'Đăng xuất' : 'Sign Out'}</span>
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="px-3.5 py-2 border-b border-[#F0F0F0]">
+                          <p className="text-[11px] font-semibold text-[#111111]">
+                            {language === 'vi' ? 'Tài khoản Enagic®' : 'Enagic® Account'}
+                          </p>
+                        </div>
+                        <Link
+                          href="/login"
+                          className="flex items-center px-3.5 py-2 text-[#111111] hover:bg-[#F9F9F8] font-semibold transition-colors"
+                        >
+                          {language === 'vi' ? 'Đăng nhập' : 'Sign In'}
+                        </Link>
+                        <Link
+                          href="/register"
+                          className="flex items-center px-3.5 py-2 text-[#555555] hover:bg-[#F9F9F8] transition-colors"
+                        >
+                          {language === 'vi' ? 'Đăng ký tài khoản' : 'Create Account'}
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Shopping Bag Trigger with spring animation */}
+              <button
+                type="button"
+                onClick={() => setIsCartDrawerOpen(true)}
+                className={`p-2 text-[#222222] hover:text-black hover:bg-[#F5F4F0] rounded-full transition-all duration-150 relative flex items-center justify-center shrink-0 btn-tactile hover:scale-105 ${
+                  isCartBounced ? 'animate-cart-bounce text-blue-900 scale-110' : ''
+                }`}
+                aria-label="Shopping Bag"
+                title="Shopping Bag"
+              >
+                <ShoppingBag className="w-4 h-4 stroke-[1.8]" />
+                {totalCartItems > 0 && (
+                  <span
+                    className={`absolute -top-0.5 -right-0.5 bg-[#111111] text-white text-[9px] min-w-4 h-4 px-1 rounded-full flex items-center justify-center font-bold transition-transform ${
+                      isCartBounced ? 'animate-badge-pop bg-blue-900 scale-125' : ''
+                    }`}
+                  >
+                    {totalCartItems}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Portal Shortcuts depending on Role / Quick access */}
             {currentUser?.role === 'employee' ? (
               <Link
                 href="/employee"
-                className="hidden sm:inline-flex items-center gap-1 text-[10px] uppercase tracking-wider bg-[#EBF3EA] text-[#2D5A27] px-2.5 py-1 font-bold rounded-xs hover:bg-[#d8e8d6] transition-colors"
+                className="hidden sm:inline-flex items-center gap-1 text-[10px] uppercase tracking-wider bg-[#EBF3EA] text-[#2D5A27] px-2.5 py-1 font-bold rounded-xs hover:bg-[#d8e8d6] transition-colors shrink-0 ml-0.5"
                 title="Employee Workspace"
               >
-                <span>Staff Portal</span>
+                <span>Staff</span>
               </Link>
             ) : currentUser?.role === 'admin' ? (
               <Link
                 href="/admin"
-                className="hidden sm:inline-flex items-center gap-1 text-[10px] uppercase tracking-wider bg-[#111111] text-white px-2.5 py-1 font-bold rounded-xs hover:bg-[#333333] transition-colors"
+                className="hidden sm:inline-flex items-center gap-1 text-[10px] uppercase tracking-wider bg-[#111111] text-white px-2.5 py-1 font-bold rounded-xs hover:bg-[#333333] transition-colors shrink-0 ml-0.5"
                 title="Admin Portal"
               >
                 <SlidersHorizontal className="w-3 h-3 text-[#B9A58B]" />
                 <span>Admin</span>
               </Link>
             ) : (
-              <div className="hidden lg:flex items-center gap-2 border-l border-[#E5E5E5] pl-2.5">
-                <Link
-                  href="/employee"
-                  className="text-[10px] uppercase tracking-wider text-[#777777] hover:text-[#111111] font-semibold transition-colors"
-                  title="Employee Portal"
+              <div className="relative group/portal hidden xl:block shrink-0">
+                <button
+                  type="button"
+                  className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-[#666666] hover:text-[#111111] px-2.5 py-1 rounded border border-[#E5E5E5] hover:border-gray-400 bg-white hover:bg-[#FAFAF9] transition-all font-semibold"
                 >
-                  Staff
-                </Link>
-                <span className="text-[#CCCCCC]">/</span>
-                <Link
-                  href="/admin"
-                  className="text-[10px] uppercase tracking-wider text-[#777777] hover:text-[#111111] font-semibold transition-colors"
-                  title="Admin Portal"
-                >
-                  Admin
-                </Link>
+                  <span>Portal</span>
+                  <ChevronDown className="w-3 h-3 text-[#888888]" />
+                </button>
+                <div className="absolute right-0 top-full pt-1.5 hidden group-hover/portal:block z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                  <div className="w-44 bg-white border border-[#E5E5E5] shadow-lg rounded-md py-1.5 text-xs">
+                    <Link
+                      href="/employee"
+                      className="flex items-center gap-2 px-3 py-2 text-[#333333] hover:bg-[#F5F4F0] font-medium transition-colors"
+                    >
+                      <Briefcase className="w-3.5 h-3.5 text-[#555555]" />
+                      <span>Staff Workspace</span>
+                    </Link>
+                    <Link
+                      href="/admin"
+                      className="flex items-center gap-2 px-3 py-2 text-[#333333] hover:bg-[#F5F4F0] font-medium transition-colors"
+                    >
+                      <SlidersHorizontal className="w-3.5 h-3.5 text-[#555555]" />
+                      <span>Admin Console</span>
+                    </Link>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -589,6 +698,15 @@ export function StoreHeader() {
                 </button>
 
                 <Link
+                  href="/employee"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-2.5 py-2 text-xs font-medium text-[#777777] hover:text-[#111111]"
+                >
+                  <Briefcase className="w-4 h-4" />
+                  <span>Staff Workspace</span>
+                </Link>
+
+                <Link
                   href="/admin"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center gap-2.5 py-2 text-xs font-medium text-[#777777] hover:text-[#111111]"
@@ -599,9 +717,15 @@ export function StoreHeader() {
               </div>
             </div>
 
-            {/* Drawer Footer with Working Language Toggle */}
+            {/* Drawer Footer with Working Language Toggle & Interactive Currency */}
             <div className="pt-5 border-t border-[#E5E5E5] flex items-center justify-between text-xs">
-              <span className="text-[#666666] font-medium">Currency: USD ($)</span>
+              <button
+                type="button"
+                onClick={() => setCurrency(currency === 'USD' ? 'VND' : 'USD')}
+                className="px-2.5 py-1 text-[11px] font-bold rounded-full border border-[#E5E5E5] bg-[#F5F4F0] text-[#333333] hover:bg-[#EAE8E3] transition-colors"
+              >
+                {language === 'vi' ? 'Tiền tệ: ' : 'Currency: '}{currency === 'USD' ? '$ USD' : '₫ VND'}
+              </button>
               <div className="flex items-center gap-1 border border-[#E5E5E5] rounded-full p-0.5 bg-[#F5F4F0]">
                 <button
                   type="button"
