@@ -52,14 +52,14 @@ export function CartDrawer() {
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-md transition-opacity duration-300 animate-in fade-in"
+        className="fixed inset-0 bg-black/50 backdrop-blur-md animate-drawer-backdrop"
         onClick={() => setIsCartDrawerOpen(false)}
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
         <div
           ref={drawerRef}
-          className="w-screen max-w-md glass-drawer shadow-2xl flex flex-col animate-in slide-in-from-right duration-300"
+          className="w-screen max-w-md glass-drawer shadow-2xl flex flex-col animate-drawer-in"
         >
           {/* Header */}
           <div className="p-5 border-b border-white/60 flex items-center justify-between bg-white/40 backdrop-blur-md">

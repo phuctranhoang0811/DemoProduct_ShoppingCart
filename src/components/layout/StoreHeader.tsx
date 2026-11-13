@@ -445,8 +445,12 @@ export function StoreHeader() {
               {/* Shopping Bag Trigger with spring animation */}
               <button
                 type="button"
-                onClick={() => setIsCartDrawerOpen(true)}
-                className={`p-2 text-[#222222] hover:text-black hover:bg-[#F5F4F0] rounded-full transition-all duration-150 relative flex items-center justify-center shrink-0 btn-tactile hover:scale-105 ${
+                onClick={() => {
+                  setIsCartBounced(true);
+                  setTimeout(() => setIsCartBounced(false), 500);
+                  setIsCartDrawerOpen(true);
+                }}
+                className={`p-2 text-[#222222] hover:text-black hover:bg-[#F5F4F0] rounded-full transition-all duration-150 relative flex items-center justify-center shrink-0 btn-tactile hover:scale-105 active:scale-95 ${
                   isCartBounced ? 'animate-cart-bounce text-blue-900 scale-110' : ''
                 }`}
                 aria-label="Shopping Bag"
@@ -492,7 +496,7 @@ export function StoreHeader() {
                   <span>Portal</span>
                   <ChevronDown className="w-3 h-3 text-[#888888]" />
                 </button>
-                <div className="absolute right-0 top-full pt-1.5 hidden group-hover/portal:block z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                <div className="absolute right-0 top-full pt-1.5 hidden group-hover/portal:block z-50 animate-scale-in">
                   <div className="w-44 bg-white border border-[#E5E5E5] shadow-lg rounded-md py-1.5 text-xs">
                     <Link
                       href="/employee"
