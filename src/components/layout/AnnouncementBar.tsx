@@ -1,11 +1,18 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/i18n/useTranslation';
 import { Award, ShieldCheck } from 'lucide-react';
 
 export function AnnouncementBar() {
-  const { t, language } = useTranslation();
+  const pathname = usePathname();
+  const { t } = useTranslation();
+
+  // Hide on homepage so the trailer video displays in full-screen overlay mode
+  if (pathname === '/') {
+    return null;
+  }
 
   return (
     <div className="bg-[#111111] text-white py-2 px-4 text-center text-[10px] sm:text-[11px] tracking-wider uppercase font-medium flex items-center justify-center gap-3 sm:gap-6 border-b border-white/10">
