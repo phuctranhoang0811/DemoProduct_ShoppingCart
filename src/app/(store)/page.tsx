@@ -9,15 +9,10 @@ import {
   Zap,
   RefreshCw,
   Truck,
-  Volume2,
-  VolumeX,
-  Pause,
-  Play,
   Sparkles,
   Droplets,
   CheckCircle2,
   Award,
-  X,
 } from 'lucide-react';
 import { useTranslation } from '@/i18n/useTranslation';
 
@@ -80,10 +75,7 @@ export default function HomePage() {
   const { t } = useTranslation();
 
   const heroVideoRef = useRef<HTMLVideoElement>(null);
-  const [heroMuted, setHeroMuted] = useState(true);
-  const [heroPaused, setHeroPaused] = useState(false);
   const [activeWater, setActiveWater] = useState(1);
-  const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
 
   useEffect(() => {
     if (heroVideoRef.current) {
@@ -92,40 +84,6 @@ export default function HomePage() {
       heroVideoRef.current.play().catch(() => {});
     }
   }, []);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isTrailerModalOpen) {
-        setIsTrailerModalOpen(false);
-        heroVideoRef.current?.play().catch(() => {});
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isTrailerModalOpen]);
-
-  const toggleHeroMute = () => {
-    if (heroVideoRef.current) {
-      heroVideoRef.current.muted = !heroMuted;
-      setHeroMuted(!heroMuted);
-    }
-  };
-
-  const toggleHeroPause = () => {
-    if (heroVideoRef.current) {
-      if (heroPaused) {
-        heroVideoRef.current.play();
-      } else {
-        heroVideoRef.current.pause();
-      }
-      setHeroPaused(!heroPaused);
-    }
-  };
-
-  const handlePlayReview = () => {
-    heroVideoRef.current?.pause();
-    setIsTrailerModalOpen(true);
-  };
 
   const active = KANGEN_WATER_TYPES[activeWater];
 
@@ -142,7 +100,7 @@ export default function HomePage() {
           playsInline
           preload="auto"
           className="absolute inset-0 w-full h-full object-cover opacity-85"
-          poster="https://images.unsplash.com/photo-1546554137-f86b9593a222?q=85&w=2200&auto=format&fit=crop"
+          poster="https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?q=85&w=2600&auto=format&fit=crop"
         >
           <source src="/videos/hero.mp4" type="video/mp4" />
         </video>
@@ -154,9 +112,9 @@ export default function HomePage() {
         <div className="relative w-full max-w-[1440px] mx-auto px-6 sm:px-12 lg:px-20 pb-16 sm:pb-24 z-20">
           <div className="max-w-2xl text-white space-y-4 sm:space-y-5">
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 glass-dark text-white text-[11px] font-semibold tracking-wider uppercase px-3.5 py-1.5 rounded-full border border-white/25">
-                <Sparkles className="w-3 h-3 text-cyan-300" />
-                <span>Product Trailer & Review</span>
+              <span className="inline-flex items-center gap-1.5 glass-dark text-cyan-300 text-[11px] font-semibold tracking-wider uppercase px-3.5 py-1.5 rounded-full border border-cyan-400/30">
+                <Droplets className="w-3 h-3 text-cyan-300" />
+                <span>Japanese Medical Device</span>
               </span>
               <span className="text-[11px] tracking-widest text-[#B9A58B] uppercase font-mono font-medium hidden sm:inline">
                 Osaka Atelier • Est. 1974
@@ -168,7 +126,7 @@ export default function HomePage() {
             </h1>
 
             <p className="text-sm sm:text-base text-[#F0F0F0] font-normal leading-relaxed max-w-xl drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)]">
-              Watch the official Enagic® product trailer review. Original Japanese medical-grade water ionizers engineered with solid platinum-dipped titanium plates.
+              Experience the restorative power of natural alkaline ionization. Original Japanese medical-grade ionizers engineered with solid platinum-dipped titanium plates.
             </p>
 
             <div className="pt-2 flex flex-wrap items-center gap-3">
@@ -179,33 +137,8 @@ export default function HomePage() {
                 <span>Explore Products</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
-              <button
-                type="button"
-                onClick={handlePlayReview}
-                className="glass-dark-btn text-white px-7 py-3.5 text-xs uppercase tracking-wider font-semibold btn-tactile transition-all rounded-xs flex items-center gap-2 border border-white/30 hover:border-white/60"
-              >
-                <Play className="w-3.5 h-3.5 fill-white text-white" />
-                <span>Watch Trailer Review</span>
-              </button>
             </div>
           </div>
-        </div>
-
-        <div className="absolute bottom-6 right-6 sm:bottom-12 sm:right-12 flex items-center gap-2.5 z-20">
-          <button
-            onClick={toggleHeroPause}
-            className="glass-dark text-white p-3 rounded-full hover:bg-white/20 active:scale-95 transition-all"
-            aria-label={heroPaused ? 'Play' : 'Pause'}
-          >
-            {heroPaused ? <Play className="w-4 h-4 fill-white" /> : <Pause className="w-4 h-4" />}
-          </button>
-          <button
-            onClick={toggleHeroMute}
-            className="glass-dark text-white p-3 rounded-full hover:bg-white/20 active:scale-95 transition-all"
-            aria-label={heroMuted ? 'Unmute' : 'Mute'}
-          >
-            {heroMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-          </button>
         </div>
       </section>
 
@@ -544,76 +477,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* ─── ENAGIC PRODUCT TRAILER LIGHTBOX MODAL ─── */}
-      {isTrailerModalOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200"
-          onClick={() => {
-            setIsTrailerModalOpen(false);
-            heroVideoRef.current?.play().catch(() => {});
-          }}
-        >
-          <div
-            className="relative w-full max-w-4xl bg-[#111111] border border-white/20 rounded-xl overflow-hidden shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-[#161616]">
-              <div className="flex items-center gap-3">
-                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
-                <div>
-                  <h3 className="text-sm font-semibold text-white tracking-wide uppercase">
-                    Official Enagic® LeveLuk K8 Product Trailer
-                  </h3>
-                  <p className="text-[11px] text-[#888]">
-                    The Mighty 8-Plate Medical Water Ionizer • 5-Year Factory Warranty
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsTrailerModalOpen(false);
-                  heroVideoRef.current?.play().catch(() => {});
-                }}
-                className="text-[#888] hover:text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
-                aria-label="Close trailer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Video Player */}
-            <div className="relative aspect-video w-full bg-black">
-              <iframe
-                src="https://www.youtube-nocookie.com/embed/Ka8CD9W4Ywg?autoplay=1&rel=0"
-                title="Enagic LeveLuk K8 Official Product Showcase"
-                className="absolute inset-0 w-full h-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-6 py-4 bg-[#141414] border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-4 text-xs text-[#888]">
-                <span>• 8 Solid Platinum-Dipped Titanium Plates</span>
-                <span>• pH 2.5 - 11.5 Spectrum</span>
-                <span>• ORP down to -850 mV</span>
-              </div>
-              <Link
-                href="/product/enagic-leveluk-k8"
-                onClick={() => setIsTrailerModalOpen(false)}
-                className="bg-white text-[#111111] px-5 py-2 text-xs uppercase tracking-wider font-semibold hover:bg-[#F5F4F0] btn-tactile transition-all rounded-xs flex items-center gap-1.5"
-              >
-                <span>View K8 Machine</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   );
