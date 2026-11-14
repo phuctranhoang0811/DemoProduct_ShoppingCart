@@ -117,27 +117,25 @@ export function StoreHeader() {
         onMouseLeave={handleMouseLeave}
       >
         <div
-          className={`max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between transition-all duration-300 ${
+          className={`max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-[auto_1fr_auto] lg:grid-cols-[1fr_auto_1fr] items-center transition-all duration-300 ${
             isScrolled ? 'h-16' : 'h-16 lg:h-20'
           }`}
         >
-          {/* Mobile hamburger button */}
-          <div className="flex items-center lg:hidden">
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`p-2 -ml-2 transition-colors ${
-                isDarkHeader ? 'text-white hover:text-white/80' : 'text-[#111111] hover:text-[#555555]'
-              }`}
-              aria-label="Toggle menu"
-            >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
-
           {/* Brand Logo & Medical Tagline */}
-          <div className={`flex items-center shrink-0 pr-4 sm:pr-6 xl:pr-8 border-r transition-colors ${
-            isDarkHeader ? 'border-white/20' : 'border-[#E5E5E5]/80'
-          }`}>
+          <div className="flex items-center justify-start shrink-0">
+            {/* Mobile hamburger button */}
+            <div className="flex items-center lg:hidden mr-2">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className={`p-2 -ml-2 transition-colors ${
+                  isDarkHeader ? 'text-white hover:text-white/80' : 'text-[#111111] hover:text-[#555555]'
+                }`}
+                aria-label="Toggle menu"
+              >
+                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
+
             <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
               <Image
                 src="/images/logo.png"
@@ -164,22 +162,27 @@ export function StoreHeader() {
             </Link>
           </div>
 
-          {/* Desktop Navigation Links - Centered Zone */}
-          <nav className="hidden lg:flex items-center justify-center flex-1 gap-4 xl:gap-6 2xl:gap-8 text-[11px] xl:text-xs uppercase tracking-[0.08em] xl:tracking-[0.12em] font-medium h-full px-3 xl:px-6">
+          {/* Desktop Navigation Links - Mathematically Centered Zone */}
+          <nav className="hidden lg:flex items-center justify-center gap-6 xl:gap-8 text-[11px] xl:text-xs uppercase tracking-[0.1em] xl:tracking-[0.14em] font-semibold h-full px-2">
             <Link
               href="/"
               onMouseEnter={() => setActiveDropdown(null)}
-              className={`whitespace-nowrap shrink-0 h-full flex items-center border-b-2 transition-colors ${
+              className={`relative whitespace-nowrap shrink-0 h-full flex items-center transition-colors ${
                 isDarkHeader
                   ? pathname === '/'
-                    ? 'border-white text-white font-semibold drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]'
-                    : 'border-transparent text-white/80 hover:text-white hover:border-white'
+                    ? 'text-white font-bold drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]'
+                    : 'text-white/75 hover:text-white'
                   : pathname === '/'
-                  ? 'border-[#111111] text-[#111111] font-semibold'
-                  : 'border-transparent text-[#444444] hover:text-[#111111] hover:border-[#111111]'
+                  ? 'text-[#111111] font-bold'
+                  : 'text-[#444444] hover:text-[#111111]'
               }`}
             >
-              {t.nav.home}
+              <span>{t.nav.home}</span>
+              {pathname === '/' && (
+                <span className={`absolute bottom-3.5 left-0 right-0 h-[2px] rounded-full transition-all ${
+                  isDarkHeader ? 'bg-white shadow-[0_0_8px_rgba(255,255,255,0.9)]' : 'bg-[#111111]'
+                }`} />
+              )}
             </Link>
 
             {/* Products Dropdown Anchor */}
@@ -189,14 +192,14 @@ export function StoreHeader() {
             >
               <Link
                 href="/shop"
-                className={`whitespace-nowrap shrink-0 h-full flex items-center gap-1 border-b-2 transition-colors ${
+                className={`relative whitespace-nowrap shrink-0 h-full flex items-center gap-1 transition-colors ${
                   isDarkHeader
-                    ? activeDropdown === 'ionizers'
-                      ? 'border-white text-white font-semibold drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]'
-                      : 'border-transparent text-white/85 hover:text-white hover:border-white'
-                    : activeDropdown === 'ionizers' || pathname.startsWith('/shop')
-                    ? 'border-[#111111] text-[#111111] font-semibold'
-                    : 'border-transparent text-[#444444] hover:text-[#111111] hover:border-[#111111]'
+                    ? activeDropdown === 'ionizers' || pathname.startsWith('/shop') || pathname.startsWith('/product')
+                      ? 'text-white font-bold drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]'
+                      : 'text-white/75 hover:text-white'
+                    : activeDropdown === 'ionizers' || pathname.startsWith('/shop') || pathname.startsWith('/product')
+                    ? 'text-[#111111] font-bold'
+                    : 'text-[#444444] hover:text-[#111111]'
                 }`}
               >
                 <span>{t.nav.products}</span>
@@ -205,6 +208,11 @@ export function StoreHeader() {
                     activeDropdown === 'ionizers' ? 'rotate-180' : ''
                   }`}
                 />
+                {(activeDropdown === 'ionizers' || pathname.startsWith('/shop') || pathname.startsWith('/product')) && (
+                  <span className={`absolute bottom-3.5 left-0 right-0 h-[2px] rounded-full transition-all ${
+                    isDarkHeader ? 'bg-white shadow-[0_0_8px_rgba(255,255,255,0.9)]' : 'bg-[#111111]'
+                  }`} />
+                )}
               </Link>
 
               {/* Flyout Mega Dropdown */}
@@ -307,35 +315,41 @@ export function StoreHeader() {
             <Link
               href="/calculator"
               onMouseEnter={() => setActiveDropdown(null)}
-              className={`whitespace-nowrap shrink-0 h-full flex items-center border-b-2 transition-colors ${
+              className={`relative whitespace-nowrap shrink-0 h-full flex items-center transition-colors ${
                 isDarkHeader
-                  ? 'border-transparent text-white/80 hover:text-white hover:border-white'
+                  ? 'text-white/75 hover:text-white'
                   : pathname === '/calculator'
-                  ? 'border-[#111111] text-[#111111] font-semibold'
-                  : 'border-transparent text-[#444444] hover:text-[#111111] hover:border-[#111111]'
+                  ? 'text-[#111111] font-bold'
+                  : 'text-[#444444] hover:text-[#111111]'
               }`}
             >
-              Tax Calculator
+              <span>Tax Calculator</span>
+              {!isDarkHeader && pathname === '/calculator' && (
+                <span className="absolute bottom-3.5 left-0 right-0 h-[2px] rounded-full bg-[#111111]" />
+              )}
             </Link>
 
             <Link
               href="/hellobee"
               onMouseEnter={() => setActiveDropdown(null)}
-              className={`whitespace-nowrap shrink-0 h-full flex items-center gap-1.5 border-b-2 transition-colors ${
+              className={`relative whitespace-nowrap shrink-0 h-full flex items-center gap-1.5 transition-colors ${
                 isDarkHeader
-                  ? 'border-transparent text-white/80 hover:text-white hover:border-white'
+                  ? 'text-white/75 hover:text-white'
                   : pathname === '/hellobee'
-                  ? 'border-[#111111] text-[#111111] font-semibold'
-                  : 'border-transparent text-[#444444] hover:text-[#111111] hover:border-[#111111]'
+                  ? 'text-[#111111] font-bold'
+                  : 'text-[#444444] hover:text-[#111111]'
               }`}
             >
               <span>Hellobee Network</span>
+              {!isDarkHeader && pathname === '/hellobee' && (
+                <span className="absolute bottom-3.5 left-0 right-0 h-[2px] rounded-full bg-[#111111]" />
+              )}
             </Link>
           </nav>
 
           {/* Right Action Icons: Currency, Search, Wishlist, User, Cart, Portals */}
-          <div className={`flex items-center shrink-0 pl-3 sm:pl-5 xl:pl-7 border-l gap-2 sm:gap-3 transition-colors ${
-            isDarkHeader ? 'border-white/20 text-white' : 'border-[#E5E5E5]/80 text-[#111111]'
+          <div className={`flex items-center justify-end shrink-0 gap-2 sm:gap-3 transition-colors ${
+            isDarkHeader ? 'text-white' : 'text-[#111111]'
           }`}>
             {/* Interactive Currency Toggle */}
             <div className="flex items-center gap-1.5 shrink-0">
