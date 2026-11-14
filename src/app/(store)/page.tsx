@@ -99,8 +99,8 @@ export default function HomePage() {
           loop
           playsInline
           preload="auto"
-          className="absolute inset-0 w-full h-full object-cover opacity-85"
-          poster="https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?q=85&w=2600&auto=format&fit=crop"
+          className="absolute inset-0 w-full h-full object-cover opacity-90"
+          poster="/images/hero-poster.jpg"
         >
           <source src="/videos/hero.mp4" type="video/mp4" />
         </video>
