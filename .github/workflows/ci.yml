@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    branches: [main, backend]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (Laravel)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: bcmath, intl, pdo_sqlite, pdo_pgsql, zip
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: cp .env.example .env && php artisan key:generate
+      - name: Code style
+        run: vendor/bin/pint --test
+      - name: Tests
+        run: php artisan test
+
+  frontend:
+    name: Storefront (Next.js)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Unit tests
+        run: npm test
+      - name: Build without a backend (bundled demo catalog)
+        run: npm run build
+
+  seo:
+    name: SEO audit (full stack)
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: hellobee
+          POSTGRES_USER: hellobee
+          POSTGRES_PASSWORD: hellobee_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U hellobee"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: hellobee
+      DB_USERNAME: hellobee
+      DB_PASSWORD: hellobee_ci
+      API_URL: http://127.0.0.1:8000
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: bcmath, intl, pdo_pgsql, zip
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Start the API with seeded data
+        working-directory: backend
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress --no-dev
+          cp .env.example .env && php artisan key:generate
+          php artisan migrate --seed --force
+          php artisan serve --host=127.0.0.1 --port=8000 > storage/logs/serve.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8000/api/v1/health && break; sleep 1; done
+      - run: npm ci
+      - name: Build and start the storefront against the API
+        run: |
+          npm run build
+          npm run start > storefront.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://localhost:3000/robots.txt > /dev/null && break; sleep 1; done
+      - name: SEO audit
+        run: npm run audit:seo -- http://localhost:3000
+      - name: Logs on failure
+        if: failure()
+        run: |
+          tail -n 50 backend/storage/logs/serve.log backend/storage/logs/laravel.log storefront.log 2>/dev/null || true

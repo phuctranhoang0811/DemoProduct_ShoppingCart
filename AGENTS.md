@@ -1,7 +1,7 @@
 # AGENTS.md — Developer & AI Agent Guidelines
 
 > **Project**: Enagic® Kangen Water® & Hellobee Network E-Commerce Platform  
-> **Framework**: Next.js 15 (App Router), React 19, Tailwind CSS, Zustand  
+> **Framework**: Next.js 14 (App Router), React 18, Tailwind CSS, Zustand. Backend: Laravel 13 + Postgres in `backend/`  
 > **Production Deployment**: Vercel (`https://demo-product-shopping-cart.vercel.app`)
 
 ---
@@ -66,3 +66,13 @@
   ```powershell
   git add "src/app/(store)/login/page.tsx"
   ```
+
+---
+
+## 5. Backend & Data Flow
+
+- **Source of truth**: with `API_URL` set, catalog, accounts, orders, the Hellobee network and the back office live in the Laravel API (`backend/`, see `backend/README.md`). Without it the app falls back to the bundled demo data in `src/data` and local demo sign-in.
+- **Server data access**: public pages read the catalog through `src/lib/catalog.ts` in Server Components. Do not fetch catalog data from client components.
+- **Browser to backend**: the browser only calls this app's own `/api/*` routes, which hold the session in an httpOnly cookie (`src/lib/session.ts`) and forward to Laravel. Never expose the API token or call Laravel from client code.
+- **Mutations**: client code goes through `src/lib/auth-client.ts`, `orders-client.ts`, `hellobee-client.ts` and `admin-client.ts`. Prices, totals, stock and commissions are decided by the backend only.
+- **SEO guardrail**: `npm run audit:seo -- <url>` crawls the sitemap and fails on missing canonicals, duplicate titles, listings that are not server-rendered, and ratings without real reviews. CI runs it against the full stack.

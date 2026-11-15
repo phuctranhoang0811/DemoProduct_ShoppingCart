@@ -109,3 +109,31 @@ npm run start
 | Admin Discount Voucher Engine | Verified | Percentage/fixed codes, minimum order validation |
 | Admin Review Moderation | Verified | Approval workflow, only approved reviews show publicly |
 | Admin Store Settings | Verified | Live announcement bar update + demo factory reset |
+
+---
+
+## Backend (Laravel API)
+
+The storefront can run on its own with bundled demo data, or against the Laravel API in [`backend/`](backend/README.md), which adds real accounts, server-priced checkout, Stripe payments, the Hellobee commission ledger and a working back office.
+
+```sh
+# 1. API (Docker)
+cd backend && cp .env.example .env && docker compose up -d --build
+docker compose exec app composer install
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate --seed
+
+# 2. Storefront
+cd .. && cp .env.example .env.local   # set API_URL=http://localhost:8000
+npm install && npm run dev
+```
+
+| Storefront variable | Purpose |
+| --- | --- |
+| `API_URL` | Laravel origin. Leave empty to use the bundled demo data. |
+| `NEXT_PUBLIC_SITE_URL` | Public origin for canonical URLs, the sitemap and structured data. |
+| `REVALIDATE_SECRET` | Shared with the backend so catalog changes refresh cached pages. |
+| `DEMO_LOGIN_ENABLED`, `DEMO_PASSWORD` | One-click demo accounts on the login page. Keep disabled in production. |
+
+Checks: `npm test`, `npm run build`, and `npm run audit:seo -- http://localhost:3000` (SEO audit of a running build). CI (`.github/workflows/ci.yml`) runs the backend tests, the storefront tests and build, and the SEO audit against the full stack.
+
