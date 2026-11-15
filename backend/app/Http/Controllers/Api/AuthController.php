@@ -1,0 +1,88 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
+
+class AuthController extends Controller
+{
+    private const MAX_LOGIN_ATTEMPTS = 5;
+
+    public function register(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
+            'phone' => ['required', 'string', 'max:32'],
+            'password' => ['required', 'string', 'max:255', Password::defaults()],
+        ]);
+
+        // Role and status come from column defaults; they are never taken from the request.
+        $user = User::create($data);
+
+        return $this->tokenResponse($user, 201);
+    }
+
+    public function login(Request $request): JsonResponse
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'password' => ['required', 'string', 'max:255'],
+        ]);
+
+        $email = Str::lower($credentials['email']);
+        // Requests arrive through the storefront server, so the address alone cannot identify a client.
+        $throttleKey = 'login:'.sha1($email);
+
+        if (RateLimiter::tooManyAttempts($throttleKey, self::MAX_LOGIN_ATTEMPTS)) {
+            throw ValidationException::withMessages([
+                'email' => __('auth.throttle', ['seconds' => RateLimiter::availableIn($throttleKey)]),
+            ])->status(429);
+        }
+
+        $user = User::where('email', $email)->first();
+
+        if (! $user || ! Hash::check($credentials['password'], $user->password) || ! $user->isActive()) {
+            RateLimiter::hit($throttleKey, 60);
+
+            throw ValidationException::withMessages(['email' => __('auth.failed')]);
+        }
+
+        RateLimiter::clear($throttleKey);
+
+        return $this->tokenResponse($user);
+    }
+
+    public function me(Request $request): UserResource
+    {
+        return new UserResource($request->user()->load(['addresses', 'hellobeeMember']));
+    }
+
+    public function logout(Request $request): JsonResponse
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json(['message' => 'Signed out.']);
+    }
+
+    private function tokenResponse(User $user, int $status = 200): JsonResponse
+    {
+        $minutes = config('sanctum.expiration');
+        $token = $user->createToken('storefront', ['*'], $minutes ? now()->addMinutes($minutes) : null);
+
+        return response()->json([
+            'token' => $token->plainTextToken,
+            'expires_at' => $token->accessToken->expires_at?->toIso8601String(),
+            'user' => new UserResource($user->load(['addresses', 'hellobeeMember'])),
+        ], $status);
+    }
+}

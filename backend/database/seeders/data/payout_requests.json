@@ -1,0 +1,27 @@
+[
+  {
+    "id": "payout_01",
+    "memberId": "usr_emp_01",
+    "memberName": "David Nguyen",
+    "memberRole": "EMPLOYEE",
+    "amount": 500,
+    "bankName": "Chase Bank NA",
+    "bankAccountNumber": "**** **** 8219",
+    "bankAccountName": "DAVID NGUYEN",
+    "status": "APPROVED",
+    "requestedAt": "2026-10-28T09:00:00Z",
+    "processedAt": "2026-10-29T14:00:00Z"
+  },
+  {
+    "id": "payout_02",
+    "memberId": "usr_owner_01",
+    "memberName": "Johnathan Bee",
+    "memberRole": "OWNER",
+    "amount": 2500,
+    "bankName": "Bank of America",
+    "bankAccountNumber": "**** **** 1044",
+    "bankAccountName": "JOHNATHAN BEE LLC",
+    "status": "PENDING",
+    "requestedAt": "2026-11-10T11:30:00Z"
+  }
+]
