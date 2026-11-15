@@ -1,35 +1,113 @@
 {
-  "version": 1,
+  "version": 2,
   "skills": {
+    "api-design-principles": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/backend-development/skills/api-design-principles/SKILL.md",
+      "computedHash": "cd8889e86d651fbc7ec5f1cdf1920cdc0fa6bd2ca6ca01b8d93e9d2f6b54c7a6"
+    },
+    "laravel-best-practices": {
+      "source": "laravel/boost",
+      "sourceType": "github",
+      "skillPath": ".ai/laravel/skill/laravel-best-practices/SKILL.md",
+      "computedHash": "a92d7c727eaa27cb5153af54203ff6dbf283bf4b6b31aad6f6a12517b471a306"
+    },
+    "laravel-patterns": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/laravel-patterns/SKILL.md",
+      "computedHash": "a05d0cb036c1bd75998d368b049b758a867cbe03d88c98fec62aa421ee7939c4"
+    },
+    "laravel-security": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/laravel-security/SKILL.md",
+      "computedHash": "76754b92b4dbe1d7de632944924e51196e2a35c6dcb85ec0b4ba4d13adc15af6"
+    },
+    "laravel-specialist": {
+      "source": "Jeffallan/claude-skills",
+      "sourceType": "github",
+      "skillPath": "skills/laravel-specialist/SKILL.md",
+      "computedHash": "576cc242c75c0b66f95de5843e96884ad6952e7df4d3e64a6c30309ba6559588"
+    },
+    "nextjs-app-router-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/frontend-mobile-development/skills/nextjs-app-router-patterns/SKILL.md",
+      "computedHash": "39b84480d3a62355fd1199173dc70b97efe1daf6dbfae560cc7b85e127934a98"
+    },
     "nextjs-seo": {
       "source": "laguagu/claude-code-nextjs-skills",
       "sourceType": "github",
       "skillPath": "skills/nextjs-seo/SKILL.md",
-      "computedHash": "f0179122dd450fb7d2fe1c8332a8d33300edc7ad648b4c2fa8bc763de023ed3a"
+      "computedHash": ""
+    },
+    "nodejs-backend-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/javascript-typescript/skills/nodejs-backend-patterns/SKILL.md",
+      "computedHash": "e478380e9c9d245d0c4caf6574d00934aca71fc62101e571262cdd26f958f4f1"
+    },
+    "pest-testing": {
+      "source": "spatie/freek.dev",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/pest-testing/SKILL.md",
+      "computedHash": "864b995e38c6657cfa793b2882fae5b413d74d1110005ffe8db245a9a806c997"
+    },
+    "php-pro": {
+      "source": "Jeffallan/claude-skills",
+      "sourceType": "github",
+      "skillPath": "skills/php-pro/SKILL.md",
+      "computedHash": "06ef492ddeac207fb6ce54f0d13d17a251a0c2dcc4ec9a846e166a93926b4d1f"
+    },
+    "security-and-hardening": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/security-and-hardening/SKILL.md",
+      "computedHash": "4970681073e6138c4cec8eca31546187f47723a61a7f1204710ae86d9f704517"
     },
     "seo-master": {
       "source": "shihabshahrier/seo-master-skill",
       "sourceType": "github",
       "skillPath": "skills/seo-master/SKILL.md",
-      "computedHash": "4727ed6a9bc3b38c563276a6ea5d5fe129b36be68ceef77f10c5be86667ac396"
+      "computedHash": "711796583f99579391bddc5d2998eb86ecffb2ec20c565cb29fd1ff61d624028"
+    },
+    "spatie-laravel-php": {
+      "source": "spatie/guidelines-skills",
+      "sourceType": "github",
+      "skillPath": "resources/boost/skills/spatie-laravel-php/SKILL.md",
+      "computedHash": "c15e18b408efd52a4cc1ef8357717fc5479cbb09718f25a4e6cebfe0d0087512"
+    },
+    "stripe-best-practices": {
+      "source": "stripe/ai",
+      "sourceType": "github",
+      "skillPath": "skills/stripe-best-practices/SKILL.md",
+      "computedHash": "580bf707bb9f7c75b9bc682c92196672eb3d2f8a75ebbb2ccbc66b652a6380a0"
+    },
+    "supabase-postgres-best-practices": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
+      "computedHash": "3eb972c2d7c818e544e35cc33ea8d7147d4d78ae08142ef40037b0fbac7a2505"
     },
     "vercel-optimize": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/vercel-optimize/SKILL.md",
-      "computedHash": "fb87d3a135fef30748f772200a9f161f780b5a16830e8e70a3a126195cb16963"
+      "computedHash": ""
     },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/react-best-practices/SKILL.md",
-      "computedHash": "3219a1944e404ffc14d1d9d6aef6dd2e3855b81387ee0a044ccbfe14d34c2357"
+      "computedHash": "7991ed4fbecdac23f47c1a40c243e00a212a9e7f3604db93959b3ae11dffe299"
     },
     "web-design-guidelines": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/web-design-guidelines/SKILL.md",
-      "computedHash": "d8e7d3afe37dcc8a97b99ffb5afdb4d0919ae0092ea8b68f44eb201f035e33ac"
+      "computedHash": ""
     }
   }
 }
