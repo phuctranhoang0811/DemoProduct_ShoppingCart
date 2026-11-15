@@ -13,6 +13,7 @@ import {
   Building2,
   UserCheck,
 } from 'lucide-react';
+import { decidePayout } from '@/lib/hellobee-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { RankLevel, PayoutStatus } from '@/types/hellobee';
 import { toast } from 'sonner';
@@ -21,7 +22,6 @@ export default function AdminHellobeePage() {
   const members = useCommerceStore((state) => state.hellobeeMembers);
   const commissions = useCommerceStore((state) => state.commissions);
   const payouts = useCommerceStore((state) => state.payouts);
-  const updatePayoutStatus = useCommerceStore((state) => state.updatePayoutStatus);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | 'OWNER' | 'EMPLOYEE'>('ALL');
@@ -56,8 +56,12 @@ export default function AdminHellobeePage() {
     return payoutStatusFilter === 'ALL' || p.status === payoutStatusFilter;
   });
 
-  const handleUpdatePayout = (id: string, status: PayoutStatus) => {
-    updatePayoutStatus(id, status);
+  const handleUpdatePayout = async (id: string, status: PayoutStatus) => {
+    const result = await decidePayout(id, status);
+    if (!result.ok) {
+      toast.error(result.message || 'Could not update the payout.');
+      return;
+    }
     toast.success(`Payout ${id} updated to ${status}`);
   };
 

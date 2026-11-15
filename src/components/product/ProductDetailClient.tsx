@@ -20,24 +20,25 @@ import { useTranslation } from '@/i18n/useTranslation';
 import { ProductCard } from '@/components/product/ProductCard';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { toast } from 'sonner';
+import type { Product, Review } from '@/types';
 
 interface ProductDetailClientProps {
-  slug: string;
+  product: Product;
+  reviews: Review[];
+  relatedProducts: Product[];
 }
 
-export function ProductDetailClient({ slug }: ProductDetailClientProps) {
+export function ProductDetailClient({
+  product,
+  reviews: approvedReviews,
+  relatedProducts,
+}: ProductDetailClientProps) {
   const { t, language } = useTranslation();
-  const products = useCommerceStore((state) => state.products);
-  const reviews = useCommerceStore((state) => state.reviews);
   const addReview = useCommerceStore((state) => state.addReview);
   const addToCart = useCommerceStore((state) => state.addToCart);
   const toggleWishlist = useCommerceStore((state) => state.toggleWishlist);
   const isInWishlistStore = useCommerceStore((state) => state.isInWishlist);
   const currency = useCommerceStore((state) => state.currency);
-
-  const product = useMemo(() => {
-    return products.find((p) => p.slug === slug);
-  }, [products, slug]);
 
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState(product?.colors[0]);
@@ -60,18 +61,6 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
 
   const currentPkgObj = product?.sizes.find((s) => s.label === selectedPackage) || product?.sizes[0];
   const stockAvailable = currentPkgObj ? currentPkgObj.stock : 10;
-
-  const relatedProducts = useMemo(() => {
-    if (!product) return [];
-    return products
-      .filter((p) => p.id !== product.id && p.categoryId === product.categoryId && p.status === 'active')
-      .slice(0, 4);
-  }, [products, product]);
-
-  const approvedReviews = useMemo(() => {
-    if (!product) return [];
-    return reviews.filter((r) => r.productId === product.id && r.status === 'approved');
-  }, [reviews, product]);
 
   const averageRating = useMemo(() => {
     if (approvedReviews.length === 0) return '5.0';

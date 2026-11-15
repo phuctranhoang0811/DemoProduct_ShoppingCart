@@ -19,6 +19,7 @@ import {
   Briefcase,
   LogOut,
 } from 'lucide-react';
+import { signOut } from '@/lib/auth-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { useTranslation } from '@/i18n/useTranslation';
 import { SearchModal } from '@/components/common/SearchModal';
@@ -41,7 +42,6 @@ export function StoreHeader() {
   const products = useCommerceStore((state) => state.products);
   const currency = useCommerceStore((state) => state.currency);
   const setCurrency = useCommerceStore((state) => state.setCurrency);
-  const logout = useCommerceStore((state) => state.logout);
   const setIsCartDrawerOpen = useCommerceStore((state) => state.setIsCartDrawerOpen);
 
   const totalCartItems = cart.reduce((total, item) => total + item.quantity, 0);
@@ -241,7 +241,7 @@ export function StoreHeader() {
                       <span>Official Enagic 3-5 Year Warranty</span>
                     </span>
                     <Link
-                      href="/shop?category=cat-filters"
+                      href="/category/filters"
                       onClick={() => setActiveDropdown(null)}
                       className="font-medium hover:text-[#111111] underline"
                     >
@@ -253,7 +253,7 @@ export function StoreHeader() {
             </div>
 
             <Link
-              href="/shop?category=cat-spa"
+              href="/category/mineral-spa"
               onMouseEnter={() => setActiveDropdown(null)}
               className={`whitespace-nowrap shrink-0 h-full flex items-center border-b-2 transition-colors ${
                 pathname === '/shop' && typeof window !== 'undefined' && window.location.search.includes('cat-spa')
@@ -265,7 +265,7 @@ export function StoreHeader() {
             </Link>
 
             <Link
-              href="/shop?category=cat-filters"
+              href="/category/filters"
               onMouseEnter={() => setActiveDropdown(null)}
               className="whitespace-nowrap shrink-0 h-full flex items-center border-b-2 border-transparent text-[#444444] hover:text-[#111111] hover:border-[#111111] transition-colors"
             >
@@ -406,7 +406,7 @@ export function StoreHeader() {
                         <div className="border-t border-[#F0F0F0] mt-1 pt-1">
                           <button
                             type="button"
-                            onClick={() => logout()}
+                            onClick={() => void signOut()}
                             className="w-full flex items-center gap-1.5 px-3.5 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
                           >
                             <LogOut className="w-3.5 h-3.5" />
@@ -582,14 +582,14 @@ export function StoreHeader() {
                   {t.nav.products} (Ionizers)
                 </Link>
                 <Link
-                  href="/shop?category=cat-spa"
+                  href="/category/mineral-spa"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block py-1 hover:text-[#666666] transition-colors"
                 >
                   Anespa DX Mineral Spa
                 </Link>
                 <Link
-                  href="/shop?category=cat-filters"
+                  href="/category/filters"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block py-1 hover:text-[#666666] transition-colors"
                 >

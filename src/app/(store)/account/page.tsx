@@ -26,6 +26,7 @@ import {
   CreditCard,
   Wifi,
 } from 'lucide-react';
+import { signOut } from '@/lib/auth-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { Address } from '@/types';
 import { formatPrice, formatDate } from '@/lib/utils';
@@ -34,7 +35,6 @@ import { toast } from 'sonner';
 export default function AccountPage() {
   const router = useRouter();
   const currentUser = useCommerceStore((state) => state.currentUser);
-  const logout = useCommerceStore((state) => state.logout);
   const updateProfile = useCommerceStore((state) => state.updateProfile);
   const addAddress = useCommerceStore((state) => state.addAddress);
   const updateAddress = useCommerceStore((state) => state.updateAddress);
@@ -203,8 +203,8 @@ export default function AccountPage() {
     setIsAddressModalOpen(false);
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut();
     toast.info('Signed out of session.');
     router.push('/login');
   };

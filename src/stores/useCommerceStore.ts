@@ -81,6 +81,8 @@ function setStorageItem<T>(key: string, value: T): void {
 
 interface CommerceState {
   isHydrated: boolean;
+  // 'backend' once the server confirms real authentication; 'local' for the bundled demo sign-in.
+  authMode: 'unknown' | 'backend' | 'local';
   products: Product[];
   categories: Category[];
   cart: CartItem[];
@@ -160,6 +162,8 @@ interface CommerceState {
   loginWithEmail: (email: string) => boolean;
   register: (name: string, email: string, phone: string, referralCode?: string) => Customer;
   logout: () => void;
+  // Adopts the user verified by the server (or clears the session when null).
+  setSession: (user: Customer | null, activeMemberId?: string) => void;
   updateProfile: (updates: Partial<Customer>) => void;
   addAddress: (address: Omit<Address, 'id'>) => void;
   updateAddress: (addressId: string, updates: Partial<Address>) => void;
@@ -200,8 +204,46 @@ interface CommerceState {
   updatePayoutStatus: (payoutId: string, status: PayoutStatus) => void;
 }
 
+// Admin actions that a backend takes over. Registered by src/lib/admin-client.ts, which cannot be
+// imported here without a circular dependency.
+export type BackofficeHandlers = Pick<
+  CommerceState,
+  | 'addProduct'
+  | 'updateProduct'
+  | 'deleteProduct'
+  | 'bulkDeleteProducts'
+  | 'addCategory'
+  | 'updateCategory'
+  | 'deleteCategory'
+  | 'updateOrderStatus'
+  | 'updatePaymentStatus'
+  | 'addCustomer'
+  | 'updateCustomer'
+  | 'toggleCustomerStatus'
+  | 'addDiscount'
+  | 'updateDiscount'
+  | 'deleteDiscount'
+  | 'addReview'
+  | 'updateReviewStatus'
+  | 'deleteReview'
+  | 'adjustStock'
+  | 'updateSettings'
+>;
+
+let backoffice: BackofficeHandlers | null = null;
+
+export function registerBackoffice(handlers: BackofficeHandlers): void {
+  backoffice = handlers;
+}
+
+// The handlers apply only once the server has confirmed real authentication.
+function remote(): BackofficeHandlers | null {
+  return backoffice && useCommerceStore.getState().authMode === 'backend' ? backoffice : null;
+}
+
 export const useCommerceStore = create<CommerceState>((set, get) => ({
   isHydrated: false,
+  authMode: 'unknown',
   products: initialProducts,
   categories: initialCategories,
   cart: [],
@@ -329,6 +371,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
   // PRODUCTS
   addProduct: (productData) => {
+    if (remote()?.addProduct) return void remote()!.addProduct(productData);
     const newProduct: Product = {
       ...productData,
       id: generateId('prod'),
@@ -342,6 +385,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   updateProduct: (id, updates) => {
+    if (remote()?.updateProduct) return void remote()!.updateProduct(id, updates);
     set((state) => {
       const updated = state.products.map((p) => (p.id === id ? { ...p, ...updates } : p));
       setStorageItem(STORAGE_KEYS.products, updated);
@@ -365,6 +409,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   deleteProduct: (id) => {
+    if (remote()?.deleteProduct) return void remote()!.deleteProduct(id);
     set((state) => {
       const updated = state.products.filter((p) => p.id !== id);
       const updatedCart = state.cart.filter((item) => item.productId !== id);
@@ -383,6 +428,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   bulkDeleteProducts: (ids) => {
+    if (remote()?.bulkDeleteProducts) return void remote()!.bulkDeleteProducts(ids);
     const idSet = new Set(ids);
     set((state) => {
       const updated = state.products.filter((p) => !idSet.has(p.id));
@@ -403,6 +449,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
   // CATEGORIES
   addCategory: (categoryData) => {
+    if (remote()?.addCategory) return void remote()!.addCategory(categoryData);
     const newCategory: Category = {
       ...categoryData,
       id: generateId('cat'),
@@ -415,6 +462,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   updateCategory: (id, updates) => {
+    if (remote()?.updateCategory) return void remote()!.updateCategory(id, updates);
     set((state) => {
       const updated = state.categories.map((c) => (c.id === id ? { ...c, ...updates } : c));
       setStorageItem(STORAGE_KEYS.categories, updated);
@@ -423,6 +471,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   deleteCategory: (id) => {
+    if (remote()?.deleteCategory) return void remote()!.deleteCategory(id);
     set((state) => {
       const updated = state.categories.filter((c) => c.id !== id);
       setStorageItem(STORAGE_KEYS.categories, updated);
@@ -612,6 +661,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   updateOrderStatus: (orderId, status, note) => {
+    if (remote()?.updateOrderStatus) return void remote()!.updateOrderStatus(orderId, status, note);
     set((state) => {
       const order = state.orders.find((o) => o.id === orderId);
       if (!order) return state;
@@ -680,6 +730,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   updatePaymentStatus: (orderId, paymentStatus) => {
+    if (remote()?.updatePaymentStatus) return void remote()!.updatePaymentStatus(orderId, paymentStatus);
     set((state) => {
       const updatedOrders = state.orders.map((o) => (o.id === orderId ? { ...o, paymentStatus } : o));
       setStorageItem(STORAGE_KEYS.orders, updatedOrders);
@@ -689,6 +740,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
   // CUSTOMERS
   addCustomer: (data) => {
+    if (remote()?.addCustomer) return void remote()!.addCustomer(data);
     const newCust: Customer = {
       ...data,
       id: generateId('cust'),
@@ -704,6 +756,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   updateCustomer: (id, updates) => {
+    if (remote()?.updateCustomer) return void remote()!.updateCustomer(id, updates);
     set((state) => {
       const updated = state.customers.map((c) => (c.id === id ? { ...c, ...updates } : c));
       setStorageItem(STORAGE_KEYS.customers, updated);
@@ -712,6 +765,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   toggleCustomerStatus: (id) => {
+    if (remote()?.toggleCustomerStatus) return void remote()!.toggleCustomerStatus(id);
     set((state) => {
       const updated = state.customers.map((c) =>
         c.id === id ? { ...c, status: (c.status === 'active' ? 'inactive' : 'active') as 'active' | 'inactive' } : c
@@ -723,6 +777,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
   // DISCOUNTS
   addDiscount: (data) => {
+    if (remote()?.addDiscount) return void remote()!.addDiscount(data);
     const newDisc: Discount = {
       ...data,
       id: generateId('disc'),
@@ -736,6 +791,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   updateDiscount: (id, updates) => {
+    if (remote()?.updateDiscount) return void remote()!.updateDiscount(id, updates);
     set((state) => {
       const updated = state.discounts.map((d) => (d.id === id ? { ...d, ...updates } : d));
       setStorageItem(STORAGE_KEYS.discounts, updated);
@@ -744,6 +800,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   deleteDiscount: (id) => {
+    if (remote()?.deleteDiscount) return void remote()!.deleteDiscount(id);
     set((state) => {
       const updated = state.discounts.filter((d) => d.id !== id);
       setStorageItem(STORAGE_KEYS.discounts, updated);
@@ -800,6 +857,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
   // REVIEWS
   addReview: (data) => {
+    if (remote()?.addReview) return void remote()!.addReview(data);
     const newRev: Review = {
       ...data,
       id: generateId('rev'),
@@ -814,6 +872,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   updateReviewStatus: (id, status) => {
+    if (remote()?.updateReviewStatus) return void remote()!.updateReviewStatus(id, status);
     set((state) => {
       const updated = state.reviews.map((r) => (r.id === id ? { ...r, status } : r));
       setStorageItem(STORAGE_KEYS.reviews, updated);
@@ -822,6 +881,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   deleteReview: (id) => {
+    if (remote()?.deleteReview) return void remote()!.deleteReview(id);
     set((state) => {
       const updated = state.reviews.filter((r) => r.id !== id);
       setStorageItem(STORAGE_KEYS.reviews, updated);
@@ -831,6 +891,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
   // INVENTORY
   adjustStock: (productId, sizeLabel, change, reason) => {
+    if (remote()?.adjustStock) return void remote()!.adjustStock(productId, sizeLabel, change, reason);
     set((state) => {
       const product = state.products.find((p) => p.id === productId);
       if (!product) return state;
@@ -885,6 +946,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
   // SETTINGS
   updateSettings: (updates) => {
+    if (remote()?.updateSettings) return void remote()!.updateSettings(updates);
     set((state) => {
       const updated = { ...state.settings, ...updates };
       setStorageItem(STORAGE_KEYS.settings, updated);
@@ -1143,10 +1205,18 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   logout: () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(STORAGE_KEYS.session);
-    }
+    setStorageItem(STORAGE_KEYS.session, null);
     set({ currentUser: null });
+  },
+
+  setSession: (user, activeMemberId) => {
+    setStorageItem(STORAGE_KEYS.session, user);
+    if (activeMemberId) {
+      setStorageItem(STORAGE_KEYS.activeMemberId, activeMemberId);
+      set({ currentUser: user, activeMemberId });
+    } else {
+      set({ currentUser: user });
+    }
   },
 
   updateProfile: (updates) => {

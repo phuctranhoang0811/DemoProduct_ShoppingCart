@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { CalculationHistoryStore } from '@/modules/tax-engine/core/history-store';
+import { deleteCalculation, getCalculation } from '@/lib/tax-history';
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const record = CalculationHistoryStore.getCalculation(params.id);
+    const record = await getCalculation(params.id);
     if (!record) {
       return NextResponse.json(
         { success: false, error: `Calculation with ID '${params.id}' not found.` },
@@ -34,7 +34,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const deleted = CalculationHistoryStore.deleteCalculation(params.id);
+    const deleted = await deleteCalculation(params.id);
     if (!deleted) {
       return NextResponse.json(
         { success: false, error: `Calculation with ID '${params.id}' not found.` },

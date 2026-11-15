@@ -1,6 +1,13 @@
-import { Product } from '@/types';
+import type { Product, Review } from '@/types';
 
-export const SITE_URL = 'https://enagic-kangenwater.vn';
+// Canonical origin. Set NEXT_PUBLIC_SITE_URL once a custom domain is live; until then the
+// Vercel production domain is used so canonicals and the sitemap match the deployed host.
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : 'http://localhost:3000')
+).replace(/\/+$/, '');
 export const SITE_NAME = 'Enagic® Kangen Water®';
 export const ENAGIC_OFFICIAL_URL = 'https://www.enagic.com/';
 
@@ -50,33 +57,31 @@ export function buildWebSiteSchema() {
   };
 }
 
-export function buildProductSchema(product: Product, reviewsCount: number = 6, averageRating: number = 4.9) {
+interface RatedProduct extends Product {
+  rating?: { count: number; average: number | null };
+}
+
+export function buildProductSchema(product: RatedProduct, reviews: Review[] = []) {
   const inStock = product.sizes.some((s) => s.stock > 0);
+  const rating = product.rating;
 
   return {
     '@context': 'https://schema.org',
-    '@type': ['Product', 'MedicalDevice'],
+    '@type': 'Product',
     name: product.name,
-    alternateName: product.nameVi || product.name,
     image: product.images,
     description: product.description,
     sku: product.sku,
     mpn: product.sku,
-    manufacturer: {
-      '@type': 'Organization',
-      name: 'Enagic International Co., Ltd. (Osaka, Japan)',
-    },
     brand: {
       '@type': 'Brand',
-      name: 'Enagic® Kangen Water®',
+      name: 'Enagic',
     },
-    medicalSpecialty: 'Preventive Medicine & Cellular Hydration',
     offers: {
       '@type': 'Offer',
       url: `${SITE_URL}/product/${product.slug}`,
       priceCurrency: 'USD',
       price: product.price,
-      priceValidUntil: '2027-12-31',
       itemCondition: 'https://schema.org/NewCondition',
       availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       seller: {
@@ -84,13 +89,40 @@ export function buildProductSchema(product: Product, reviewsCount: number = 6, a
         name: SITE_NAME,
       },
     },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: averageRating.toFixed(1),
-      reviewCount: reviewsCount,
-      bestRating: '5',
-      worstRating: '1',
-    },
+    // Ratings are only published when real approved reviews back them.
+    ...(rating && rating.count > 0 && rating.average !== null
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: rating.average,
+            reviewCount: rating.count,
+            bestRating: 5,
+            worstRating: 1,
+          },
+          review: reviews.slice(0, 10).map((r) => ({
+            '@type': 'Review',
+            author: { '@type': 'Person', name: r.customerName },
+            datePublished: r.createdAt.slice(0, 10),
+            reviewBody: r.comment,
+            reviewRating: { '@type': 'Rating', ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+          })),
+        }
+      : {}),
+  };
+}
+
+export function buildItemListSchema(name: string, products: Product[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name,
+    numberOfItems: products.length,
+    itemListElement: products.map((product, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: product.name,
+      url: `${SITE_URL}/product/${product.slug}`,
+    })),
   };
 }
 

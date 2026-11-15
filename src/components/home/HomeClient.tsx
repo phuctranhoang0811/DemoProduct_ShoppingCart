@@ -20,9 +20,9 @@ import {
   Droplets,
   Award,
 } from 'lucide-react';
-import { useCommerceStore } from '@/stores/useCommerceStore';
 import { useTranslation } from '@/i18n/useTranslation';
 import { ProductCard } from '@/components/product/ProductCard';
+import type { Category, Product } from '@/types';
 
 const IONIZER_REELS = [
   {
@@ -138,10 +138,13 @@ function ReelCard({ reel }: { reel: (typeof IONIZER_REELS)[0] }) {
   );
 }
 
-export default function HomePage() {
+interface HomeClientProps {
+  products: Product[];
+  categories: Category[];
+}
+
+export function HomeClient({ products, categories }: HomeClientProps) {
   const { t } = useTranslation();
-  const products = useCommerceStore((state) => state.products);
-  const categories = useCommerceStore((state) => state.categories);
 
   const heroVideoRef = useRef<HTMLVideoElement>(null);
   const [heroMuted, setHeroMuted] = useState(true);
@@ -185,11 +188,11 @@ export default function HomePage() {
 
   const quickCategories = [
     { label: 'All Products', href: '/shop' },
-    { label: 'Ionizers (K8 / SD501)', href: '/shop?category=cat-ionizers' },
-    { label: 'Mineral Spa (Anespa)', href: '/shop?category=cat-spa' },
-    { label: 'High-Grade Filters', href: '/shop?category=cat-filters' },
-    { label: 'Care & Maintenance', href: '/shop?category=cat-accessories' },
-    { label: 'Water Bottles & Tanks', href: '/shop?category=cat-bottles' },
+    { label: 'Ionizers (K8 / SD501)', href: '/category/ionizers' },
+    { label: 'Mineral Spa (Anespa)', href: '/category/mineral-spa' },
+    { label: 'High-Grade Filters', href: '/category/filters' },
+    { label: 'Care & Maintenance', href: '/category/accessories' },
+    { label: 'Water Bottles & Tanks', href: '/category/bottles' },
   ];
 
   return (
@@ -234,7 +237,7 @@ export default function HomePage() {
                 {t.hero.ctaPrimary}
               </Link>
               <Link
-                href="/shop?category=cat-ionizers"
+                href="/category/ionizers"
                 className="glass-dark-btn text-white px-7 py-3 text-xs uppercase tracking-wider font-semibold btn-tactile transition-all rounded-xs flex items-center gap-2 mirror-sheen border border-white/30 shadow-lg hover:border-white/60"
               >
                 <Droplets className="w-3.5 h-3.5 text-cyan-300" />
@@ -435,7 +438,7 @@ export default function HomePage() {
             return (
               <Link
                 key={category.id}
-                href={`/shop?category=${category.id}`}
+                href={`/category/${category.slug}`}
                 className="group flex flex-col text-center"
               >
                 <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F5F4F0] rounded-2xl border border-black/[0.04] shadow-xs group-hover:shadow-md transition-all duration-300 mb-2.5">
@@ -544,7 +547,7 @@ export default function HomePage() {
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
               <Link
-                href="/shop?category=cat-filters"
+                href="/category/filters"
                 className="inline-flex items-center gap-1.5 glass-dark-btn text-white px-6 py-3 text-xs uppercase tracking-wider font-medium active:scale-95 transition-all rounded-xs mirror-sheen"
               >
                 {t.nav.accessories}

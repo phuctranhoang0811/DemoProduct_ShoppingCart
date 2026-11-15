@@ -7,7 +7,6 @@ import {
   SITE_NAME,
   buildOrganizationSchema,
   buildWebSiteSchema,
-  buildFAQSchema,
   safeJsonLd,
 } from '@/lib/seo';
 
@@ -40,9 +39,6 @@ export const metadata: Metadata = {
     email: false,
     address: false,
     telephone: false,
-  },
-  alternates: {
-    canonical: '/',
   },
   openGraph: {
     title: 'Enagic® Kangen Water® | Japanese Medical-Grade Water Ionizers',
@@ -94,7 +90,6 @@ export default function RootLayout({
 }) {
   const organizationSchema = buildOrganizationSchema();
   const websiteSchema = buildWebSiteSchema();
-  const faqSchema = buildFAQSchema();
 
   return (
     <html lang="en">
@@ -109,12 +104,6 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: safeJsonLd(websiteSchema),
-          }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: safeJsonLd(faqSchema),
           }}
         />
       </head>

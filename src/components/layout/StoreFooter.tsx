@@ -68,9 +68,9 @@ export function StoreFooter() {
               {t.footer.customerCareTitle}
             </p>
             <ul className="space-y-2 text-xs text-[#888888]">
-              <li><Link href="/shop?category=cat-filters" className="hover:text-white transition-colors">FC1 High-Grade Filter</Link></li>
-              <li><Link href="/shop?category=cat-accessories" className="hover:text-white transition-colors">E-Cleaner Kit & Cleaning</Link></li>
-              <li><Link href="/shop?category=cat-bottles" className="hover:text-white transition-colors">UV-Protection Bottles</Link></li>
+              <li><Link href="/category/filters" className="hover:text-white transition-colors">FC1 High-Grade Filter</Link></li>
+              <li><Link href="/category/accessories" className="hover:text-white transition-colors">E-Cleaner Kit & Cleaning</Link></li>
+              <li><Link href="/category/bottles" className="hover:text-white transition-colors">UV-Protection Bottles</Link></li>
               <li><Link href="/cart" className="hover:text-white transition-colors">{t.cart.title}</Link></li>
               <li><Link href="/wishlist" className="hover:text-white transition-colors">{t.nav.savedItems}</Link></li>
               <li><Link href="/calculator" className="hover:text-white transition-colors">Tax Calculator (US & VN)</Link></li>

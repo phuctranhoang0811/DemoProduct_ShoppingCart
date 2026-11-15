@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Users,
@@ -26,12 +25,12 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { submitPayout } from '@/lib/hellobee-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { HellobeeRole, RankLevel, getNextRankProgress } from '@/types/hellobee';
 import { formatPrice } from '@/lib/utils';
 
 function HellobeePortalContent() {
-  const searchParams = useSearchParams();
 
   const currentUser = useCommerceStore((state) => state.currentUser);
   const orders = useCommerceStore((state) => state.orders);
@@ -45,7 +44,8 @@ function HellobeePortalContent() {
   const setActiveMemberId = useCommerceStore((state) => state.setActiveMemberId);
   const registerHellobeeMember = useCommerceStore((state) => state.registerHellobeeMember);
   const recordReferralOrder = useCommerceStore((state) => state.recordReferralOrder);
-  const requestPayout = useCommerceStore((state) => state.requestPayout);
+  // With a backend the network is real: the demo shortcuts below are switched off.
+  const liveNetwork = useCommerceStore((state) => state.authMode === 'backend');
   const currency = useCommerceStore((state) => state.currency);
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'team' | 'commissions' | 'payouts' | 'register'>('dashboard');
@@ -83,7 +83,7 @@ function HellobeePortalContent() {
   const [regEmail, setRegEmail] = useState('');
   const [regPhone, setRegPhone] = useState('');
   const [regRole, setRegRole] = useState<HellobeeRole>('EMPLOYEE');
-  const [regSponsorCode, setRegSponsorCode] = useState(searchParams?.get('ref') || '');
+  const [regSponsorCode, setRegSponsorCode] = useState('');
 
   // Payout Modal State
   const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
@@ -125,12 +125,12 @@ function HellobeePortalContent() {
   const rankProgress = getNextRankProgress(currentMember?.rank || '1A', currentMember?.validOrdersCount || 0);
 
   useEffect(() => {
-    const ref = searchParams?.get('ref');
+    const ref = new URLSearchParams(window.location.search).get('ref');
     if (ref) {
       setRegSponsorCode(ref);
       setActiveTab('register');
     }
-  }, [searchParams]);
+  }, []);
 
   const handleCopyReferralLink = () => {
     if (typeof window === 'undefined' || !currentMember) return;
@@ -143,6 +143,10 @@ function HellobeePortalContent() {
 
   const handleRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (liveNetwork) {
+      toast.info('Consultant accounts are created automatically once a Hellobee system purchase is paid.');
+      return;
+    }
     if (!regName.trim() || !regEmail.trim()) {
       toast.error('Please enter name and email');
       return;
@@ -171,6 +175,10 @@ function HellobeePortalContent() {
 
   const handleSimulateSale = () => {
     if (!currentMember) return;
+    if (liveNetwork) {
+      toast.info('Sales are credited automatically when a customer order using your code is paid.');
+      return;
+    }
 
     // Simulate placing a $1,500 order for the Hellobee machine
     const orderId = `ORD-SIM-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -206,7 +214,7 @@ function HellobeePortalContent() {
     }
   };
 
-  const handleRequestPayoutSubmit = (e: React.FormEvent) => {
+  const handleRequestPayoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const amount = Number(payoutAmount);
     if (!amount || amount <= 0) {
@@ -219,13 +227,14 @@ function HellobeePortalContent() {
     }
 
     try {
-      requestPayout(
-        currentMember.id,
+      const result = await submitPayout({
+        memberId: currentMember.id,
         amount,
         bankName,
-        bankAccount,
-        bankHolder || currentMember.name
-      );
+        bankAccountNumber: bankAccount,
+        bankAccountName: bankHolder || currentMember.name,
+      });
+      if (!result.ok) throw new Error(result.message);
       toast.success(`Payout request of $${amount} submitted successfully!`);
       setIsPayoutModalOpen(false);
       setPayoutAmount('');
@@ -237,6 +246,11 @@ function HellobeePortalContent() {
   const handleActivateWithPurchase = () => {
     if (!currentUser) {
       toast.error('Please sign in or register an account first.');
+      return;
+    }
+    if (liveNetwork) {
+      // The real path: buy the system; the account is upgraded when the payment is confirmed.
+      window.location.assign('/product/hellobee-filter-1500');
       return;
     }
 
@@ -1206,10 +1220,6 @@ function HellobeePortalContent() {
 }
 
 export default function HellobeePortalPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen py-20 text-center text-xs text-[#737373]">Loading Hellobee Portal...</div>}>
-      <HellobeePortalContent />
-    </Suspense>
-  );
+  return <HellobeePortalContent />;
 }
 

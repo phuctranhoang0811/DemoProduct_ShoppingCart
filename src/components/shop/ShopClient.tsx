@@ -1,38 +1,66 @@
 'use client';
 
-import { useState, useMemo, useEffect, Suspense } from 'react';
+import { useState, useMemo, useEffect, useCallback, Suspense } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { SlidersHorizontal, X, Droplets } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { useTranslation } from '@/i18n/useTranslation';
 import { ProductCard } from '@/components/product/ProductCard';
 import { formatPrice } from '@/lib/utils';
+import type { Category, Product } from '@/types';
 
-function ShopContent() {
+interface ShopClientProps {
+  products: Product[];
+  categories: Category[];
+  // Set on /category/[slug]: the listing is locked to this category and titled after it.
+  fixedCategory?: Category;
+}
+
+interface UrlFilters {
+  search: string | null;
+  category: string | null;
+  filter: string | null;
+}
+
+// useSearchParams() opts its subtree out of static rendering, so it lives in this leaf (inside
+// Suspense) and reports upward. The listing itself stays in the server-rendered HTML.
+function UrlFilterSync({ onChange }: { onChange: (filters: UrlFilters) => void }) {
   const searchParams = useSearchParams();
-  const { t, language } = useTranslation();
-  const products = useCommerceStore((state) => state.products);
-  const categories = useCommerceStore((state) => state.categories);
+
+  useEffect(() => {
+    onChange({
+      search: searchParams.get('search'),
+      category: searchParams.get('category'),
+      filter: searchParams.get('filter'),
+    });
+  }, [searchParams, onChange]);
+
+  return null;
+}
+
+export function ShopClient({ products, categories, fixedCategory }: ShopClientProps) {
+  const { t } = useTranslation();
   const currency = useCommerceStore((state) => state.currency);
 
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(fixedCategory?.id || 'all');
   const [selectedElectrode, setSelectedElectrode] = useState<number | 'all'>('all');
-  const [selectedSpecial, setSelectedSpecial] = useState(searchParams.get('filter') || 'all');
+  const [selectedSpecial, setSelectedSpecial] = useState('all');
   const [priceRange, setPriceRange] = useState<number>(currency === 'VND' ? 200000000 : 7000);
   const [sortBy, setSortBy] = useState<'newest' | 'price-asc' | 'price-desc' | 'popular'>('popular');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [page, setPage] = useState(1);
   const ITEMS_PER_PAGE = 8;
 
-  useEffect(() => {
-    const q = searchParams.get('search');
-    if (q !== null) setSearchQuery(q);
-    const cat = searchParams.get('category');
-    if (cat !== null) setSelectedCategory(cat);
-    const fil = searchParams.get('filter');
-    if (fil !== null) setSelectedSpecial(fil);
-  }, [searchParams]);
+  const applyUrlFilters = useCallback(
+    ({ search, category, filter }: UrlFilters) => {
+      if (search !== null) setSearchQuery(search);
+      if (category !== null && !fixedCategory) setSelectedCategory(category);
+      if (filter !== null) setSelectedSpecial(filter);
+    },
+    [fixedCategory],
+  );
 
   useEffect(() => {
     setPriceRange(currency === 'VND' ? 200000000 : 7000);
@@ -113,9 +141,11 @@ function ShopContent() {
   const displayedProducts = filteredProducts.slice(0, page * ITEMS_PER_PAGE);
   const hasMore = displayedProducts.length < filteredProducts.length;
 
+  const baseCategory = fixedCategory?.id || 'all';
+
   const resetAllFilters = () => {
     setSearchQuery('');
-    setSelectedCategory('all');
+    setSelectedCategory(baseCategory);
     setSelectedElectrode('all');
     setSelectedSpecial('all');
     setPriceRange(currency === 'VND' ? 200000000 : 7000);
@@ -123,20 +153,24 @@ function ShopContent() {
   };
 
   const hasActiveFilters =
-    selectedCategory !== 'all' ||
+    selectedCategory !== baseCategory ||
     selectedElectrode !== 'all' ||
     selectedSpecial !== 'all' ||
     searchQuery.trim().length > 0;
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <Suspense fallback={null}>
+        <UrlFilterSync onChange={applyUrlFilters} />
+      </Suspense>
+
       {/* Header */}
       <div className="mb-8 border-b border-[#E5E5E5] pb-6">
         <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-[#111111]">
-          {t.shop.pageTitle}
+          {fixedCategory?.name || t.shop.pageTitle}
         </h1>
         <p className="text-xs text-[#777777] mt-1 max-w-xl">
-          {t.shop.pageSubtitle}
+          {fixedCategory?.description || t.shop.pageSubtitle}
         </p>
       </div>
 
@@ -166,36 +200,31 @@ function ShopContent() {
                 {t.shop.categories}
               </span>
               <div className="space-y-1">
-                <button
-                  onClick={() => {
-                    setSelectedCategory('all');
-                    setPage(1);
-                  }}
-                  className={`w-full text-left text-xs px-2.5 py-1.5 rounded-xs transition-colors ${
+                <Link
+                  href="/shop"
+                  className={`block w-full text-left text-xs px-2.5 py-1.5 rounded-xs transition-colors ${
                     selectedCategory === 'all'
                       ? 'bg-[#111111] text-white font-medium'
                       : 'text-[#666666] hover:text-[#111111] hover:bg-[#F5F4F0]'
                   }`}
                 >
                   {t.shop.allCategories}
-                </button>
+                </Link>
                 {categories.map((cat) => {
                   const catName = cat.nameEn || cat.name;
                   return (
-                    <button
+                    <Link
                       key={cat.id}
-                      onClick={() => {
-                        setSelectedCategory(cat.id);
-                        setPage(1);
-                      }}
-                      className={`w-full text-left text-xs px-2.5 py-1.5 rounded-xs transition-colors ${
+                      href={`/category/${cat.slug}`}
+                      aria-current={selectedCategory === cat.id ? 'page' : undefined}
+                      className={`block w-full text-left text-xs px-2.5 py-1.5 rounded-xs transition-colors ${
                         selectedCategory === cat.id
                           ? 'bg-[#111111] text-white font-medium'
                           : 'text-[#666666] hover:text-[#111111] hover:bg-[#F5F4F0]'
                       }`}
                     >
                       {catName}
-                    </button>
+                    </Link>
                   );
                 })}
               </div>
@@ -301,7 +330,7 @@ function ShopContent() {
           {/* Active Filter Chips */}
           {hasActiveFilters && (
             <div className="flex flex-wrap items-center gap-2">
-              {selectedCategory !== 'all' && (
+              {selectedCategory !== baseCategory && (
                 <span className="inline-flex items-center gap-1 text-xs bg-[#F5F4F0] text-[#111111] px-2.5 py-1 rounded-full">
                   {categories.find((c) => c.id === selectedCategory)?.name}
                   <button onClick={() => setSelectedCategory('all')}>
@@ -369,19 +398,5 @@ function ShopContent() {
         </main>
       </div>
     </div>
-  );
-}
-
-export default function ShopPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="max-w-[1440px] mx-auto px-4 py-20 text-center text-xs text-[#777777]">
-          Loading...
-        </div>
-      }
-    >
-      <ShopContent />
-    </Suspense>
   );
 }

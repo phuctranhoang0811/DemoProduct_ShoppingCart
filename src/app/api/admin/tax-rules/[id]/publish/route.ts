@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TaxRuleRepository } from '@/modules/tax-engine/rules/tax-rule.repository';
 import { validateTaxRuleSet } from '@/modules/tax-engine/rules/tax-rule.validator';
-import { CalculationHistoryStore } from '@/modules/tax-engine/core/history-store';
+import { logAudit } from '@/lib/tax-history';
 
 export async function POST(
   req: NextRequest,
@@ -36,7 +36,7 @@ export async function POST(
     };
 
     TaxRuleRepository.addRule(published);
-    CalculationHistoryStore.logAudit('admin_user', 'PUBLISH_RULE', 'TaxRuleSet', published.id, {
+    await logAudit('PUBLISH_RULE', 'TaxRuleSet', published.id, {
       version: published.version,
     });
 

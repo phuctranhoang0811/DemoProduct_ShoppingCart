@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TaxRuleRepository } from '@/modules/tax-engine/rules/tax-rule.repository';
 import { validateTaxRuleSet } from '@/modules/tax-engine/rules/tax-rule.validator';
-import { CalculationHistoryStore } from '@/modules/tax-engine/core/history-store';
+import { logAudit } from '@/lib/tax-history';
 
 export async function PATCH(
   req: NextRequest,
@@ -43,7 +43,7 @@ export async function PATCH(
     }
 
     TaxRuleRepository.addRule(updated);
-    CalculationHistoryStore.logAudit('admin_user', 'UPDATE_RULE', 'TaxRuleSet', updated.id, updates);
+    await logAudit('UPDATE_RULE', 'TaxRuleSet', updated.id, updates);
 
     return NextResponse.json({
       success: true,
