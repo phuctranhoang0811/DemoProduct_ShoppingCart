@@ -437,7 +437,7 @@ function HellobeePortalContent() {
                   Qualifying Activation Unit
                 </span>
                 <h3 className="text-xl font-bold text-[#111111]">
-                  Hellobee Water Ionizer & Filtration System
+                  emGuarde Personal Protection Device
                 </h3>
                 <p className="text-xs text-[#666666]">
                   Standardized $1,500 unit with portable 3 m field coverage, up to 72 hours of battery operation, and USB-C charging.
