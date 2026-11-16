@@ -27,7 +27,7 @@ import { formatPrice } from '@/lib/utils';
 
 export function StoreHeader() {
   const pathname = usePathname();
-  const { t } = useTranslation();
+  const { t, format } = useTranslation();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<'ionizers' | null>(null);
@@ -153,7 +153,7 @@ export function StoreHeader() {
                 className={`p-2.5 -ml-2.5 transition-colors ${
                   isDarkHeader ? 'text-white hover:text-white/80' : 'text-[#111111] hover:text-[#555555]'
                 }`}
-                aria-label="Toggle menu"
+                aria-label={t.header.toggleMenu}
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -162,7 +162,7 @@ export function StoreHeader() {
             <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
               <Image
                 src="/images/logo.png"
-                alt="Enagic Kangen Water Logo"
+                alt={t.header.logoAlt}
                 width={120}
                 height={50}
                 priority
@@ -228,7 +228,7 @@ export function StoreHeader() {
                     <span className={`text-[10px] uppercase tracking-[0.2em] font-bold ${
                       isDarkHeader ? 'text-[#888888]' : 'text-[#777777]'
                     }`}>
-                      Featured Medical Ionizers
+                      {t.header.featuredIonizers}
                     </span>
                     <Link
                       href="/shop"
@@ -292,7 +292,7 @@ export function StoreHeader() {
                   }`}>
                     <span className="flex items-center gap-1">
                       <ShieldCheck className="w-3.5 h-3.5 text-[#477A5A]" />
-                      <span>Official Enagic 3-5 Year Warranty</span>
+                      <span>{t.header.warrantyNote}</span>
                     </span>
                     <Link
                       href="/shop"
@@ -301,7 +301,7 @@ export function StoreHeader() {
                         isDarkHeader ? 'text-white hover:text-[var(--honey)]' : 'text-[#111111]'
                       }`}
                     >
-                      Browse Full Catalog &rarr;
+                      {t.header.browseCatalog} &rarr;
                     </Link>
                   </div>
                 </div>
@@ -313,7 +313,7 @@ export function StoreHeader() {
               onMouseEnter={() => setActiveDropdown(null)}
               className={navLinkClass(pathname === '/calculator')}
             >
-              <span>Tax Calculator</span>
+              <span>{t.header.taxCalculator}</span>
               {navUnderline(pathname === '/calculator')}
             </Link>
 
@@ -322,7 +322,7 @@ export function StoreHeader() {
               onMouseEnter={() => setActiveDropdown(null)}
               className={navLinkClass(pathname === '/hellobee')}
             >
-              <span>Hellobee Network</span>
+              <span>{t.header.hellobeeNetwork}</span>
               {navUnderline(pathname === '/hellobee')}
             </Link>
 
@@ -337,7 +337,7 @@ export function StoreHeader() {
                   : 'text-[#444444] hover:text-[#111111]'
               }`}
             >
-              <span>Events</span>
+              <span>{t.header.events}</span>
             </Link>
           </nav>
 
@@ -355,8 +355,8 @@ export function StoreHeader() {
                     ? 'border-white/30 bg-white/10 text-white hover:bg-white/20 hover:border-white/50 backdrop-blur-sm'
                     : 'border-[#E5E5E5] bg-[#F5F4F0] text-[#333333] hover:border-gray-300 hover:bg-[#EAE8E3]'
                 }`}
-                title="Click to toggle currency ($ USD / ₫ VND)"
-                aria-label="Toggle currency"
+                title={t.header.toggleCurrency}
+                aria-label={t.header.toggleCurrency}
               >
                 <span translate="no" className="notranslate">{currency === 'USD' ? '$ USD' : '₫ VND'}</span>
               </button>
@@ -382,8 +382,8 @@ export function StoreHeader() {
                     ? 'text-white hover:text-[var(--honey)] hover:bg-white/10'
                     : 'text-[#222222] hover:text-[var(--honey-deep)] hover:bg-[var(--honey-tint)]'
                 }`}
-                aria-label="Search"
-                title="Search (Cmd+K / Ctrl+K)"
+                aria-label={t.header.search}
+                title={t.header.searchShortcut}
               >
                 <Search className="w-4 h-4 stroke-[1.8]" />
               </button>
@@ -396,8 +396,8 @@ export function StoreHeader() {
                     ? 'text-white hover:text-[var(--honey)] hover:bg-white/10'
                     : 'text-[#222222] hover:text-[var(--honey-deep)] hover:bg-[var(--honey-tint)]'
                 }`}
-                aria-label="Wishlist"
-                title="Wishlist"
+                aria-label={t.header.wishlist}
+                title={t.header.wishlist}
               >
                 <Heart className="w-4 h-4 stroke-[1.8]" />
                 {wishlist.length > 0 && (
@@ -418,11 +418,11 @@ export function StoreHeader() {
                       ? 'text-white hover:text-[var(--honey)] hover:bg-white/10'
                       : 'text-[#222222] hover:text-[var(--honey-deep)] hover:bg-[var(--honey-tint)]'
                   }`}
-                  aria-label="User Account"
+                  aria-label={t.header.userAccount}
                   title={
                     currentUser
-                      ? `Account: ${currentUser.name}`
-                      : 'Sign In'
+                      ? format(t.header.accountTitle, { name: currentUser.name })
+                      : t.header.signIn
                   }
                 >
                   <User className="w-4 h-4 stroke-[1.8]" />
@@ -457,7 +457,7 @@ export function StoreHeader() {
                             isDarkHeader ? 'text-[#CCCCCC] hover:bg-[#222222]' : 'text-[#333333] hover:bg-[#F9F9F8]'
                           }`}
                         >
-                          My Account
+                          {t.header.myAccount}
                         </Link>
                         <Link
                           href="/orders"
@@ -465,7 +465,7 @@ export function StoreHeader() {
                             isDarkHeader ? 'text-[#CCCCCC] hover:bg-[#222222]' : 'text-[#333333] hover:bg-[#F9F9F8]'
                           }`}
                         >
-                          Order History
+                          {t.header.orderHistory}
                         </Link>
                         {currentUser.role === 'employee' && (
                           <Link
@@ -473,7 +473,7 @@ export function StoreHeader() {
                             className="flex items-center gap-1.5 px-3.5 py-2 text-[#2D5A27] bg-[#EBF3EA]/60 hover:bg-[#EBF3EA] font-semibold transition-colors"
                           >
                             <Briefcase className="w-3.5 h-3.5" />
-                            <span>Staff Workspace</span>
+                            <span>{t.header.staffWorkspace}</span>
                           </Link>
                         )}
                         {currentUser.role === 'admin' && (
@@ -484,7 +484,7 @@ export function StoreHeader() {
                             }`}
                           >
                             <SlidersHorizontal className="w-3.5 h-3.5" />
-                            <span>Admin Console</span>
+                            <span>{t.header.adminConsole}</span>
                           </Link>
                         )}
                         <div className={`border-t mt-1 pt-1 ${
@@ -496,7 +496,7 @@ export function StoreHeader() {
                             className="w-full flex items-center gap-1.5 px-3.5 py-2 text-left text-red-400 hover:bg-red-950/30 transition-colors"
                           >
                             <LogOut className="w-3.5 h-3.5" />
-                            <span>Sign Out</span>
+                            <span>{t.header.signOut}</span>
                           </button>
                         </div>
                       </>
@@ -506,7 +506,7 @@ export function StoreHeader() {
                           isDarkHeader ? 'border-[#262626]' : 'border-[#F0F0F0]'
                         }`}>
                           <p className={`text-[11px] font-semibold ${isDarkHeader ? 'text-white' : 'text-[#111111]'}`}>
-                            Enagic® Account
+                            {t.header.enagicAccount}
                           </p>
                         </div>
                         <Link
@@ -515,7 +515,7 @@ export function StoreHeader() {
                             isDarkHeader ? 'text-white hover:bg-[#222222]' : 'text-[#111111] hover:bg-[#F9F9F8]'
                           }`}
                         >
-                          Sign In
+                          {t.header.signIn}
                         </Link>
                         <Link
                           href="/register"
@@ -523,7 +523,7 @@ export function StoreHeader() {
                             isDarkHeader ? 'text-[#AAAAAA] hover:bg-[#222222]' : 'text-[#555555] hover:bg-[#F9F9F8]'
                           }`}
                         >
-                          Create Account
+                          {t.header.createAccount}
                         </Link>
                       </>
                     )}
@@ -546,8 +546,8 @@ export function StoreHeader() {
                 } ${
                   isCartBounced ? 'animate-cart-bounce text-[var(--honey)] scale-110' : ''
                 }`}
-                aria-label="Shopping Bag"
-                title="Shopping Bag"
+                aria-label={t.header.shoppingBag}
+                title={t.header.shoppingBag}
               >
                 <ShoppingBag className="w-4 h-4 stroke-[1.8]" />
                 {totalCartItems > 0 && (
@@ -573,7 +573,7 @@ export function StoreHeader() {
                     : 'bg-[#111111] text-white hover:bg-[#333333]'
                 }`}
               >
-                Login
+                {t.header.login}
               </Link>
             )}
             {/* Portal Shortcuts depending on Role / Quick access */}
@@ -585,9 +585,9 @@ export function StoreHeader() {
                     ? 'bg-white/15 text-white border border-white/30 hover:bg-white/25 backdrop-blur-sm'
                     : 'bg-[#EBF3EA] text-[#2D5A27] hover:bg-[#d8e8d6]'
                 }`}
-                title="Employee Workspace"
+                title={t.header.staffWorkspace}
               >
-                <span>Staff</span>
+                <span>{t.header.staff}</span>
               </Link>
             ) : currentUser?.role === 'admin' ? (
               <Link
@@ -597,10 +597,10 @@ export function StoreHeader() {
                     ? 'bg-white/20 text-white border border-white/30 hover:bg-white/30 backdrop-blur-sm'
                     : 'bg-[#111111] text-white hover:bg-[#333333]'
                 }`}
-                title="Admin Portal"
+                title={t.header.adminPortal}
               >
                 <SlidersHorizontal className="w-3 h-3 text-[#B9A58B]" />
-                <span>Admin</span>
+                <span>{t.header.admin}</span>
               </Link>
             ) : (
               <div className="relative group/portal hidden xl:block shrink-0">
@@ -612,7 +612,7 @@ export function StoreHeader() {
                       : 'border border-[#E5E5E5] hover:border-gray-400 bg-white hover:bg-[#FAFAF9] text-[#666666] hover:text-[#111111]'
                   }`}
                 >
-                  <span>Portal</span>
+                  <span>{t.header.portal}</span>
                   <ChevronDown className={`w-3 h-3 ${isDarkHeader ? 'text-white/80' : 'text-[#888888]'}`} />
                 </button>
                 <div className="absolute right-0 top-full pt-1.5 hidden group-hover/portal:block z-50 animate-scale-in">
@@ -628,7 +628,7 @@ export function StoreHeader() {
                       }`}
                     >
                       <Briefcase className="w-3.5 h-3.5 text-[#888888]" />
-                      <span>Staff Workspace</span>
+                      <span>{t.header.staffWorkspace}</span>
                     </Link>
                     <Link
                       href="/admin"
@@ -637,7 +637,7 @@ export function StoreHeader() {
                       }`}
                     >
                       <SlidersHorizontal className="w-3.5 h-3.5 text-[#888888]" />
-                      <span>Admin Console</span>
+                      <span>{t.header.adminConsole}</span>
                     </Link>
                   </div>
                 </div>
@@ -664,7 +664,7 @@ export function StoreHeader() {
                 <div className="flex items-center gap-2">
                   <Image
                     src="/images/logo.png"
-                    alt="Logo"
+                    alt={t.header.logoAlt}
                     width={90}
                     height={40}
                     className="h-8 w-auto object-contain"
@@ -676,7 +676,7 @@ export function StoreHeader() {
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="p-1.5 text-[#111111] hover:bg-[#F5F4F0] rounded-full transition-colors"
-                  aria-label="Close menu"
+                  aria-label={t.header.closeMenu}
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -692,7 +692,7 @@ export function StoreHeader() {
                 className="w-full mt-4 flex items-center gap-2.5 px-3.5 py-2.5 rounded-md bg-[#F5F4F0] border border-[#E5E5E5] text-xs text-[#777777] hover:bg-[#EEEEEE] transition-colors"
               >
                 <Search className="w-4 h-4 text-[#777777]" />
-                <span>Search products, parts...</span>
+                <span>{t.header.searchMobile}</span>
               </button>
 
               {/* Navigation Links */}
@@ -716,21 +716,21 @@ export function StoreHeader() {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block py-1 font-semibold text-[#111111] hover:text-[var(--honey-deep)] transition-colors"
                 >
-                  Tax Calculator (US & VN)
+                  {t.header.taxCalculator}
                 </Link>
                 <Link
                   href="/hellobee"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center justify-between py-1 font-semibold text-[#111111] hover:text-[var(--honey-deep)] transition-colors"
                 >
-                  <span>Hellobee Network</span>
+                  <span>{t.header.hellobeeNetwork}</span>
                 </Link>
                 <Link
                   href="/events"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block py-1 font-semibold text-[#111111] hover:text-[#666666] transition-colors"
                 >
-                  Events
+                  {t.header.events}
                 </Link>
               </div>
 
@@ -745,8 +745,8 @@ export function StoreHeader() {
                       <User className="w-4 h-4" />
                       <span>
                         {currentUser
-                          ? `Account (${currentUser.name})`
-                          : 'Sign In / Register'}
+                          ? format(t.header.accountTitle, { name: currentUser.name })
+                          : t.header.signIn}
                       </span>
                     </Link>
                 ) : (
@@ -756,7 +756,7 @@ export function StoreHeader() {
                     className="flex items-center justify-center gap-2 py-2.5 text-xs uppercase tracking-wider font-semibold bg-[#111111] text-white rounded-xs"
                   >
                     <User className="w-4 h-4" />
-                    <span>Login</span>
+                    <span>{t.header.login}</span>
                   </Link>
                 )}
 
@@ -767,7 +767,7 @@ export function StoreHeader() {
                 >
                   <span className="flex items-center gap-2.5">
                     <Heart className="w-4 h-4" />
-                    <span>Wishlist</span>
+                    <span>{t.header.wishlist}</span>
                   </span>
                   {wishlist.length > 0 && (
                     <span className="px-2 py-0.5 bg-[#111111] text-white text-[10px] font-bold rounded-full">
@@ -801,7 +801,7 @@ export function StoreHeader() {
                   className="flex items-center gap-2.5 py-2 text-xs font-medium text-[#777777] hover:text-[#111111]"
                 >
                   <Briefcase className="w-4 h-4" />
-                  <span>Staff Workspace</span>
+                  <span>{t.header.staffWorkspace}</span>
                 </Link>
 
                 <Link
@@ -810,7 +810,7 @@ export function StoreHeader() {
                   className="flex items-center gap-2.5 py-2 text-xs font-medium text-[#777777] hover:text-[#111111]"
                 >
                   <SlidersHorizontal className="w-4 h-4" />
-                  <span>Admin Portal</span>
+                  <span>{t.header.adminPortal}</span>
                 </Link>
                 {currentUser && (
                   <button
@@ -822,7 +822,7 @@ export function StoreHeader() {
                     className="w-full flex items-center gap-2.5 py-2 text-xs font-semibold text-red-600 hover:text-red-700"
                   >
                     <LogOut className="w-4 h-4" />
-                    <span>Log Out</span>
+                    <span>{t.header.signOut}</span>
                   </button>
                 )}
               </div>
@@ -830,7 +830,7 @@ export function StoreHeader() {
 
             {/* Drawer Footer with Interactive Currency */}
             <div className="pt-5 border-t border-[#E5E5E5] flex items-center justify-between text-xs">
-              <span className="text-[11px] text-[#777777] font-medium">Currency</span>
+              <span className="text-[11px] text-[#777777] font-medium">{t.header.currency}</span>
               <button
                 type="button"
                 onClick={() => setCurrency(currency === 'USD' ? 'VND' : 'USD')}
@@ -840,8 +840,8 @@ export function StoreHeader() {
               </button>
             </div>
             <div className="pt-4 flex items-center justify-between text-xs">
-              <span className="text-[11px] text-[#777777] font-medium">Language</span>
-              <LanguageSwitcher align="right" />
+              <span className="text-[11px] text-[#777777] font-medium">{t.header.language}</span>
+              <LanguageSwitcher align="right" panelClassName="w-[calc(85vw-3rem)] max-w-[20rem]" />
             </div>
           </div>
         </div>

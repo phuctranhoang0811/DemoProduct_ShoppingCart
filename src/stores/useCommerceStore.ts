@@ -40,6 +40,7 @@ import {
   initialPayoutRequests,
 } from '@/data/hellobeeMembers';
 import { generateId } from '@/lib/utils';
+import type { Language } from '@/i18n/types';
 
 const STORAGE_KEYS = {
   products: 'enagic_kangen_products_v14',
@@ -96,13 +97,13 @@ interface CommerceState {
   settings: StoreSettings;
   currentUser: Customer | null;
   currency: 'USD' | 'VND';
-  language: 'vi' | 'en';
+  language: Language;
   isCartDrawerOpen: boolean;
 
   initHydrate: () => void;
   resetDemoData: () => void;
   setCurrency: (currency: 'USD' | 'VND') => void;
-  setLanguage: (language: 'vi' | 'en') => void;
+  setLanguage: (language: Language) => void;
   setIsCartDrawerOpen: (open: boolean) => void;
 
   // Products
@@ -256,7 +257,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     const settings = getStorageItem<StoreSettings>(STORAGE_KEYS.settings, initialSettings);
     const sessionUser = getStorageItem<Customer | null>(STORAGE_KEYS.session, initialCustomers[0]);
     const currency = getStorageItem<'USD' | 'VND'>(STORAGE_KEYS.currency, 'USD');
-    const language = getStorageItem<'vi' | 'en'>(STORAGE_KEYS.language, 'en');
+    const language = getStorageItem<Language>(STORAGE_KEYS.language, 'en');
     const hellobeeMembers = getStorageItem<HellobeeMember[]>(
       STORAGE_KEYS.hellobeeMembers,
       initialHellobeeMembers

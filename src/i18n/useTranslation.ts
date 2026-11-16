@@ -1,7 +1,7 @@
 'use client';
 
 import { useCommerceStore } from '@/stores/useCommerceStore';
-import { translations, Language, Translations } from './translations';
+import { translations, formatMessage, Language, Translations } from './translations';
 
 export function useTranslation() {
   const language = useCommerceStore((state) => state.language) || 'en';
@@ -13,6 +13,8 @@ export function useTranslation() {
     t,
     language,
     setLanguage,
+    format: formatMessage,
   };
 }
 
+export type { Language };

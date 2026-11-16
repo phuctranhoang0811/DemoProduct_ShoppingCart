@@ -68,7 +68,7 @@ export default function HomePage() {
         <button
           type="button"
           onClick={() => goHero(-1)}
-          aria-label="Previous image"
+          aria-label={t.home.prevImage}
           className="btn-tactile absolute left-4 bottom-5 sm:bottom-auto sm:left-6 sm:top-1/2 sm:-translate-y-1/2 z-30 w-10 h-10 sm:w-11 sm:h-11 rounded-full glass-dark border border-white/20 flex items-center justify-center hover:bg-white/20"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -76,7 +76,7 @@ export default function HomePage() {
         <button
           type="button"
           onClick={() => goHero(1)}
-          aria-label="Next image"
+          aria-label={t.home.nextImage}
           className="btn-tactile absolute left-16 bottom-5 sm:left-auto sm:bottom-auto sm:right-6 sm:top-1/2 sm:-translate-y-1/2 z-30 w-10 h-10 sm:w-11 sm:h-11 rounded-full glass-dark border border-white/20 flex items-center justify-center hover:bg-white/20"
         >
           <ChevronRight className="w-5 h-5" />
@@ -87,23 +87,23 @@ export default function HomePage() {
 
         <div className="relative z-20 w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight max-w-2xl drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]">
-            Change Your Water. Change Your Life.
+            {t.home.heroTitle}
           </h1>
           <p className="mt-4 max-w-md text-sm sm:text-base text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.7)]">
-            Genuine Enagic Kangen Water® ionizers with official warranty.
+            {t.home.heroSubtitle}
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 max-w-xs sm:max-w-none">
             <Link
               href="/shop"
               className="btn-tactile inline-flex items-center justify-center px-7 py-3.5 bg-white text-[#111111] text-xs uppercase tracking-wider font-bold hover:bg-white/90"
             >
-              Shop Ionizers
+              {t.home.shopIonizers}
             </Link>
             <Link
               href="/hellobee"
               className="btn-tactile inline-flex items-center justify-center px-7 py-3.5 border border-white/60 text-white text-xs uppercase tracking-wider font-bold hover:bg-white/10"
             >
-              Hellobee Network
+              {t.header.hellobeeNetwork}
             </Link>
           </div>
         </div>

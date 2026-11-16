@@ -25,7 +25,7 @@ export function QuickAddModal({ product, isOpen, onClose }: QuickAddModalProps) 
 
   if (!isOpen) return null;
 
-  const productName = language === 'vi' ? product.nameVi || product.name : product.nameEn || product.name;
+  const productName = product.nameEn || product.name;
   const pkgLabel = selectedPackage || product.sizes[0]?.label || 'Standard';
 
   const handleAddToCart = () => {

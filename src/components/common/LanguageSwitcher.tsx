@@ -1,185 +1,121 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Globe, Check, Loader2 } from 'lucide-react';
+import { Check } from 'lucide-react';
+import { useTranslation } from '@/i18n/useTranslation';
+import { COUNTRIES, flagUrl } from '@/i18n/languages';
 
-const LANGUAGES = [
-  { code: 'en', label: 'English', short: 'EN' },
-  { code: 'vi', label: 'Tiếng Việt', short: 'VI' },
-  { code: 'ja', label: '日本語', short: 'JA' },
-  { code: 'es', label: 'Español', short: 'ES' },
-  { code: 'ko', label: '한국어', short: 'KO' },
-];
+const COUNTRY_STORAGE_KEY = 'hellobee_country';
 
-declare global {
-  interface Window {
-    googleTranslateElementInit?: () => void;
-    google?: { translate: { TranslateElement: new (opts: object, id: string) => void } };
-  }
+interface LanguageSwitcherProps {
+  dark?: boolean;
+  align?: 'left' | 'right';
+  panelClassName?: string;
 }
 
-function readLang(): string {
-  const m = document.cookie.match(/(?:^|; )googtrans=\/[^/]*\/([^;]+)/);
-  return m ? decodeURIComponent(m[1]) : 'en';
-}
-
-function writeLang(code: string) {
-  const value = code === 'en' ? '' : `/en/${code}`;
-  const expires = code === 'en' ? '; expires=Thu, 01 Jan 1970 00:00:00 GMT' : '';
-  const host = window.location.hostname;
-  const root = host.split('.').slice(-2).join('.');
-  // Google also writes this cookie on the parent domain; stale copies on any scope would win over ours.
-  const domains = ['', `; domain=${host}`, `; domain=.${host}`, `; domain=${root}`, `; domain=.${root}`];
-  domains.forEach((d) => {
-    document.cookie = `googtrans=${value}; path=/${d}${expires}`;
-  });
-}
-
-// Google Translate rewrites text nodes, which breaks React's DOM bookkeeping unless these are guarded.
-function guardReactDom() {
-  const w = window as unknown as { __translateGuard?: boolean };
-  if (w.__translateGuard) return;
-  w.__translateGuard = true;
-  const origRemove = Node.prototype.removeChild;
-  Node.prototype.removeChild = function <T extends Node>(this: Node, child: T): T {
-    if (child.parentNode !== this) return child;
-    return origRemove.call(this, child) as T;
-  };
-  const origInsert = Node.prototype.insertBefore;
-  Node.prototype.insertBefore = function <T extends Node>(this: Node, node: T, ref: Node | null): T {
-    if (ref && ref.parentNode !== this) return node;
-    return origInsert.call(this, node, ref) as T;
-  };
-}
-
-function loadTranslator(onReady: () => void, onFail?: () => void) {
-  guardReactDom();
-  const apply = () => {
-    let tries = 0;
-    const timer = window.setInterval(() => {
-      const combo = document.querySelector<HTMLSelectElement>('.goog-te-combo');
-      if (combo || ++tries > 50) {
-        window.clearInterval(timer);
-        if (combo) onReady();
-        else onFail?.();
-      }
-    }, 100);
-  };
-  if (document.getElementById('google-translate-script')) {
-    apply();
-    return;
-  }
-  window.googleTranslateElementInit = () => {
-    new window.google!.translate.TranslateElement(
-      { pageLanguage: 'en', includedLanguages: 'vi,ja,es,ko', autoDisplay: false },
-      'google_translate_element'
-    );
-    apply();
-  };
-  const script = document.createElement('script');
-  script.id = 'google-translate-script';
-  script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-  script.async = true;
-  document.body.appendChild(script);
-}
-
-function setComboLanguage(code: string) {
-  const combo = document.querySelector<HTMLSelectElement>('.goog-te-combo');
-  if (!combo) return;
-  combo.value = code;
-  combo.dispatchEvent(new Event('change'));
-}
-
-export function LanguageSwitcher({ dark = false, align = 'right' }: { dark?: boolean; align?: 'left' | 'right' }) {
+export function LanguageSwitcher({
+  dark = false,
+  align = 'right',
+  panelClassName = 'w-[min(520px,calc(100vw-2rem))]',
+}: LanguageSwitcherProps) {
+  const { t, language, setLanguage } = useTranslation();
   const [open, setOpen] = useState(false);
-  const [current, setCurrent] = useState('en');
-  const [busy, setBusy] = useState(false);
+  const [countryCode, setCountryCode] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const lang = readLang();
-    setCurrent(lang);
-    if (lang !== 'en') loadTranslator(() => undefined);
+    setCountryCode(window.localStorage.getItem(COUNTRY_STORAGE_KEY));
   }, []);
 
   useEffect(() => {
-    const onClick = (e: MouseEvent) => {
+    const onPointerDown = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
-    document.addEventListener('mousedown', onClick);
-    return () => document.removeEventListener('mousedown', onClick);
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
   }, []);
 
-  const choose = (code: string) => {
+  // The saved country only counts while it still maps to the active language.
+  const activeCountry =
+    COUNTRIES.find((c) => c.code === countryCode && c.language === language) ??
+    COUNTRIES.find((c) => c.language === language) ??
+    COUNTRIES[0];
+
+  const choose = (code: string, lang: (typeof COUNTRIES)[number]['language']) => {
     setOpen(false);
-    if (code === current) return;
-    writeLang(code);
-    setCurrent(code);
-    setBusy(true);
-    const reload = () => window.location.reload();
-    if (code === 'en') {
-      reload();
-      return;
-    }
-    loadTranslator(() => {
-      setComboLanguage(code);
-      // Poll until the page reports it is translated; fall back to a reload that applies the saved cookie.
-      let waited = 0;
-      const timer = window.setInterval(() => {
-        waited += 150;
-        const done = document.documentElement.className.includes('translated');
-        if (done && waited >= 600) {
-          window.clearInterval(timer);
-          setBusy(false);
-        } else if (waited > 6000) {
-          window.clearInterval(timer);
-          reload();
-        }
-      }, 150);
-    }, reload);
+    setCountryCode(code);
+    window.localStorage.setItem(COUNTRY_STORAGE_KEY, code);
+    setLanguage(lang);
   };
 
-  const active = LANGUAGES.find((l) => l.code === current) || LANGUAGES[0];
-
   return (
-    <div ref={ref} className="relative shrink-0 notranslate" translate="no">
+    <div ref={ref} className="relative shrink-0">
       <button
         type="button"
-        onClick={() => {
-          setOpen((o) => !o);
-          loadTranslator(() => undefined);
-        }}
-        onMouseEnter={() => loadTranslator(() => undefined)}
-        aria-label="Change language"
+        onClick={() => setOpen((o) => !o)}
+        aria-label={t.header.changeLanguage}
         aria-expanded={open}
-        className={`inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-full border transition-colors btn-tactile ${
+        aria-haspopup="dialog"
+        className={`inline-flex items-center gap-1.5 pl-1.5 pr-2.5 py-1 text-[10px] font-bold rounded-full border transition-colors btn-tactile ${
           dark
             ? 'border-white/30 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm'
             : 'border-[#E5E5E5] bg-[#F5F4F0] text-[#333333] hover:bg-[#EAE8E3]'
         }`}
       >
-        {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Globe className="w-3 h-3" />}
-        <span>{active.short}</span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={flagUrl(activeCountry.code)}
+          alt=""
+          width={20}
+          height={14}
+          className="w-5 h-3.5 rounded-[3px] object-cover"
+        />
+        <span>{activeCountry.code}</span>
       </button>
+
       {open && (
-        <ul
-          className={`absolute top-full mt-2 w-40 bg-white text-[#111111] border border-[#E5E5E5] rounded-md shadow-xl py-1 z-50 ${
+        <div
+          role="dialog"
+          aria-label={t.header.language}
+          className={`absolute top-full mt-2 z-50 rounded-2xl border border-[#E5E5E5] bg-[#F3F4F6] p-4 shadow-xl ${panelClassName} ${
             align === 'right' ? 'right-0' : 'left-0'
           }`}
         >
-          {LANGUAGES.map((l) => (
-            <li key={l.code}>
-              <button
-                type="button"
-                onClick={() => choose(l.code)}
-                className="w-full flex items-center justify-between px-3 py-2 text-xs hover:bg-[#F5F4F0]"
-              >
-                <span>{l.label}</span>
-                {l.code === current && <Check className="w-3.5 h-3.5" />}
-              </button>
-            </li>
-          ))}
-        </ul>
+          <ul className="flex flex-wrap justify-center gap-3">
+            {COUNTRIES.map((c) => {
+              const selected = c.code === activeCountry.code;
+              return (
+                <li key={c.code}>
+                  <button
+                    type="button"
+                    onClick={() => choose(c.code, c.language)}
+                    title={c.name}
+                    aria-label={c.name}
+                    aria-pressed={selected}
+                    className={`relative block w-12 h-8 rounded-xl overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.3)] transition-transform hover:scale-110 focus-visible:scale-110 outline-none focus-visible:ring-2 focus-visible:ring-[var(--honey-strong)] ${
+                      selected ? 'ring-2 ring-[var(--honey-strong)]' : ''
+                    }`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={flagUrl(c.code)} alt="" width={48} height={32} loading="lazy" className="w-full h-full object-cover" />
+                    {selected && (
+                      <span className="absolute inset-0 flex items-center justify-center bg-black/35">
+                        <Check className="w-4 h-4 text-white" />
+                      </span>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       )}
     </div>
   );
