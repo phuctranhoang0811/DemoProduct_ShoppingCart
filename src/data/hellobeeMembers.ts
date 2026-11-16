@@ -1,6 +1,61 @@
 import { HellobeeMember, CommissionTransaction, PayoutRequest } from '@/types/hellobee';
 
-export const initialHellobeeMembers: HellobeeMember[] = [
+const FIRST_NAMES = ['Olivia', 'Liam', 'Emma', 'Noah', 'Ava', 'Mason', 'Mia', 'Lucas', 'Chloe', 'Ethan', 'Grace', 'Henry', 'Zoe', 'Jack', 'Lily', 'Owen', 'Ruby', 'Leo', 'Nora', 'Eli'];
+const LAST_NAMES = ['Carter', 'Brooks', 'Hayes', 'Foster', 'Reed', 'Bailey', 'Cooper', 'Morgan', 'Price', 'Ward', 'Bell', 'Ross', 'Gray', 'Wood', 'James'];
+
+// Demo downline sized to each core member's directInviteCount; a few second-level children lift the two owners to LV2.
+function buildDemoDownline(core: HellobeeMember[]): HellobeeMember[] {
+  const out: HellobeeMember[] = [];
+  let n = 0;
+  const addChild = (sponsor: HellobeeMember): HellobeeMember => {
+    n += 1;
+    const first = FIRST_NAMES[n % FIRST_NAMES.length];
+    const last = LAST_NAMES[(n * 7) % LAST_NAMES.length];
+    const code = `HB-EMP-${200 + n}`;
+    const ownerId = sponsor.role === 'OWNER' ? sponsor.id : sponsor.ownerId ?? null;
+    const m: HellobeeMember = {
+      id: `usr_demo_${String(n).padStart(2, '0')}`,
+      name: `${first} ${last}`,
+      email: `${first}.${last}.${n}@example.com`.toLowerCase(),
+      role: 'EMPLOYEE',
+      phone: `+1 (555) 01${n % 10}-${String(1000 + n * 37).slice(-4)}`,
+      referralCode: code,
+      referredById: sponsor.id,
+      sponsorCode: sponsor.referralCode,
+      ownerId,
+      rank: '1A',
+      validOrdersCount: 1,
+      personalSalesVolume: 1500,
+      networkSalesVolume: 1500,
+      directInviteCount: 0,
+      totalCommissionEarned: 0,
+      availableBalance: 0,
+      hasPurchasedFiltrationDevice: true,
+      isActive: true,
+      createdAt: `2026-0${4 + (n % 5)}-${String(1 + (n % 27)).padStart(2, '0')}T10:00:00Z`,
+    };
+    out.push(m);
+    return m;
+  };
+
+  const byId = (id: string) => core.find((m) => m.id === id)!;
+  const owner1 = byId('usr_owner_01');
+  const owner2 = byId('usr_owner_02');
+
+  for (let i = 0; i < owner1.directInviteCount - 2; i++) addChild(owner1); // 2 invites are the core employees
+  for (let i = 0; i < owner2.directInviteCount - 1; i++) addChild(owner2);
+
+  const emp1Kids = Array.from({ length: byId('usr_emp_01').directInviteCount }, () => addChild(byId('usr_emp_01')));
+  Array.from({ length: byId('usr_emp_02').directInviteCount }, () => addChild(byId('usr_emp_02')));
+  const emp3Kids = Array.from({ length: byId('usr_emp_03').directInviteCount }, () => addChild(byId('usr_emp_03')));
+
+  [emp1Kids[0], emp1Kids[1]].forEach((k) => addChild(k));
+  [emp3Kids[0], emp3Kids[1], emp3Kids[2]].forEach((k) => addChild(k));
+
+  return out;
+}
+
+const coreMembers: HellobeeMember[] = [
   {
     id: 'usr_owner_01',
     name: 'Johnathan Bee (Managing Owner)',
@@ -107,6 +162,8 @@ export const initialHellobeeMembers: HellobeeMember[] = [
     createdAt: '2026-02-10T14:45:00Z',
   },
 ];
+
+export const initialHellobeeMembers: HellobeeMember[] = [...coreMembers, ...buildDemoDownline(coreMembers)];
 
 export const initialCommissionTransactions: CommissionTransaction[] = [
   {

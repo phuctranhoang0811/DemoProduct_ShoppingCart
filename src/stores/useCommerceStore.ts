@@ -55,7 +55,7 @@ const STORAGE_KEYS = {
   session: 'enagic_kangen_session_v2',
   currency: 'enagic_kangen_currency_v2',
   language: 'enagic_kangen_language_v2',
-  hellobeeMembers: 'hellobee_members_v1',
+  hellobeeMembers: 'hellobee_members_v2',
   commissions: 'hellobee_commissions_v1',
   payouts: 'hellobee_payouts_v1',
   activeMemberId: 'hellobee_active_member_v1',
