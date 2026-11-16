@@ -48,6 +48,43 @@ function guardReactDom() {
   };
 }
 
+function loadTranslator(onReady: () => void) {
+  guardReactDom();
+  const apply = () => {
+    let tries = 0;
+    const timer = window.setInterval(() => {
+      const combo = document.querySelector<HTMLSelectElement>('.goog-te-combo');
+      if (combo || ++tries > 50) {
+        window.clearInterval(timer);
+        if (combo) onReady();
+      }
+    }, 100);
+  };
+  if (document.getElementById('google-translate-script')) {
+    apply();
+    return;
+  }
+  window.googleTranslateElementInit = () => {
+    new window.google!.translate.TranslateElement(
+      { pageLanguage: 'en', includedLanguages: 'vi,ja,es,ko', autoDisplay: false },
+      'google_translate_element'
+    );
+    apply();
+  };
+  const script = document.createElement('script');
+  script.id = 'google-translate-script';
+  script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+  script.async = true;
+  document.body.appendChild(script);
+}
+
+function setComboLanguage(code: string) {
+  const combo = document.querySelector<HTMLSelectElement>('.goog-te-combo');
+  if (!combo) return;
+  combo.value = code;
+  combo.dispatchEvent(new Event('change'));
+}
+
 export function LanguageSwitcher({ dark = false, align = 'right' }: { dark?: boolean; align?: 'left' | 'right' }) {
   const [open, setOpen] = useState(false);
   const [current, setCurrent] = useState('en');
@@ -56,20 +93,7 @@ export function LanguageSwitcher({ dark = false, align = 'right' }: { dark?: boo
   useEffect(() => {
     const lang = readLang();
     setCurrent(lang);
-    if (lang === 'en' || document.getElementById('google-translate-script')) return;
-
-    guardReactDom();
-    window.googleTranslateElementInit = () => {
-      new window.google!.translate.TranslateElement(
-        { pageLanguage: 'en', includedLanguages: 'vi,ja,es,ko', autoDisplay: false },
-        'google_translate_element'
-      );
-    };
-    const script = document.createElement('script');
-    script.id = 'google-translate-script';
-    script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-    script.async = true;
-    document.body.appendChild(script);
+    if (lang !== 'en') loadTranslator(() => undefined);
   }, []);
 
   useEffect(() => {
@@ -84,7 +108,13 @@ export function LanguageSwitcher({ dark = false, align = 'right' }: { dark?: boo
     setOpen(false);
     if (code === current) return;
     writeLang(code);
-    window.location.reload();
+    setCurrent(code);
+    // Restoring the original English text needs a clean reload; other languages translate in place.
+    if (code === 'en') {
+      window.location.reload();
+      return;
+    }
+    loadTranslator(() => setComboLanguage(code));
   };
 
   const active = LANGUAGES.find((l) => l.code === current) || LANGUAGES[0];
