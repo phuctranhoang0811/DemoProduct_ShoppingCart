@@ -546,6 +546,18 @@ export function StoreHeader() {
               </button>
             </div>
 
+            {!currentUser && (
+              <Link
+                href="/login"
+                className={`hidden sm:inline-flex items-center text-[10px] uppercase tracking-wider px-3 py-1.5 font-bold rounded-xs transition-colors shrink-0 btn-tactile ${
+                  isDarkHeader
+                    ? 'bg-white text-[#111111] hover:bg-white/85'
+                    : 'bg-[#111111] text-white hover:bg-[#333333]'
+                }`}
+              >
+                Login
+              </Link>
+            )}
             {/* Portal Shortcuts depending on Role / Quick access */}
             {currentUser?.role === 'employee' ? (
               <Link
@@ -699,18 +711,29 @@ export function StoreHeader() {
 
               {/* Account & Quick Actions */}
               <div className="pt-4 border-t border-[#E5E5E5] space-y-3">
-                <Link
-                  href={currentUser ? '/account' : '/login'}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-2.5 py-2 text-xs font-semibold text-[#111111]"
-                >
-                  <User className="w-4 h-4" />
-                  <span>
-                    {currentUser
-                      ? `Account (${currentUser.name})`
-                      : 'Sign In / Register'}
-                  </span>
-                </Link>
+                {currentUser ? (
+                  <Link
+                      href={currentUser ? '/account' : '/login'}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-2.5 py-2 text-xs font-semibold text-[#111111]"
+                    >
+                      <User className="w-4 h-4" />
+                      <span>
+                        {currentUser
+                          ? `Account (${currentUser.name})`
+                          : 'Sign In / Register'}
+                      </span>
+                    </Link>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 py-2.5 text-xs uppercase tracking-wider font-semibold bg-[#111111] text-white rounded-xs"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>Login</span>
+                  </Link>
+                )}
 
                 <Link
                   href="/wishlist"
