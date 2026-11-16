@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { CalendarDays, Clock, MapPin, Flame } from 'lucide-react';
-import { MEMBER_EVENTS, MemberEvent } from '@/data/events';
+import { MemberEvent } from '@/data/events';
+import { useEventsStore } from '@/stores/useEventsStore';
 
 const CATEGORIES = ['All', 'Community', 'Training', 'Wellness', 'Leadership'] as const;
 
@@ -48,7 +49,8 @@ function EventCard({ event }: { event: MemberEvent }) {
 
 export default function EventsPage() {
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>('All');
-  const events = MEMBER_EVENTS.filter((e) => category === 'All' || e.category === category);
+  const allEvents = useEventsStore((s) => s.events);
+  const events = [...allEvents].sort((a, b) => a.date.localeCompare(b.date)).filter((e) => category === 'All' || e.category === category);
 
   return (
     <div className="bg-[#FDFCFB] text-[#111111]">

@@ -24,6 +24,7 @@ import {
   Briefcase,
   AlertTriangle,
   Lock,
+  CalendarDays,
 } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { toast } from 'sonner';
@@ -37,6 +38,7 @@ const NAV_LINKS = [
   { label: 'Hellobee Network', href: '/admin/hellobee', icon: Network },
   { label: 'Inventory', href: '/admin/inventory', icon: Boxes },
   { label: 'Discounts', href: '/admin/discounts', icon: TicketPercent },
+  { label: 'Events', href: '/admin/events', icon: CalendarDays },
   { label: 'Reviews', href: '/admin/reviews', icon: MessageSquare },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
   { label: 'Employee Workspace', href: '/employee', icon: Briefcase },
