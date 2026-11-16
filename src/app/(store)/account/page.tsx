@@ -28,7 +28,6 @@ import {
 } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { Address } from '@/types';
-import { BenefitsTab } from '@/components/account/BenefitsTab';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -70,7 +69,7 @@ export default function AccountPage() {
   });
 
   // Active tab in account
-  const [activeTab, setActiveTab] = useState<'profile' | 'addresses' | 'orders' | 'benefits'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'addresses' | 'orders'>('profile');
 
   // Filter orders for current user
   const userOrders = orders.filter(
@@ -342,7 +341,7 @@ export default function AccountPage() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex overflow-x-auto whitespace-nowrap border-b border-[#E5E5E5] mb-8 gap-8 text-xs uppercase tracking-wider font-semibold">
+      <div className="flex border-b border-[#E5E5E5] mb-8 gap-8 text-xs uppercase tracking-wider font-semibold">
         <button
           onClick={() => setActiveTab('profile')}
           className={`pb-3 border-b-2 transition-colors flex items-center gap-2 ${
@@ -373,19 +372,7 @@ export default function AccountPage() {
         >
           <Package className="w-4 h-4" /> Orders & History ({userOrders.length})
         </button>
-        <button
-          onClick={() => setActiveTab('benefits')}
-          className={`pb-3 border-b-2 transition-colors flex items-center gap-2 ${
-            activeTab === 'benefits'
-              ? 'border-[#111111] text-[#111111]'
-              : 'border-transparent text-[#777777] hover:text-[#111111]'
-          }`}
-        >
-          <Award className="w-4 h-4" /> Benefits
-        </button>
       </div>
-
-      {activeTab === 'benefits' && <BenefitsTab />}
 
       {/* TAB 1: Personal Information */}
       {activeTab === 'profile' && (
