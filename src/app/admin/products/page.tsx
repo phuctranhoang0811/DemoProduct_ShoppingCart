@@ -59,16 +59,11 @@ export default function AdminProductsPage() {
     gender: 'unisex' as 'women' | 'men' | 'unisex',
     imageUrl1: '',
     imageUrl2: '',
-    // Sizes
-    stockXS: 10,
-    stockS: 10,
-    stockM: 10,
-    stockL: 10,
-    // Colors
-    colorName1: 'Black',
+    sizes: [{ id: 'pkg-standard', label: 'Standard Package', stock: 15 }] as ProductSize[],
+    colorName1: 'Matte Black',
     colorHex1: '#111111',
-    colorName2: 'White',
-    colorHex2: '#F9F9F9',
+    colorName2: 'White Edition',
+    colorHex2: '#FFFFFF',
   });
 
   // Filtered products
@@ -99,10 +94,10 @@ export default function AdminProductsPage() {
     setFormData({
       name: '',
       slug: '',
-      sku: `COS-${Math.floor(100 + Math.random() * 900)}`,
+      sku: `HB-${Math.floor(100 + Math.random() * 900)}`,
       description: '',
-      materials: '100% Organic Cotton',
-      price: 120,
+      materials: 'Medical-grade platinum-dipped titanium plates',
+      price: 1500,
       originalPrice: 0,
       categoryId: categories[0]?.id || '',
       status: 'active',
@@ -111,16 +106,13 @@ export default function AdminProductsPage() {
       newArrival: true,
       sale: false,
       gender: 'unisex',
-      imageUrl1: 'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?q=80&w=1000',
+      imageUrl1: '/images/products/emguarde-2.webp',
       imageUrl2: '',
-      stockXS: 8,
-      stockS: 12,
-      stockM: 10,
-      stockL: 6,
-      colorName1: 'Deep Black',
+      sizes: [{ id: 'pkg-standard', label: 'Standard Package', stock: 15 }],
+      colorName1: 'Matte Black',
       colorHex1: '#111111',
-      colorName2: 'Pure White',
-      colorHex2: '#FFFFFF',
+      colorName2: '',
+      colorHex2: '',
     });
     setIsFormOpen(true);
   };
@@ -144,10 +136,7 @@ export default function AdminProductsPage() {
       gender: p.gender || 'unisex',
       imageUrl1: p.images[0] || '',
       imageUrl2: p.images[1] || '',
-      stockXS: p.sizes.find((s) => s.label === 'XS' || s.label === '36')?.stock || 5,
-      stockS: p.sizes.find((s) => s.label === 'S' || s.label === '38')?.stock || 10,
-      stockM: p.sizes.find((s) => s.label === 'M' || s.label === '40')?.stock || 8,
-      stockL: p.sizes.find((s) => s.label === 'L' || s.label === '42')?.stock || 4,
+      sizes: p.sizes.length > 0 ? p.sizes.map((s) => ({ ...s })) : [{ id: 'pkg-standard', label: 'Standard Package', stock: 0 }],
       colorName1: p.colors[0]?.name || 'Primary',
       colorHex1: p.colors[0]?.hex || '#111111',
       colorName2: p.colors[1]?.name || '',
@@ -174,22 +163,36 @@ export default function AdminProductsPage() {
       return;
     }
 
-    const images = [formData.imageUrl1];
-    if (formData.imageUrl2) images.push(formData.imageUrl2);
+    const images = [formData.imageUrl1.trim()].filter(Boolean);
+    if (formData.imageUrl2.trim()) images.push(formData.imageUrl2.trim());
 
-    const sizes: ProductSize[] = [
-      { id: 's-xs', label: 'XS', stock: Number(formData.stockXS) || 0 },
-      { id: 's-s', label: 'S', stock: Number(formData.stockS) || 0 },
-      { id: 's-m', label: 'M', stock: Number(formData.stockM) || 0 },
-      { id: 's-l', label: 'L', stock: Number(formData.stockL) || 0 },
-    ];
+    const sizes: ProductSize[] = formData.sizes
+      .filter((s) => s.label.trim())
+      .map((s, idx) => ({
+        id: s.id || `pkg-${idx + 1}`,
+        label: s.label.trim(),
+        stock: Math.max(0, Number(s.stock) || 0),
+      }));
 
-    const colors: ProductColor[] = [
-      { id: 'c-1', name: formData.colorName1, hex: formData.colorHex1 },
-    ];
-    if (formData.colorName2 && formData.colorHex2) {
-      colors.push({ id: 'c-2', name: formData.colorName2, hex: formData.colorHex2 });
+    if (sizes.length === 0) {
+      toast.error('At least one package option is required.');
+      return;
     }
+
+    const colors: ProductColor[] = editingProduct?.colors.length
+      ? editingProduct.colors.map((c, idx) =>
+          idx === 0
+            ? { ...c, name: formData.colorName1, hex: formData.colorHex1 }
+            : idx === 1 && formData.colorName2
+              ? { ...c, name: formData.colorName2, hex: formData.colorHex2 || c.hex }
+              : c
+        )
+      : [
+          { id: 'c-1', name: formData.colorName1, hex: formData.colorHex1 },
+          ...(formData.colorName2 && formData.colorHex2
+            ? [{ id: 'c-2', name: formData.colorName2, hex: formData.colorHex2 }]
+            : []),
+        ];
 
     const slug =
       formData.slug.trim() ||
@@ -221,7 +224,7 @@ export default function AdminProductsPage() {
         sizes,
         colors,
       });
-      toast.success(`Updated garment "${formData.name}".`);
+      toast.success(`Updated product "${formData.name}".`);
     } else {
       addProduct({
         name: formData.name.trim(),
@@ -242,7 +245,7 @@ export default function AdminProductsPage() {
         sizes,
         colors,
       });
-      toast.success(`Created garment "${formData.name}".`);
+      toast.success(`Created product "${formData.name}".`);
     }
 
     setIsFormOpen(false);
@@ -251,14 +254,14 @@ export default function AdminProductsPage() {
   const handleDelete = (id: string) => {
     deleteProduct(id);
     setDeleteConfirmId(null);
-    toast.success('Garment removed from catalog and storefront.');
+    toast.success('Product removed from catalog and storefront.');
   };
 
   const handleBulkDelete = () => {
     bulkDeleteProducts(selectedIds);
     setSelectedIds([]);
     setIsBulkDeleteConfirmOpen(false);
-    toast.success(`Deleted ${selectedIds.length} selected garments.`);
+    toast.success(`Deleted ${selectedIds.length} selected products.`);
   };
 
   const toggleSelectAll = () => {
@@ -284,7 +287,7 @@ export default function AdminProductsPage() {
             Product Catalog
           </h1>
           <p className="text-sm text-[#666666] mt-1">
-            Manage garment listings, variants, pricing, and active statuses.
+            Manage product listings, package variants, pricing, and active statuses.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -363,7 +366,7 @@ export default function AdminProductsPage() {
                   className="accent-[#111111]"
                 />
               </th>
-              <th className="py-3.5 px-3">Garment</th>
+              <th className="py-3.5 px-3">Product</th>
               <th className="py-3.5 px-3">SKU</th>
               <th className="py-3.5 px-3">Category</th>
               <th className="py-3.5 px-3">Price</th>
@@ -444,14 +447,14 @@ export default function AdminProductsPage() {
                       <button
                         onClick={() => openEditModal(p)}
                         className="p-1.5 text-[#555555] hover:text-[#111111] hover:bg-[#F5F4F0]"
-                        title="Edit garment"
+                        title="Edit product"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => setDeleteConfirmId(p.id)}
                         className="p-1.5 text-[#555555] hover:text-[#B74747] hover:bg-[#FBEAEA]"
-                        title="Delete garment"
+                        title="Delete product"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -463,7 +466,7 @@ export default function AdminProductsPage() {
             {paginatedProducts.length === 0 && (
               <tr>
                 <td colSpan={8} className="py-12 text-center text-[#777777]">
-                  No garments found matching criteria.
+                  No products found matching criteria.
                 </td>
               </tr>
             )}
@@ -509,7 +512,7 @@ export default function AdminProductsPage() {
             </button>
 
             <h2 className="text-base font-semibold text-[#111111] mb-4">
-              {editingProduct ? `Edit Garment: ${editingProduct.name}` : 'Add New Garment'}
+              {editingProduct ? `Edit Product: ${editingProduct.name}` : 'Add New Product'}
             </h2>
 
             <form onSubmit={handleFormSubmit} className="space-y-4 text-xs">
@@ -583,72 +586,92 @@ export default function AdminProductsPage() {
                 </div>
 
                 <div className="col-span-2">
-                  <label className="text-[11px] text-[#777777] block mb-1">Primary Image URL *</label>
+                  <label className="text-[11px] text-[#777777] block mb-1">Primary Image URL or Path *</label>
                   <input
-                    type="url"
+                    type="text"
                     required
                     value={formData.imageUrl1}
                     onChange={(e) => setFormData({ ...formData, imageUrl1: e.target.value })}
+                    placeholder="https://... or /images/products/..."
                     className="w-full border border-[#E5E5E5] px-3 py-2 outline-none"
                   />
                 </div>
 
                 <div className="col-span-2">
-                  <label className="text-[11px] text-[#777777] block mb-1">Secondary Image URL</label>
+                  <label className="text-[11px] text-[#777777] block mb-1">Secondary Image URL or Path</label>
                   <input
-                    type="url"
+                    type="text"
                     value={formData.imageUrl2}
                     onChange={(e) => setFormData({ ...formData, imageUrl2: e.target.value })}
+                    placeholder="https://... or /images/products/..."
                     className="w-full border border-[#E5E5E5] px-3 py-2 outline-none"
                   />
                 </div>
 
-                {/* Stock distribution */}
+                {/* Package variants & stock distribution */}
                 <div className="col-span-2 bg-[#F5F4F0] p-3 space-y-2">
-                  <p className="font-semibold text-[#111111] uppercase tracking-wider text-[10px]">
-                    Size Variant Stock
-                  </p>
-                  <div className="grid grid-cols-4 gap-2">
-                    <div>
-                      <span className="text-[10px] text-[#777]">XS:</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={formData.stockXS}
-                        onChange={(e) => setFormData({ ...formData, stockXS: Number(e.target.value) })}
-                        className="w-full bg-white border p-1 text-xs"
-                      />
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-[#777]">S:</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={formData.stockS}
-                        onChange={(e) => setFormData({ ...formData, stockS: Number(e.target.value) })}
-                        className="w-full bg-white border p-1 text-xs"
-                      />
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-[#777]">M:</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={formData.stockM}
-                        onChange={(e) => setFormData({ ...formData, stockM: Number(e.target.value) })}
-                        className="w-full bg-white border p-1 text-xs"
-                      />
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-[#777]">L:</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={formData.stockL}
-                        onChange={(e) => setFormData({ ...formData, stockL: Number(e.target.value) })}
-                        className="w-full bg-white border p-1 text-xs"
-                      />
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-[#111111] uppercase tracking-wider text-[10px]">
+                      Package Variants & Stock
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          sizes: [
+                            ...formData.sizes,
+                            { id: `pkg-${Date.now()}`, label: 'Additional Package', stock: 10 },
+                          ],
+                        })
+                      }
+                      className="text-[10px] font-semibold uppercase tracking-wider text-[#111111] underline"
+                    >
+                      + Add Package
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {formData.sizes.map((size, idx) => (
+                      <div key={size.id || idx} className="grid grid-cols-12 gap-2 items-center">
+                        <input
+                          type="text"
+                          value={size.label}
+                          onChange={(e) => {
+                            const sizes = formData.sizes.map((s, i) =>
+                              i === idx ? { ...s, label: e.target.value } : s
+                            );
+                            setFormData({ ...formData, sizes });
+                          }}
+                          placeholder="Package label"
+                          className="col-span-7 bg-white border border-[#E5E5E5] px-2 py-1 text-xs"
+                        />
+                        <input
+                          type="number"
+                          min="0"
+                          value={size.stock}
+                          onChange={(e) => {
+                            const sizes = formData.sizes.map((s, i) =>
+                              i === idx ? { ...s, stock: Number(e.target.value) } : s
+                            );
+                            setFormData({ ...formData, sizes });
+                          }}
+                          className="col-span-3 bg-white border border-[#E5E5E5] px-2 py-1 text-xs"
+                        />
+                        <button
+                          type="button"
+                          disabled={formData.sizes.length <= 1}
+                          onClick={() =>
+                            setFormData({
+                              ...formData,
+                              sizes: formData.sizes.filter((_, i) => i !== idx),
+                            })
+                          }
+                          className="col-span-2 text-[10px] text-[#B74747] disabled:opacity-30"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -724,7 +747,7 @@ export default function AdminProductsPage() {
                   type="submit"
                   className="flex-1 bg-[#111111] text-white py-2.5 text-xs uppercase font-semibold"
                 >
-                  {editingProduct ? 'Save Changes' : 'Create Garment'}
+                  {editingProduct ? 'Save Changes' : 'Create Product'}
                 </button>
                 <button
                   type="button"
@@ -743,7 +766,7 @@ export default function AdminProductsPage() {
       {deleteConfirmId && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white max-w-sm w-full p-6 border border-[#E5E5E5] space-y-4">
-            <h3 className="text-base font-semibold text-[#111111]">Delete Garment?</h3>
+            <h3 className="text-base font-semibold text-[#111111]">Delete Product?</h3>
             <p className="text-xs text-[#777777]">
               This will remove the item from the catalog, cart, and storefront wishlist immediately.
             </p>
@@ -772,7 +795,7 @@ export default function AdminProductsPage() {
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white max-w-sm w-full p-6 border border-[#E5E5E5] space-y-4">
             <h3 className="text-base font-semibold text-[#111111]">
-              Delete {selectedIds.length} Garments?
+              Delete {selectedIds.length} Products?
             </h3>
             <p className="text-xs text-[#777777]">
               Are you sure you want to permanently delete all selected items from the store?

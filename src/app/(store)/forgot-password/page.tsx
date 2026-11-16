@@ -10,7 +10,7 @@ export default function ForgotPasswordPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !email.includes('@')) {
       toast.error('Please enter a valid email address.');
@@ -18,11 +18,22 @@ export default function ForgotPasswordPage() {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
-      toast.success('Password reset instructions sent!');
-    }, 600);
+    const res = await fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email.trim().toLowerCase() }),
+    }).catch(() => null);
+    setIsSubmitting(false);
+
+    // 501 = no backend configured: the demo build only simulates the email.
+    if (!res || (!res.ok && res.status !== 501)) {
+      const data = await res?.json().catch(() => null);
+      toast.error(data?.message || 'Could not send the reset email. Please try again.');
+      return;
+    }
+
+    setIsSubmitted(true);
+    toast.success('Password reset instructions sent!');
   };
 
   return (
@@ -47,8 +58,8 @@ export default function ForgotPasswordPage() {
             <div className="space-y-1">
               <h2 className="text-base font-semibold text-[#111111]">Check Your Email</h2>
               <p className="text-xs text-[#666666] leading-relaxed">
-                We have dispatched password reset instructions to{' '}
-                <strong className="text-[#111111]">{email}</strong>.
+                If an account exists for <strong className="text-[#111111]">{email}</strong>, password
+                reset instructions are on their way.
               </p>
             </div>
             <div className="pt-2 flex flex-col gap-2">

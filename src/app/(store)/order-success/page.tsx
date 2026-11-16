@@ -1,21 +1,59 @@
 'use client';
 
-import { Suspense, useMemo } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { CheckCircle2, ArrowRight, Package, Calendar, MapPin, CreditCard } from 'lucide-react';
+import { fetchOrder } from '@/lib/orders-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { formatPrice, formatDate } from '@/lib/utils';
 
 function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
+  // Set when returning from Stripe: the order number plus the token that lets a guest view it.
+  const paidOrderNumber = searchParams.get('order');
+  const accessToken = searchParams.get('token');
   const orders = useCommerceStore((state) => state.orders);
+  const clearCart = useCommerceStore((state) => state.clearCart);
+  const [isLoading, setIsLoading] = useState(Boolean(paidOrderNumber));
+
+  useEffect(() => {
+    if (!paidOrderNumber) return;
+
+    let cancelled = false;
+    clearCart();
+
+    // Payment is confirmed by Stripe's webhook, which can land a moment after the redirect.
+    const load = async (attempt: number) => {
+      const fetched = await fetchOrder(paidOrderNumber, accessToken);
+      if (cancelled) return;
+      setIsLoading(false);
+
+      if (fetched?.paymentMethod === 'stripe' && fetched.paymentStatus === 'Unpaid' && attempt < 5) {
+        setTimeout(() => void load(attempt + 1), 2000);
+      }
+    };
+    void load(0);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [paidOrderNumber, accessToken, clearCart]);
 
   const order = useMemo(() => {
+    if (paidOrderNumber) return orders.find((o) => o.id === paidOrderNumber);
     return orders.find((o) => o.id === orderId) || orders[0];
-  }, [orders, orderId]);
+  }, [orders, orderId, paidOrderNumber]);
+
+  if (isLoading) {
+    return (
+      <div className="max-w-[1440px] mx-auto px-4 py-24 text-center text-xs text-[#777777]">
+        Loading your order…
+      </div>
+    );
+  }
 
   if (!order) {
     return (
@@ -45,8 +83,10 @@ function OrderSuccessContent() {
           Thank You, {order.customerName.split(' ')[0]}.
         </h1>
         <p className="text-xs sm:text-sm text-[#777777] max-w-md mx-auto">
-          Your order has been received. A simulated confirmation email has been dispatched to{' '}
-          <strong className="text-[#111111]">{order.customerEmail}</strong>.
+          {order.paymentMethod === 'stripe' && order.paymentStatus === 'Unpaid'
+            ? 'Your order has been received and your payment is being confirmed.'
+            : 'Your order has been received.'}{' '}
+          The order is registered to <strong className="text-[#111111]">{order.customerEmail}</strong>.
         </p>
         <div className="inline-block bg-[#F5F4F0] px-4 py-2 text-xs font-mono font-medium">
           Order ID: {order.id}
@@ -82,7 +122,7 @@ function OrderSuccessContent() {
       {/* Items list */}
       <div className="py-8 border-b border-[#E5E5E5] space-y-4">
         <h2 className="text-xs uppercase tracking-widest font-semibold text-[#111111]">
-          Purchased Garments ({order.items.length})
+          Purchased Items ({order.items.length})
         </h2>
         <div className="divide-y divide-[#E5E5E5]">
           {order.items.map((item, idx) => (

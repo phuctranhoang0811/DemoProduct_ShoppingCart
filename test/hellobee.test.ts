@@ -1,3 +1,4 @@
+/// <reference types="vitest/globals" />
 import { RANK_PROGRESSION_RULES, RankLevel, getNextRankProgress } from '../src/types/hellobee';
 
 function calculateCommissions(orderTotal: number, sellerRole: 'OWNER' | 'EMPLOYEE', hasOwner: boolean) {

@@ -22,9 +22,9 @@ import {
   HellobeeRole,
   RankLevel,
   PayoutStatus,
-  GENERATION_RATES,
   LADDER_RANKS,
   getTeamStats,
+  nextReferralCode,
 } from '@/types/hellobee';
 import { initialProducts } from '@/data/products';
 import { initialCategories } from '@/data/categories';
@@ -56,7 +56,7 @@ const STORAGE_KEYS = {
   session: 'enagic_kangen_session_v2',
   currency: 'enagic_kangen_currency_v2',
   language: 'enagic_kangen_language_v2',
-  hellobeeMembers: 'hellobee_members_v2',
+  hellobeeMembers: 'hellobee_members_v3',
   commissions: 'hellobee_commissions_v1',
   payouts: 'hellobee_payouts_v1',
   activeMemberId: 'hellobee_active_member_v1',
@@ -85,6 +85,8 @@ function setStorageItem<T>(key: string, value: T): void {
 
 interface CommerceState {
   isHydrated: boolean;
+  // 'backend' once the server confirms real authentication; 'local' for the bundled demo sign-in.
+  authMode: 'unknown' | 'backend' | 'local';
   products: Product[];
   categories: Category[];
   cart: CartItem[];
@@ -164,6 +166,8 @@ interface CommerceState {
   loginWithEmail: (email: string) => boolean;
   register: (name: string, email: string, phone: string, referralCode?: string) => Customer;
   logout: () => void;
+  // Adopts the user verified by the server (or clears the session when null).
+  setSession: (user: Customer | null, activeMemberId?: string) => void;
   updateProfile: (updates: Partial<Customer>) => void;
   addAddress: (address: Omit<Address, 'id'>) => void;
   updateAddress: (addressId: string, updates: Partial<Address>) => void;
@@ -205,8 +209,46 @@ interface CommerceState {
   updatePayoutStatus: (payoutId: string, status: PayoutStatus) => void;
 }
 
+// Admin actions that a backend takes over. Registered by src/lib/admin-client.ts, which cannot be
+// imported here without a circular dependency.
+export type BackofficeHandlers = Pick<
+  CommerceState,
+  | 'addProduct'
+  | 'updateProduct'
+  | 'deleteProduct'
+  | 'bulkDeleteProducts'
+  | 'addCategory'
+  | 'updateCategory'
+  | 'deleteCategory'
+  | 'updateOrderStatus'
+  | 'updatePaymentStatus'
+  | 'addCustomer'
+  | 'updateCustomer'
+  | 'toggleCustomerStatus'
+  | 'addDiscount'
+  | 'updateDiscount'
+  | 'deleteDiscount'
+  | 'addReview'
+  | 'updateReviewStatus'
+  | 'deleteReview'
+  | 'adjustStock'
+  | 'updateSettings'
+>;
+
+let backoffice: BackofficeHandlers | null = null;
+
+export function registerBackoffice(handlers: BackofficeHandlers): void {
+  backoffice = handlers;
+}
+
+// The handlers apply only once the server has confirmed real authentication.
+function remote(): BackofficeHandlers | null {
+  return backoffice && useCommerceStore.getState().authMode === 'backend' ? backoffice : null;
+}
+
 export const useCommerceStore = create<CommerceState>((set, get) => ({
   isHydrated: false,
+  authMode: 'unknown',
   products: initialProducts,
   categories: initialCategories,
   cart: [],
@@ -288,8 +330,8 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       inventoryMovements: inventory,
       settings,
       currentUser: sessionUser,
-      currency: 'USD',
-      language: 'en',
+      currency,
+      language,
       hellobeeMembers,
       commissions,
       payouts,
@@ -334,6 +376,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
   // PRODUCTS
   addProduct: (productData) => {
+    if (remote()?.addProduct) return void remote()!.addProduct(productData);
     const newProduct: Product = {
       ...productData,
       id: generateId('prod'),
@@ -347,6 +390,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   updateProduct: (id, updates) => {
+    if (remote()?.updateProduct) return void remote()!.updateProduct(id, updates);
     set((state) => {
       const updated = state.products.map((p) => (p.id === id ? { ...p, ...updates } : p));
       setStorageItem(STORAGE_KEYS.products, updated);
@@ -370,6 +414,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   deleteProduct: (id) => {
+    if (remote()?.deleteProduct) return void remote()!.deleteProduct(id);
     set((state) => {
       const updated = state.products.filter((p) => p.id !== id);
       const updatedCart = state.cart.filter((item) => item.productId !== id);
@@ -388,6 +433,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   bulkDeleteProducts: (ids) => {
+    if (remote()?.bulkDeleteProducts) return void remote()!.bulkDeleteProducts(ids);
     const idSet = new Set(ids);
     set((state) => {
       const updated = state.products.filter((p) => !idSet.has(p.id));
@@ -408,6 +454,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
   // CATEGORIES
   addCategory: (categoryData) => {
+    if (remote()?.addCategory) return void remote()!.addCategory(categoryData);
     const newCategory: Category = {
       ...categoryData,
       id: generateId('cat'),
@@ -420,6 +467,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   updateCategory: (id, updates) => {
+    if (remote()?.updateCategory) return void remote()!.updateCategory(id, updates);
     set((state) => {
       const updated = state.categories.map((c) => (c.id === id ? { ...c, ...updates } : c));
       setStorageItem(STORAGE_KEYS.categories, updated);
@@ -428,6 +476,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   deleteCategory: (id) => {
+    if (remote()?.deleteCategory) return void remote()!.deleteCategory(id);
     set((state) => {
       const updated = state.categories.filter((c) => c.id !== id);
       setStorageItem(STORAGE_KEYS.categories, updated);
@@ -617,6 +666,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   updateOrderStatus: (orderId, status, note) => {
+    if (remote()?.updateOrderStatus) return void remote()!.updateOrderStatus(orderId, status, note);
     set((state) => {
       const order = state.orders.find((o) => o.id === orderId);
       if (!order) return state;
@@ -685,6 +735,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   updatePaymentStatus: (orderId, paymentStatus) => {
+    if (remote()?.updatePaymentStatus) return void remote()!.updatePaymentStatus(orderId, paymentStatus);
     set((state) => {
       const updatedOrders = state.orders.map((o) => (o.id === orderId ? { ...o, paymentStatus } : o));
       setStorageItem(STORAGE_KEYS.orders, updatedOrders);
@@ -694,6 +745,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
   // CUSTOMERS
   addCustomer: (data) => {
+    if (remote()?.addCustomer) return void remote()!.addCustomer(data);
     const newCust: Customer = {
       ...data,
       id: generateId('cust'),
@@ -709,6 +761,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   updateCustomer: (id, updates) => {
+    if (remote()?.updateCustomer) return void remote()!.updateCustomer(id, updates);
     set((state) => {
       const updated = state.customers.map((c) => (c.id === id ? { ...c, ...updates } : c));
       setStorageItem(STORAGE_KEYS.customers, updated);
@@ -717,6 +770,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   toggleCustomerStatus: (id) => {
+    if (remote()?.toggleCustomerStatus) return void remote()!.toggleCustomerStatus(id);
     set((state) => {
       const updated = state.customers.map((c) =>
         c.id === id ? { ...c, status: (c.status === 'active' ? 'inactive' : 'active') as 'active' | 'inactive' } : c
@@ -728,6 +782,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
   // DISCOUNTS
   addDiscount: (data) => {
+    if (remote()?.addDiscount) return void remote()!.addDiscount(data);
     const newDisc: Discount = {
       ...data,
       id: generateId('disc'),
@@ -741,6 +796,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   updateDiscount: (id, updates) => {
+    if (remote()?.updateDiscount) return void remote()!.updateDiscount(id, updates);
     set((state) => {
       const updated = state.discounts.map((d) => (d.id === id ? { ...d, ...updates } : d));
       setStorageItem(STORAGE_KEYS.discounts, updated);
@@ -749,6 +805,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   deleteDiscount: (id) => {
+    if (remote()?.deleteDiscount) return void remote()!.deleteDiscount(id);
     set((state) => {
       const updated = state.discounts.filter((d) => d.id !== id);
       setStorageItem(STORAGE_KEYS.discounts, updated);
@@ -805,6 +862,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
   // REVIEWS
   addReview: (data) => {
+    if (remote()?.addReview) return void remote()!.addReview(data);
     const newRev: Review = {
       ...data,
       id: generateId('rev'),
@@ -819,6 +877,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   updateReviewStatus: (id, status) => {
+    if (remote()?.updateReviewStatus) return void remote()!.updateReviewStatus(id, status);
     set((state) => {
       const updated = state.reviews.map((r) => (r.id === id ? { ...r, status } : r));
       setStorageItem(STORAGE_KEYS.reviews, updated);
@@ -827,6 +886,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   deleteReview: (id) => {
+    if (remote()?.deleteReview) return void remote()!.deleteReview(id);
     set((state) => {
       const updated = state.reviews.filter((r) => r.id !== id);
       setStorageItem(STORAGE_KEYS.reviews, updated);
@@ -836,6 +896,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
   // INVENTORY
   adjustStock: (productId, sizeLabel, change, reason) => {
+    if (remote()?.adjustStock) return void remote()!.adjustStock(productId, sizeLabel, change, reason);
     set((state) => {
       const product = state.products.find((p) => p.id === productId);
       if (!product) return state;
@@ -890,6 +951,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
   // SETTINGS
   updateSettings: (updates) => {
+    if (remote()?.updateSettings) return void remote()!.updateSettings(updates);
     set((state) => {
       const updated = { ...state.settings, ...updates };
       setStorageItem(STORAGE_KEYS.settings, updated);
@@ -1148,10 +1210,18 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   },
 
   logout: () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(STORAGE_KEYS.session);
-    }
+    setStorageItem(STORAGE_KEYS.session, null);
     set({ currentUser: null });
+  },
+
+  setSession: (user, activeMemberId) => {
+    setStorageItem(STORAGE_KEYS.session, user);
+    if (activeMemberId) {
+      setStorageItem(STORAGE_KEYS.activeMemberId, activeMemberId);
+      set({ currentUser: user, activeMemberId });
+    } else {
+      set({ currentUser: user });
+    }
   },
 
   updateProfile: (updates) => {
@@ -1226,9 +1296,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   registerHellobeeMember: (data) => {
     const state = get();
     const isOwner = data.role === 'OWNER';
-    const prefix = isOwner ? 'HB-OWNER' : 'HB-EMP';
-    const randomSuffix = Math.floor(100 + Math.random() * 900);
-    const generatedReferralCode = `${prefix}-${randomSuffix}`;
+    const generatedReferralCode = nextReferralCode(state.hellobeeMembers);
 
     // Find sponsor if provided
     let sponsor = null;
@@ -1401,15 +1469,25 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
         return m;
       });
 
-      // 2. 1% generation commission for each of up to five upline sponsors ($15 on $1,500)
-      const visited = new Set([beneficiary.id]);
-      let uplineId = beneficiary.referredById;
-      for (let gen = 2; gen <= GENERATION_RATES.length && uplineId; gen++) {
-        const upline = updatedMembers.find((m) => m.id === uplineId);
-        if (!upline || visited.has(upline.id)) break;
-        visited.add(upline.id);
+      // 2. Every level above the seller earns a 1% override, up to the owner ($15 each on $1,500).
+      const overrideAmount = Math.round(orderAmount * 0.01);
+      const paid = new Set<string>([beneficiary.id]);
+      const uplineIds: string[] = [];
+      let nextId = beneficiary.referredById;
 
-        const genAmount = Math.round(orderAmount * GENERATION_RATES[gen - 1]);
+      while (nextId && !paid.has(nextId)) {
+        const upline = updatedMembers.find((m) => m.id === nextId);
+        if (!upline) break;
+        paid.add(upline.id);
+        if (upline.isActive) uplineIds.push(upline.id);
+        nextId = upline.referredById;
+      }
+      if (beneficiary.ownerId && !paid.has(beneficiary.ownerId)) uplineIds.push(beneficiary.ownerId);
+
+      uplineIds.forEach((uplineId) => {
+        const upline = updatedMembers.find((m) => m.id === uplineId);
+        if (!upline) return;
+
         commissionsAwarded.push({
           id: generateId('comm'),
           orderId,
@@ -1419,12 +1497,11 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
           beneficiaryId: upline.id,
           beneficiaryName: upline.name,
           beneficiaryRole: upline.role,
-          commissionType: 'GENERATION_1_PERCENT',
-          rate: GENERATION_RATES[gen - 1],
-          generation: gen,
-          amount: genAmount,
+          commissionType: upline.role === 'OWNER' ? 'OWNER_OVERRIDE_1_PERCENT' : 'UPLINE_OVERRIDE_1_PERCENT',
+          rate: 0.01,
+          amount: overrideAmount,
           status: 'APPROVED',
-          notes: `1% generation ${gen} commission on ${beneficiary.name}'s order ${orderNumber}`,
+          notes: `1% override on ${beneficiary.name}'s order ${orderNumber}`,
           createdAt: new Date().toISOString(),
         });
 
@@ -1433,13 +1510,12 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
             ? {
                 ...m,
                 networkSalesVolume: m.networkSalesVolume + orderAmount,
-                totalCommissionEarned: m.totalCommissionEarned + genAmount,
-                availableBalance: m.availableBalance + genAmount,
+                totalCommissionEarned: m.totalCommissionEarned + overrideAmount,
+                availableBalance: m.availableBalance + overrideAmount,
               }
             : m
         );
-        uplineId = upline.referredById;
-      }
+      });
     } else if (beneficiary.role === 'OWNER') {
       // Case 2: Referral Code belongs directly to an Owner -> 10% direct commission
       const ownerDirectAmount = Math.round(orderAmount * 0.1);

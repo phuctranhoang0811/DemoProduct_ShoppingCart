@@ -166,7 +166,7 @@ export default function AdminOrdersPage() {
                 </td>
                 <td className="py-3.5 px-3 text-sm text-[#666666]">{formatDate(o.createdAt)}</td>
                 <td className="py-3.5 px-3 font-medium text-sm text-[#111111]">
-                  {o.items.length} garment{o.items.length > 1 ? 's' : ''}
+                  {o.items.length} item{o.items.length > 1 ? 's' : ''}
                 </td>
                 <td className="py-3.5 px-3">
                   <span

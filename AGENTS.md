@@ -1,7 +1,7 @@
 # AGENTS.md — Developer & AI Agent Guidelines
 
 > **Project**: Enagic® Kangen Water® & Hellobee Network E-Commerce Platform  
-> **Framework**: Next.js 15 (App Router), React 19, Tailwind CSS, Zustand  
+> **Framework**: Next.js 14 (App Router), React 18, Tailwind CSS, Zustand. Backend: Laravel 13 + Postgres in `backend/`  
 > **Production Deployment**: Vercel (`https://demo-product-shopping-cart.vercel.app`)
 
 ---
@@ -30,7 +30,7 @@
 
 ### Store Header (3-Zone Layout)
 - **Zone 1 (Left - Brand)**: Hellobee mascot logo with `KANGEN WATER®` brandmark.
-- **Zone 2 (Center - Navigation)**: Centered menu links (`HOME`, `IONIZERS`, `ANESPA SPA`, `FILTERS & PARTS`, `TAX CALCULATOR`, `HELLOBEE NETWORK [1A–5A]`). All links must use `whitespace-nowrap shrink-0` to avoid text line-wrapping bugs.
+- **Zone 2 (Center - Navigation)**: Centered menu links (`HOME`, `PRODUCTS` dropdown, `TAX CALCULATOR`, `HELLOBEE NETWORK`, `EVENTS`). All links must use `whitespace-nowrap shrink-0` to avoid text line-wrapping bugs.
 - **Zone 3 (Right - Utilities)**: Divided utility section featuring interactive currency toggle (`$ USD` / `₫ VND`), instant search (`Cmd+K`), wishlist with badge, account popover, shopping bag with bounce micro-interaction, and portal access.
 
 ### Motion & Micro-Interactions
@@ -45,8 +45,8 @@
 - **US Phone Policy**: All phone inputs across the platform (Registration, Checkout, Account Profile) strictly utilize US phone formatting `+1 (XXX) XXX-XXXX` or `(XXX) XXX-XXXX`. All mock data seeds exclusively feature valid US phone patterns. Do not use Vietnamese `+84` prefixes.
 
 ### Referral & Commission System
-- **Registration Linking**: When a customer registers with a sponsor/referral code (e.g. `HB-EMP-101`), that code is permanently saved to the customer's account (`Customer.referralCode`).
-- **Automatic Purchase Crediting**: When that customer checks out, the referral code is automatically applied and displayed. Even if the referral input is omitted, `createOrder` automatically falls back to the customer's saved sponsor code so direct commissions (10%) and owner overrides (1%) are always awarded upon purchase.
+- **Registration Linking**: When a customer registers with a sponsor/referral code (e.g. `HBEE03`), that code is permanently saved to the customer's account (`Customer.referralCode`).
+- **Automatic Purchase Crediting**: When that customer checks out, the referral code is automatically applied and displayed. Even if the referral input is omitted, `createOrder` automatically falls back to the customer's saved sponsor code so direct commissions (10%) and upline overrides (1% per qualifying level) are always awarded upon purchase.
 - **Consultant Visibility**: Registered customers appear in their assigned specialist's consultation queue (`/employee`), and customers can view their assigned hydration specialist in `/account`.
 
 ---
@@ -66,3 +66,13 @@
   ```powershell
   git add "src/app/(store)/login/page.tsx"
   ```
+
+---
+
+## 5. Backend & Data Flow
+
+- **Source of truth**: with `API_URL` set, catalog, accounts, orders, the Hellobee network and the back office live in the Laravel API (`backend/`, see `backend/README.md`). Without it the app falls back to the bundled demo data in `src/data` and local demo sign-in.
+- **Server data access**: public pages read the catalog through `src/lib/catalog.ts` in Server Components. Do not fetch catalog data from client components.
+- **Browser to backend**: the browser only calls this app's own `/api/*` routes, which hold the session in an httpOnly cookie (`src/lib/session.ts`) and forward to Laravel. Never expose the API token or call Laravel from client code.
+- **Mutations**: client code goes through `src/lib/auth-client.ts`, `orders-client.ts`, `hellobee-client.ts` and `admin-client.ts`. Prices, totals, stock and commissions are decided by the backend only.
+- **SEO guardrail**: `npm run audit:seo -- <url>` crawls the sitemap and fails on missing canonicals, duplicate titles, listings that are not server-rendered, and ratings without real reviews. CI runs it against the full stack.

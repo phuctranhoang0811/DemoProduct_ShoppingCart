@@ -19,6 +19,7 @@ import {
   Briefcase,
   LogOut,
 } from 'lucide-react';
+import { signOut } from '@/lib/auth-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { useTranslation } from '@/i18n/useTranslation';
 import { SearchModal } from '@/components/common/SearchModal';
@@ -42,7 +43,6 @@ export function StoreHeader() {
   const products = useCommerceStore((state) => state.products);
   const currency = useCommerceStore((state) => state.currency);
   const setCurrency = useCommerceStore((state) => state.setCurrency);
-  const logout = useCommerceStore((state) => state.logout);
   const setIsCartDrawerOpen = useCommerceStore((state) => state.setIsCartDrawerOpen);
 
   const totalCartItems = cart.reduce((total, item) => total + item.quantity, 0);
@@ -94,6 +94,7 @@ export function StoreHeader() {
   };
 
   const ionizerProducts = products
+    .filter((p) => p.status === 'active')
     .slice(0, 4);
 
   const isHome = pathname === '/';
@@ -492,7 +493,7 @@ export function StoreHeader() {
                         }`}>
                           <button
                             type="button"
-                            onClick={() => logout()}
+                            onClick={() => void signOut()}
                             className="w-full flex items-center gap-1.5 px-3.5 py-2 text-left text-red-400 hover:bg-red-950/30 transition-colors"
                           >
                             <LogOut className="w-3.5 h-3.5" />
@@ -817,7 +818,7 @@ export function StoreHeader() {
                     type="button"
                     onClick={() => {
                       setIsMobileMenuOpen(false);
-                      logout();
+                      void signOut();
                     }}
                     className="w-full flex items-center gap-2.5 py-2 text-xs font-semibold text-red-600 hover:text-red-700"
                   >

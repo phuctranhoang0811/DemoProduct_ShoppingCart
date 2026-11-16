@@ -13,7 +13,9 @@ import {
   Building2,
   UserCheck,
 } from 'lucide-react';
+import { decidePayout } from '@/lib/hellobee-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
+import { NetworkTree } from '@/components/hellobee/NetworkTree';
 import { RankLevel, PayoutStatus, commissionLabel, getTeamStats, LADDER_RANKS } from '@/types/hellobee';
 import { toast } from 'sonner';
 
@@ -21,13 +23,12 @@ export default function AdminHellobeePage() {
   const members = useCommerceStore((state) => state.hellobeeMembers);
   const commissions = useCommerceStore((state) => state.commissions);
   const payouts = useCommerceStore((state) => state.payouts);
-  const updatePayoutStatus = useCommerceStore((state) => state.updatePayoutStatus);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | 'OWNER' | 'EMPLOYEE'>('ALL');
   const [rankFilter, setRankFilter] = useState<'ALL' | RankLevel>('ALL');
   const [payoutStatusFilter, setPayoutStatusFilter] = useState<'ALL' | PayoutStatus>('ALL');
-  const [activeTab, setActiveTab] = useState<'MEMBERS' | 'COMMISSIONS' | 'PAYOUTS'>('MEMBERS');
+  const [activeTab, setActiveTab] = useState<'MEMBERS' | 'TREE' | 'COMMISSIONS' | 'PAYOUTS'>('MEMBERS');
 
   // KPI Calculations
   const totalOwners = members.filter((m) => m.role === 'OWNER').length;
@@ -56,8 +57,12 @@ export default function AdminHellobeePage() {
     return payoutStatusFilter === 'ALL' || p.status === payoutStatusFilter;
   });
 
-  const handleUpdatePayout = (id: string, status: PayoutStatus) => {
-    updatePayoutStatus(id, status);
+  const handleUpdatePayout = async (id: string, status: PayoutStatus) => {
+    const result = await decidePayout(id, status);
+    if (!result.ok) {
+      toast.error(result.message || 'Could not update the payout.');
+      return;
+    }
     toast.success(`Payout ${id} updated to ${status}`);
   };
 
@@ -170,6 +175,16 @@ export default function AdminHellobeePage() {
           Commission Ledger ({commissions.length})
         </button>
         <button
+          onClick={() => setActiveTab('TREE')}
+          className={`pb-3 text-xs uppercase tracking-wider font-medium border-b-2 transition-colors ${
+            activeTab === 'TREE'
+              ? 'border-[#111111] text-[#111111] font-semibold'
+              : 'border-transparent text-[#737373] hover:text-[#111111]'
+          }`}
+        >
+          Network Tree
+        </button>
+        <button
           onClick={() => setActiveTab('PAYOUTS')}
           className={`pb-3 text-xs uppercase tracking-wider font-medium border-b-2 transition-colors flex items-center gap-2 ${
             activeTab === 'PAYOUTS'
@@ -185,6 +200,9 @@ export default function AdminHellobeePage() {
           )}
         </button>
       </div>
+
+      {/* TAB: NETWORK TREE */}
+      {activeTab === 'TREE' && <NetworkTree members={members} />}
 
       {/* TAB 1: MEMBERS */}
       {activeTab === 'MEMBERS' && (

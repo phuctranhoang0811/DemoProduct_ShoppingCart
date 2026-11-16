@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TaxEngineService } from '@/modules/tax-engine/core/tax-engine.service';
-import { CalculationHistoryStore } from '@/modules/tax-engine/core/history-store';
+import { saveCalculation } from '@/lib/tax-history';
 import { TaxEngineError } from '@/modules/tax-engine/core/errors';
 
 export async function POST(req: NextRequest) {
@@ -10,11 +10,11 @@ export async function POST(req: NextRequest) {
     const result = await TaxEngineService.calculate(body);
 
     // Save calculation to history
-    const record = CalculationHistoryStore.saveCalculation(body, result);
+    const calculationId = await saveCalculation(body, result);
 
     return NextResponse.json({
       success: true,
-      calculationId: record.id,
+      calculationId,
       data: result,
     });
   } catch (error) {

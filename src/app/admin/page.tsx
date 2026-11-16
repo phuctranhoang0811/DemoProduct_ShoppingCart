@@ -377,10 +377,10 @@ export default function AdminDashboardPage() {
             )}
           </div>
 
-          {/* Top selling garments */}
+          {/* Top selling products */}
           <div className="bg-white p-6 border border-[#E5E5E5] space-y-4">
             <h2 className="text-xs uppercase tracking-widest font-semibold text-[#111111]">
-              Top Performing Styles
+              Top Performing Products
             </h2>
             <div className="divide-y divide-[#E5E5E5]">
               {topSellingProducts.map((p) => (

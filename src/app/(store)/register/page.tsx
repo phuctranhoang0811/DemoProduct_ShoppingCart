@@ -1,10 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ShieldCheck, Sparkles, ArrowRight, UserCheck } from 'lucide-react';
-import { useCommerceStore } from '@/stores/useCommerceStore';
+import { signUp } from '@/lib/auth-client';
 import { toast } from 'sonner';
 
 function formatUSPhoneNumber(value: string): string {
@@ -22,8 +21,6 @@ function formatUSPhoneNumber(value: string): string {
 }
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const register = useCommerceStore((state) => state.register);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -38,7 +35,7 @@ export default function RegisterPage() {
     toast.success('Sample customer credentials filled!');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !phone.trim() || !password.trim()) {
       toast.error('Please fill in all required fields (*).');
@@ -53,9 +50,20 @@ export default function RegisterPage() {
     }
 
     const fullUSPhone = `+1 ${phone}`;
-    register(name.trim(), email.trim(), fullUSPhone);
+    const result = await signUp({
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      phone: fullUSPhone,
+      password,
+    });
+
+    if (!result.ok) {
+      toast.error(result.message || 'Could not create the account.');
+      return;
+    }
+
     toast.success(`Account created successfully for ${name}!`);
-    router.push('/account');
+    window.location.assign('/account');
   };
 
   return (

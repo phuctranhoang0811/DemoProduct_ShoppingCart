@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
+import '@/lib/admin-client';
+import { syncSession } from '@/lib/auth-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { LANGUAGES } from '@/i18n/languages';
 
@@ -9,6 +11,7 @@ export function StoreHydration() {
 
   useEffect(() => {
     useCommerceStore.getState().initHydrate();
+    void syncSession();
   }, []);
 
   useEffect(() => {

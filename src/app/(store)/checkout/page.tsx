@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useState, useEffect, useMemo, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -27,6 +27,8 @@ import { PaymentMethod } from '@/types';
 import { HellobeeMember } from '@/types/hellobee';
 import { formatPrice } from '@/lib/utils';
 import { toast } from 'sonner';
+import { lookupReferralCode } from '@/lib/hellobee-client';
+import { fetchPaymentMethods, placeOrder } from '@/lib/orders-client';
 
 function CheckoutContent() {
   const router = useRouter();
@@ -66,6 +68,24 @@ function CheckoutContent() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('stripe');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // null while unknown or in local demo mode; otherwise the payment methods the backend accepts.
+  const [backendMethods, setBackendMethods] = useState<PaymentMethod[] | null>(null);
+  const idempotencyKey = useRef<string>('');
+
+  useEffect(() => {
+    idempotencyKey.current = crypto.randomUUID();
+
+    void fetchPaymentMethods().then((methods) => {
+      setBackendMethods(methods);
+      if (methods && !methods.includes('stripe')) setPaymentMethod('cod');
+    });
+
+    if (new URLSearchParams(window.location.search).get('cancelled')) {
+      toast.info('Payment was cancelled. Your cart is unchanged.');
+    }
+  }, []);
+
+  const cardPaymentOffered = !backendMethods || backendMethods.includes('stripe');
   const [orderPlacedId, setOrderPlacedId] = useState<string | null>(null);
   const [stripePaymentIntentId, setStripePaymentIntentId] = useState<string | null>(null);
   const [placedReferral, setPlacedReferral] = useState<HellobeeMember | null>(null);
@@ -82,11 +102,40 @@ function CheckoutContent() {
   const grandTotal = subtotal;
 
   // Real-time lookup of employee/owner sponsor
-  const verifiedBeneficiary = useMemo(() => {
+  const localBeneficiary = useMemo(() => {
     if (!referralCode.trim()) return null;
     const clean = referralCode.trim().toUpperCase();
     return hellobeeMembers.find((m) => m.referralCode.toUpperCase() === clean) || null;
   }, [referralCode, hellobeeMembers]);
+
+  // With a backend the code is checked on the server (undefined = not checked / local demo mode).
+  const [serverBeneficiary, setServerBeneficiary] = useState<HellobeeMember | null | undefined>(undefined);
+
+  useEffect(() => {
+    const code = referralCode.trim();
+    if (!code) {
+      setServerBeneficiary(undefined);
+      return;
+    }
+
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      const found = await lookupReferralCode(code);
+      if (cancelled) return;
+      setServerBeneficiary(
+        found === undefined
+          ? undefined
+          : found && { ...(localBeneficiary ?? ({} as HellobeeMember)), ...found },
+      );
+    }, 350);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [referralCode, localBeneficiary]);
+
+  const verifiedBeneficiary = serverBeneficiary !== undefined ? serverBeneficiary : localBeneficiary;
 
   const directCommissionAmount = verifiedBeneficiary ? Math.round(grandTotal * 0.1) : 0;
 
@@ -124,6 +173,45 @@ function CheckoutContent() {
     }
   };
 
+  // Real checkout: the backend prices the cart, reserves stock and, for cards, opens Stripe's page.
+  const submitToBackend = async () => {
+    if (!email.trim() || !email.includes('@')) {
+      toast.error('Please enter a valid email address for your order confirmation.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    const result = await placeOrder({
+      cart,
+      customer: { name: fullName.trim(), email: email.trim(), phone: phone.trim() },
+      shippingAddress: { street, ward, district, city },
+      deliveryMethod: 'Enagic Certified Technician Delivery & In-Home Installation',
+      paymentMethod,
+      referralCode: referralCode.trim() || undefined,
+      notes: notes.trim() || undefined,
+      idempotencyKey: idempotencyKey.current,
+    });
+
+    if (!result.ok) {
+      setIsSubmitting(false);
+      toast.error(result.message);
+      return;
+    }
+
+    if (result.checkoutUrl) {
+      // The cart is emptied on the confirmation page, once Stripe sends the buyer back.
+      window.location.assign(result.checkoutUrl);
+      return;
+    }
+
+    idempotencyKey.current = crypto.randomUUID();
+    if (verifiedBeneficiary && result.order.referralCode) setPlacedReferral(verifiedBeneficiary);
+    clearCart();
+    setIsSubmitting(false);
+    setOrderPlacedId(result.order.id);
+    toast.success('Order placed successfully!');
+  };
+
   const handleSubmitOrder = (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName.trim() || !phone.trim() || !street.trim() || !city.trim()) {
@@ -133,6 +221,11 @@ function CheckoutContent() {
 
     if (cart.length === 0) {
       toast.error('Your shopping cart is currently empty.');
+      return;
+    }
+
+    if (backendMethods) {
+      void submitToBackend();
       return;
     }
 
@@ -459,7 +552,7 @@ function CheckoutContent() {
             </div>
 
             <p className="text-xs text-[#737373] leading-relaxed">
-              If an Enagic Certified Hydration Associate assisted you (e.g. <code>HB-EMP-101</code>),
+              If an Enagic Certified Hydration Associate assisted you (e.g. <code>HBEE03</code>),
               enter their code below to credit their direct commission and assign them as your dedicated customer specialist.
             </p>
 
@@ -477,7 +570,7 @@ function CheckoutContent() {
                 type="text"
                 value={referralCode}
                 onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                placeholder="Enter Consultant Code (e.g. HB-EMP-101)..."
+                placeholder="Enter Consultant Code (e.g. HBEE03)..."
                 className="w-full text-xs p-3 rounded-xs border border-[#D5D5D5] bg-white uppercase font-mono font-bold tracking-wider outline-none focus:border-[#111111] transition-colors"
               />
 
@@ -486,36 +579,36 @@ function CheckoutContent() {
                 <span className="text-[#888888]">Quick samples:</span>
                 <button
                   type="button"
-                  onClick={() => setReferralCode('HB-EMP-101')}
+                  onClick={() => setReferralCode('HBEE03')}
                   className={`px-2.5 py-1 rounded-xs border text-[10px] font-mono font-semibold transition-all ${
-                    referralCode === 'HB-EMP-101'
+                    referralCode === 'HBEE03'
                       ? 'bg-[#111111] text-white border-[#111111]'
                       : 'bg-white border-[#D5D5D5] text-[#333333] hover:border-[#111111]'
                   }`}
                 >
-                  HB-EMP-101 (David Nguyen - 10%)
+                  HBEE03 (David Nguyen - 10%)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setReferralCode('HB-EMP-102')}
+                  onClick={() => setReferralCode('HBEE04')}
                   className={`px-2.5 py-1 rounded-xs border text-[10px] font-mono font-semibold transition-all ${
-                    referralCode === 'HB-EMP-102'
+                    referralCode === 'HBEE04'
                       ? 'bg-[#111111] text-white border-[#111111]'
                       : 'bg-white border-[#D5D5D5] text-[#333333] hover:border-[#111111]'
                   }`}
                 >
-                  HB-EMP-102 (Sophia Miller - 10%)
+                  HBEE04 (Sophia Miller - 10%)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setReferralCode('HB-OWNER-01')}
+                  onClick={() => setReferralCode('HBEE01')}
                   className={`px-2.5 py-1 rounded-xs border text-[10px] font-mono font-semibold transition-all ${
-                    referralCode === 'HB-OWNER-01'
+                    referralCode === 'HBEE01'
                       ? 'bg-[#111111] text-white border-[#111111]'
                       : 'bg-white border-[#D5D5D5] text-[#333333] hover:border-[#111111]'
                   }`}
                 >
-                  HB-OWNER-01 (Managing Owner)
+                  HBEE01 (Managing Owner)
                 </button>
               </div>
 
@@ -557,6 +650,7 @@ function CheckoutContent() {
             <div className="space-y-3">
               {/* Option 1: STRIPE (Recommended) */}
               <div
+                hidden={!cardPaymentOffered}
                 className={`rounded-lg border transition-all ${
                   paymentMethod === 'stripe'
                     ? 'border-[#635BFF] bg-[#FAFAFF] shadow-xs ring-1 ring-[#635BFF]/30'
@@ -593,8 +687,15 @@ function CheckoutContent() {
                       Instant, secure checkout via credit/debit card, Apple Pay, Google Pay, and Stripe Link.
                     </p>
 
-                    {/* Integrated Stripe Payment Element UI */}
-                    {paymentMethod === 'stripe' && (
+                    {paymentMethod === 'stripe' && backendMethods && (
+                      <p className="mt-3 text-xs text-[#444444] leading-relaxed">
+                        You will be taken to Stripe&apos;s secure page to enter your payment details. Card
+                        data never passes through this site.
+                      </p>
+                    )}
+
+                    {/* Simulated card form: local demo mode only. Real payments use Stripe's hosted page. */}
+                    {paymentMethod === 'stripe' && !backendMethods && (
                       <div className="mt-4 pt-4 border-t border-[#E5E5FF] space-y-4 animate-in fade-in duration-200">
                         {/* 1-Click Express Pay Pills */}
                         <div className="space-y-2">
@@ -893,7 +994,9 @@ function CheckoutContent() {
                 <>
                   <span>
                     {paymentMethod === 'stripe'
-                      ? `Pay ${formatPrice(grandTotal, currency)} with Stripe`
+                      ? backendMethods
+                        ? 'Continue to Secure Payment'
+                        : `Pay ${formatPrice(grandTotal, currency)} with Stripe`
                       : 'Place Order'}
                   </span>
                   <ArrowRight className="w-4 h-4" />

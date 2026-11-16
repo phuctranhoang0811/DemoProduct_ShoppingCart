@@ -1,0 +1,545 @@
+[
+  {
+    "id": "hellobee-filter-1500",
+    "name": "emGuarde Personal Protection Device",
+    "nameVi": "emGuarde Personal Protection Device",
+    "nameEn": "emGuarde Personal Protection Device",
+    "slug": "hellobee-filter-1500",
+    "sku": "EMG-1500",
+    "description": "The emGuarde personal environment harmonizer, the official Hellobee member activation unit. Portable and battery powered, it works with electromagnetic noise between 3 MHz and 1000 MHz and is not a signal blocker. Standardized $1,500 pricing.",
+    "descriptionVi": "The emGuarde personal environment harmonizer, the official Hellobee member activation unit. Portable and battery powered, it works with electromagnetic noise between 3 MHz and 1000 MHz and is not a signal blocker. Standardized $1,500 pricing.",
+    "descriptionEn": "The emGuarde personal environment harmonizer, the official Hellobee member activation unit. Portable and battery powered, it works with electromagnetic noise between 3 MHz and 1000 MHz and is not a signal blocker. Standardized $1,500 pricing.",
+    "materials": "Matte black housing with LED indicator; 5,000mAh rechargeable lithium battery.",
+    "specifications": {
+      "warranty": "1-Year Limited Manufacturer Warranty",
+      "origin": "Enagic",
+      "powerConsumption": "0.5W",
+      "capacity": "5,000mAh, up to 72 hours",
+      "compatibility": "3 MHz to 1000 MHz, about 3 m (9.8 ft) diameter",
+      "packageIncludes": "1 emGuarde device, 1 USB-C charging cable"
+    },
+    "details": [
+      "Standardized $1,500 Hellobee member activation and qualifying unit",
+      "Generates 10% direct commission ($150) for sponsoring Employee",
+      "Generates 1% network override commission ($15) for supervising Owner",
+      "Qualifies purchaser towards 1A - 5A rank advancement",
+      "Portable coverage of about 3 m diameter with up to 72 hours of battery operation",
+      "USB-C charging, UL standard certified lithium battery"
+    ],
+    "detailsVi": [
+      "Standardized $1,500 Hellobee member activation and qualifying unit",
+      "Generates 10% direct commission ($150) for sponsoring Employee",
+      "Generates 1% network override commission ($15) for supervising Owner",
+      "Qualifies purchaser towards 1A - 5A rank advancement",
+      "Portable coverage of about 3 m diameter with up to 72 hours of battery operation",
+      "USB-C charging, UL standard certified lithium battery"
+    ],
+    "detailsEn": [
+      "Standardized $1,500 Hellobee member activation and qualifying unit",
+      "Generates 10% direct commission ($150) for sponsoring Employee",
+      "Generates 1% network override commission ($15) for supervising Owner",
+      "Qualifies purchaser towards 1A - 5A rank advancement",
+      "Portable coverage of about 3 m diameter with up to 72 hours of battery operation",
+      "USB-C charging, UL standard certified lithium battery"
+    ],
+    "price": 1500,
+    "categoryId": "cat-emguarde",
+    "images": [
+      "/images/products/emguarde-2.webp",
+      "/images/products/emguarde-1.webp",
+      "/images/products/emguarde-3.webp"
+    ],
+    "colors": [
+      {
+        "id": "c-matte-black",
+        "name": "Matte Black",
+        "hex": "#111111",
+        "image": "/images/products/emguarde-2.webp"
+      }
+    ],
+    "sizes": [
+      {
+        "id": "pkg-standard",
+        "label": "emGuarde Single Unit ($1,500)",
+        "stock": 50
+      }
+    ],
+    "status": "active",
+    "featured": true,
+    "bestSeller": true,
+    "newArrival": true,
+    "sale": false,
+    "gender": "unisex",
+    "createdAt": "2026-01-01T08:00:00Z"
+  },
+  {
+    "id": "kangen-air-500",
+    "name": "Kangen Air 500",
+    "nameVi": "Kangen Air 500",
+    "nameEn": "Kangen Air 500",
+    "slug": "kangen-air-500",
+    "sku": "KAIR-500",
+    "description": "A compact photocatalyst air purifier with UV LED technology, designed for homes and offices. Rechargeable via USB-C and available in blue, pink, white, and black.",
+    "descriptionVi": "A compact photocatalyst air purifier with UV LED technology, designed for homes and offices. Rechargeable via USB-C and available in blue, pink, white, and black.",
+    "descriptionEn": "A compact photocatalyst air purifier with UV LED technology, designed for homes and offices. Rechargeable via USB-C and available in blue, pink, white, and black.",
+    "materials": "Compact ABS housing with photocatalyst filter and UV LED module.",
+    "specifications": {
+      "warranty": "1-Year Limited Manufacturer Warranty",
+      "origin": "Enagic",
+      "powerConsumption": "2.0W low / 2.4W high",
+      "packageIncludes": "1 Kangen Air unit, 1 USB-C charging cable"
+    },
+    "details": [
+      "Photocatalyst and UV LED air purification",
+      "Compact cube design for desks, bedrooms, and cars",
+      "USB-C charging with simple two-button operation",
+      "Low power draw of about 2.0W to 2.4W",
+      "Available in blue, pink, white, and black"
+    ],
+    "detailsVi": [
+      "Photocatalyst and UV LED air purification",
+      "Compact cube design for desks, bedrooms, and cars",
+      "USB-C charging with simple two-button operation",
+      "Low power draw of about 2.0W to 2.4W",
+      "Available in blue, pink, white, and black"
+    ],
+    "detailsEn": [
+      "Photocatalyst and UV LED air purification",
+      "Compact cube design for desks, bedrooms, and cars",
+      "USB-C charging with simple two-button operation",
+      "Low power draw of about 2.0W to 2.4W",
+      "Available in blue, pink, white, and black"
+    ],
+    "price": 500,
+    "categoryId": "cat-air",
+    "images": [
+      "/images/products/kangen-air.webp"
+    ],
+    "colors": [
+      {
+        "id": "c-blue",
+        "name": "Blue",
+        "hex": "#8FC7E8",
+        "image": "/images/products/kangen-air.webp"
+      },
+      {
+        "id": "c-pink",
+        "name": "Pink",
+        "hex": "#E7B7D4",
+        "image": "/images/products/kangen-air.webp"
+      },
+      {
+        "id": "c-white",
+        "name": "White",
+        "hex": "#F3F4F6",
+        "image": "/images/products/kangen-air.webp"
+      },
+      {
+        "id": "c-black",
+        "name": "Black",
+        "hex": "#111111",
+        "image": "/images/products/kangen-air.webp"
+      }
+    ],
+    "sizes": [
+      {
+        "id": "single",
+        "label": "Single Unit",
+        "stock": 60
+      }
+    ],
+    "status": "active",
+    "featured": true,
+    "bestSeller": true,
+    "newArrival": true,
+    "sale": false,
+    "gender": "unisex",
+    "createdAt": "2026-11-16T09:00:00Z"
+  },
+  {
+    "id": "kangen-k8",
+    "name": "LeveLuk K8",
+    "nameVi": "LeveLuk K8 Water Ionizer",
+    "nameEn": "LeveLuk K8 Water Ionizer",
+    "slug": "enagic-leveluk-k8",
+    "sku": "1016",
+    "description": "The Mighty 8-Plate Anti-Oxidizer from Enagic Japan. Features 8 platinum-dipped titanium plates, intuitive multi-language touchscreen with 8 audio voices, producing 5 distinct water types with ORP down to -850mV.",
+    "descriptionVi": "The Mighty 8-Plate Anti-Oxidizer from Enagic Japan. Features 8 platinum-dipped titanium plates, intuitive multi-language touchscreen with 8 audio voices, producing 5 distinct water types with ORP down to -850mV.",
+    "descriptionEn": "The Mighty 8-Plate Anti-Oxidizer from Enagic Japan. Features 8 platinum-dipped titanium plates, intuitive multi-language touchscreen with 8 audio voices, producing 5 distinct water types with ORP down to -850mV.",
+    "materials": "8 Solid 99.97% platinum-dipped titanium plates, medical grade Osaka Japan. Touchscreen LCD.",
+    "specifications": {
+      "electrodes": 8,
+      "phRange": "2.5 - 11.5",
+      "orp": "-850 mV",
+      "warranty": "5 Years Global Official Warranty",
+      "origin": "Osaka, Japan (OEM Medical Device)",
+      "languages": "8 Languages",
+      "weight": "5.0 kg",
+      "powerConsumption": "230W",
+      "productionRate": "4.5 - 7.6 Liters/min"
+    },
+    "details": [
+      "8 Solid platinum-dipped medical titanium electrode plates",
+      "Negative ORP reading up to -850 mV for cellular anti-aging",
+      "Full-color intuitive LCD touchscreen with 8 audio prompts",
+      "Produces 5 water types: Kangen 8.5-9.5, Strong Kangen 11.5, Clean 7.0, Beauty 6.0, Strong Acidic 2.5",
+      "Worldwide multi-voltage power supply (100V - 240V)",
+      "Automated self-cleaning cycle"
+    ],
+    "detailsVi": [
+      "8 Solid platinum-dipped medical titanium electrode plates",
+      "Negative ORP reading up to -850 mV for cellular anti-aging",
+      "Full-color intuitive LCD touchscreen with 8 audio prompts",
+      "Produces 5 water types: Kangen 8.5-9.5, Strong Kangen 11.5, Clean 7.0, Beauty 6.0, Strong Acidic 2.5",
+      "Worldwide multi-voltage power supply (100V - 240V)",
+      "Automated self-cleaning cycle"
+    ],
+    "detailsEn": [
+      "8 Solid platinum-dipped medical titanium electrode plates",
+      "Negative ORP reading up to -850 mV for cellular anti-aging",
+      "Full-color intuitive LCD touchscreen with 8 audio prompts",
+      "Produces 5 water types: Kangen 8.5-9.5, Strong Kangen 11.5, Clean 7.0, Beauty 6.0, Strong Acidic 2.5",
+      "Worldwide multi-voltage power supply (100V - 240V)",
+      "Automated self-cleaning cycle"
+    ],
+    "price": 5890,
+    "originalPrice": 6200,
+    "categoryId": "cat-ionizers",
+    "images": [
+      "https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1016_1_1.png"
+    ],
+    "colors": [
+      {
+        "id": "c-pure-white",
+        "name": "White Edition",
+        "hex": "#FFFFFF",
+        "image": "https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1016_1_1.png"
+      }
+    ],
+    "sizes": [
+      {
+        "id": "pkg-standard",
+        "label": "Standard Package",
+        "stock": 15
+      },
+      {
+        "id": "pkg-combo-prefilter",
+        "label": "Standard + Nano Pre-Filter",
+        "stock": 22
+      },
+      {
+        "id": "pkg-vip-5year",
+        "label": "VIP 5-Year Maintenance",
+        "stock": 8
+      }
+    ],
+    "status": "active",
+    "featured": true,
+    "bestSeller": true,
+    "newArrival": true,
+    "sale": false,
+    "gender": "unisex",
+    "createdAt": "2026-01-01T08:00:00Z"
+  },
+  {
+    "id": "kangen-sd501",
+    "name": "LeveLuk SD501 DX",
+    "nameVi": "LeveLuk SD501 DX Water Ionizer",
+    "nameEn": "LeveLuk SD501 DX Water Ionizer",
+    "slug": "enagic-leveluk-sd501",
+    "sku": "1064",
+    "description": "The Ultimate Home Use Model and industry standard for over two decades. Built with 7 large platinum-coated titanium plates, clear voice prompts, producing reliable medical-grade ionized water.",
+    "descriptionVi": "The Ultimate Home Use Model and industry standard for over two decades. Built with 7 large platinum-coated titanium plates, clear voice prompts, producing reliable medical-grade ionized water.",
+    "descriptionEn": "The Ultimate Home Use Model and industry standard for over two decades. Built with 7 large platinum-coated titanium plates, clear voice prompts, producing reliable medical-grade ionized water.",
+    "materials": "7 Solid platinum-dipped medical grade titanium plates.",
+    "specifications": {
+      "electrodes": 7,
+      "phRange": "2.5 - 11.5",
+      "orp": "-800 mV",
+      "warranty": "5 Years Global Official Warranty",
+      "origin": "Osaka, Japan (OEM Medical Device)",
+      "languages": "English & Audio Voice Prompts",
+      "weight": "6.3 kg",
+      "powerConsumption": "230W",
+      "productionRate": "4.5 - 7.6 Liters/min"
+    },
+    "details": [
+      "7 Solid platinum-coated titanium electrode plates",
+      "Over 25-year lifespan design with heavy-duty construction",
+      "Clear voice prompts and LCD display",
+      "Produces all 5 functional water types"
+    ],
+    "detailsVi": [
+      "7 Solid platinum-coated titanium electrode plates",
+      "Over 25-year lifespan design with heavy-duty construction",
+      "Clear voice prompts and LCD display",
+      "Produces all 5 functional water types"
+    ],
+    "detailsEn": [
+      "7 Solid platinum-coated titanium electrode plates",
+      "Over 25-year lifespan design with heavy-duty construction",
+      "Clear voice prompts and LCD display",
+      "Produces all 5 functional water types"
+    ],
+    "price": 5360,
+    "originalPrice": 5500,
+    "categoryId": "cat-ionizers",
+    "images": [
+      "https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1064_1.png"
+    ],
+    "colors": [
+      {
+        "id": "c-classic-white",
+        "name": "Classic White",
+        "hex": "#FFFFFF",
+        "image": "https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1064_1.png"
+      }
+    ],
+    "sizes": [
+      {
+        "id": "pkg-standard",
+        "label": "Standard Package",
+        "stock": 20
+      },
+      {
+        "id": "pkg-combo-prefilter",
+        "label": "Standard + Nano Pre-Filter",
+        "stock": 15
+      },
+      {
+        "id": "pkg-vip-5year",
+        "label": "VIP 5-Year Maintenance",
+        "stock": 10
+      }
+    ],
+    "status": "active",
+    "featured": true,
+    "bestSeller": true,
+    "newArrival": false,
+    "sale": false,
+    "gender": "unisex",
+    "createdAt": "2026-01-05T08:00:00Z"
+  },
+  {
+    "id": "kangen-super-501",
+    "name": "LeveLuk Super 501",
+    "nameVi": "LeveLuk Super 501 Heavy Duty Ionizer",
+    "nameEn": "LeveLuk Super 501 Heavy Duty Ionizer",
+    "slug": "enagic-leveluk-super-501",
+    "sku": "1007",
+    "description": "The Top of the Line Model with 12 titanium plates arranged in dual chambers. Engineered for heavy usage, large families, clinics, and health centers.",
+    "descriptionVi": "The Top of the Line Model with 12 titanium plates arranged in dual chambers. Engineered for heavy usage, large families, clinics, and health centers.",
+    "descriptionEn": "The Top of the Line Model with 12 titanium plates arranged in dual chambers. Engineered for heavy usage, large families, clinics, and health centers.",
+    "materials": "12 Solid platinum-dipped titanium plates with dual chambers.",
+    "specifications": {
+      "electrodes": 12,
+      "phRange": "2.5 - 11.5",
+      "orp": "-850 mV",
+      "warranty": "3 Years Global Official Warranty",
+      "origin": "Osaka, Japan (OEM Medical Device)",
+      "languages": "English",
+      "weight": "10.2 kg",
+      "powerConsumption": "400W",
+      "productionRate": "6.0 - 10.0 Liters/min"
+    },
+    "details": [
+      "12 Solid titanium-platinum electrode plates in dual electrolysis chambers",
+      "Chamber 1 (5 plates) for drinking and beauty water",
+      "Chamber 2 (7 plates) dedicated to heavy output of Strong Kangen and Strong Acidic waters",
+      "Built-in tank for electrolysis enhancer solution"
+    ],
+    "detailsVi": [
+      "12 Solid titanium-platinum electrode plates in dual electrolysis chambers",
+      "Chamber 1 (5 plates) for drinking and beauty water",
+      "Chamber 2 (7 plates) dedicated to heavy output of Strong Kangen and Strong Acidic waters",
+      "Built-in tank for electrolysis enhancer solution"
+    ],
+    "detailsEn": [
+      "12 Solid titanium-platinum electrode plates in dual electrolysis chambers",
+      "Chamber 1 (5 plates) for drinking and beauty water",
+      "Chamber 2 (7 plates) dedicated to heavy output of Strong Kangen and Strong Acidic waters",
+      "Built-in tank for electrolysis enhancer solution"
+    ],
+    "price": 7080,
+    "originalPrice": 7200,
+    "categoryId": "cat-ionizers",
+    "images": [
+      "https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1007_01.jpg"
+    ],
+    "colors": [
+      {
+        "id": "c-super-white",
+        "name": "Professional Black/White",
+        "hex": "#111111",
+        "image": "https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1007_01.jpg"
+      }
+    ],
+    "sizes": [
+      {
+        "id": "pkg-standard",
+        "label": "Standard Package",
+        "stock": 8
+      },
+      {
+        "id": "pkg-combo-prefilter",
+        "label": "Heavy-Duty Commercial Pre-Filter",
+        "stock": 6
+      }
+    ],
+    "status": "active",
+    "featured": true,
+    "bestSeller": false,
+    "newArrival": false,
+    "sale": false,
+    "gender": "unisex",
+    "createdAt": "2026-01-15T08:00:00Z"
+  },
+  {
+    "id": "kangen-sd501u",
+    "name": "LeveLuk SD501U",
+    "nameVi": "LeveLuk SD501U Under-Counter Ionizer",
+    "nameEn": "LeveLuk SD501U Under-Counter Ionizer",
+    "slug": "enagic-leveluk-sd501u",
+    "sku": "1010",
+    "description": "Under-the-counter model with sleek digital faucet and control panel on top, keeping countertops clear and minimalist.",
+    "descriptionVi": "Under-the-counter model with sleek digital faucet and control panel on top, keeping countertops clear and minimalist.",
+    "descriptionEn": "Under-the-counter model with sleek digital faucet and control panel on top, keeping countertops clear and minimalist.",
+    "materials": "7 Solid platinum-dipped titanium plates with electronic countertop faucet.",
+    "specifications": {
+      "electrodes": 7,
+      "phRange": "2.5 - 11.5",
+      "orp": "-800 mV",
+      "warranty": "5 Years Global Official Warranty",
+      "origin": "Osaka, Japan (OEM Medical Device)",
+      "languages": "English & Audio Voice Prompts",
+      "weight": "6.3 kg",
+      "powerConsumption": "230W",
+      "productionRate": "4.5 - 7.6 Liters/min"
+    },
+    "details": [
+      "7 Platinum-coated titanium plates",
+      "Under-sink installation saving counter space",
+      "Convenient control display panel mounted right on the faucet",
+      "Generates 5 types of Kangen water"
+    ],
+    "detailsVi": [
+      "7 Platinum-coated titanium plates",
+      "Under-sink installation saving counter space",
+      "Convenient control display panel mounted right on the faucet",
+      "Generates 5 types of Kangen water"
+    ],
+    "detailsEn": [
+      "7 Platinum-coated titanium plates",
+      "Under-sink installation saving counter space",
+      "Convenient control display panel mounted right on the faucet",
+      "Generates 5 types of Kangen water"
+    ],
+    "price": 5890,
+    "originalPrice": 6100,
+    "categoryId": "cat-ionizers",
+    "images": [
+      "https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1010_1.jpg"
+    ],
+    "colors": [
+      {
+        "id": "c-metallic",
+        "name": "Metallic Chrome",
+        "hex": "#D1D5DB",
+        "image": "https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1010_1.jpg"
+      }
+    ],
+    "sizes": [
+      {
+        "id": "pkg-standard",
+        "label": "Standard Under-Sink Package",
+        "stock": 12
+      },
+      {
+        "id": "pkg-combo-prefilter",
+        "label": "Under-Sink + Nano Pre-Filter",
+        "stock": 10
+      }
+    ],
+    "status": "active",
+    "featured": false,
+    "bestSeller": false,
+    "newArrival": true,
+    "sale": false,
+    "gender": "unisex",
+    "createdAt": "2026-01-20T08:00:00Z"
+  },
+  {
+    "id": "kangen-leveluk-jriv",
+    "name": "LeveLuk JrIV",
+    "nameVi": "LeveLuk JrIV Energy-Saver Ionizer",
+    "nameEn": "LeveLuk JrIV Energy-Saver Ionizer",
+    "slug": "enagic-leveluk-jriv",
+    "sku": "1062",
+    "description": "The Junior model with 4 solid electrode plates. Compact footprint, low energy consumption, ideal for singles and young couples.",
+    "descriptionVi": "The Junior model with 4 solid electrode plates. Compact footprint, low energy consumption, ideal for singles and young couples.",
+    "descriptionEn": "The Junior model with 4 solid electrode plates. Compact footprint, low energy consumption, ideal for singles and young couples.",
+    "materials": "4 Solid platinum-dipped titanium plates with clear LCD display.",
+    "specifications": {
+      "electrodes": 4,
+      "phRange": "2.5 - 11.5",
+      "orp": "-450 mV",
+      "warranty": "3 Years Global Official Warranty",
+      "origin": "Osaka, Japan (OEM Medical Device)",
+      "languages": "English",
+      "weight": "5.3 kg",
+      "powerConsumption": "120W",
+      "productionRate": "3.0 - 4.9 Liters/min"
+    },
+    "details": [
+      "4 Solid electrode plates reducing power consumption",
+      "Low energy draw of 120W",
+      "Produces all 5 water types",
+      "Compact size for smaller kitchens"
+    ],
+    "detailsVi": [
+      "4 Solid electrode plates reducing power consumption",
+      "Low energy draw of 120W",
+      "Produces all 5 water types",
+      "Compact size for smaller kitchens"
+    ],
+    "detailsEn": [
+      "4 Solid electrode plates reducing power consumption",
+      "Low energy draw of 120W",
+      "Produces all 5 water types",
+      "Compact size for smaller kitchens"
+    ],
+    "price": 3530,
+    "originalPrice": 3800,
+    "categoryId": "cat-ionizers",
+    "images": [
+      "https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1062_1.jpg"
+    ],
+    "colors": [
+      {
+        "id": "c-clean-white",
+        "name": "Pure White",
+        "hex": "#FFFFFF",
+        "image": "https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1062_1.jpg"
+      }
+    ],
+    "sizes": [
+      {
+        "id": "pkg-standard",
+        "label": "Standard Package",
+        "stock": 25
+      },
+      {
+        "id": "pkg-combo-prefilter",
+        "label": "Standard + Nano Pre-Filter",
+        "stock": 18
+      }
+    ],
+    "status": "active",
+    "featured": false,
+    "bestSeller": false,
+    "newArrival": true,
+    "sale": false,
+    "gender": "unisex",
+    "createdAt": "2026-01-25T08:00:00Z"
+  }
+]

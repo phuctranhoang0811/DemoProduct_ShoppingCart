@@ -7,7 +7,6 @@ import {
   SITE_NAME,
   buildOrganizationSchema,
   buildWebSiteSchema,
-  buildFAQSchema,
   safeJsonLd,
 } from '@/lib/seo';
 
@@ -18,15 +17,16 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    'Official distributor of Hellobee® Kangen Water® medical-grade water ionizers: LeveLuk K8, SD501, Super 501, Anespa DX. Producing 5 types of antioxidant-rich alkaline ionized water. Certified Medical Device.',
+    'Official distributor of Hellobee® Kangen Water® medical-grade water ionizers, emGuarde, and Kangen Air 500: LeveLuk K8, SD501 DX, Super 501, SD501U, JrIV. Certified Medical Device.',
   keywords: [
     'kangen water',
     'enagic kangen',
     'water ionizer',
     'leveluk k8',
     'leveluk sd501',
-    'sd501 platinum',
-    'anespa dx',
+    'super 501',
+    'emguarde',
+    'kangen air 500',
     'alkaline water machine',
     'electrolyzed water',
     'medical grade water ionizer',
@@ -40,9 +40,6 @@ export const metadata: Metadata = {
     email: false,
     address: false,
     telephone: false,
-  },
-  alternates: {
-    canonical: '/',
   },
   openGraph: {
     title: 'Hellobee® Kangen Water® | Japanese Medical-Grade Water Ionizers',
@@ -92,7 +89,6 @@ export default function RootLayout({
 }) {
   const organizationSchema = buildOrganizationSchema();
   const websiteSchema = buildWebSiteSchema();
-  const faqSchema = buildFAQSchema();
 
   return (
     <html lang="en">
@@ -107,12 +103,6 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: safeJsonLd(websiteSchema),
-          }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: safeJsonLd(faqSchema),
           }}
         />
       </head>

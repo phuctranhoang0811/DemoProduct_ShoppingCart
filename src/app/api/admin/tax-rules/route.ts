@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TaxRuleRepository } from '@/modules/tax-engine/rules/tax-rule.repository';
 import { validateTaxRuleSet } from '@/modules/tax-engine/rules/tax-rule.validator';
-import { CalculationHistoryStore } from '@/modules/tax-engine/core/history-store';
+import { logAudit } from '@/lib/tax-history';
 
 export async function GET(req: NextRequest) {
   try {
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     };
 
     TaxRuleRepository.addRule(newRule);
-    CalculationHistoryStore.logAudit('admin_user', 'CREATE_RULE', 'TaxRuleSet', newRule.id, {
+    await logAudit('CREATE_RULE', 'TaxRuleSet', newRule.id, {
       country: newRule.country,
       taxYear: newRule.taxYear,
     });

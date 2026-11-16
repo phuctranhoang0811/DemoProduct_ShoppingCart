@@ -50,7 +50,7 @@ export default function AdminInventoryPage() {
             Inventory Management
           </h1>
           <p className="text-sm text-[#666666] mt-1">
-            Monitor SKU levels across size variants, restock garments, and audit stock journals.
+            Monitor SKU levels across size variants, restock products, and audit stock journals.
           </p>
         </div>
 
@@ -81,7 +81,7 @@ export default function AdminInventoryPage() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-[#E5E5E5] bg-[#F7F7F6] text-[#444444] uppercase text-[11px] tracking-wider font-semibold">
-                  <th className="py-3.5 px-4 font-semibold">Garment</th>
+                  <th className="py-3.5 px-4 font-semibold">Product</th>
                   <th className="py-3.5 px-3 font-semibold">SKU</th>
                   <th className="py-3.5 px-3 font-semibold">Size Variant Levels</th>
                   <th className="py-3.5 px-3 font-semibold">Aggregate Stock</th>
@@ -171,7 +171,7 @@ export default function AdminInventoryPage() {
             <thead>
               <tr className="border-b border-[#E5E5E5] bg-[#F7F7F6] text-[#444444] uppercase text-[11px] tracking-wider font-semibold">
                 <th className="py-3.5 px-4 font-semibold">Timestamp</th>
-                <th className="py-3.5 px-3 font-semibold">Garment</th>
+                <th className="py-3.5 px-3 font-semibold">Product</th>
                 <th className="py-3.5 px-3 font-semibold">Size</th>
                 <th className="py-3.5 px-3 font-semibold">Delta</th>
                 <th className="py-3.5 px-3 font-semibold">Reason / Audit Trail</th>
@@ -180,7 +180,7 @@ export default function AdminInventoryPage() {
             <thead>
               <tr className="border-b border-[#E5E5E5] bg-[#FBFBFA] text-[#777777] uppercase text-[10px]">
                 <th className="py-3 px-4 font-semibold">Date</th>
-                <th className="py-3 px-3 font-semibold">Garment Name</th>
+                <th className="py-3 px-3 font-semibold">Product Name</th>
                 <th className="py-3 px-3 font-semibold">Variant</th>
                 <th className="py-3 px-3 font-semibold">Change</th>
                 <th className="py-3 px-4 font-semibold">Reason</th>

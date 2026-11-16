@@ -1,3 +1,4 @@
+/// <reference types="vitest/globals" />
 import { Decimal, toDecimal } from '../src/modules/tax-engine/core/money';
 import { calculateProgressiveTax } from '../src/modules/tax-engine/core/progressive-tax';
 import { calculateSelfEmploymentTax } from '../src/modules/tax-engine/countries/us/federal/self-employment-tax';
@@ -244,6 +245,7 @@ describe('4. Vietnam Gross-to-Net Salary Calculator Engine', () => {
       incomeType: 'BUSINESS_HOUSEHOLD',
       taxYear: 2026,
       revenue: 50000000,
+      taxResidencyStatus: 'RESIDENT',
     });
 
     expect(result.calculationStatus).toBe('UNSUPPORTED_CALCULATION');
@@ -258,6 +260,9 @@ describe('4. Vietnam Gross-to-Net Salary Calculator Engine', () => {
       monthlyGrossSalary: '40000000',
       taxResidencyStatus: 'RESIDENT',
       numberOfDependents: 0,
+      participatesBhxh: true,
+      participatesBhyt: true,
+      participatesBhtn: true,
     });
 
     expect(result.currency).toBe('VND');

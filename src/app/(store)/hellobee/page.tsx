@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Users,
@@ -27,14 +26,21 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { NetworkTree } from '@/components/hellobee/NetworkTree';
+import { submitPayout } from '@/lib/hellobee-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
-import { HellobeeRole, RankLevel, getNextRankProgress, commissionLabel, getTeamStats } from '@/types/hellobee';
+import {
+  HellobeeRole,
+  RankLevel,
+  getNextRankProgress,
+  commissionLabel,
+  getTeamStats,
+} from '@/types/hellobee';
 import { BenefitsPanel } from '@/components/hellobee/BenefitsPanel';
 import { LevelUpCelebration, ConfettiBurst } from '@/components/hellobee/LevelUpCelebration';
 import { formatPrice } from '@/lib/utils';
 
 function HellobeePortalContent() {
-  const searchParams = useSearchParams();
 
   const currentUser = useCommerceStore((state) => state.currentUser);
   const orders = useCommerceStore((state) => state.orders);
@@ -49,10 +55,11 @@ function HellobeePortalContent() {
   const registerHellobeeMember = useCommerceStore((state) => state.registerHellobeeMember);
   const recordReferralOrder = useCommerceStore((state) => state.recordReferralOrder);
   const resetMemberProgress = useCommerceStore((state) => state.resetMemberProgress);
-  const requestPayout = useCommerceStore((state) => state.requestPayout);
+  // With a backend the network is real: the demo shortcuts below are switched off.
+  const liveNetwork = useCommerceStore((state) => state.authMode === 'backend');
   const currency = useCommerceStore((state) => state.currency);
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'team' | 'benefits' | 'commissions' | 'payouts' | 'register'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'tree' | 'team' | 'benefits' | 'commissions' | 'payouts' | 'register'>('dashboard');
   const [copiedCode, setCopiedCode] = useState(false);
   const [celebration, setCelebration] = useState<string | null>(null);
   const endCelebration = React.useCallback(() => setCelebration(null), []);
@@ -89,7 +96,7 @@ function HellobeePortalContent() {
   const [regEmail, setRegEmail] = useState('');
   const [regPhone, setRegPhone] = useState('');
   const [regRole, setRegRole] = useState<HellobeeRole>('EMPLOYEE');
-  const [regSponsorCode, setRegSponsorCode] = useState(searchParams?.get('ref') || '');
+  const [regSponsorCode, setRegSponsorCode] = useState('');
 
   // Payout Modal State
   const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
@@ -134,12 +141,12 @@ function HellobeePortalContent() {
     : { directCount: 0, teamSize: 0, byGeneration: [], ladderLevel: 0 };
 
   useEffect(() => {
-    const ref = searchParams?.get('ref');
+    const ref = new URLSearchParams(window.location.search).get('ref');
     if (ref) {
       setRegSponsorCode(ref);
       setActiveTab('register');
     }
-  }, [searchParams]);
+  }, []);
 
   const handleCopyReferralLink = () => {
     if (typeof window === 'undefined' || !currentMember) return;
@@ -152,6 +159,10 @@ function HellobeePortalContent() {
 
   const handleRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (liveNetwork) {
+      toast.info('Consultant accounts are created automatically once a Hellobee system purchase is paid.');
+      return;
+    }
     if (!regName.trim() || !regEmail.trim()) {
       toast.error('Please enter name and email');
       return;
@@ -180,6 +191,10 @@ function HellobeePortalContent() {
 
   const handleSimulateSale = () => {
     if (!currentMember) return;
+    if (liveNetwork) {
+      toast.info('Sales are credited automatically when a customer order using your code is paid.');
+      return;
+    }
 
     // Simulate placing a $1,500 order for the Hellobee machine
     const orderId = `ORD-SIM-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -224,7 +239,7 @@ function HellobeePortalContent() {
     }
   };
 
-  const handleRequestPayoutSubmit = (e: React.FormEvent) => {
+  const handleRequestPayoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const amount = Number(payoutAmount);
     if (!amount || amount <= 0) {
@@ -237,13 +252,14 @@ function HellobeePortalContent() {
     }
 
     try {
-      requestPayout(
-        currentMember.id,
+      const result = await submitPayout({
+        memberId: currentMember.id,
         amount,
         bankName,
-        bankAccount,
-        bankHolder || currentMember.name
-      );
+        bankAccountNumber: bankAccount,
+        bankAccountName: bankHolder || currentMember.name,
+      });
+      if (!result.ok) throw new Error(result.message);
       toast.success(`Payout request of $${amount} submitted successfully!`);
       setIsPayoutModalOpen(false);
       setPayoutAmount('');
@@ -255,6 +271,11 @@ function HellobeePortalContent() {
   const handleActivateWithPurchase = () => {
     if (!currentUser) {
       toast.error('Please sign in or register an account first.');
+      return;
+    }
+    if (liveNetwork) {
+      // The real path: buy the system; the account is upgraded when the payment is confirmed.
+      window.location.assign('/product/hellobee-filter-1500');
       return;
     }
 
@@ -285,8 +306,8 @@ function HellobeePortalContent() {
           slug: qualifyingProduct.slug,
           image: qualifyingProduct.images[0],
           price: 1500,
-          colorName: 'Standard White Edition',
-          size: 'Standard Package',
+          colorName: qualifyingProduct.colors[0]?.name || 'Matte Black',
+          size: qualifyingProduct.sizes[0]?.label || 'emGuarde Single Unit ($1,500)',
           quantity: 1,
         },
       ],
@@ -296,14 +317,15 @@ function HellobeePortalContent() {
       total: 1500,
     });
 
-    const newCode = `HB-EMP-${Math.floor(100 + Math.random() * 900)}`;
-    registerHellobeeMember({
+    const newMember = registerHellobeeMember({
       name: currentUser.name,
       email: currentUser.email,
       phone: currentUser.phone || '+1 (555) 349-8201',
       role: 'EMPLOYEE',
       sponsorCode: undefined,
     });
+
+    const newCode = newMember.referralCode;
 
     updateProfile({
       role: 'employee',
@@ -413,7 +435,7 @@ function HellobeePortalContent() {
                   <span>Requirement 2: 1A–5A Rank Promotion & Direct 10% Commissions</span>
                 </p>
                 <p className="text-[#666666] pl-5">
-                  Qualified consultants receive an official referral code (e.g. <code>HB-EMP-101</code>). When new buyers enter your code, you earn an instant 10% commission ($150 per machine), advancing from 1A base rank up to 5A master distributor based on cumulative unit sales.
+                  Qualified consultants receive an official referral code (e.g. <code>HBEE03</code>). When new buyers enter your code, you earn an instant 10% commission ($150 per machine), advancing from 1A base rank up to 5A master distributor based on cumulative unit sales.
                 </p>
               </div>
 
@@ -551,6 +573,16 @@ function HellobeePortalContent() {
             >
               Overview Dashboard
             </button>
+            <button
+              onClick={() => setActiveTab('tree')}
+              className={`px-4 py-2 rounded-xs uppercase tracking-wider text-xs transition-all ${
+                activeTab === 'tree'
+                  ? 'bg-[#111111] text-white font-semibold'
+                  : 'text-[#666666] hover:bg-[#F5F4F0] hover:text-[#111111]'
+              }`}
+            >
+              Network Tree
+            </button>
             {isOwner && (
               <button
                 onClick={() => setActiveTab('team')}
@@ -618,6 +650,7 @@ function HellobeePortalContent() {
         {celebration && <ConfettiBurst message={celebration} onDone={endCelebration} />}
 
         {activeTab === 'benefits' && <BenefitsPanel ladderLevel={teamStats.ladderLevel} />}
+        {activeTab === 'tree' && <NetworkTree members={members} currentMemberId={currentMember?.id} />}
 
         {/* OVERVIEW DASHBOARD */}
         {activeTab === 'dashboard' && (
@@ -660,32 +693,36 @@ function HellobeePortalContent() {
                   <span>{copiedCode ? 'Copied Link!' : 'Copy Referral Link'}</span>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={handleSimulateSale}
-                  className="px-4 py-2 bg-[#111111] hover:bg-[#262626] text-white font-semibold rounded-xs text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-xs"
-                  title="Simulate a $1,500 Hellobee machine sale using this member's referral code"
-                >
-                  <ShoppingCart className="w-3.5 h-3.5 text-[#B9A58B]" />
-                  <span>Simulate $1,500 Sale</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!currentMember) return;
-                    const ok = window.confirm(
-                      `Reset all progress for ${currentMember.name}?\n\nRank returns to 1A and orders, sales volume, commissions, balance and payout requests are cleared. This cannot be undone.`
-                    );
-                    if (!ok) return;
-                    resetMemberProgress(currentMember.id);
-                    toast.success('Progress reset to Rank 1A.');
-                  }}
-                  className="px-4 py-2 border border-[#B74747]/40 text-[#B74747] hover:bg-[#FBEAEA] font-semibold rounded-xs text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all"
-                  title="Reset this member's rank, orders, commissions and balance"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Reset Progress</span>
-                </button>
+                {!liveNetwork && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handleSimulateSale}
+                      className="px-4 py-2 bg-[#111111] hover:bg-[#262626] text-white font-semibold rounded-xs text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-xs"
+                      title="Simulate a $1,500 Hellobee machine sale using this member's referral code"
+                    >
+                      <ShoppingCart className="w-3.5 h-3.5 text-[#B9A58B]" />
+                      <span>Simulate $1,500 Sale</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!currentMember) return;
+                        const ok = window.confirm(
+                          `Reset all progress for ${currentMember.name}?\n\nRank returns to 1A and orders, sales volume, commissions, balance and payout requests are cleared. This cannot be undone.`
+                        );
+                        if (!ok) return;
+                        resetMemberProgress(currentMember.id);
+                        toast.success('Progress reset to Rank 1A.');
+                      }}
+                      className="px-4 py-2 border border-[#B74747]/40 text-[#B74747] hover:bg-[#FBEAEA] font-semibold rounded-xs text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all"
+                      title="Reset this member's rank, orders, commissions and balance"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Reset Progress</span>
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
@@ -1165,7 +1202,7 @@ function HellobeePortalContent() {
                   type="text"
                   value={regSponsorCode}
                   onChange={(e) => setRegSponsorCode(e.target.value.toUpperCase())}
-                  placeholder="e.g. HB-OWNER-01"
+                  placeholder="e.g. HBEE01"
                   className="w-full p-2.5 rounded-lg border border-[#D5D5D5] font-mono uppercase tracking-wider outline-hidden focus:border-[#111111]"
                 />
                 <p className="text-[10px] text-[#888888] mt-1">
@@ -1281,10 +1318,6 @@ function HellobeePortalContent() {
 }
 
 export default function HellobeePortalPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen py-20 text-center text-xs text-[#737373]">Loading Hellobee Portal...</div>}>
-      <HellobeePortalContent />
-    </Suspense>
-  );
+  return <HellobeePortalContent />;
 }
 

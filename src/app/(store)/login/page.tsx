@@ -1,53 +1,51 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, UserCheck, Shield } from 'lucide-react';
-import { useCommerceStore } from '@/stores/useCommerceStore';
+import { demoSignIn, demoSignInAvailable, homeForRole, signIn } from '@/lib/auth-client';
+import type { Customer } from '@/types';
 import { toast } from 'sonner';
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const loginWithEmail = useCommerceStore((state) => state.loginWithEmail);
-  const loginAsDemo = useCommerceStore((state) => state.loginAsDemo);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDemoLogins, setShowDemoLogins] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  useEffect(() => {
+    void demoSignInAvailable().then(setShowDemoLogins);
+  }, []);
+
+  // Full navigation so the freshly set session cookie reaches the server-side route guard.
+  const enter = (user?: Customer) => {
+    const next = new URLSearchParams(window.location.search).get('next');
+    const safeNext = next && next.startsWith('/') && !next.startsWith('//') ? next : null;
+    window.location.assign(safeNext ?? homeForRole(user?.role));
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) {
       toast.error('Please enter an email address.');
       return;
     }
 
-    const clean = email.trim().toLowerCase();
-    const success = loginWithEmail(clean);
+    setIsSubmitting(true);
+    const result = await signIn(email.trim().toLowerCase(), password);
+    setIsSubmitting(false);
 
-    if (success) {
+    if (result.ok) {
       toast.success('Signed in successfully!');
-      if (clean.includes('admin') || clean.includes('owner')) {
-        router.push('/admin');
-      } else if (clean.includes('employee') || clean.includes('staff')) {
-        router.push('/employee');
-      } else {
-        router.push('/account');
-      }
+      enter(result.user);
     } else {
-      toast.error('Account not recognized. Please pick one of the demo role accounts.');
+      toast.error(result.message || 'Those credentials do not match our records.');
     }
   };
 
-  const handleQuickLogin = (role: 'customer' | 'employee' | 'admin', name: string) => {
-    loginAsDemo(role);
-    toast.success(`Signed in as: ${name}`);
-    if (role === 'admin') {
-      router.push('/admin');
-    } else if (role === 'employee') {
-      router.push('/employee');
-    } else {
-      router.push('/account');
-    }
+  const handleQuickLogin = async (role: 'customer' | 'employee' | 'admin', name: string) => {
+    const result = await demoSignIn(role, `Signed in as: ${name}`);
+    if (result.ok) enter(result.user);
   };
 
   return (
@@ -102,6 +100,7 @@ export default function LoginPage() {
 
           <button
             type="submit"
+            disabled={isSubmitting}
             className="w-full bg-[#111111] hover:bg-[#262626] text-white py-3 text-xs uppercase tracking-[0.12em] font-semibold transition-all rounded-xs shadow-xs hover:shadow-md btn-tactile mt-2"
           >
             Sign In
@@ -109,6 +108,7 @@ export default function LoginPage() {
         </form>
 
         {/* Quick Demo Logins - Minimalist 3-Pill Grid */}
+        {showDemoLogins && (
         <div className="pt-5 border-t border-[#F0F0F0]">
           <p className="text-[10px] uppercase tracking-wider text-[#888888] font-semibold text-center mb-3">
             Quick Demo Access
@@ -154,6 +154,7 @@ export default function LoginPage() {
             </button>
           </div>
         </div>
+        )}
 
         {/* Register CTA Box */}
         <div className="pt-4 border-t border-[#F0F0F0] text-center">

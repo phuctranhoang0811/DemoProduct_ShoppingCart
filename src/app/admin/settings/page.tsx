@@ -214,7 +214,7 @@ export default function AdminSettingsPage() {
               Confirm Demo Factory Reset?
             </h3>
             <p className="text-xs text-[#777777]">
-              This will overwrite all current changes and reset the prototype back to the initial 24 garments,
+              This will overwrite all current changes and reset the prototype back to the initial 7 products,
               20 orders, and 12 customers.
             </p>
             <div className="flex gap-3 pt-2">

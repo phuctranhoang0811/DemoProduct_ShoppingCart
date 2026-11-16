@@ -1,98 +1,67 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { initialProducts } from '@/data/products';
-import { initialCategories } from '@/data/categories';
 import { ProductDetailClient } from '@/components/product/ProductDetailClient';
-import {
-  SITE_URL,
-  SITE_NAME,
-  buildProductSchema,
-  buildBreadcrumbsSchema,
-  safeJsonLd,
-} from '@/lib/seo';
+import { CATALOG_REVALIDATE_SECONDS, getProductDetail, getProducts } from '@/lib/catalog';
+import { SITE_NAME, buildBreadcrumbsSchema, buildProductSchema, safeJsonLd } from '@/lib/seo';
 
 interface Props {
   params: { slug: string };
 }
 
-export function generateStaticParams() {
-  return initialProducts.map((p) => ({
-    slug: p.slug,
-  }));
+export const revalidate = CATALOG_REVALIDATE_SECONDS;
+
+export async function generateStaticParams() {
+  return (await getProducts()).map((product) => ({ slug: product.slug }));
 }
 
-export function generateMetadata({ params }: Props): Metadata {
-  const product = initialProducts.find((p) => p.slug === params.slug);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const detail = await getProductDetail(params.slug);
+  if (!detail) return { title: 'Product Not Found', robots: { index: false } };
 
-  if (!product) {
-    return {
-      title: 'Product Not Found',
-      description: 'The requested garment could not be found.',
-    };
-  }
-
-  const category = initialCategories.find((c) => c.id === product.categoryId);
-  const primaryImage = product.images[0] || '';
+  const { product, category } = detail;
+  const images = product.images.map((url) => ({ url, alt: product.name }));
 
   return {
     title: product.name,
     description: product.description,
-    keywords: [
-      product.name,
-      category?.name || 'Fashion',
-      'COS Minimal',
-      product.materials || 'Sustainable natural fibers',
-      product.gender || 'Unisex',
-      'Scandinavian clothing',
-    ],
+    keywords: [product.name, category?.name, 'Enagic', 'Kangen Water', `SKU ${product.sku}`].filter(
+      (k): k is string => Boolean(k),
+    ),
     alternates: {
       canonical: `/product/${product.slug}`,
     },
     openGraph: {
       title: `${product.name} | ${SITE_NAME}`,
       description: product.description,
-      url: `${SITE_URL}/product/${product.slug}`,
+      url: `/product/${product.slug}`,
       siteName: SITE_NAME,
       locale: 'en_US',
-      type: 'article',
-      images: [
-        {
-          url: primaryImage,
-          width: 1000,
-          height: 1333,
-          alt: `${product.name} — COS Minimal Tailoring`,
-        },
-        ...product.images.slice(1).map((img, i) => ({
-          url: img,
-          width: 1000,
-          height: 1333,
-          alt: `${product.name} perspective ${i + 2}`,
-        })),
-      ],
+      type: 'website',
+      images,
     },
     twitter: {
       card: 'summary_large_image',
       title: `${product.name} | ${SITE_NAME}`,
       description: product.description,
-      images: [primaryImage],
+      images: product.images.slice(0, 1),
     },
   };
 }
 
-export default function ProductDetailPage({ params }: Props) {
-  const product = initialProducts.find((p) => p.slug === params.slug);
+export default async function ProductDetailPage({ params }: Props) {
+  const detail = await getProductDetail(params.slug);
+  if (!detail) notFound();
 
-  if (!product) {
-    notFound();
-  }
+  const { product, category, reviews } = detail;
 
-  const category = initialCategories.find((c) => c.id === product.categoryId);
+  const relatedProducts = (await getProducts())
+    .filter((p) => p.id !== product.id && p.categoryId === product.categoryId)
+    .slice(0, 4);
 
-  const productSchema = buildProductSchema(product);
   const breadcrumbSchema = buildBreadcrumbsSchema([
     { name: 'Home', url: '/' },
     { name: 'Shop', url: '/shop' },
-    { name: category?.name || 'Collection', url: `/shop?category=${product.categoryId}` },
+    ...(category ? [{ name: category.name, url: `/category/${category.slug}` }] : []),
     { name: product.name, url: `/product/${product.slug}` },
   ]);
 
@@ -100,17 +69,13 @@ export default function ProductDetailPage({ params }: Props) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: safeJsonLd(productSchema),
-        }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(buildProductSchema(product, reviews)) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: safeJsonLd(breadcrumbSchema),
-        }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbSchema) }}
       />
-      <ProductDetailClient slug={params.slug} />
+      <ProductDetailClient product={product} reviews={reviews} relatedProducts={relatedProducts} />
     </>
   );
 }

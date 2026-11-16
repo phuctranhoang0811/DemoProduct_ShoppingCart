@@ -19,7 +19,7 @@ export const en: Translations = {
     certifications: 'Certifications',
     accessories: 'Filters & Parts',
     about: 'About Enagic®',
-    searchPlaceholder: 'Search LeveLuk K8, SD501, FC1 filter...',
+    searchPlaceholder: 'Search LeveLuk K8, SD501, emGuarde, Kangen Air...',
     shoppingBag: 'Bag',
     savedItems: 'Saved',
     adminPortal: 'Admin',
@@ -133,7 +133,7 @@ export const en: Translations = {
   },
   shop: {
     pageTitle: 'HelloBee Water Ionizers & Genuine Accessories',
-    pageSubtitle: 'Authentic Japanese Kangen Water ionizers, Anespa mineral spas, high-grade replacement filters, and maintenance accessories.',
+    pageSubtitle: 'Authentic Japanese Kangen Water® ionizers, emGuarde personal protection device, and Kangen Air 500 purifier.',
     filters: 'Filters',
     activeFilters: 'Active:',
     resetFilters: 'Reset all filters',

@@ -62,7 +62,7 @@ const coreMembers: HellobeeMember[] = [
     email: 'owner@hellobee.com',
     role: 'OWNER',
     phone: '+1 (555) 019-2831',
-    referralCode: 'HB-OWNER-01',
+    referralCode: 'HBEE01',
     referredById: null,
     sponsorCode: null,
     ownerId: null,
@@ -83,7 +83,7 @@ const coreMembers: HellobeeMember[] = [
     email: 'elena.owner@hellobee.com',
     role: 'OWNER',
     phone: '+1 (555) 018-9922',
-    referralCode: 'HB-OWNER-02',
+    referralCode: 'HBEE02',
     referredById: null,
     sponsorCode: null,
     ownerId: null,
@@ -104,9 +104,9 @@ const coreMembers: HellobeeMember[] = [
     email: 'employee@hellobee.com',
     role: 'EMPLOYEE',
     phone: '+1 (555) 014-4411',
-    referralCode: 'HB-EMP-101',
+    referralCode: 'HBEE03',
     referredById: 'usr_owner_01',
-    sponsorCode: 'HB-OWNER-01',
+    sponsorCode: 'HBEE01',
     ownerId: 'usr_owner_01',
     rank: '2A', // >= 5 orders
     validOrdersCount: 12,
@@ -125,9 +125,9 @@ const coreMembers: HellobeeMember[] = [
     email: 'sophia@hellobee.com',
     role: 'EMPLOYEE',
     phone: '+1 (555) 016-7788',
-    referralCode: 'HB-EMP-102',
+    referralCode: 'HBEE04',
     referredById: 'usr_owner_01',
-    sponsorCode: 'HB-OWNER-01',
+    sponsorCode: 'HBEE01',
     ownerId: 'usr_owner_01',
     rank: '1A', // < 5 orders
     validOrdersCount: 4,
@@ -146,9 +146,9 @@ const coreMembers: HellobeeMember[] = [
     email: 'michael.chen@hellobee.com',
     role: 'EMPLOYEE',
     phone: '+1 (555) 012-3399',
-    referralCode: 'HB-EMP-103',
+    referralCode: 'HBEE05',
     referredById: 'usr_owner_02',
-    sponsorCode: 'HB-OWNER-02',
+    sponsorCode: 'HBEE02',
     ownerId: 'usr_owner_02',
     rank: '3A', // >= 25 orders
     validOrdersCount: 34,
@@ -163,6 +163,7 @@ const coreMembers: HellobeeMember[] = [
   },
 ];
 
+export const initialCoreHellobeeMembers: HellobeeMember[] = coreMembers;
 export const initialHellobeeMembers: HellobeeMember[] = [...coreMembers, ...buildDemoDownline(coreMembers)];
 
 export const initialCommissionTransactions: CommissionTransaction[] = [

@@ -35,25 +35,25 @@ import {
   Rocket,
   Award,
 } from 'lucide-react';
+import { signOut, switchDemoRole } from '@/lib/auth-client';
+import { submitPayout } from '@/lib/hellobee-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { OrderStatus, Order } from '@/types';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { toast } from 'sonner';
+import { SITE_URL } from '@/lib/seo';
 import { LADDER_NAMES, LADDER_RANKS, getTeamStats, commissionLabel } from '@/types/hellobee';
 import { BenefitsPanel } from '@/components/hellobee/BenefitsPanel';
 import { LevelUpCelebration } from '@/components/hellobee/LevelUpCelebration';
 
 export default function EmployeePage() {
   const currentUser = useCommerceStore((state) => state.currentUser);
-  const loginAsDemo = useCommerceStore((state) => state.loginAsDemo);
-  const logout = useCommerceStore((state) => state.logout);
   const orders = useCommerceStore((state) => state.orders);
   const customers = useCommerceStore((state) => state.customers);
   const updateOrderStatus = useCommerceStore((state) => state.updateOrderStatus);
   const products = useCommerceStore((state) => state.products);
   const hellobeeMembers = useCommerceStore((state) => state.hellobeeMembers);
   const commissions = useCommerceStore((state) => state.commissions);
-  const requestPayout = useCommerceStore((state) => state.requestPayout);
   const currency = useCommerceStore((state) => state.currency);
 
   const [activeTab, setActiveTab] = useState<'orders' | 'leads' | 'inventory' | 'referral' | 'benefits'>('benefits');
@@ -83,10 +83,10 @@ export default function EmployeePage() {
       name: 'Claire Beauchamp',
       phone: '+1 (555) 987-1234',
       email: 'claire.b@highrise.io',
-      interestedIn: 'Anespa DX Mineral Ion Water Spa',
+      interestedIn: 'emGuarde Personal Protection Device',
       status: 'Quote Sent',
       date: 'Yesterday',
-      notes: 'Interested in luxury master bathroom shower mineral filtration.',
+      notes: 'Interested in personal electromagnetic harmonizer unit for office and travel.',
     },
     {
       id: 'lead-03',
@@ -106,11 +106,12 @@ export default function EmployeePage() {
       ? m.referralCode === currentUser.referralCode || m.role === 'EMPLOYEE'
       : m.role === 'EMPLOYEE'
   ) || hellobeeMembers[2];
-  const employeeCode = currentMember?.referralCode || 'HB-EMP-101';
+  const employeeCode = currentMember?.referralCode || 'HBEE03';
   const assignedClients = customers.filter(
     (c) => c.referralCode?.toUpperCase() === employeeCode.toUpperCase()
   );
-  const referralLink = `https://enagic-store.com/checkout?ref=${employeeCode}`;
+  const origin = typeof window !== 'undefined' ? window.location.origin : SITE_URL;
+  const referralLink = `${origin}/checkout?ref=${employeeCode}`;
   const teamStats = getTeamStats(currentMember.id, hellobeeMembers);
   const myCommissions = commissions.filter((c) => c.beneficiaryId === currentMember.id);
   const earnedByType = myCommissions.reduce<Record<string, number>>((acc, c) => {
@@ -167,8 +168,7 @@ export default function EmployeePage() {
 
             <button
               onClick={() => {
-                loginAsDemo('employee');
-                toast.success('Signed in as David Nguyen (Employee / HB-EMP-101)');
+                void switchDemoRole('employee', 'Signed in as David Nguyen (Employee / HBEE03)');
               }}
               className="w-full bg-[#2D5A27] text-white py-2.5 rounded-xs text-xs uppercase tracking-wider font-semibold hover:bg-[#23471f] transition-colors shadow-xs flex items-center justify-center gap-2"
             >
@@ -217,14 +217,24 @@ export default function EmployeePage() {
     }
   };
 
-  const handleRequestPayout = (e: React.FormEvent) => {
+  const handleRequestPayout = async (e: React.FormEvent) => {
     e.preventDefault();
     const amountNum = parseFloat(payoutAmount);
     if (isNaN(amountNum) || amountNum <= 0) {
       toast.error('Please enter a valid payout amount.');
       return;
     }
-    requestPayout(currentMember.id, amountNum, payoutBank, payoutAccount, currentUser.name);
+    const result = await submitPayout({
+      memberId: currentMember.id,
+      amount: amountNum,
+      bankName: payoutBank,
+      bankAccountNumber: payoutAccount,
+      bankAccountName: currentUser.name,
+    });
+    if (!result.ok) {
+      toast.error(result.message || 'Payout request failed.');
+      return;
+    }
     setIsPayoutModalOpen(false);
     toast.success(`Payout request of ${formatPrice(amountNum, currency)} submitted for owner approval.`);
   };
@@ -265,8 +275,7 @@ export default function EmployeePage() {
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => {
-                  loginAsDemo('admin');
-                  toast.success('Switched to Administrator role (Johnathan Bee)');
+                  void switchDemoRole('admin', 'Switched to Administrator role (Johnathan Bee)');
                 }}
                 className="text-[10px] uppercase font-bold text-[#555] hover:text-[#111111] px-2 py-1 border border-[#E5E5E5] rounded-xs hover:bg-[#F5F4F0]"
                 title="Switch to Admin"
@@ -275,8 +284,7 @@ export default function EmployeePage() {
               </button>
               <button
                 onClick={() => {
-                  loginAsDemo('customer');
-                  toast.success('Switched to Customer role (Elena Rostova)');
+                  void switchDemoRole('customer', 'Switched to Customer role (Elena Rostova)');
                 }}
                 className="text-[10px] uppercase font-bold text-[#555] hover:text-[#111111] px-2 py-1 border border-[#E5E5E5] rounded-xs hover:bg-[#F5F4F0]"
                 title="Switch to Customer"
@@ -285,8 +293,10 @@ export default function EmployeePage() {
               </button>
               <button
                 onClick={() => {
-                  logout();
-                  toast.info('Signed out.');
+                  void signOut().then(() => {
+                    toast.info('Signed out.');
+                    window.location.assign('/login');
+                  });
                 }}
                 className="p-1.5 text-[#B74747] hover:bg-[#FBEAEA] rounded-xs transition-colors"
                 title="Sign Out"
@@ -1021,27 +1031,33 @@ export default function EmployeePage() {
                     </thead>
                     <tbody className="divide-y divide-[#F0F0F0]">
                       <tr>
-                        <td className="p-3 font-semibold text-[#111111]">Kangen K8 (8-Plate Titanium)</td>
-                        <td className="p-3">{formatPrice(4980)}</td>
-                        <td className="p-3 font-bold text-[#2D5A27]">{formatPrice(498)}</td>
+                        <td className="p-3 font-semibold text-[#111111]">emGuarde Personal Protection Device</td>
+                        <td className="p-3">{formatPrice(1500)}</td>
+                        <td className="p-3 font-bold text-[#2D5A27]">{formatPrice(150)}</td>
+                        <td className="p-3 text-[#777777]">Upon payment confirmation</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-semibold text-[#111111]">Kangen Air 500</td>
+                        <td className="p-3">{formatPrice(500)}</td>
+                        <td className="p-3 font-bold text-[#2D5A27]">{formatPrice(50)}</td>
+                        <td className="p-3 text-[#777777]">Upon payment confirmation</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-semibold text-[#111111]">LeveLuk K8 (8-Plate Titanium)</td>
+                        <td className="p-3">{formatPrice(5890)}</td>
+                        <td className="p-3 font-bold text-[#2D5A27]">{formatPrice(589)}</td>
                         <td className="p-3 text-[#777777]">Upon customer installation</td>
                       </tr>
                       <tr>
-                        <td className="p-3 font-semibold text-[#111111]">Leveluk SD501 Platinum</td>
-                        <td className="p-3">{formatPrice(3980)}</td>
-                        <td className="p-3 font-bold text-[#2D5A27]">{formatPrice(398)}</td>
+                        <td className="p-3 font-semibold text-[#111111]">LeveLuk SD501 DX</td>
+                        <td className="p-3">{formatPrice(5360)}</td>
+                        <td className="p-3 font-bold text-[#2D5A27]">{formatPrice(536)}</td>
                         <td className="p-3 text-[#777777]">Upon customer installation</td>
                       </tr>
                       <tr>
-                        <td className="p-3 font-semibold text-[#111111]">Super 501 (Heavy Commercial)</td>
-                        <td className="p-3">{formatPrice(5980)}</td>
-                        <td className="p-3 font-bold text-[#2D5A27]">{formatPrice(598)}</td>
-                        <td className="p-3 text-[#777777]">Upon customer installation</td>
-                      </tr>
-                      <tr>
-                        <td className="p-3 font-semibold text-[#111111]">Anespa DX Home Mineral Spa</td>
-                        <td className="p-3">{formatPrice(3100)}</td>
-                        <td className="p-3 font-bold text-[#2D5A27]">{formatPrice(310)}</td>
+                        <td className="p-3 font-semibold text-[#111111]">LeveLuk Super 501 (12-Plate)</td>
+                        <td className="p-3">{formatPrice(7080)}</td>
+                        <td className="p-3 font-bold text-[#2D5A27]">{formatPrice(708)}</td>
                         <td className="p-3 text-[#777777]">Upon customer installation</td>
                       </tr>
                     </tbody>

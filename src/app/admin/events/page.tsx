@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CalendarDays, Plus, Trash2, ImagePlus } from 'lucide-react';
 import { toast } from 'sonner';
+import { createEvent, removeEvent, syncEvents } from '@/lib/events-client';
 import { useEventsStore } from '@/stores/useEventsStore';
 import { MemberEvent } from '@/data/events';
 
@@ -26,9 +27,12 @@ const inputClass =
 
 export default function AdminEventsPage() {
   const events = useEventsStore((s) => s.events);
-  const addEvent = useEventsStore((s) => s.addEvent);
-  const deleteEvent = useEventsStore((s) => s.deleteEvent);
   const [form, setForm] = useState(emptyForm);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    void syncEvents();
+  }, []);
 
   const set = (key: keyof typeof emptyForm, value: string) => setForm((f) => ({ ...f, [key]: value }));
 
@@ -43,13 +47,19 @@ export default function AdminEventsPage() {
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim() || !form.date || !form.location.trim()) {
       toast.error('Title, date, and location are required.');
       return;
     }
-    addEvent({ ...form, title: form.title.trim(), location: form.location.trim() });
+    setSubmitting(true);
+    const result = await createEvent({ ...form, title: form.title.trim(), location: form.location.trim() });
+    setSubmitting(false);
+    if (!result.ok) {
+      toast.error(result.message || 'Could not publish event.');
+      return;
+    }
     setForm(emptyForm);
     toast.success('Event published to the Events page.');
   };
@@ -107,8 +117,12 @@ export default function AdminEventsPage() {
           </div>
         </div>
         <div className="md:col-span-2">
-          <button type="submit" className="inline-flex items-center gap-2 bg-[#111111] text-white px-5 py-2.5 text-xs uppercase tracking-wider font-semibold rounded-xs hover:bg-[#333333] btn-tactile">
-            <Plus className="w-4 h-4" /> Publish event
+          <button
+            type="submit"
+            disabled={submitting}
+            className="inline-flex items-center gap-2 bg-[#111111] text-white px-5 py-2.5 text-xs uppercase tracking-wider font-semibold rounded-xs hover:bg-[#333333] btn-tactile disabled:opacity-50"
+          >
+            <Plus className="w-4 h-4" /> {submitting ? 'Publishing...' : 'Publish event'}
           </button>
         </div>
       </form>
@@ -127,8 +141,12 @@ export default function AdminEventsPage() {
             </div>
             <button
               type="button"
-              onClick={() => {
-                deleteEvent(e.id);
+              onClick={async () => {
+                const result = await removeEvent(e.id);
+                if (!result.ok) {
+                  toast.error(result.message || 'Could not delete event.');
+                  return;
+                }
                 toast.success('Event deleted.');
               }}
               className="p-2 text-red-600 hover:bg-red-50 rounded-full"

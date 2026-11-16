@@ -26,6 +26,7 @@ import {
   Lock,
   CalendarDays,
 } from 'lucide-react';
+import { switchDemoRole } from '@/lib/auth-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { toast } from 'sonner';
 
@@ -49,7 +50,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const resetDemoData = useCommerceStore((state) => state.resetDemoData);
   const currentUser = useCommerceStore((state) => state.currentUser);
-  const loginAsDemo = useCommerceStore((state) => state.loginAsDemo);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
   const handleReset = () => {
@@ -87,8 +87,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="pt-2 space-y-2">
             <button
               onClick={() => {
-                loginAsDemo('admin');
-                toast.success('Signed in as Administrator (Johnathan Bee)');
+                void switchDemoRole('admin', 'Signed in as Administrator (Johnathan Bee)');
               }}
               className="w-full bg-[#111111] text-white py-3 rounded-xs text-xs uppercase tracking-wider font-semibold hover:bg-[#333333] transition-colors shadow-xs"
             >
@@ -97,8 +96,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
             <button
               onClick={() => {
-                loginAsDemo('employee');
-                toast.success('Signed in as Employee (David Nguyen)');
+                void switchDemoRole('employee', 'Signed in as Employee (David Nguyen)');
               }}
               className="w-full bg-[#2D5A27] text-white py-2.5 rounded-xs text-xs uppercase tracking-wider font-semibold hover:bg-[#23471f] transition-colors"
             >
@@ -209,8 +207,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <span className="text-[10px] text-[#888888] uppercase font-bold">Role:</span>
               <button
                 onClick={() => {
-                  loginAsDemo('employee');
-                  toast.success('Switched to Employee role (David Nguyen)');
+                  void switchDemoRole('employee', 'Switched to Employee role (David Nguyen)');
                 }}
                 className="text-[10px] uppercase font-bold text-[#2D5A27] bg-[#EBF3EA] px-2 py-0.5 rounded hover:bg-[#d8e8d6]"
                 title="Switch to Employee"
@@ -219,8 +216,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </button>
               <button
                 onClick={() => {
-                  loginAsDemo('customer');
-                  toast.success('Switched to Customer role (Elena Rostova)');
+                  void switchDemoRole('customer', 'Switched to Customer role (Elena Rostova)');
                 }}
                 className="text-[10px] uppercase font-bold text-[#555] bg-[#F5F4F0] px-2 py-0.5 rounded hover:bg-[#EBEBEB]"
                 title="Switch to Customer"
@@ -253,7 +249,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 flex-shrink-0" />
               <span>
-                You are currently viewing the Administrator Portal in Staff mode ({currentUser.name} - HB-EMP-101).
+                You are currently viewing the Administrator Portal in Staff mode ({currentUser.name} - HBEE03).
               </span>
             </div>
             <Link

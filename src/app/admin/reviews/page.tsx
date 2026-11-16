@@ -78,7 +78,7 @@ export default function AdminReviewsPage() {
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-[#E5E5E5] bg-[#F7F7F6] text-[#444444] uppercase text-[11px] tracking-wider font-semibold">
-              <th className="py-3.5 px-4">Garment</th>
+              <th className="py-3.5 px-4">Product</th>
               <th className="py-3.5 px-3">Customer</th>
               <th className="py-3.5 px-3">Rating</th>
               <th className="py-3.5 px-3">Comment</th>

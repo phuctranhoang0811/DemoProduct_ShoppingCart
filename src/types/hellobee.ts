@@ -26,9 +26,26 @@ export interface HellobeeMember {
 
 export type CommissionType =
   | 'DIRECT_10_PERCENT'
+  // 1% to each member above the seller ...
+  | 'UPLINE_OVERRIDE_1_PERCENT'
+  // ... and the same 1% when that member is the owner at the top of the tree.
   | 'OWNER_OVERRIDE_1_PERCENT'
   | 'GENERATION_1_PERCENT'
   | 'RANK_UPGRADE_REWARD';
+
+// A sale pays its seller DIRECT_RATE and every level above the seller UPLINE_RATE.
+export const DIRECT_RATE = 0.1;
+export const UPLINE_RATE = 0.01;
+
+// Invitation codes are numbered in the order members join: HBEE01, HBEE02, ...
+export function nextReferralCode(members: Pick<HellobeeMember, 'referralCode'>[]): string {
+  const highest = members.reduce((max, member) => {
+    const match = /^HBEE(\d+)$/.exec(member.referralCode);
+    return match ? Math.max(max, Number(match[1])) : max;
+  }, 0);
+
+  return `HBEE${String(highest + 1).padStart(2, '0')}`;
+}
 export type CommissionStatus = 'APPROVED' | 'PAID' | 'REVOKED';
 
 export interface CommissionTransaction {
@@ -78,10 +95,15 @@ export const RANK_PROGRESSION_RULES: RankProgressionRule[] = [
   { currentRank: '4A', requiredOrders: 625, nextRank: '5A' },
 ];
 
-export function commissionLabel(c: Pick<CommissionTransaction, 'commissionType' | 'generation'>): string {
-  if (c.commissionType === 'DIRECT_10_PERCENT') return '10% Direct';
-  if (c.commissionType === 'RANK_UPGRADE_REWARD') return `LV${c.generation ?? ''} Upgrade Reward`;
-  if (c.commissionType === 'GENERATION_1_PERCENT') return `1% Generation ${c.generation ?? ''}`.trim();
+export function commissionLabel(
+  input: CommissionType | Pick<CommissionTransaction, 'commissionType' | 'generation'>
+): string {
+  const type = typeof input === 'string' ? input : input.commissionType;
+  const generation = typeof input === 'string' ? undefined : input.generation;
+  if (type === 'DIRECT_10_PERCENT') return '10% Direct';
+  if (type === 'UPLINE_OVERRIDE_1_PERCENT') return '1% Upline Override';
+  if (type === 'RANK_UPGRADE_REWARD') return `LV${generation ?? ''} Upgrade Reward`;
+  if (type === 'GENERATION_1_PERCENT') return `1% Generation ${generation ?? ''}`.trim();
   return '1% Owner Override';
 }
 
