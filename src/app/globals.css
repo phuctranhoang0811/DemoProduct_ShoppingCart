@@ -15,6 +15,11 @@
   --accent: #b9a58b;
   --success: #477a5a;
   --error: #b74747;
+  /* Hello Bee brand gold: honey for dark surfaces, honey-strong for accents, honey-deep for text on light (AA on white) */
+  --honey: #f6c94c;
+  --honey-strong: #e0a82e;
+  --honey-deep: #8a5a0b;
+  --honey-tint: #fff4d1;
 }
 
 html {
