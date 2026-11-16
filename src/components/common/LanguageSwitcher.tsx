@@ -48,7 +48,7 @@ function guardReactDom() {
   };
 }
 
-function loadTranslator(onReady: () => void) {
+function loadTranslator(onReady: () => void, onFail?: () => void) {
   guardReactDom();
   const apply = () => {
     let tries = 0;
@@ -57,6 +57,7 @@ function loadTranslator(onReady: () => void) {
       if (combo || ++tries > 50) {
         window.clearInterval(timer);
         if (combo) onReady();
+        else onFail?.();
       }
     }, 100);
   };
@@ -114,7 +115,14 @@ export function LanguageSwitcher({ dark = false, align = 'right' }: { dark?: boo
       window.location.reload();
       return;
     }
-    loadTranslator(() => setComboLanguage(code));
+    // If in-place translation does not take effect, a reload applies the saved language cookie.
+    const reload = () => window.location.reload();
+    loadTranslator(() => {
+      setComboLanguage(code);
+      window.setTimeout(() => {
+        if (!document.documentElement.className.includes('translated')) reload();
+      }, 4000);
+    }, reload);
   };
 
   const active = LANGUAGES.find((l) => l.code === current) || LANGUAGES[0];
