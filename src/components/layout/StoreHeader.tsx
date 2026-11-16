@@ -140,7 +140,7 @@ export function StoreHeader() {
         onMouseLeave={handleMouseLeave}
       >
         <div
-          className={`max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-[auto_1fr_auto] lg:grid-cols-[1fr_auto_1fr] items-center transition-all duration-300 ${
+          className={`max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-[auto_1fr_auto] lg:grid-cols-[minmax(max-content,1fr)_auto_minmax(max-content,1fr)] items-center transition-all duration-300 ${
             isScrolled ? 'h-16' : 'h-16 lg:h-20'
           }`}
         >
@@ -179,7 +179,7 @@ export function StoreHeader() {
           </div>
 
           {/* Desktop Navigation Links - Mathematically Centered Zone */}
-          <nav className="hidden lg:flex items-center justify-center gap-6 xl:gap-8 text-[11px] xl:text-xs uppercase tracking-[0.1em] xl:tracking-[0.14em] font-semibold h-full px-2">
+          <nav className="hidden lg:flex items-center justify-center gap-4 xl:gap-7 text-[11px] xl:text-xs uppercase tracking-[0.06em] xl:tracking-[0.12em] font-semibold h-full px-2">
             <Link
               href="/"
               onMouseEnter={() => setActiveDropdown(null)}
