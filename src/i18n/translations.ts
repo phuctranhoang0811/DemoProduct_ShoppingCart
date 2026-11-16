@@ -195,7 +195,7 @@ const enTranslations: Translations = {
     },
     nav: {
       home: 'Home',
-      products: 'Products',
+      products: 'Shop',
       waterTypes: '5 Kangen Waters',
       technology: 'Electrode Tech',
       certifications: 'Certifications',

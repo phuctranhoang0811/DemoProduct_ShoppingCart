@@ -640,7 +640,7 @@ export function StoreHeader() {
                     className="h-8 w-auto object-contain"
                   />
                   <span className="text-[10px] uppercase tracking-[0.2em] text-[#333333] font-semibold border-l border-gray-300 pl-2">
-                    KANGEN WATER®
+                    HELLOBEE
                   </span>
                 </div>
                 <button
@@ -764,6 +764,19 @@ export function StoreHeader() {
                   <SlidersHorizontal className="w-4 h-4" />
                   <span>Admin Portal</span>
                 </Link>
+                {currentUser && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      logout();
+                    }}
+                    className="w-full flex items-center gap-2.5 py-2 text-xs font-semibold text-red-600 hover:text-red-700"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Log Out</span>
+                  </button>
+                )}
               </div>
             </div>
 
