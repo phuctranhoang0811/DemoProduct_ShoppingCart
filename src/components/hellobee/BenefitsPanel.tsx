@@ -20,8 +20,8 @@ export function BenefitsPanel({ ladderLevel }: { ladderLevel: number }) {
         <Image
           src="/images/logo.png"
           alt="Hello Bee"
-          width={878}
-          height={914}
+          width={640}
+          height={612}
           className="h-28 sm:h-36 w-auto object-contain drop-shadow-md"
         />
       </div>

@@ -65,7 +65,7 @@ function ConfettiBurst({ message, onDone }: { message: string; onDone: () => voi
       ))}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="levelup-banner flex items-center gap-4 rounded-2xl border-2 border-[#E0A82E] bg-[#3A1B0A]/95 px-6 py-4 shadow-2xl">
-          <Image src="/images/logo.png" alt="" width={878} height={914} className="h-16 w-auto" />
+          <Image src="/images/logo.png" alt="" width={640} height={612} className="h-16 w-auto" />
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#F6C94C]">Level Up!</p>
             <p className="text-lg font-extrabold text-white">{message}</p>
