@@ -54,10 +54,10 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: 'https://www.hellobee.org/images/og-home.jpg',
+        url: 'https://www.hellobee.org/images/og-bee.jpg',
         width: 1200,
         height: 630,
-        alt: 'Clear mountain stream water, the Hellobee Kangen Water home page hero',
+        alt: 'Hellobee bee mascot on a honeycomb badge',
       },
     ],
   },
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     title: 'Hellobee® Kangen Water® | Change Your Water, Change Your Life®',
     description:
       'Exclusive Global Producer of Medical-Grade Kangen Water® Ionizers Since 1974.',
-    images: ['https://www.hellobee.org/images/og-home.jpg'],
+    images: ['https://www.hellobee.org/images/og-bee.jpg'],
   },
   icons: {
     icon: '/images/logo.png',
