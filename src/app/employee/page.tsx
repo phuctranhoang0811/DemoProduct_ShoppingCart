@@ -27,11 +27,21 @@ import {
   ArrowRight,
   RefreshCw,
   Search,
+  Crown,
+  Gift,
+  Banknote,
+  Target,
+  Handshake,
+  Rocket,
+  Award,
 } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { OrderStatus, Order } from '@/types';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { toast } from 'sonner';
+import { LADDER_NAMES, LADDER_RANKS, getTeamStats, commissionLabel } from '@/types/hellobee';
+import { BenefitsPanel } from '@/components/hellobee/BenefitsPanel';
+import { LevelUpCelebration } from '@/components/hellobee/LevelUpCelebration';
 
 export default function EmployeePage() {
   const currentUser = useCommerceStore((state) => state.currentUser);
@@ -46,7 +56,7 @@ export default function EmployeePage() {
   const requestPayout = useCommerceStore((state) => state.requestPayout);
   const currency = useCommerceStore((state) => state.currency);
 
-  const [activeTab, setActiveTab] = useState<'orders' | 'leads' | 'inventory' | 'referral'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'leads' | 'inventory' | 'referral' | 'benefits'>('benefits');
   const [orderFilter, setOrderFilter] = useState<'ALL' | OrderStatus>('ALL');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -101,6 +111,17 @@ export default function EmployeePage() {
     (c) => c.referralCode?.toUpperCase() === employeeCode.toUpperCase()
   );
   const referralLink = `https://enagic-store.com/checkout?ref=${employeeCode}`;
+  const teamStats = getTeamStats(currentMember.id, hellobeeMembers);
+  const myCommissions = commissions.filter((c) => c.beneficiaryId === currentMember.id);
+  const earnedByType = myCommissions.reduce<Record<string, number>>((acc, c) => {
+    const key = commissionLabel(c);
+    acc[key] = (acc[key] || 0) + c.amount;
+    return acc;
+  }, {});
+  const nextLadder = LADDER_RANKS.find((r) => r.level > teamStats.ladderLevel);
+  const ladderProgress = nextLadder
+    ? Math.min(100, Math.round(((nextLadder.directOnly ? teamStats.directCount : teamStats.teamSize) / nextLadder.teamSize) * 100))
+    : 100;
 
   // Employee sees only their own referral orders; admin sees all
   const myOrders =
@@ -278,6 +299,11 @@ export default function EmployeePage() {
       </header>
 
       {/* Main Workspace Body */}
+      <LevelUpCelebration
+        memberId={currentMember.id}
+        ladderLevel={teamStats.ladderLevel}
+        rank={currentMember.rank}
+      />
       <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Employee Profile & KPI Dashboard Banner */}
         <div className="bg-[#FAF9F5] border border-[#E5E5E5] rounded-xl p-6 sm:p-7 shadow-xs">
@@ -418,7 +444,166 @@ export default function EmployeePage() {
           >
             <Share2 className="w-4 h-4" /> My Referral Link & QR Tool
           </button>
+          <button
+            onClick={() => setActiveTab('benefits')}
+            className={`pb-3 border-b-2 transition-colors flex items-center gap-2 ${
+              activeTab === 'benefits'
+                ? 'border-[#2D5A27] text-[#2D5A27]'
+                : 'border-transparent text-[#777777] hover:text-[#111111]'
+            }`}
+          >
+            <DollarSign className="w-4 h-4" /> Employee Benefits
+          </button>
         </div>
+
+        {/* TAB 5: EMPLOYEE BENEFITS */}
+        {activeTab === 'benefits' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-white p-4 rounded-lg border border-[#EBEBEB]">
+                <span className="text-[11px] uppercase tracking-wider text-[#777777] font-medium block">Current Rank</span>
+                <p className="text-xl font-bold mt-1">{teamStats.ladderLevel
+                    ? `LV${teamStats.ladderLevel} – ${LADDER_NAMES[teamStats.ladderLevel - 1]}`
+                    : 'Not yet LV1'}</p>
+              </div>
+              <div className="bg-white p-4 rounded-lg border border-[#EBEBEB]">
+                <span className="text-[11px] uppercase tracking-wider text-[#777777] font-medium block">Direct Members</span>
+                <p className="text-xl font-bold mt-1">{teamStats.directCount}</p>
+              </div>
+              <div className="bg-white p-4 rounded-lg border border-[#EBEBEB]">
+                <span className="text-[11px] uppercase tracking-wider text-[#777777] font-medium block">Total Team</span>
+                <p className="text-xl font-bold mt-1">{teamStats.teamSize}</p>
+              </div>
+              <div className="bg-white p-4 rounded-lg border border-[#EBEBEB]">
+                <span className="text-[11px] uppercase tracking-wider text-[#777777] font-medium block">Monthly Salary</span>
+                <p className="text-xl font-bold text-[#2D5A27] mt-1">
+                  {formatPrice(LADDER_RANKS.find((r) => r.level === teamStats.ladderLevel)?.monthlySalary ?? 0, currency)}
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white border border-[#E5E5E5] rounded-lg p-5 space-y-2">
+              <div className="flex justify-between text-xs font-semibold">
+                <span>{nextLadder ? `Progress to LV${nextLadder.level}` : 'Top rank reached'}</span>
+                {nextLadder && (
+                  <span className="text-[#777777]">
+                    {nextLadder.directOnly ? teamStats.directCount : teamStats.teamSize} / {nextLadder.teamSize}{' '}
+                    {nextLadder.directOnly ? 'direct members' : 'team members'}
+                  </span>
+                )}
+              </div>
+              <div className="h-2 bg-[#F0F0F0] rounded-full overflow-hidden">
+                <div className="h-full bg-[#2D5A27]" style={{ width: `${ladderProgress}%` }} />
+              </div>
+            </div>
+
+            <BenefitsPanel ladderLevel={teamStats.ladderLevel} />
+
+            <div className="rounded-2xl border border-[#E0A82E]/60 bg-[#FFF8E7] p-6 space-y-4">
+              <div>
+                <h3 className="text-base font-extrabold text-[#3A1B0A]">Rank &amp; Leadership Rewards Program</h3>
+                <p className="text-xs text-[#5A2E0E] mt-1 leading-relaxed">
+                  Hello Bee is a community where teamwork, leadership and personal growth come together. Every great
+                  organization starts with a small team, so the 10-Level Leadership Rewards Program recognizes team
+                  development and celebrates each milestone, from your first five members to an organization of thousands.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                {LADDER_RANKS.map((r) => (
+                  <div
+                    key={r.level}
+                    className={`rounded-lg border px-3 py-2 text-center ${
+                      r.level === teamStats.ladderLevel
+                        ? 'bg-[#F6C94C] border-[#B8781A]'
+                        : 'bg-white border-[#E0A82E]/50'
+                    }`}
+                  >
+                    <p className="text-[11px] font-extrabold text-[#3A1B0A]">LV{r.level}</p>
+                    <p className="text-[11px] text-[#5A2E0E]">{LADDER_NAMES[r.level - 1]}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="rounded-xl border border-[#E0A82E]/60 bg-white p-5 space-y-2">
+                <h4 className="flex items-center gap-2 text-sm font-extrabold text-[#3A1B0A]">
+                  <Gift className="w-4 h-4 text-[#B8781A]" /> One-Time Achievement Reward
+                </h4>
+                <p className="text-xs text-[#555] leading-relaxed">
+                  Celebrate your achievements as your organization reaches new milestones. Each qualifying rank comes with
+                  a designated one-time reward, from your first achievement at LV2 to the LV10 Grand Master level.
+                </p>
+              </div>
+              <div className="rounded-xl border border-[#E0A82E]/60 bg-white p-5 space-y-2">
+                <h4 className="flex items-center gap-2 text-sm font-extrabold text-[#3A1B0A]">
+                  <Banknote className="w-4 h-4 text-[#B8781A]" /> Fixed Monthly Salary
+                </h4>
+                <p className="text-xs text-[#555] leading-relaxed">
+                  Starting from LV3, qualifying leadership levels include a fixed monthly salary benefit that increases as
+                  you progress: from $50/month at LV3 up to $4,000/month at LV10.
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-[#E5E5E5] bg-white p-6 space-y-4">
+              <h3 className="text-sm font-extrabold uppercase tracking-wider text-[#3A1B0A]">Why Aim for Higher Levels?</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                {[
+                  { Icon: Target, title: 'Clear Achievement Goals', text: 'A structured 10-level system gives you clear membership milestones to work toward.' },
+                  { Icon: Gift, title: 'One-Time Rewards', text: 'Qualify for special achievement rewards as you reach designated leadership levels.' },
+                  { Icon: Banknote, title: 'Monthly Salary Benefits', text: 'Eligible leadership ranks offer fixed monthly salary benefits under the program.' },
+                  { Icon: Crown, title: 'Leadership Development', text: 'Develop your ability to organize, support and lead a growing community.' },
+                  { Icon: Handshake, title: 'Teamwork and Community', text: 'Build meaningful connections and an environment where members learn and grow together.' },
+                  { Icon: Rocket, title: 'A Long-Term Growth Journey', text: 'Set bigger goals, celebrate achievements and keep working toward the next milestone.' },
+                ].map(({ Icon, title, text }) => (
+                  <div key={title} className="flex gap-3">
+                    <span className="w-8 h-8 shrink-0 rounded-full bg-[#FFF1C9] text-[#B8781A] flex items-center justify-center">
+                      <Icon className="w-4 h-4" />
+                    </span>
+                    <div>
+                      <p className="font-bold text-[#111111]">{title}</p>
+                      <p className="text-[#666] leading-relaxed mt-0.5">{text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-[#3A1B0A] text-[#FFF1C9] p-6 text-center space-y-2">
+              <p className="flex items-center justify-center gap-2 text-base font-extrabold text-[#F6C94C]">
+                <Award className="w-5 h-5" /> Your Next Level Is Waiting
+              </p>
+              <p className="text-xs leading-relaxed max-w-2xl mx-auto">
+                You don&apos;t have to start with thousands of members. Start with five, build your foundation, develop
+                your team and learn to lead. Start at LV1, work toward LV3, aim for LV5, build toward LV8 and make LV10
+                your ultimate goal. Build together. Lead together. Grow together.
+              </p>
+            </div>
+
+            <p className="text-[11px] text-[#777] leading-relaxed border-t border-[#E5E5E5] pt-4">
+              <strong>Program disclosure:</strong> All membership requirements, one-time rewards and fixed monthly salary
+              benefits are subject to the official Hello Bee compensation plan, eligibility requirements and applicable
+              terms and conditions. Rewards and salary benefits are not guaranteed income. Members should review all
+              participation costs, qualification rules, payment conditions, financial risks and applicable policies before
+              participating. Membership growth alone does not guarantee rewards or financial returns.
+            </p>
+
+            <div className="bg-white rounded-lg border border-[#E5E5E5] p-5 text-xs space-y-2">
+              <h3 className="uppercase tracking-wider font-bold">Your Earnings by Type</h3>
+              {Object.keys(earnedByType).length === 0 ? (
+                <p className="text-[#777777]">No commissions recorded yet.</p>
+              ) : (
+                Object.entries(earnedByType).map(([label, amount]) => (
+                  <div key={label} className="flex justify-between border-b border-[#F0F0F0] py-1.5">
+                    <span>{label}</span>
+                    <span className="font-bold text-[#2D5A27]">{formatPrice(amount, currency)}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
 
         {/* TAB 1: ORDER FULFILLMENT & STATUS */}
         {activeTab === 'orders' && (

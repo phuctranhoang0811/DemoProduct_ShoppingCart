@@ -14,11 +14,11 @@ import {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Enagic® Kangen Water® | Japanese Medical-Grade Water Ionizers',
+    default: 'Hellobee® Kangen Water® | Japanese Medical-Grade Water Ionizers',
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    'Official distributor of Enagic® Kangen Water® medical-grade water ionizers: LeveLuk K8, SD501, Super 501, Anespa DX. Producing 5 types of antioxidant-rich alkaline ionized water. Certified Medical Device.',
+    'Official distributor of Hellobee® Kangen Water® medical-grade water ionizers: LeveLuk K8, SD501, Super 501, Anespa DX. Producing 5 types of antioxidant-rich alkaline ionized water. Certified Medical Device.',
   keywords: [
     'kangen water',
     'enagic kangen',
@@ -33,9 +33,9 @@ export const metadata: Metadata = {
     'enagic international',
     'change your water change your life',
   ],
-  authors: [{ name: 'Enagic International Japan', url: SITE_URL }],
-  creator: 'Enagic International',
-  publisher: 'Enagic® Kangen Water®',
+  authors: [{ name: 'Hellobee', url: SITE_URL }],
+  creator: 'Hellobee',
+  publisher: 'Hellobee® Kangen Water®',
   formatDetection: {
     email: false,
     address: false,
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'Enagic® Kangen Water® | Japanese Medical-Grade Water Ionizers',
+    title: 'Hellobee® Kangen Water® | Japanese Medical-Grade Water Ionizers',
     description:
       'Pioneer in electrolyzed water ionizer systems since 1974. Featuring solid medical-grade titanium platinum-coated plates producing 5 types of functional waters.',
     url: SITE_URL,
@@ -54,21 +54,19 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1546554137-f86b9593a222?q=80&w=1200&auto=format&fit=crop',
+        url: 'https://www.hellobee.org/images/og-bee.jpg',
         width: 1200,
         height: 630,
-        alt: 'Enagic LeveLuk K8 & Kangen Water Flagship Devices',
+        alt: 'Hellobee bee mascot on a honeycomb badge',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Enagic® Kangen Water® | Change Your Water, Change Your Life®',
+    title: 'Hellobee® Kangen Water® | Change Your Water, Change Your Life®',
     description:
       'Exclusive Global Producer of Medical-Grade Kangen Water® Ionizers Since 1974.',
-    images: [
-      'https://images.unsplash.com/photo-1546554137-f86b9593a222?q=80&w=1200&auto=format&fit=crop',
-    ],
+    images: ['https://www.hellobee.org/images/og-bee.jpg'],
   },
   icons: {
     icon: '/images/logo.png',

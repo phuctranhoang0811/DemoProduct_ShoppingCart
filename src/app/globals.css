@@ -15,6 +15,11 @@
   --accent: #b9a58b;
   --success: #477a5a;
   --error: #b74747;
+  /* Hello Bee brand gold: honey for dark surfaces, honey-strong for accents, honey-deep for text on light (AA on white) */
+  --honey: #f6c94c;
+  --honey-strong: #e0a82e;
+  --honey-deep: #8a5a0b;
+  --honey-tint: #fff4d1;
 }
 
 html {
@@ -452,4 +457,32 @@ button, input, select, textarea {
   .shimmer-hover:hover::after {
     animation: shimmer-light 0.85s ease-out;
   }
+}
+
+@keyframes confetti-fall {
+  0% { transform: translate3d(0, -8vh, 0) rotate(0deg); opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate3d(var(--drift), 108vh, 0) rotate(var(--rot)); opacity: 0; }
+}
+
+@keyframes levelup-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  12% { transform: scale(1.06); opacity: 1; }
+  20% { transform: scale(1); }
+  85% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0; }
+}
+
+.confetti-piece {
+  animation-name: confetti-fall;
+  animation-timing-function: cubic-bezier(0.3, 0.6, 0.5, 1);
+  animation-fill-mode: forwards;
+}
+
+.levelup-banner {
+  animation: levelup-pop 5s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti-piece { display: none; }
 }

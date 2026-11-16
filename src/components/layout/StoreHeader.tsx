@@ -100,6 +100,29 @@ export function StoreHeader() {
   const isDarkHeader = isHome;
   const isTransparent = isHome && !isScrolled;
 
+  // Honey on dark headers; deep honey (AA contrast on white) on light headers
+  const navLinkClass = (active: boolean) =>
+    `group/nav relative whitespace-nowrap shrink-0 h-full flex items-center gap-1.5 transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-[var(--honey-strong)] rounded-sm ${
+      isDarkHeader
+        ? active
+          ? 'text-[var(--honey)] font-bold drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]'
+          : 'text-white/75 hover:text-[var(--honey)] focus-visible:text-[var(--honey)]'
+        : active
+        ? 'text-[var(--honey-deep)] font-bold'
+        : 'text-[#444444] hover:text-[var(--honey-deep)] focus-visible:text-[var(--honey-deep)]'
+    }`;
+
+  const navUnderline = (active: boolean) => (
+    <span
+      aria-hidden
+      className={`absolute bottom-3.5 left-0 right-0 h-[2px] rounded-full origin-left transition-transform duration-300 ${
+        isDarkHeader
+          ? 'bg-[var(--honey)] shadow-[0_0_8px_rgba(246,201,76,0.8)]'
+          : 'bg-[var(--honey-strong)]'
+      } ${active ? 'scale-x-100' : 'scale-x-0 group-hover/nav:scale-x-100 group-focus-visible/nav:scale-x-100'}`}
+    />
+  );
+
   return (
     <>
       <header
@@ -167,22 +190,10 @@ export function StoreHeader() {
             <Link
               href="/"
               onMouseEnter={() => setActiveDropdown(null)}
-              className={`relative whitespace-nowrap shrink-0 h-full flex items-center transition-colors ${
-                isDarkHeader
-                  ? pathname === '/'
-                    ? 'text-white font-bold drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]'
-                    : 'text-white/75 hover:text-white'
-                  : pathname === '/'
-                  ? 'text-[#111111] font-bold'
-                  : 'text-[#444444] hover:text-[#111111]'
-              }`}
+              className={navLinkClass(pathname === '/')}
             >
               <span>{t.nav.home}</span>
-              {pathname === '/' && (
-                <span className={`absolute bottom-3.5 left-0 right-0 h-[2px] rounded-full transition-all ${
-                  isDarkHeader ? 'bg-white shadow-[0_0_8px_rgba(255,255,255,0.9)]' : 'bg-[#111111]'
-                }`} />
-              )}
+              {navUnderline(pathname === '/')}
             </Link>
 
             {/* Products Dropdown Anchor */}
@@ -192,15 +203,9 @@ export function StoreHeader() {
             >
               <Link
                 href="/shop"
-                className={`relative whitespace-nowrap shrink-0 h-full flex items-center gap-1 transition-colors ${
-                  isDarkHeader
-                    ? activeDropdown === 'ionizers' || pathname.startsWith('/shop') || pathname.startsWith('/product')
-                      ? 'text-white font-bold drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]'
-                      : 'text-white/75 hover:text-white'
-                    : activeDropdown === 'ionizers' || pathname.startsWith('/shop') || pathname.startsWith('/product')
-                    ? 'text-[#111111] font-bold'
-                    : 'text-[#444444] hover:text-[#111111]'
-                }`}
+                className={navLinkClass(
+                  activeDropdown === 'ionizers' || pathname.startsWith('/shop') || pathname.startsWith('/product')
+                )}
               >
                 <span>{t.nav.products}</span>
                 <ChevronDown
@@ -208,10 +213,8 @@ export function StoreHeader() {
                     activeDropdown === 'ionizers' ? 'rotate-180' : ''
                   }`}
                 />
-                {(activeDropdown === 'ionizers' || pathname.startsWith('/shop') || pathname.startsWith('/product')) && (
-                  <span className={`absolute bottom-3.5 left-0 right-0 h-[2px] rounded-full transition-all ${
-                    isDarkHeader ? 'bg-white shadow-[0_0_8px_rgba(255,255,255,0.9)]' : 'bg-[#111111]'
-                  }`} />
+                {navUnderline(
+                  activeDropdown === 'ionizers' || pathname.startsWith('/shop') || pathname.startsWith('/product')
                 )}
               </Link>
 
@@ -256,8 +259,8 @@ export function StoreHeader() {
                           onClick={() => setActiveDropdown(null)}
                           className={`flex gap-3 p-2.5 rounded-sm transition-colors border group ${
                             isDarkHeader
-                              ? 'border-transparent hover:border-[#333333] hover:bg-[#1C1C1C]'
-                              : 'border-transparent hover:border-[#EEEEEE] hover:bg-[#F9F9F8]'
+                              ? 'border-transparent hover:border-[#E0A82E]/50 hover:bg-[#1C1C1C]'
+                              : 'border-transparent hover:border-[#E0A82E]/60 hover:bg-[var(--honey-tint)]'
                           }`}
                         >
                           <div className={`relative w-14 h-16 flex-shrink-0 rounded-xs overflow-hidden ${
@@ -281,7 +284,7 @@ export function StoreHeader() {
                               isDarkHeader ? 'text-[#888888]' : 'text-[#777777]'
                             }`}>{p.sku}</p>
                             <p className={`text-xs font-bold mt-1 ${
-                              isDarkHeader ? 'text-cyan-300' : 'text-[#111111]'
+                              isDarkHeader ? 'text-[var(--honey)]' : 'text-[#111111]'
                             }`}>
                               {formatPrice(p.price, currency)}
                             </p>
@@ -302,7 +305,7 @@ export function StoreHeader() {
                       href="/shop"
                       onClick={() => setActiveDropdown(null)}
                       className={`font-medium underline ${
-                        isDarkHeader ? 'text-white hover:text-cyan-300' : 'text-[#111111]'
+                        isDarkHeader ? 'text-white hover:text-[var(--honey)]' : 'text-[#111111]'
                       }`}
                     >
                       Browse Full Catalog &rarr;
@@ -315,35 +318,19 @@ export function StoreHeader() {
             <Link
               href="/calculator"
               onMouseEnter={() => setActiveDropdown(null)}
-              className={`relative whitespace-nowrap shrink-0 h-full flex items-center transition-colors ${
-                isDarkHeader
-                  ? 'text-white/75 hover:text-white'
-                  : pathname === '/calculator'
-                  ? 'text-[#111111] font-bold'
-                  : 'text-[#444444] hover:text-[#111111]'
-              }`}
+              className={navLinkClass(pathname === '/calculator')}
             >
               <span>Tax Calculator</span>
-              {!isDarkHeader && pathname === '/calculator' && (
-                <span className="absolute bottom-3.5 left-0 right-0 h-[2px] rounded-full bg-[#111111]" />
-              )}
+              {navUnderline(pathname === '/calculator')}
             </Link>
 
             <Link
               href="/hellobee"
               onMouseEnter={() => setActiveDropdown(null)}
-              className={`relative whitespace-nowrap shrink-0 h-full flex items-center gap-1.5 transition-colors ${
-                isDarkHeader
-                  ? 'text-white/75 hover:text-white'
-                  : pathname === '/hellobee'
-                  ? 'text-[#111111] font-bold'
-                  : 'text-[#444444] hover:text-[#111111]'
-              }`}
+              className={navLinkClass(pathname === '/hellobee')}
             >
               <span>Hellobee Network</span>
-              {!isDarkHeader && pathname === '/hellobee' && (
-                <span className="absolute bottom-3.5 left-0 right-0 h-[2px] rounded-full bg-[#111111]" />
-              )}
+              {navUnderline(pathname === '/hellobee')}
             </Link>
           </nav>
 
@@ -381,8 +368,8 @@ export function StoreHeader() {
                 onClick={() => setIsSearchOpen(true)}
                 className={`p-2 rounded-full transition-all duration-150 flex items-center justify-center shrink-0 btn-tactile hover:scale-105 ${
                   isDarkHeader
-                    ? 'text-white hover:text-white hover:bg-white/15'
-                    : 'text-[#222222] hover:text-black hover:bg-[#F5F4F0]'
+                    ? 'text-white hover:text-[var(--honey)] hover:bg-white/10'
+                    : 'text-[#222222] hover:text-[var(--honey-deep)] hover:bg-[var(--honey-tint)]'
                 }`}
                 aria-label="Search"
                 title="Search (Cmd+K / Ctrl+K)"
@@ -395,8 +382,8 @@ export function StoreHeader() {
                 href="/wishlist"
                 className={`p-2 rounded-full transition-all duration-150 relative flex items-center justify-center shrink-0 btn-tactile hover:scale-105 ${
                   isDarkHeader
-                    ? 'text-white hover:text-white hover:bg-white/15'
-                    : 'text-[#222222] hover:text-black hover:bg-[#F5F4F0]'
+                    ? 'text-white hover:text-[var(--honey)] hover:bg-white/10'
+                    : 'text-[#222222] hover:text-[var(--honey-deep)] hover:bg-[var(--honey-tint)]'
                 }`}
                 aria-label="Wishlist"
                 title="Wishlist"
@@ -417,8 +404,8 @@ export function StoreHeader() {
                   href={currentUser ? '/account' : '/login'}
                   className={`p-2 rounded-full transition-all duration-150 relative flex items-center justify-center btn-tactile hover:scale-105 ${
                     isDarkHeader
-                      ? 'text-white hover:text-white hover:bg-white/15'
-                      : 'text-[#222222] hover:text-black hover:bg-[#F5F4F0]'
+                      ? 'text-white hover:text-[var(--honey)] hover:bg-white/10'
+                      : 'text-[#222222] hover:text-[var(--honey-deep)] hover:bg-[var(--honey-tint)]'
                   }`}
                   aria-label="User Account"
                   title={
@@ -543,10 +530,10 @@ export function StoreHeader() {
                 }}
                 className={`p-2 rounded-full transition-all duration-150 relative flex items-center justify-center shrink-0 btn-tactile hover:scale-105 active:scale-95 ${
                   isDarkHeader
-                    ? 'text-white hover:text-white hover:bg-white/15'
-                    : 'text-[#222222] hover:text-black hover:bg-[#F5F4F0]'
+                    ? 'text-white hover:text-[var(--honey)] hover:bg-white/10'
+                    : 'text-[#222222] hover:text-[var(--honey-deep)] hover:bg-[var(--honey-tint)]'
                 } ${
-                  isCartBounced ? 'animate-cart-bounce text-cyan-300 scale-110' : ''
+                  isCartBounced ? 'animate-cart-bounce text-[var(--honey)] scale-110' : ''
                 }`}
                 aria-label="Shopping Bag"
                 title="Shopping Bag"
@@ -690,28 +677,28 @@ export function StoreHeader() {
                 <Link
                   href="/"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block py-1 hover:text-[#666666] transition-colors"
+                  className="block py-1 hover:text-[var(--honey-deep)] transition-colors"
                 >
                   {t.nav.home}
                 </Link>
                 <Link
                   href="/shop"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block py-1 hover:text-[#666666] transition-colors"
+                  className="block py-1 hover:text-[var(--honey-deep)] transition-colors"
                 >
                   {t.nav.products}
                 </Link>
                 <Link
                   href="/calculator"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block py-1 font-semibold text-[#111111] hover:text-[#666666] transition-colors"
+                  className="block py-1 font-semibold text-[#111111] hover:text-[var(--honey-deep)] transition-colors"
                 >
                   Tax Calculator (US & VN)
                 </Link>
                 <Link
                   href="/hellobee"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-between py-1 font-semibold text-[#111111] hover:text-[#666666] transition-colors"
+                  className="flex items-center justify-between py-1 font-semibold text-[#111111] hover:text-[var(--honey-deep)] transition-colors"
                 >
                   <span>Hellobee Network</span>
                 </Link>

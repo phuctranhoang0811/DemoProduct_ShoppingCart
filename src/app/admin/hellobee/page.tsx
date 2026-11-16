@@ -14,7 +14,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
-import { RankLevel, PayoutStatus } from '@/types/hellobee';
+import { RankLevel, PayoutStatus, commissionLabel, getTeamStats, LADDER_RANKS } from '@/types/hellobee';
 import { toast } from 'sonner';
 
 export default function AdminHellobeePage() {
@@ -243,6 +243,9 @@ export default function AdminHellobeePage() {
                   <th className="py-3 px-4 font-medium">Rank</th>
                   <th className="py-3 px-4 font-medium">Referral Code</th>
                   <th className="py-3 px-4 font-medium">Supervisor (Owner)</th>
+                  <th className="py-3 px-4 font-medium">LV Rank</th>
+                  <th className="py-3 px-4 font-medium text-right">Direct / Team</th>
+                  <th className="py-3 px-4 font-medium text-right">Monthly Salary</th>
                   <th className="py-3 px-4 font-medium text-right">Direct Units</th>
                   <th className="py-3 px-4 font-medium text-right">Sales Volume</th>
                   <th className="py-3 px-4 font-medium text-right">Available Balance</th>
@@ -251,6 +254,8 @@ export default function AdminHellobeePage() {
               <tbody className="divide-y divide-[#E5E5E5]">
                 {filteredMembers.map((m) => {
                   const supervisor = m.ownerId ? members.find((o) => o.id === m.ownerId) : null;
+                  const team = getTeamStats(m.id, members);
+                  const ladder = LADDER_RANKS.find((r) => r.level === team.ladderLevel);
                   return (
                     <tr key={m.id} className="hover:bg-[#FBFBFA]/80">
                       <td className="py-3.5 px-4">
@@ -287,6 +292,15 @@ export default function AdminHellobeePage() {
                         ) : (
                           <span className="text-[#999999] italic">— Independent Node —</span>
                         )}
+                      </td>
+                      <td className="py-3.5 px-4 font-mono font-bold">
+                        {team.ladderLevel ? `LV${team.ladderLevel}` : '—'}
+                      </td>
+                      <td className="py-3.5 px-4 text-right font-mono">
+                        {team.directCount} / {team.teamSize}
+                      </td>
+                      <td className="py-3.5 px-4 text-right font-mono text-[#2D5A27]">
+                        ${(ladder?.monthlySalary ?? 0).toLocaleString('en-US')}
                       </td>
                       <td className="py-3.5 px-4 text-right font-mono font-semibold text-[#111111]">
                         {m.validOrdersCount}
@@ -355,9 +369,7 @@ export default function AdminHellobeePage() {
                                 : 'bg-[#F2EFE9] text-[#737373]'
                             }`}
                           >
-                            {c.commissionType === 'DIRECT_10_PERCENT'
-                              ? '10% Direct Referral'
-                              : '1% Owner Invoice Override'}
+                            {commissionLabel(c)}
                           </span>
                         </td>
                         <td className="py-3 px-4 font-mono text-[11px] text-[#737373]">{c.orderNumber}</td>

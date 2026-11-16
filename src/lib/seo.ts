@@ -1,7 +1,7 @@
 import { Product } from '@/types';
 
 export const SITE_URL = 'https://enagic-kangenwater.vn';
-export const SITE_NAME = 'Enagic® Kangen Water®';
+export const SITE_NAME = 'Hellobee® Kangen Water®';
 export const ENAGIC_OFFICIAL_URL = 'https://www.enagic.com/';
 
 export function safeJsonLd(data: object): string {

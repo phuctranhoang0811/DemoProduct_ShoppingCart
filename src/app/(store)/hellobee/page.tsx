@@ -24,10 +24,13 @@ import {
   Send,
   AlertCircle,
   ExternalLink,
+  RotateCcw,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCommerceStore } from '@/stores/useCommerceStore';
-import { HellobeeRole, RankLevel, getNextRankProgress } from '@/types/hellobee';
+import { HellobeeRole, RankLevel, getNextRankProgress, commissionLabel, getTeamStats } from '@/types/hellobee';
+import { BenefitsPanel } from '@/components/hellobee/BenefitsPanel';
+import { LevelUpCelebration, ConfettiBurst } from '@/components/hellobee/LevelUpCelebration';
 import { formatPrice } from '@/lib/utils';
 
 function HellobeePortalContent() {
@@ -45,11 +48,14 @@ function HellobeePortalContent() {
   const setActiveMemberId = useCommerceStore((state) => state.setActiveMemberId);
   const registerHellobeeMember = useCommerceStore((state) => state.registerHellobeeMember);
   const recordReferralOrder = useCommerceStore((state) => state.recordReferralOrder);
+  const resetMemberProgress = useCommerceStore((state) => state.resetMemberProgress);
   const requestPayout = useCommerceStore((state) => state.requestPayout);
   const currency = useCommerceStore((state) => state.currency);
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'team' | 'commissions' | 'payouts' | 'register'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'team' | 'benefits' | 'commissions' | 'payouts' | 'register'>('dashboard');
   const [copiedCode, setCopiedCode] = useState(false);
+  const [celebration, setCelebration] = useState<string | null>(null);
+  const endCelebration = React.useCallback(() => setCelebration(null), []);
 
   // Check if current user qualifies to access the Hellobee Employee / Consultant Network
   const isDirectStaff = currentUser?.role === 'admin' || currentUser?.role === 'employee';
@@ -123,6 +129,9 @@ function HellobeePortalContent() {
 
   // Rank progression details
   const rankProgress = getNextRankProgress(currentMember?.rank || '1A', currentMember?.validOrdersCount || 0);
+  const teamStats = currentMember
+    ? getTeamStats(currentMember.id, members)
+    : { directCount: 0, teamSize: 0, byGeneration: [], ladderLevel: 0 };
 
   useEffect(() => {
     const ref = searchParams?.get('ref');
@@ -197,6 +206,15 @@ function HellobeePortalContent() {
       }
 
       if (result.upgrades.length > 0) {
+        const newRank = result.upgrades[result.upgrades.length - 1].newRank;
+        // Record the new level first so the passive LevelUpCelebration does not fire a second overlay
+        try {
+          localStorage.setItem(
+            `hellobee_celebrated_${currentMember.id}`,
+            String(teamStats.ladderLevel * 10 + (parseInt(newRank, 10) || 1))
+          );
+        } catch {}
+        setCelebration(`Rank ${newRank}`);
         result.upgrades.forEach((u) => {
           toast.success(
             `🚀 RANK ADVANCEMENT! ${u.memberName} has been promoted from ${u.oldRank} to ${u.newRank}!`
@@ -541,6 +559,16 @@ function HellobeePortalContent() {
               </button>
             )}
             <button
+              onClick={() => setActiveTab('benefits')}
+              className={`px-4 py-2 rounded-xs uppercase tracking-wider text-xs transition-all ${
+                activeTab === 'benefits'
+                  ? 'bg-[#111111] text-white font-semibold'
+                  : 'text-[#666666] hover:bg-[#F5F4F0] hover:text-[#111111]'
+              }`}
+            >
+              Benefits
+            </button>
+            <button
               onClick={() => setActiveTab('commissions')}
               className={`px-4 py-2 rounded-xs uppercase tracking-wider text-xs transition-all ${
                 activeTab === 'commissions'
@@ -577,6 +605,15 @@ function HellobeePortalContent() {
 
       {/* Main Content Area */}
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+        <LevelUpCelebration
+          memberId={currentMember?.id}
+          ladderLevel={teamStats.ladderLevel}
+          rank={currentMember?.rank || '1A'}
+        />
+        {celebration && <ConfettiBurst message={celebration} onDone={endCelebration} />}
+
+        {activeTab === 'benefits' && <BenefitsPanel ladderLevel={teamStats.ladderLevel} />}
+
         {/* OVERVIEW DASHBOARD */}
         {activeTab === 'dashboard' && (
           <div className="space-y-8">
@@ -627,6 +664,23 @@ function HellobeePortalContent() {
                   <ShoppingCart className="w-3.5 h-3.5 text-[#B9A58B]" />
                   <span>Simulate $1,500 Sale</span>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!currentMember) return;
+                    const ok = window.confirm(
+                      `Reset all progress for ${currentMember.name}?\n\nRank returns to 1A and orders, sales volume, commissions, balance and payout requests are cleared. This cannot be undone.`
+                    );
+                    if (!ok) return;
+                    resetMemberProgress(currentMember.id);
+                    toast.success('Progress reset to Rank 1A.');
+                  }}
+                  className="px-4 py-2 border border-[#B74747]/40 text-[#B74747] hover:bg-[#FBEAEA] font-semibold rounded-xs text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all"
+                  title="Reset this member's rank, orders, commissions and balance"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Reset Progress</span>
+                </button>
               </div>
             </div>
 
@@ -665,11 +719,27 @@ function HellobeePortalContent() {
               </div>
 
               <div className="flex justify-between text-[11px] text-[#888888] pt-1">
-                <span>1A (Base)</span>
-                <span>2A (5 Orders)</span>
-                <span>3A (25 Orders)</span>
-                <span>4A (125 Orders)</span>
-                <span>5A (625 Orders)</span>
+                {(['1A (Base)', '2A (5 Orders)', '3A (25 Orders)', '4A (125 Orders)', '5A (625 Orders)'] as const).map(
+                  (label, i) => {
+                    const reached = i + 1 <= (parseInt(currentMember?.rank || '1A', 10) || 1);
+                    const isCurrent = label.startsWith(currentMember?.rank || '1A');
+                    return (
+                      <span
+                        key={label}
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 transition-colors ${
+                          isCurrent
+                            ? 'bg-[#F6C94C] text-[#3A1B0A] font-bold shadow-[0_0_12px_rgba(246,201,76,0.8)] animate-badge-pop'
+                            : reached
+                            ? 'text-[#8A5A0B] font-semibold'
+                            : ''
+                        }`}
+                      >
+                        {reached && <CheckCircle className="w-3 h-3" />}
+                        {label}
+                      </span>
+                    );
+                  }
+                )}
               </div>
             </div>
 
@@ -760,7 +830,7 @@ function HellobeePortalContent() {
                                 : 'bg-blue-100 text-blue-800'
                             }`}
                           >
-                            {c.commissionType === 'DIRECT_10_PERCENT' ? '10% Direct' : '1% Owner Override'}
+                            {commissionLabel(c)}
                           </span>
                         </div>
                         <p className="text-[#777777] mt-0.5">
@@ -895,7 +965,7 @@ function HellobeePortalContent() {
                             : 'bg-blue-100 text-blue-800'
                         }`}
                       >
-                        {c.commissionType === 'DIRECT_10_PERCENT' ? '10% Direct ($150)' : '1% Owner Override ($15)'}
+                        {commissionLabel(c)} ({formatPrice(c.amount)})
                       </span>
                     </div>
 
