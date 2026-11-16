@@ -27,7 +27,9 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCommerceStore } from '@/stores/useCommerceStore';
-import { HellobeeRole, RankLevel, getNextRankProgress, commissionLabel } from '@/types/hellobee';
+import { HellobeeRole, RankLevel, getNextRankProgress, commissionLabel, getTeamStats } from '@/types/hellobee';
+import { BenefitsPanel } from '@/components/hellobee/BenefitsPanel';
+import { LevelUpCelebration } from '@/components/hellobee/LevelUpCelebration';
 import { formatPrice } from '@/lib/utils';
 
 function HellobeePortalContent() {
@@ -48,7 +50,7 @@ function HellobeePortalContent() {
   const requestPayout = useCommerceStore((state) => state.requestPayout);
   const currency = useCommerceStore((state) => state.currency);
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'team' | 'commissions' | 'payouts' | 'register'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'team' | 'benefits' | 'commissions' | 'payouts' | 'register'>('dashboard');
   const [copiedCode, setCopiedCode] = useState(false);
 
   // Check if current user qualifies to access the Hellobee Employee / Consultant Network
@@ -123,6 +125,9 @@ function HellobeePortalContent() {
 
   // Rank progression details
   const rankProgress = getNextRankProgress(currentMember?.rank || '1A', currentMember?.validOrdersCount || 0);
+  const teamStats = currentMember
+    ? getTeamStats(currentMember.id, members)
+    : { directCount: 0, teamSize: 0, byGeneration: [], ladderLevel: 0 };
 
   useEffect(() => {
     const ref = searchParams?.get('ref');
@@ -541,6 +546,16 @@ function HellobeePortalContent() {
               </button>
             )}
             <button
+              onClick={() => setActiveTab('benefits')}
+              className={`px-4 py-2 rounded-xs uppercase tracking-wider text-xs transition-all ${
+                activeTab === 'benefits'
+                  ? 'bg-[#111111] text-white font-semibold'
+                  : 'text-[#666666] hover:bg-[#F5F4F0] hover:text-[#111111]'
+              }`}
+            >
+              Benefits
+            </button>
+            <button
               onClick={() => setActiveTab('commissions')}
               className={`px-4 py-2 rounded-xs uppercase tracking-wider text-xs transition-all ${
                 activeTab === 'commissions'
@@ -577,6 +592,14 @@ function HellobeePortalContent() {
 
       {/* Main Content Area */}
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+        <LevelUpCelebration
+          memberId={currentMember?.id}
+          ladderLevel={teamStats.ladderLevel}
+          rank={currentMember?.rank || '1A'}
+        />
+
+        {activeTab === 'benefits' && <BenefitsPanel ladderLevel={teamStats.ladderLevel} />}
+
         {/* OVERVIEW DASHBOARD */}
         {activeTab === 'dashboard' && (
           <div className="space-y-8">
