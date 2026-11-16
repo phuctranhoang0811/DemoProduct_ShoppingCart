@@ -134,7 +134,6 @@ export default function HomePage() {
         ))}
 
         <div className="absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-black/85 via-black/40 to-transparent pointer-events-none z-10" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/55 to-transparent pointer-events-none" />
         <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
 
         <button
@@ -157,40 +156,7 @@ export default function HomePage() {
           {String(heroIndex + 1).padStart(2, '0')} / {HERO_IMAGES.length}
         </div>
 
-        <div className="relative w-full max-w-[1440px] mx-auto px-6 sm:px-12 lg:px-20 z-20 pt-20 sm:pt-16 pb-24 sm:pb-12">
-          <div className="max-w-2xl text-white space-y-5 sm:space-y-6">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 glass-dark text-cyan-300 text-[11px] font-semibold tracking-wider uppercase px-3.5 py-1.5 rounded-full border border-cyan-400/30">
-                <Droplets className="w-3 h-3 text-cyan-300" />
-                <span>Japanese Medical Device</span>
-              </span>
-              <span className="text-[11px] tracking-widest text-[#B9A58B] uppercase font-mono font-medium hidden sm:inline">
-                Osaka Atelier • Est. 1974
-              </span>
-            </div>
-
-            <h1 className="text-white text-4xl sm:text-5xl lg:text-[66px] font-normal tracking-tight leading-[1.06] drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)]">
-              Change Your Water.<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-cyan-200">
-                Change Your Life.®
-              </span>
-            </h1>
-
-            <p className="text-sm sm:text-base text-[#E5E5E5] font-normal leading-relaxed max-w-xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-              Experience the restorative power of natural alkaline ionization. Original Japanese medical-grade ionizers engineered with solid platinum-dipped titanium plates.
-            </p>
-
-            <div className="pt-2 flex flex-wrap items-center gap-3">
-              <Link
-                href="/shop"
-                className="bg-white text-[#111111] px-8 py-3.5 text-xs uppercase tracking-wider font-semibold hover:bg-[#F5F4F0] btn-tactile transition-all rounded-xs shadow-xl mirror-sheen flex items-center gap-2"
-              >
-                <span>Explore Products</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-        </div>
+        <h1 className="sr-only">Change Your Water. Change Your Life.</h1>
       </section>
 
       {/* ─── 2. OVERSIZED STAT CALLOUTS (replaces icon+text trust bar) ─── */}
