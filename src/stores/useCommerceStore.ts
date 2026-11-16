@@ -42,8 +42,8 @@ import {
 import { generateId } from '@/lib/utils';
 
 const STORAGE_KEYS = {
-  products: 'enagic_kangen_products_v6',
-  categories: 'enagic_kangen_categories_v5',
+  products: 'enagic_kangen_products_v7',
+  categories: 'enagic_kangen_categories_v6',
   cart: 'enagic_kangen_cart_v2',
   wishlist: 'enagic_kangen_wishlist_v3',
   orders: 'enagic_kangen_orders_v2',

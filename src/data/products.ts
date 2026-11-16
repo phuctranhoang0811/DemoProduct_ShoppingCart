@@ -176,12 +176,12 @@ export const initialProducts: Product[] = [
     price: 500,
     originalPrice: 500,
     categoryId: 'cat-air',
-    images: ['/images/products/kangen-air.svg'],
+    images: ['/images/products/kangen-air.webp'],
     colors: [
-      { id: 'c-blue', name: 'Blue', hex: '#8FC7E8', image: '/images/products/kangen-air.svg' },
-      { id: 'c-pink', name: 'Pink', hex: '#E7B7D4', image: '/images/products/kangen-air.svg' },
-      { id: 'c-white', name: 'White', hex: '#F3F4F6', image: '/images/products/kangen-air.svg' },
-      { id: 'c-black', name: 'Black', hex: '#111111', image: '/images/products/kangen-air.svg' },
+      { id: 'c-blue', name: 'Blue', hex: '#8FC7E8', image: '/images/products/kangen-air.webp' },
+      { id: 'c-pink', name: 'Pink', hex: '#E7B7D4', image: '/images/products/kangen-air.webp' },
+      { id: 'c-white', name: 'White', hex: '#F3F4F6', image: '/images/products/kangen-air.webp' },
+      { id: 'c-black', name: 'Black', hex: '#111111', image: '/images/products/kangen-air.webp' },
     ],
     sizes: [
       { id: 'single', label: 'Single Unit', stock: 60 },

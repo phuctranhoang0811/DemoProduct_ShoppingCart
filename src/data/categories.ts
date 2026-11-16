@@ -22,7 +22,7 @@ export const initialCategories: Category[] = [
     description: 'Compact photocatalyst and UV LED air purifiers for home, office, and travel.',
     descriptionVi: 'Compact photocatalyst and UV LED air purifiers for home, office, and travel.',
     descriptionEn: 'Compact photocatalyst and UV LED air purifiers for home, office, and travel.',
-    image: '/images/products/kangen-air.svg',
+    image: '/images/products/kangen-air.webp',
     status: 'active',
   },
 ];
