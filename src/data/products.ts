@@ -129,7 +129,7 @@ export const initialProducts: Product[] = [
     featured: true,
     bestSeller: true,
     newArrival: true,
-    sale: true,
+    sale: false,
     gender: 'unisex',
     createdAt: '2026-01-01T08:00:00Z',
   },
