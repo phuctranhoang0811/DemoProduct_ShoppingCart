@@ -150,7 +150,7 @@ export function StoreHeader() {
             <div className="flex items-center lg:hidden mr-2">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className={`p-2 -ml-2 transition-colors ${
+                className={`p-2.5 -ml-2.5 transition-colors ${
                   isDarkHeader ? 'text-white hover:text-white/80' : 'text-[#111111] hover:text-[#555555]'
                 }`}
                 aria-label="Toggle menu"
@@ -366,7 +366,7 @@ export function StoreHeader() {
               <button
                 type="button"
                 onClick={() => setIsSearchOpen(true)}
-                className={`p-2 rounded-full transition-all duration-150 flex items-center justify-center shrink-0 btn-tactile hover:scale-105 ${
+                className={`p-2.5 sm:p-2 rounded-full transition-all duration-150 flex items-center justify-center shrink-0 btn-tactile hover:scale-105 ${
                   isDarkHeader
                     ? 'text-white hover:text-[var(--honey)] hover:bg-white/10'
                     : 'text-[#222222] hover:text-[var(--honey-deep)] hover:bg-[var(--honey-tint)]'
@@ -380,7 +380,7 @@ export function StoreHeader() {
               {/* Wishlist */}
               <Link
                 href="/wishlist"
-                className={`p-2 rounded-full transition-all duration-150 relative flex items-center justify-center shrink-0 btn-tactile hover:scale-105 ${
+                className={`p-2.5 sm:p-2 rounded-full transition-all duration-150 relative flex items-center justify-center shrink-0 btn-tactile hover:scale-105 ${
                   isDarkHeader
                     ? 'text-white hover:text-[var(--honey)] hover:bg-white/10'
                     : 'text-[#222222] hover:text-[var(--honey-deep)] hover:bg-[var(--honey-tint)]'
@@ -402,7 +402,7 @@ export function StoreHeader() {
               <div className="relative group/user shrink-0">
                 <Link
                   href={currentUser ? '/account' : '/login'}
-                  className={`p-2 rounded-full transition-all duration-150 relative flex items-center justify-center btn-tactile hover:scale-105 ${
+                  className={`p-2.5 sm:p-2 rounded-full transition-all duration-150 relative flex items-center justify-center btn-tactile hover:scale-105 ${
                     isDarkHeader
                       ? 'text-white hover:text-[var(--honey)] hover:bg-white/10'
                       : 'text-[#222222] hover:text-[var(--honey-deep)] hover:bg-[var(--honey-tint)]'
@@ -528,7 +528,7 @@ export function StoreHeader() {
                   setTimeout(() => setIsCartBounced(false), 500);
                   setIsCartDrawerOpen(true);
                 }}
-                className={`p-2 rounded-full transition-all duration-150 relative flex items-center justify-center shrink-0 btn-tactile hover:scale-105 active:scale-95 ${
+                className={`p-2.5 sm:p-2 rounded-full transition-all duration-150 relative flex items-center justify-center shrink-0 btn-tactile hover:scale-105 active:scale-95 ${
                   isDarkHeader
                     ? 'text-white hover:text-[var(--honey)] hover:bg-white/10'
                     : 'text-[#222222] hover:text-[var(--honey-deep)] hover:bg-[var(--honey-tint)]'
