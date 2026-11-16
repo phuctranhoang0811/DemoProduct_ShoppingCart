@@ -170,18 +170,11 @@ export function StoreHeader() {
                   isScrolled ? 'h-9 sm:h-10' : 'h-10 sm:h-11 lg:h-12'
                 }`}
               />
-              <div className="hidden sm:flex flex-col">
-                <span className={`text-[10px] xl:text-[11px] tracking-[0.22em] font-bold uppercase whitespace-nowrap leading-tight transition-colors ${
-                  isDarkHeader ? 'text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]' : 'text-[#111111]'
-                }`}>
-                  KANGEN WATER®
-                </span>
-                <span className={`text-[8px] tracking-[0.14em] font-medium uppercase whitespace-nowrap leading-tight mt-0.5 transition-colors ${
-                  isDarkHeader ? 'text-white/70' : 'text-[#888888]'
-                }`}>
-                  ENAGIC JAPAN
-                </span>
-              </div>
+              <span className={`hidden sm:block text-sm xl:text-base tracking-[0.22em] font-bold uppercase whitespace-nowrap transition-colors ${
+                isDarkHeader ? 'text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]' : 'text-[#111111]'
+              }`}>
+                HelloBee
+              </span>
             </Link>
           </div>
 
