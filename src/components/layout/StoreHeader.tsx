@@ -358,7 +358,7 @@ export function StoreHeader() {
                 title="Click to toggle currency ($ USD / ₫ VND)"
                 aria-label="Toggle currency"
               >
-                <span>{currency === 'USD' ? '$ USD' : '₫ VND'}</span>
+                <span translate="no" className="notranslate">{currency === 'USD' ? '$ USD' : '₫ VND'}</span>
               </button>
             </div>
 
@@ -836,7 +836,7 @@ export function StoreHeader() {
                 onClick={() => setCurrency(currency === 'USD' ? 'VND' : 'USD')}
                 className="px-2.5 py-1 text-[11px] font-bold rounded-full border border-[#E5E5E5] bg-[#F5F4F0] text-[#333333] hover:bg-[#EAE8E3] transition-colors"
               >
-                {currency === 'USD' ? '$ USD' : '₫ VND'}
+                <span translate="no" className="notranslate">{currency === 'USD' ? '$ USD' : '₫ VND'}</span>
               </button>
             </div>
             <div className="pt-4 flex items-center justify-between text-xs">
