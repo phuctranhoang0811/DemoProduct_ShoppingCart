@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/images/og-home.jpg',
+        url: 'https://www.hellobee.org/images/og-home.jpg',
         width: 1200,
         height: 630,
         alt: 'Clear mountain stream water, the Enagic Kangen Water home page hero',
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     title: 'Enagic® Kangen Water® | Change Your Water, Change Your Life®',
     description:
       'Exclusive Global Producer of Medical-Grade Kangen Water® Ionizers Since 1974.',
-    images: ['/images/og-home.jpg'],
+    images: ['https://www.hellobee.org/images/og-home.jpg'],
   },
   icons: {
     icon: '/images/logo.png',
