@@ -2,6 +2,18 @@ import { Category } from '@/types';
 
 export const initialCategories: Category[] = [
   {
+    id: 'cat-emguarde',
+    name: 'emGuarde Personal Protection',
+    nameVi: 'emGuarde Personal Protection',
+    nameEn: 'emGuarde Personal Protection',
+    slug: 'emguarde',
+    description: 'Close-body personal environment harmonizers designed for continuous use in high-density electromagnetic environments.',
+    descriptionVi: 'Close-body personal environment harmonizers designed for continuous use in high-density electromagnetic environments.',
+    descriptionEn: 'Close-body personal environment harmonizers designed for continuous use in high-density electromagnetic environments.',
+    image: '/images/products/emguarde-1.webp',
+    status: 'active',
+  },
+  {
     id: 'cat-ionizers',
     name: 'Kangen Water® Ionizers',
     nameVi: 'Kangen Water® Ionizers',
