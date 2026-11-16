@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Globe, Check } from 'lucide-react';
+import { Globe, Check, Loader2 } from 'lucide-react';
 
 const LANGUAGES = [
   { code: 'en', label: 'English', short: 'EN' },
@@ -93,6 +93,7 @@ function setComboLanguage(code: string) {
 export function LanguageSwitcher({ dark = false, align = 'right' }: { dark?: boolean; align?: 'left' | 'right' }) {
   const [open, setOpen] = useState(false);
   const [current, setCurrent] = useState('en');
+  const [busy, setBusy] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -114,18 +115,27 @@ export function LanguageSwitcher({ dark = false, align = 'right' }: { dark?: boo
     if (code === current) return;
     writeLang(code);
     setCurrent(code);
-    // Translating an already translated page mixes languages, so only the first switch from English is done in place.
-    if (code === 'en' || current !== 'en') {
-      window.location.reload();
+    setBusy(true);
+    const reload = () => window.location.reload();
+    if (code === 'en') {
+      reload();
       return;
     }
-    // If in-place translation does not take effect, a reload applies the saved language cookie.
-    const reload = () => window.location.reload();
     loadTranslator(() => {
       setComboLanguage(code);
-      window.setTimeout(() => {
-        if (!document.documentElement.className.includes('translated')) reload();
-      }, 4000);
+      // Poll until the page reports it is translated; fall back to a reload that applies the saved cookie.
+      let waited = 0;
+      const timer = window.setInterval(() => {
+        waited += 150;
+        const done = document.documentElement.className.includes('translated');
+        if (done && waited >= 600) {
+          window.clearInterval(timer);
+          setBusy(false);
+        } else if (waited > 6000) {
+          window.clearInterval(timer);
+          reload();
+        }
+      }, 150);
     }, reload);
   };
 
@@ -135,7 +145,11 @@ export function LanguageSwitcher({ dark = false, align = 'right' }: { dark?: boo
     <div ref={ref} className="relative shrink-0 notranslate" translate="no">
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          setOpen((o) => !o);
+          loadTranslator(() => undefined);
+        }}
+        onMouseEnter={() => loadTranslator(() => undefined)}
         aria-label="Change language"
         aria-expanded={open}
         className={`inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-full border transition-colors btn-tactile ${
@@ -144,7 +158,7 @@ export function LanguageSwitcher({ dark = false, align = 'right' }: { dark?: boo
             : 'border-[#E5E5E5] bg-[#F5F4F0] text-[#333333] hover:bg-[#EAE8E3]'
         }`}
       >
-        <Globe className="w-3 h-3" />
+        {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Globe className="w-3 h-3" />}
         <span>{active.short}</span>
       </button>
       {open && (
