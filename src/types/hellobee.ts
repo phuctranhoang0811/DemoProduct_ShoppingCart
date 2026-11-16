@@ -24,7 +24,31 @@ export interface HellobeeMember {
   createdAt: string;
 }
 
-export type CommissionType = 'DIRECT_10_PERCENT' | 'OWNER_OVERRIDE_1_PERCENT';
+export type CommissionType =
+  | 'DIRECT_10_PERCENT'
+  // 1% to each member above the seller ...
+  | 'UPLINE_OVERRIDE_1_PERCENT'
+  // ... and the same 1% when that member is the owner at the top of the tree.
+  | 'OWNER_OVERRIDE_1_PERCENT';
+
+// A sale pays its seller DIRECT_RATE and every level above the seller UPLINE_RATE.
+export const DIRECT_RATE = 0.1;
+export const UPLINE_RATE = 0.01;
+
+// Invitation codes are numbered in the order members join: HBEE01, HBEE02, ...
+export function nextReferralCode(members: Pick<HellobeeMember, 'referralCode'>[]): string {
+  const highest = members.reduce((max, member) => {
+    const match = /^HBEE(\d+)$/.exec(member.referralCode);
+    return match ? Math.max(max, Number(match[1])) : max;
+  }, 0);
+
+  return `HBEE${String(highest + 1).padStart(2, '0')}`;
+}
+
+export function commissionLabel(type: CommissionType): string {
+  if (type === 'DIRECT_10_PERCENT') return '10% Direct';
+  return type === 'OWNER_OVERRIDE_1_PERCENT' ? '1% Owner Override' : '1% Upline Override';
+}
 export type CommissionStatus = 'APPROVED' | 'PAID' | 'REVOKED';
 
 export interface CommissionTransaction {

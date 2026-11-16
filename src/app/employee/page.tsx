@@ -95,7 +95,7 @@ export default function EmployeePage() {
       ? m.referralCode === currentUser.referralCode || m.role === 'EMPLOYEE'
       : m.role === 'EMPLOYEE'
   ) || hellobeeMembers[2];
-  const employeeCode = currentMember?.referralCode || 'HB-EMP-101';
+  const employeeCode = currentMember?.referralCode || 'HBEE03';
   const assignedClients = customers.filter(
     (c) => c.referralCode?.toUpperCase() === employeeCode.toUpperCase()
   );
@@ -145,7 +145,7 @@ export default function EmployeePage() {
 
             <button
               onClick={() => {
-                void switchDemoRole('employee', 'Signed in as David Nguyen (Employee / HB-EMP-101)');
+                void switchDemoRole('employee', 'Signed in as David Nguyen (Employee / HBEE03)');
               }}
               className="w-full bg-[#2D5A27] text-white py-2.5 rounded-xs text-xs uppercase tracking-wider font-semibold hover:bg-[#23471f] transition-colors shadow-xs flex items-center justify-center gap-2"
             >

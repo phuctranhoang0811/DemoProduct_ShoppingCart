@@ -195,8 +195,8 @@ class AdminApiTest extends TestCase
 
     public function test_refunding_a_paid_order_takes_back_commissions_once(): void
     {
-        $member = HellobeeMember::where('referral_code', 'HB-EMP-101')->sole();
-        $order = $this->placeOrder('HB-EMP-101');
+        $member = HellobeeMember::where('referral_code', 'HBEE03')->sole();
+        $order = $this->placeOrder('HBEE03');
 
         $this->signedInAs($this->admin)->postJson("/api/v1/admin/orders/{$order->number}/refund")->assertUnprocessable(); // not paid yet
 
@@ -214,8 +214,8 @@ class AdminApiTest extends TestCase
 
     public function test_staff_only_see_and_move_orders_credited_to_their_own_code(): void
     {
-        $mine = $this->placeOrder('HB-EMP-101');
-        $theirs = $this->placeOrder('HB-EMP-102');
+        $mine = $this->placeOrder('HBEE03');
+        $theirs = $this->placeOrder('HBEE04');
         $nobody = $this->placeOrder();
 
         $numbers = $this->signedInAs($this->employee)->getJson('/api/v1/admin/orders')->assertOk()->json('data.*.number');

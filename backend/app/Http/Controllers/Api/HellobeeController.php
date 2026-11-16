@@ -41,9 +41,8 @@ class HellobeeController extends Controller
         } else {
             abort_unless($self, 403, 'You are not a network member.');
 
-            $members = HellobeeMember::whereKey($self->id)
+            $members = HellobeeMember::whereKey([$self->id, ...$this->downlineIds($self)])
                 ->orWhere('owner_id', $self->id)
-                ->orWhere('referred_by_id', $self->id)
                 ->orderBy('id')
                 ->get();
             $commissions = $self->commissions()->with('beneficiary')->latest()->limit(500)->get();
@@ -96,6 +95,32 @@ class HellobeeController extends Controller
         $data = $request->validate(['status' => ['required', Rule::in(['APPROVED', 'REJECTED'])]]);
 
         return response()->json(['data' => $this->payout($payouts->decide($payout, $data['status'])->load('member'))]);
+    }
+
+    /**
+     * Everyone below a member in the tree of introductions, at any depth.
+     *
+     * @return list<int>
+     */
+    private function downlineIds(HellobeeMember $root): array
+    {
+        $children = [];
+        foreach (HellobeeMember::whereNotNull('referred_by_id')->get(['id', 'referred_by_id']) as $row) {
+            $children[$row->referred_by_id][] = $row->id;
+        }
+
+        $found = [];
+        $queue = [$root->id];
+        while ($queue) {
+            foreach ($children[array_shift($queue)] ?? [] as $childId) {
+                if (! isset($found[$childId]) && $childId !== $root->id) {
+                    $found[$childId] = true;
+                    $queue[] = $childId;
+                }
+            }
+        }
+
+        return array_keys($found);
     }
 
     /**

@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 /**
  * Network earnings. Commissions exist only for orders whose payment is confirmed:
  *  - the consultant whose code is on the order earns 10% of the merchandise value;
- *  - when that consultant is an employee, their owner earns a 1% override;
+ *  - every member above that consultant, all the way up to the owner, earns 1%;
  *  - employees climb 1A-5A by number of credited orders.
  * Amounts are computed in integer cents and rounded down.
  */
@@ -21,6 +21,8 @@ class CommissionService
     public const DIRECT = 'DIRECT_10_PERCENT';
 
     public const OVERRIDE = 'OWNER_OVERRIDE_1_PERCENT';
+
+    public const UPLINE = 'UPLINE_OVERRIDE_1_PERCENT';
 
     /** Call inside the transaction that marks the order paid. Safe to repeat. */
     public function awardForOrder(Order $order): void
@@ -52,22 +54,60 @@ class CommissionService
         }
         $seller->save();
 
-        if ($seller->role !== 'EMPLOYEE' || ! $seller->owner_id) {
-            return;
+        $this->payUpline($order, $seller, $base);
+    }
+
+    /**
+     * Pays 1% to every member above the seller: the person who brought the seller in, the person
+     * above them, and so on to the top of the tree. The seller's owner is always included, even
+     * when the chain of introductions does not lead to them.
+     */
+    private function payUpline(Order $order, HellobeeMember $seller, int $base): void
+    {
+        $percent = (int) config('services.hellobee.upline_rate_percent');
+        $amount = intdiv($base * $percent, 100);
+        $maxLevels = config('services.hellobee.max_upline_levels');
+
+        $paid = [$seller->id => true];
+        $level = 0;
+        $nextId = $seller->referred_by_id;
+
+        while ($nextId && ! isset($paid[$nextId]) && ($maxLevels === null || $level < (int) $maxLevels)) {
+            $member = HellobeeMember::whereKey($nextId)->lockForUpdate()->first();
+            if (! $member) {
+                break;
+            }
+
+            $paid[$member->id] = true;
+            $level++;
+            $nextId = $member->referred_by_id;
+
+            // A deactivated member earns nothing, but the people above them still do.
+            if ($member->is_active) {
+                $this->payOverride($order, $member, $seller, $percent, $amount, $base, $level);
+            }
         }
 
-        $owner = HellobeeMember::whereKey($seller->owner_id)->where('is_active', true)->lockForUpdate()->first();
-        if (! $owner) {
-            return;
+        if ($seller->owner_id && ! isset($paid[$seller->owner_id])) {
+            $owner = HellobeeMember::whereKey($seller->owner_id)->where('is_active', true)->lockForUpdate()->first();
+            if ($owner) {
+                $this->payOverride($order, $owner, $seller, $percent, $amount, $base, $level + 1);
+            }
         }
+    }
 
-        $override = intdiv($base * (int) config('services.hellobee.owner_override_percent'), 100);
-        $this->record($order, $owner, self::OVERRIDE, (int) config('services.hellobee.owner_override_percent'), $override, $base,
-            "1% owner override on {$seller->name}'s order {$order->number}");
+    private function payOverride(Order $order, HellobeeMember $member, HellobeeMember $seller, int $percent, int $amount, int $base, int $level): void
+    {
+        $isOwner = $member->role === 'OWNER';
 
-        $owner->network_sales_volume = $this->add($owner->network_sales_volume, $base);
-        $this->credit($owner, $override);
-        $owner->save();
+        $this->record($order, $member, $isOwner ? self::OVERRIDE : self::UPLINE, $percent, $amount, $base,
+            $isOwner
+                ? "1% owner override on {$seller->name}'s order {$order->number}"
+                : "1% upline override (level {$level} above {$seller->name}) on order {$order->number}");
+
+        $member->network_sales_volume = $this->add($member->network_sales_volume, $base);
+        $this->credit($member, $amount);
+        $member->save();
     }
 
     /**
@@ -198,10 +238,6 @@ class CommissionService
 
     private function newReferralCode(): string
     {
-        do {
-            $code = 'HB-EMP-'.random_int(10000, 99999);
-        } while (HellobeeMember::where('referral_code', $code)->exists());
-
-        return $code;
+        return HellobeeMember::nextReferralCode();
     }
 }

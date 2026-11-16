@@ -552,7 +552,7 @@ function CheckoutContent() {
             </div>
 
             <p className="text-xs text-[#737373] leading-relaxed">
-              If an Enagic Certified Hydration Associate assisted you (e.g. <code>HB-EMP-101</code>),
+              If an Enagic Certified Hydration Associate assisted you (e.g. <code>HBEE03</code>),
               enter their code below to credit their direct commission and assign them as your dedicated customer specialist.
             </p>
 
@@ -570,7 +570,7 @@ function CheckoutContent() {
                 type="text"
                 value={referralCode}
                 onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                placeholder="Enter Consultant Code (e.g. HB-EMP-101)..."
+                placeholder="Enter Consultant Code (e.g. HBEE03)..."
                 className="w-full text-xs p-3 rounded-xs border border-[#D5D5D5] bg-white uppercase font-mono font-bold tracking-wider outline-none focus:border-[#111111] transition-colors"
               />
 
@@ -579,36 +579,36 @@ function CheckoutContent() {
                 <span className="text-[#888888]">Quick samples:</span>
                 <button
                   type="button"
-                  onClick={() => setReferralCode('HB-EMP-101')}
+                  onClick={() => setReferralCode('HBEE03')}
                   className={`px-2.5 py-1 rounded-xs border text-[10px] font-mono font-semibold transition-all ${
-                    referralCode === 'HB-EMP-101'
+                    referralCode === 'HBEE03'
                       ? 'bg-[#111111] text-white border-[#111111]'
                       : 'bg-white border-[#D5D5D5] text-[#333333] hover:border-[#111111]'
                   }`}
                 >
-                  HB-EMP-101 (David Nguyen - 10%)
+                  HBEE03 (David Nguyen - 10%)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setReferralCode('HB-EMP-102')}
+                  onClick={() => setReferralCode('HBEE04')}
                   className={`px-2.5 py-1 rounded-xs border text-[10px] font-mono font-semibold transition-all ${
-                    referralCode === 'HB-EMP-102'
+                    referralCode === 'HBEE04'
                       ? 'bg-[#111111] text-white border-[#111111]'
                       : 'bg-white border-[#D5D5D5] text-[#333333] hover:border-[#111111]'
                   }`}
                 >
-                  HB-EMP-102 (Sophia Miller - 10%)
+                  HBEE04 (Sophia Miller - 10%)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setReferralCode('HB-OWNER-01')}
+                  onClick={() => setReferralCode('HBEE01')}
                   className={`px-2.5 py-1 rounded-xs border text-[10px] font-mono font-semibold transition-all ${
-                    referralCode === 'HB-OWNER-01'
+                    referralCode === 'HBEE01'
                       ? 'bg-[#111111] text-white border-[#111111]'
                       : 'bg-white border-[#D5D5D5] text-[#333333] hover:border-[#111111]'
                   }`}
                 >
-                  HB-OWNER-01 (Managing Owner)
+                  HBEE01 (Managing Owner)
                 </button>
               </div>
 

@@ -64,20 +64,20 @@ class HellobeeTest extends TestCase
 
     public function test_nothing_is_earned_until_the_order_is_paid(): void
     {
-        $before = $this->member('HB-EMP-101')->available_balance;
+        $before = $this->member('HBEE03')->available_balance;
 
-        $order = $this->order('kangen-k8', 'HB-EMP-101');
+        $order = $this->order('kangen-k8', 'HBEE03');
 
         $this->assertSame(0, CommissionTransaction::where('order_id', $order->id)->count());
-        $this->assertSame($before, $this->member('HB-EMP-101')->available_balance);
+        $this->assertSame($before, $this->member('HBEE03')->available_balance);
     }
 
     public function test_an_employee_sale_pays_ten_percent_and_the_owner_one_percent(): void
     {
-        $employee = $this->member('HB-EMP-101');
+        $employee = $this->member('HBEE03');
         $owner = $employee->owner;
 
-        $order = $this->order('kangen-k8', 'HB-EMP-101'); // 5,890.00
+        $order = $this->order('kangen-k8', 'HBEE03'); // 5,890.00
         $this->pay($order);
         $this->pay($order); // confirming twice must not pay twice
 
@@ -99,7 +99,7 @@ class HellobeeTest extends TestCase
 
     public function test_an_owner_sale_pays_ten_percent_and_no_override(): void
     {
-        $order = $this->order('kangen-k8', 'HB-OWNER-01');
+        $order = $this->order('kangen-k8', 'HBEE01');
         $this->pay($order);
 
         $commissions = CommissionTransaction::where('order_id', $order->id)->get();
@@ -111,7 +111,7 @@ class HellobeeTest extends TestCase
     public function test_cents_are_rounded_down_and_discounts_reduce_the_base(): void
     {
         $filter = Product::where('slug', 'enagic-filter-hg')->sole(); // 106.00
-        $order = $this->order($filter->public_id, 'HB-EMP-101');
+        $order = $this->order($filter->public_id, 'HBEE03');
         DB::table('orders')->where('id', $order->id)->update(['total' => '105.55', 'discount_amount' => '0.45']);
 
         $this->pay($order->fresh());
@@ -128,18 +128,18 @@ class HellobeeTest extends TestCase
         $this->assertSame('4A', HellobeeMember::rankFor(125));
         $this->assertSame('5A', HellobeeMember::rankFor(625));
 
-        $employee = $this->member('HB-EMP-103');
+        $employee = $this->member('HBEE05');
         $employee->update(['valid_orders_count' => 4, 'rank' => '1A']);
 
-        $this->pay($this->order('kangen-k8', 'HB-EMP-103'));
+        $this->pay($this->order('kangen-k8', 'HBEE05'));
 
         $this->assertSame('2A', $employee->fresh()->rank);
     }
 
     public function test_buying_with_your_own_code_earns_nothing(): void
     {
-        $employee = $this->member('HB-EMP-101');
-        $order = $this->order('kangen-k8', 'HB-EMP-101', $employee->user, $employee->email);
+        $employee = $this->member('HBEE03');
+        $order = $this->order('kangen-k8', 'HBEE03', $employee->user, $employee->email);
 
         $this->pay($order);
 
@@ -148,9 +148,9 @@ class HellobeeTest extends TestCase
 
     public function test_reversing_an_order_takes_the_commissions_back(): void
     {
-        $employee = $this->member('HB-EMP-101');
+        $employee = $this->member('HBEE03');
         $owner = $employee->owner;
-        $order = $this->order('kangen-k8', 'HB-EMP-101');
+        $order = $this->order('kangen-k8', 'HBEE03');
         $this->pay($order);
 
         app(CommissionService::class)->revokeForOrder($order);
@@ -167,9 +167,9 @@ class HellobeeTest extends TestCase
     public function test_a_paid_activation_purchase_makes_the_buyer_a_consultant_under_the_sponsor(): void
     {
         $buyer = User::where('email', 'customer@example.com')->sole();
-        $sponsor = $this->member('HB-EMP-101');
+        $sponsor = $this->member('HBEE03');
 
-        $order = $this->order('hellobee-filter-1500', 'HB-EMP-101', $buyer, $buyer->email);
+        $order = $this->order('hellobee-filter-1500', 'HBEE03', $buyer, $buyer->email);
         $this->assertNull($buyer->fresh()->hellobeeMember);
 
         $this->pay($order);
@@ -194,8 +194,8 @@ class HellobeeTest extends TestCase
 
     public function test_only_admins_can_confirm_offline_payments(): void
     {
-        $order = $this->order('kangen-k8', 'HB-EMP-101');
-        $employee = $this->member('HB-EMP-101')->user;
+        $order = $this->order('kangen-k8', 'HBEE03');
+        $employee = $this->member('HBEE03')->user;
         $admin = User::where('role', 'admin')->first();
 
         $this->postJson("/api/v1/orders/{$order->number}/mark-paid")->assertUnauthorized();
@@ -209,8 +209,8 @@ class HellobeeTest extends TestCase
 
     public function test_members_see_only_their_own_slice_of_the_network(): void
     {
-        $employee = $this->member('HB-EMP-101');
-        $this->pay($this->order('kangen-k8', 'HB-EMP-102'));
+        $employee = $this->member('HBEE03');
+        $this->pay($this->order('kangen-k8', 'HBEE04'));
 
         $this->getJson('/api/v1/hellobee/network')->assertUnauthorized();
         $this->actingAs(User::where('email', 'customer@example.com')->sole(), 'sanctum')
@@ -229,7 +229,7 @@ class HellobeeTest extends TestCase
 
     public function test_payout_requests_reserve_the_balance_and_rejection_returns_it(): void
     {
-        $member = $this->member('HB-EMP-101');
+        $member = $this->member('HBEE03');
         $balance = $member->available_balance;
         $admin = User::where('role', 'admin')->first();
         $payload = ['amount' => 100, 'bank_name' => 'Chase', 'bank_account_number' => '000123456789', 'bank_account_name' => 'David Nguyen'];
@@ -260,8 +260,8 @@ class HellobeeTest extends TestCase
 
     public function test_referral_codes_can_be_checked_publicly(): void
     {
-        $this->getJson('/api/v1/referral-codes/hb-emp-101')->assertOk()
-            ->assertJsonPath('data.referral_code', 'HB-EMP-101')
+        $this->getJson('/api/v1/referral-codes/hbee03')->assertOk()
+            ->assertJsonPath('data.referral_code', 'HBEE03')
             ->assertJsonMissingPath('data.email');
         $this->getJson('/api/v1/referral-codes/HB-NOPE-1')->assertNotFound();
     }

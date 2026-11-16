@@ -172,7 +172,7 @@ class CheckoutApiTest extends TestCase
 
     public function test_referral_is_taken_from_the_request_or_the_buyers_sponsor(): void
     {
-        $this->placeOrder(['referral_code' => 'hb-emp-101'])->assertJsonPath('order.referral_code', 'HB-EMP-101');
+        $this->placeOrder(['referral_code' => 'hbee03'])->assertJsonPath('order.referral_code', 'HBEE03');
         $this->placeOrder(['referral_code' => 'HB-FAKE-999'])->assertCreated()->assertJsonPath('order.referral_code', null);
 
         $buyer = User::where('email', 'customer@example.com')->sole();

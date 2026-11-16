@@ -66,7 +66,7 @@ class StoreSeederTest extends TestCase
     {
         $this->seed(StoreSeeder::class);
 
-        $employee = HellobeeMember::where('referral_code', 'HB-EMP-101')->with('owner')->sole();
+        $employee = HellobeeMember::where('referral_code', 'HBEE03')->with('owner')->sole();
 
         $this->assertSame('OWNER', $employee->owner->role);
         $this->assertSame(0, HellobeeMember::where('role', 'EMPLOYEE')->whereNull('owner_id')->count());

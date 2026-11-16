@@ -22,6 +22,7 @@ import {
   HellobeeRole,
   RankLevel,
   PayoutStatus,
+  nextReferralCode,
 } from '@/types/hellobee';
 import { initialProducts } from '@/data/products';
 import { initialCategories } from '@/data/categories';
@@ -1291,9 +1292,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   registerHellobeeMember: (data) => {
     const state = get();
     const isOwner = data.role === 'OWNER';
-    const prefix = isOwner ? 'HB-OWNER' : 'HB-EMP';
-    const randomSuffix = Math.floor(100 + Math.random() * 900);
-    const generatedReferralCode = `${prefix}-${randomSuffix}`;
+    const generatedReferralCode = nextReferralCode(state.hellobeeMembers);
 
     // Find sponsor if provided
     let sponsor = null;
@@ -1417,43 +1416,53 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
         return m;
       });
 
-      // 2. Owner 1% override on Employee's total order ($15 on $1,500)
-      const ownerId = beneficiary.ownerId;
-      if (ownerId) {
-        const owner = updatedMembers.find((m) => m.id === ownerId);
-        if (owner) {
-          const ownerOverrideAmount = Math.round(orderAmount * 0.01);
-          const ownerCommission: CommissionTransaction = {
-            id: generateId('comm'),
-            orderId,
-            orderNumber,
-            orderAmount,
-            buyerName,
-            beneficiaryId: owner.id,
-            beneficiaryName: owner.name,
-            beneficiaryRole: 'OWNER',
-            commissionType: 'OWNER_OVERRIDE_1_PERCENT',
-            rate: 0.01,
-            amount: ownerOverrideAmount,
-            status: 'APPROVED',
-            notes: `1% Owner override on Employee ${beneficiary.name} invoice`,
-            createdAt: new Date().toISOString(),
-          };
-          commissionsAwarded.push(ownerCommission);
+      // 2. Every level above the seller earns a 1% override, up to the owner ($15 each on $1,500).
+      const overrideAmount = Math.round(orderAmount * 0.01);
+      const paid = new Set<string>([beneficiary.id]);
+      const uplineIds: string[] = [];
+      let nextId = beneficiary.referredById;
 
-          updatedMembers = updatedMembers.map((m) => {
-            if (m.id === owner.id) {
-              return {
+      while (nextId && !paid.has(nextId)) {
+        const upline = updatedMembers.find((m) => m.id === nextId);
+        if (!upline) break;
+        paid.add(upline.id);
+        if (upline.isActive) uplineIds.push(upline.id);
+        nextId = upline.referredById;
+      }
+      if (beneficiary.ownerId && !paid.has(beneficiary.ownerId)) uplineIds.push(beneficiary.ownerId);
+
+      uplineIds.forEach((uplineId) => {
+        const upline = updatedMembers.find((m) => m.id === uplineId);
+        if (!upline) return;
+
+        commissionsAwarded.push({
+          id: generateId('comm'),
+          orderId,
+          orderNumber,
+          orderAmount,
+          buyerName,
+          beneficiaryId: upline.id,
+          beneficiaryName: upline.name,
+          beneficiaryRole: upline.role,
+          commissionType: upline.role === 'OWNER' ? 'OWNER_OVERRIDE_1_PERCENT' : 'UPLINE_OVERRIDE_1_PERCENT',
+          rate: 0.01,
+          amount: overrideAmount,
+          status: 'APPROVED',
+          notes: `1% override on ${beneficiary.name}'s order ${orderNumber}`,
+          createdAt: new Date().toISOString(),
+        });
+
+        updatedMembers = updatedMembers.map((m) =>
+          m.id === upline.id
+            ? {
                 ...m,
                 networkSalesVolume: m.networkSalesVolume + orderAmount,
-                totalCommissionEarned: m.totalCommissionEarned + ownerOverrideAmount,
-                availableBalance: m.availableBalance + ownerOverrideAmount,
-              };
-            }
-            return m;
-          });
-        }
-      }
+                totalCommissionEarned: m.totalCommissionEarned + overrideAmount,
+                availableBalance: m.availableBalance + overrideAmount,
+              }
+            : m
+        );
+      });
     } else if (beneficiary.role === 'OWNER') {
       // Case 2: Referral Code belongs directly to an Owner -> 10% direct commission
       const ownerDirectAmount = Math.round(orderAmount * 0.1);

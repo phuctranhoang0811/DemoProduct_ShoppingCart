@@ -46,7 +46,10 @@ return [
         // Buying this product (once paid) makes the buyer a network consultant.
         'activation_product' => env('HELLOBEE_ACTIVATION_PRODUCT', 'hellobee-filter-1500'),
         'direct_rate_percent' => 10,
-        'owner_override_percent' => 1,
+        // Paid to each level above the seller. With no cap, an order placed N levels below the
+        // owner pays out 10% + N x 1% in total, so deep trees cost more per sale.
+        'upline_rate_percent' => 1,
+        'max_upline_levels' => env('HELLOBEE_MAX_UPLINE_LEVELS'),
     ],
 
     'storefront' => [

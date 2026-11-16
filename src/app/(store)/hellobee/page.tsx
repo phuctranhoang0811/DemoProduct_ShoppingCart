@@ -25,9 +25,10 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { NetworkTree } from '@/components/hellobee/NetworkTree';
 import { submitPayout } from '@/lib/hellobee-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
-import { HellobeeRole, RankLevel, getNextRankProgress } from '@/types/hellobee';
+import { HellobeeRole, RankLevel, commissionLabel, getNextRankProgress } from '@/types/hellobee';
 import { formatPrice } from '@/lib/utils';
 
 function HellobeePortalContent() {
@@ -48,7 +49,7 @@ function HellobeePortalContent() {
   const liveNetwork = useCommerceStore((state) => state.authMode === 'backend');
   const currency = useCommerceStore((state) => state.currency);
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'team' | 'commissions' | 'payouts' | 'register'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'tree' | 'team' | 'commissions' | 'payouts' | 'register'>('dashboard');
   const [copiedCode, setCopiedCode] = useState(false);
 
   // Check if current user qualifies to access the Hellobee Employee / Consultant Network
@@ -292,14 +293,15 @@ function HellobeePortalContent() {
       total: 1500,
     });
 
-    const newCode = `HB-EMP-${Math.floor(100 + Math.random() * 900)}`;
-    registerHellobeeMember({
+    const newMember = registerHellobeeMember({
       name: currentUser.name,
       email: currentUser.email,
       phone: currentUser.phone || '+1 (555) 349-8201',
       role: 'EMPLOYEE',
       sponsorCode: undefined,
     });
+
+    const newCode = newMember.referralCode;
 
     updateProfile({
       role: 'employee',
@@ -404,7 +406,7 @@ function HellobeePortalContent() {
                   <span>Requirement 2: 1A–5A Rank Promotion & Direct 10% Commissions</span>
                 </p>
                 <p className="text-[#666666] pl-5">
-                  Qualified consultants receive an official referral code (e.g. <code>HB-EMP-101</code>). When new buyers enter your code, you earn an instant 10% commission ($150 per machine), advancing from 1A base rank up to 5A master distributor based on cumulative unit sales.
+                  Qualified consultants receive an official referral code (e.g. <code>HBEE03</code>). When new buyers enter your code, you earn an instant 10% commission ($150 per machine), advancing from 1A base rank up to 5A master distributor based on cumulative unit sales.
                 </p>
               </div>
 
@@ -542,6 +544,16 @@ function HellobeePortalContent() {
             >
               Overview Dashboard
             </button>
+            <button
+              onClick={() => setActiveTab('tree')}
+              className={`px-4 py-2 rounded-xs uppercase tracking-wider text-xs transition-all ${
+                activeTab === 'tree'
+                  ? 'bg-[#111111] text-white font-semibold'
+                  : 'text-[#666666] hover:bg-[#F5F4F0] hover:text-[#111111]'
+              }`}
+            >
+              Network Tree
+            </button>
             {isOwner && (
               <button
                 onClick={() => setActiveTab('team')}
@@ -591,6 +603,9 @@ function HellobeePortalContent() {
 
       {/* Main Content Area */}
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+        {/* NETWORK TREE */}
+        {activeTab === 'tree' && <NetworkTree members={members} currentMemberId={currentMember?.id} />}
+
         {/* OVERVIEW DASHBOARD */}
         {activeTab === 'dashboard' && (
           <div className="space-y-8">
@@ -774,7 +789,7 @@ function HellobeePortalContent() {
                                 : 'bg-blue-100 text-blue-800'
                             }`}
                           >
-                            {c.commissionType === 'DIRECT_10_PERCENT' ? '10% Direct' : '1% Owner Override'}
+                            {commissionLabel(c.commissionType)}
                           </span>
                         </div>
                         <p className="text-[#777777] mt-0.5">
@@ -909,7 +924,7 @@ function HellobeePortalContent() {
                             : 'bg-blue-100 text-blue-800'
                         }`}
                       >
-                        {c.commissionType === 'DIRECT_10_PERCENT' ? '10% Direct ($150)' : '1% Owner Override ($15)'}
+                        {commissionLabel(c.commissionType)}
                       </span>
                     </div>
 
@@ -1104,7 +1119,7 @@ function HellobeePortalContent() {
                   type="text"
                   value={regSponsorCode}
                   onChange={(e) => setRegSponsorCode(e.target.value.toUpperCase())}
-                  placeholder="e.g. HB-OWNER-01"
+                  placeholder="e.g. HBEE01"
                   className="w-full p-2.5 rounded-lg border border-[#D5D5D5] font-mono uppercase tracking-wider outline-hidden focus:border-[#111111]"
                 />
                 <p className="text-[10px] text-[#888888] mt-1">

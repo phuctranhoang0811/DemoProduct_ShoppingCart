@@ -24,6 +24,42 @@ class HellobeeMember extends Model
 
     public const RANK_THRESHOLDS = ['5A' => 625, '4A' => 125, '3A' => 25, '2A' => 5];
 
+    public const CODE_PREFIX = 'HBEE';
+
+    private const CODE_COUNTER = 'hellobee_code_counter';
+
+    /**
+     * The next invitation code: HBEE01, HBEE02, ... in the order members join.
+     *
+     * The last number handed out is kept in one settings row, locked while it is read and
+     * advanced, so two people joining at the same moment cannot receive the same code.
+     * Call inside a database transaction.
+     */
+    public static function nextReferralCode(): string
+    {
+        $counter = Setting::whereKey(self::CODE_COUNTER)->lockForUpdate()->first()
+            ?? Setting::create(['key' => self::CODE_COUNTER, 'value' => 0]);
+
+        $number = max((int) $counter->value, self::highestCodeNumber()) + 1;
+        $counter->update(['value' => $number]);
+
+        return self::formatCode($number);
+    }
+
+    public static function formatCode(int $number): string
+    {
+        return self::CODE_PREFIX.str_pad((string) $number, 2, '0', STR_PAD_LEFT);
+    }
+
+    /** The largest number already in use, so codes entered by hand are never issued again. */
+    private static function highestCodeNumber(): int
+    {
+        return (int) self::where('referral_code', 'like', self::CODE_PREFIX.'%')
+            ->pluck('referral_code')
+            ->map(fn (string $code) => preg_match('/^'.self::CODE_PREFIX.'(\d+)$/', $code, $m) ? (int) $m[1] : 0)
+            ->max();
+    }
+
     public static function rankFor(int $validOrders): string
     {
         foreach (self::RANK_THRESHOLDS as $rank => $required) {

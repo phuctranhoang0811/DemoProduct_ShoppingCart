@@ -247,7 +247,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 flex-shrink-0" />
               <span>
-                You are currently viewing the Administrator Portal in Staff mode ({currentUser.name} - HB-EMP-101).
+                You are currently viewing the Administrator Portal in Staff mode ({currentUser.name} - HBEE03).
               </span>
             </div>
             <Link
