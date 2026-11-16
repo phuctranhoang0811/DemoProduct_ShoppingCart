@@ -2,23 +2,23 @@ import type { Metadata } from 'next';
 import { SITE_NAME, SITE_URL, buildBreadcrumbsSchema, safeJsonLd } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'All Garments & Collections',
+  title: 'Kangen Water Ionizers & Accessories',
   description:
-    'Explore the complete COS Minimal collection. Architectural tailoring, organic cotton shirting, structured wool trousers, and minimalist cashmere knitwear designed with Scandinavian precision.',
+    'Shop genuine Enagic Kangen Water ionizers, Anespa mineral spas, replacement filters, and maintenance parts with official warranty.',
   keywords: [
-    'COS shirting',
-    'minimalist trousers',
-    'cashmere knitwear',
-    'contemporary coats',
-    'Scandinavian fashion collection',
+    'Kangen Water ionizer',
+    'Enagic',
+    'alkaline water',
+    'replacement filters',
+    'Anespa',
   ],
   alternates: {
     canonical: '/shop',
   },
   openGraph: {
-    title: `All Garments & Collections | ${SITE_NAME}`,
+    title: `Kangen Water Ionizers & Accessories | ${SITE_NAME}`,
     description:
-      'Explore the complete COS Minimal collection. Contemporary tailoring and tactile natural textiles.',
+      'Genuine Enagic Kangen Water ionizers, spas, filters, and parts.',
     url: `${SITE_URL}/shop`,
     siteName: SITE_NAME,
     images: [
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
         url: 'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?q=80&w=1200&auto=format&fit=crop',
         width: 1200,
         height: 630,
-        alt: 'COS Minimal Collection — Contemporary Tailoring',
+        alt: 'Kangen Water ionizers',
       },
     ],
   },

@@ -143,9 +143,35 @@ function ShopContent() {
       {/* Main Grid: Sidebar Filters + Products */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Desktop Filter Sidebar (3 cols) */}
-        <aside className="hidden lg:block lg:col-span-3 space-y-6 sticky top-28">
+        {isMobileFilterOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+            onClick={() => setIsMobileFilterOpen(false)}
+            aria-hidden
+          />
+        )}
+        <aside
+          role={isMobileFilterOpen ? 'dialog' : undefined}
+          aria-label="Filters"
+          className={`${
+            isMobileFilterOpen
+              ? 'fixed inset-x-0 bottom-0 z-50 max-h-[85vh] overflow-y-auto rounded-t-xl bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl'
+              : 'hidden'
+          } lg:block lg:static lg:z-auto lg:max-h-none lg:overflow-visible lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none lg:col-span-3 space-y-6 lg:sticky lg:top-28`}
+        >
+          <div className="lg:hidden flex items-center justify-between">
+            <span className="text-sm font-semibold">{t.shop.filters}</span>
+            <button
+              type="button"
+              onClick={() => setIsMobileFilterOpen(false)}
+              className="p-2.5 -mr-2.5"
+              aria-label="Close filters"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
           <div className="p-5 rounded-xs border border-[#E5E5E5] bg-white space-y-6">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
+            <div className="hidden lg:flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
               <span className="text-xs uppercase tracking-wider font-semibold text-[#111111] flex items-center gap-2">
                 <SlidersHorizontal className="w-3.5 h-3.5 text-[#111111]" />
                 {t.shop.filters}
@@ -262,6 +288,13 @@ function ShopContent() {
               />
             </div>
           </div>
+          <button
+            type="button"
+            onClick={() => setIsMobileFilterOpen(false)}
+            className="lg:hidden w-full bg-[#111111] text-white py-3 rounded-xs text-xs uppercase tracking-wider font-semibold"
+          >
+            Show {filteredProducts.length} results
+          </button>
         </aside>
 
         {/* Product Catalog Grid (9 cols) */}
@@ -271,7 +304,8 @@ function ShopContent() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
-                className="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xs border border-[#E5E5E5] text-xs font-semibold text-[#111111]"
+                aria-expanded={isMobileFilterOpen}
+                className="lg:hidden inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xs border border-[#E5E5E5] text-xs font-semibold text-[#111111]"
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" />
                 <span>{t.shop.filters}</span>
@@ -304,7 +338,7 @@ function ShopContent() {
               {selectedCategory !== 'all' && (
                 <span className="inline-flex items-center gap-1 text-xs bg-[#F5F4F0] text-[#111111] px-2.5 py-1 rounded-full">
                   {categories.find((c) => c.id === selectedCategory)?.name}
-                  <button onClick={() => setSelectedCategory('all')}>
+                  <button onClick={() => setSelectedCategory('all')} aria-label="Remove category filter" className="p-1.5 -m-1.5">
                     <X className="w-3 h-3" />
                   </button>
                 </span>

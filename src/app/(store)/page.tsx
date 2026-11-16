@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from '@/i18n/useTranslation';
 
@@ -36,10 +37,8 @@ export default function HomePage() {
     setHeroIndex((i) => (i + delta + HERO_IMAGES.length) % HERO_IMAGES.length);
 
   useEffect(() => {
-    HERO_IMAGES.forEach((src) => {
-      new window.Image().src = src;
-    });
-  }, []);
+    new window.Image().src = HERO_IMAGES[(heroIndex + 1) % HERO_IMAGES.length];
+  }, [heroIndex]);
 
   useEffect(() => {
     const timer = setTimeout(() => goHero(1), 6000);
@@ -51,7 +50,8 @@ export default function HomePage() {
 
       {/* ─── 1. FULLSCREEN CINEMATIC HERO ─── */}
       <section className="relative h-[100svh] min-h-[640px] w-full overflow-hidden flex items-center">
-        {HERO_IMAGES.map((src, i) => (
+        {HERO_IMAGES.map((src, i) =>
+          Math.abs(i - heroIndex) > 1 && !(heroIndex === 0 && i === HERO_IMAGES.length - 1) && !(heroIndex === HERO_IMAGES.length - 1 && i === 0) ? null : (
           <img
             key={src}
             src={src}
@@ -59,7 +59,8 @@ export default function HomePage() {
             decoding="async"
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${i === heroIndex ? 'opacity-90' : 'opacity-0'}`}
           />
-        ))}
+          )
+        )}
 
         <div className="absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-black/85 via-black/40 to-transparent pointer-events-none z-10" />
         <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
@@ -84,7 +85,28 @@ export default function HomePage() {
           {String(heroIndex + 1).padStart(2, '0')} / {HERO_IMAGES.length}
         </div>
 
-        <h1 className="sr-only">Change Your Water. Change Your Life.</h1>
+        <div className="relative z-20 w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight max-w-2xl drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]">
+            Change Your Water. Change Your Life.
+          </h1>
+          <p className="mt-4 max-w-md text-sm sm:text-base text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.7)]">
+            Genuine Enagic Kangen Water® ionizers with official warranty.
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row gap-3 max-w-xs sm:max-w-none">
+            <Link
+              href="/shop"
+              className="btn-tactile inline-flex items-center justify-center px-7 py-3.5 bg-white text-[#111111] text-xs uppercase tracking-wider font-bold hover:bg-white/90"
+            >
+              Shop Ionizers
+            </Link>
+            <Link
+              href="/hellobee"
+              className="btn-tactile inline-flex items-center justify-center px-7 py-3.5 border border-white/60 text-white text-xs uppercase tracking-wider font-bold hover:bg-white/10"
+            >
+              Hellobee Network
+            </Link>
+          </div>
+        </div>
       </section>
 
 
