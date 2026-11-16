@@ -14,7 +14,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
-import { RankLevel, PayoutStatus } from '@/types/hellobee';
+import { RankLevel, PayoutStatus, commissionLabel } from '@/types/hellobee';
 import { toast } from 'sonner';
 
 export default function AdminHellobeePage() {
@@ -355,9 +355,7 @@ export default function AdminHellobeePage() {
                                 : 'bg-[#F2EFE9] text-[#737373]'
                             }`}
                           >
-                            {c.commissionType === 'DIRECT_10_PERCENT'
-                              ? '10% Direct Referral'
-                              : '1% Owner Invoice Override'}
+                            {commissionLabel(c)}
                           </span>
                         </td>
                         <td className="py-3 px-4 font-mono text-[11px] text-[#737373]">{c.orderNumber}</td>

@@ -22,6 +22,9 @@ import {
   HellobeeRole,
   RankLevel,
   PayoutStatus,
+  GENERATION_RATES,
+  LADDER_RANKS,
+  getTeamStats,
 } from '@/types/hellobee';
 import { initialProducts } from '@/data/products';
 import { initialCategories } from '@/data/categories';
@@ -1263,6 +1266,55 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       );
     }
 
+    // Team growth may lift uplines up the LV ladder; each newly reached level pays its one-time reward.
+    const rewards: CommissionTransaction[] = [];
+    const uplineIds = new Set<string>();
+    for (let id = newMember.referredById; id && !uplineIds.has(id); ) {
+      uplineIds.add(id);
+      id = updatedMembers.find((m) => m.id === id)?.referredById;
+    }
+    uplineIds.forEach((id) => {
+      const before = getTeamStats(id, state.hellobeeMembers).ladderLevel;
+      const after = getTeamStats(id, updatedMembers).ladderLevel;
+      const upline = updatedMembers.find((m) => m.id === id);
+      if (!upline) return;
+      for (const rank of LADDER_RANKS.filter((r) => r.level > before && r.level <= after)) {
+        if (rank.upgradeReward <= 0) continue;
+        rewards.push({
+          id: generateId('comm'),
+          orderId: '',
+          orderNumber: '',
+          orderAmount: 0,
+          buyerName: newMember.name,
+          beneficiaryId: id,
+          beneficiaryName: upline.name,
+          beneficiaryRole: upline.role,
+          commissionType: 'RANK_UPGRADE_REWARD',
+          rate: 0,
+          generation: rank.level,
+          amount: rank.upgradeReward,
+          status: 'APPROVED',
+          notes: `One-time reward for reaching LV${rank.level}`,
+          createdAt: new Date().toISOString(),
+        });
+        updatedMembers = updatedMembers.map((m) =>
+          m.id === id
+            ? {
+                ...m,
+                totalCommissionEarned: m.totalCommissionEarned + rank.upgradeReward,
+                availableBalance: m.availableBalance + rank.upgradeReward,
+              }
+            : m
+        );
+      }
+    });
+
+    if (rewards.length) {
+      const allCommissions = [...rewards, ...state.commissions];
+      setStorageItem(STORAGE_KEYS.commissions, allCommissions);
+      set({ commissions: allCommissions });
+    }
+
     setStorageItem(STORAGE_KEYS.hellobeeMembers, updatedMembers);
     set({ hellobeeMembers: updatedMembers, activeMemberId: newMember.id });
     return newMember;
@@ -1347,42 +1399,44 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
         return m;
       });
 
-      // 2. Owner 1% override on Employee's total order ($15 on $1,500)
-      const ownerId = beneficiary.ownerId;
-      if (ownerId) {
-        const owner = updatedMembers.find((m) => m.id === ownerId);
-        if (owner) {
-          const ownerOverrideAmount = Math.round(orderAmount * 0.01);
-          const ownerCommission: CommissionTransaction = {
-            id: generateId('comm'),
-            orderId,
-            orderNumber,
-            orderAmount,
-            buyerName,
-            beneficiaryId: owner.id,
-            beneficiaryName: owner.name,
-            beneficiaryRole: 'OWNER',
-            commissionType: 'OWNER_OVERRIDE_1_PERCENT',
-            rate: 0.01,
-            amount: ownerOverrideAmount,
-            status: 'APPROVED',
-            notes: `1% Owner override on Employee ${beneficiary.name} invoice`,
-            createdAt: new Date().toISOString(),
-          };
-          commissionsAwarded.push(ownerCommission);
+      // 2. 1% generation commission for each of up to five upline sponsors ($15 on $1,500)
+      const visited = new Set([beneficiary.id]);
+      let uplineId = beneficiary.referredById;
+      for (let gen = 2; gen <= GENERATION_RATES.length && uplineId; gen++) {
+        const upline = updatedMembers.find((m) => m.id === uplineId);
+        if (!upline || visited.has(upline.id)) break;
+        visited.add(upline.id);
 
-          updatedMembers = updatedMembers.map((m) => {
-            if (m.id === owner.id) {
-              return {
+        const genAmount = Math.round(orderAmount * GENERATION_RATES[gen - 1]);
+        commissionsAwarded.push({
+          id: generateId('comm'),
+          orderId,
+          orderNumber,
+          orderAmount,
+          buyerName,
+          beneficiaryId: upline.id,
+          beneficiaryName: upline.name,
+          beneficiaryRole: upline.role,
+          commissionType: 'GENERATION_1_PERCENT',
+          rate: GENERATION_RATES[gen - 1],
+          generation: gen,
+          amount: genAmount,
+          status: 'APPROVED',
+          notes: `1% generation ${gen} commission on ${beneficiary.name}'s order ${orderNumber}`,
+          createdAt: new Date().toISOString(),
+        });
+
+        updatedMembers = updatedMembers.map((m) =>
+          m.id === upline.id
+            ? {
                 ...m,
                 networkSalesVolume: m.networkSalesVolume + orderAmount,
-                totalCommissionEarned: m.totalCommissionEarned + ownerOverrideAmount,
-                availableBalance: m.availableBalance + ownerOverrideAmount,
-              };
-            }
-            return m;
-          });
-        }
+                totalCommissionEarned: m.totalCommissionEarned + genAmount,
+                availableBalance: m.availableBalance + genAmount,
+              }
+            : m
+        );
+        uplineId = upline.referredById;
       }
     } else if (beneficiary.role === 'OWNER') {
       // Case 2: Referral Code belongs directly to an Owner -> 10% direct commission

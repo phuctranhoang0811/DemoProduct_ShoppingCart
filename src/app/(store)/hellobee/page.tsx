@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCommerceStore } from '@/stores/useCommerceStore';
-import { HellobeeRole, RankLevel, getNextRankProgress } from '@/types/hellobee';
+import { HellobeeRole, RankLevel, getNextRankProgress, commissionLabel } from '@/types/hellobee';
 import { formatPrice } from '@/lib/utils';
 
 function HellobeePortalContent() {
@@ -760,7 +760,7 @@ function HellobeePortalContent() {
                                 : 'bg-blue-100 text-blue-800'
                             }`}
                           >
-                            {c.commissionType === 'DIRECT_10_PERCENT' ? '10% Direct' : '1% Owner Override'}
+                            {commissionLabel(c)}
                           </span>
                         </div>
                         <p className="text-[#777777] mt-0.5">
@@ -895,7 +895,7 @@ function HellobeePortalContent() {
                             : 'bg-blue-100 text-blue-800'
                         }`}
                       >
-                        {c.commissionType === 'DIRECT_10_PERCENT' ? '10% Direct ($150)' : '1% Owner Override ($15)'}
+                        {commissionLabel(c)} ({formatPrice(c.amount)})
                       </span>
                     </div>
 

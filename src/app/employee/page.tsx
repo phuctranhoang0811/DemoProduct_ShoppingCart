@@ -32,6 +32,7 @@ import { useCommerceStore } from '@/stores/useCommerceStore';
 import { OrderStatus, Order } from '@/types';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { toast } from 'sonner';
+import { GENERATION_RATES, LADDER_RANKS, getTeamStats, commissionLabel } from '@/types/hellobee';
 
 export default function EmployeePage() {
   const currentUser = useCommerceStore((state) => state.currentUser);
@@ -46,7 +47,7 @@ export default function EmployeePage() {
   const requestPayout = useCommerceStore((state) => state.requestPayout);
   const currency = useCommerceStore((state) => state.currency);
 
-  const [activeTab, setActiveTab] = useState<'orders' | 'leads' | 'inventory' | 'referral'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'leads' | 'inventory' | 'referral' | 'benefits'>('orders');
   const [orderFilter, setOrderFilter] = useState<'ALL' | OrderStatus>('ALL');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -101,6 +102,17 @@ export default function EmployeePage() {
     (c) => c.referralCode?.toUpperCase() === employeeCode.toUpperCase()
   );
   const referralLink = `https://enagic-store.com/checkout?ref=${employeeCode}`;
+  const teamStats = getTeamStats(currentMember.id, hellobeeMembers);
+  const myCommissions = commissions.filter((c) => c.beneficiaryId === currentMember.id);
+  const earnedByType = myCommissions.reduce<Record<string, number>>((acc, c) => {
+    const key = commissionLabel(c);
+    acc[key] = (acc[key] || 0) + c.amount;
+    return acc;
+  }, {});
+  const nextLadder = LADDER_RANKS.find((r) => r.level > teamStats.ladderLevel);
+  const ladderProgress = nextLadder
+    ? Math.min(100, Math.round(((nextLadder.directOnly ? teamStats.directCount : teamStats.teamSize) / nextLadder.teamSize) * 100))
+    : 100;
 
   // Employee sees only their own referral orders; admin sees all
   const myOrders =
@@ -418,7 +430,129 @@ export default function EmployeePage() {
           >
             <Share2 className="w-4 h-4" /> My Referral Link & QR Tool
           </button>
+          <button
+            onClick={() => setActiveTab('benefits')}
+            className={`pb-3 border-b-2 transition-colors flex items-center gap-2 ${
+              activeTab === 'benefits'
+                ? 'border-[#2D5A27] text-[#2D5A27]'
+                : 'border-transparent text-[#777777] hover:text-[#111111]'
+            }`}
+          >
+            <DollarSign className="w-4 h-4" /> Employee Benefits
+          </button>
         </div>
+
+        {/* TAB 5: EMPLOYEE BENEFITS */}
+        {activeTab === 'benefits' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-white p-4 rounded-lg border border-[#EBEBEB]">
+                <span className="text-[11px] uppercase tracking-wider text-[#777777] font-medium block">Current Rank</span>
+                <p className="text-xl font-bold mt-1">{teamStats.ladderLevel ? `LV${teamStats.ladderLevel}` : 'Not yet LV1'}</p>
+              </div>
+              <div className="bg-white p-4 rounded-lg border border-[#EBEBEB]">
+                <span className="text-[11px] uppercase tracking-wider text-[#777777] font-medium block">Direct Members</span>
+                <p className="text-xl font-bold mt-1">{teamStats.directCount}</p>
+              </div>
+              <div className="bg-white p-4 rounded-lg border border-[#EBEBEB]">
+                <span className="text-[11px] uppercase tracking-wider text-[#777777] font-medium block">Total Team</span>
+                <p className="text-xl font-bold mt-1">{teamStats.teamSize}</p>
+              </div>
+              <div className="bg-white p-4 rounded-lg border border-[#EBEBEB]">
+                <span className="text-[11px] uppercase tracking-wider text-[#777777] font-medium block">Monthly Salary</span>
+                <p className="text-xl font-bold text-[#2D5A27] mt-1">
+                  {formatPrice(LADDER_RANKS.find((r) => r.level === teamStats.ladderLevel)?.monthlySalary ?? 0, currency)}
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white border border-[#E5E5E5] rounded-lg p-5 space-y-2">
+              <div className="flex justify-between text-xs font-semibold">
+                <span>{nextLadder ? `Progress to LV${nextLadder.level}` : 'Top rank reached'}</span>
+                {nextLadder && (
+                  <span className="text-[#777777]">
+                    {nextLadder.directOnly ? teamStats.directCount : teamStats.teamSize} / {nextLadder.teamSize}{' '}
+                    {nextLadder.directOnly ? 'direct members' : 'team members'}
+                  </span>
+                )}
+              </div>
+              <div className="h-2 bg-[#F0F0F0] rounded-full overflow-hidden">
+                <div className="h-full bg-[#2D5A27]" style={{ width: `${ladderProgress}%` }} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-white rounded-lg border border-[#E5E5E5] overflow-hidden text-xs">
+                <h3 className="p-4 text-xs uppercase tracking-wider font-bold border-b border-[#E5E5E5]">
+                  Generation Commissions (per $1,500 device)
+                </h3>
+                <table className="w-full text-left">
+                  <thead className="bg-[#FAF9F5] text-[10px] uppercase tracking-wider text-[#777777]">
+                    <tr>
+                      <th className="p-3">Generation</th>
+                      <th className="p-3">Rate</th>
+                      <th className="p-3">Per Sale</th>
+                      <th className="p-3">Your Members</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#F0F0F0]">
+                    {GENERATION_RATES.map((rate, i) => (
+                      <tr key={i}>
+                        <td className="p-3 font-semibold">{i === 0 ? 'Gen 1 (Direct)' : `Gen ${i + 1}`}</td>
+                        <td className="p-3">{rate * 100}%</td>
+                        <td className="p-3 font-bold text-[#2D5A27]">{formatPrice(1500 * rate, currency)}</td>
+                        <td className="p-3">{teamStats.byGeneration[i] ?? 0}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <p className="p-3 text-[10px] text-[#777777] border-t border-[#F0F0F0]">
+                  Maximum 15% per sale. Commissions are paid only on completed device sales.
+                </p>
+              </div>
+
+              <div className="bg-white rounded-lg border border-[#E5E5E5] overflow-hidden text-xs">
+                <h3 className="p-4 text-xs uppercase tracking-wider font-bold border-b border-[#E5E5E5]">
+                  Rank Ladder (LV1–LV10)
+                </h3>
+                <table className="w-full text-left">
+                  <thead className="bg-[#FAF9F5] text-[10px] uppercase tracking-wider text-[#777777]">
+                    <tr>
+                      <th className="p-3">Rank</th>
+                      <th className="p-3">Team Size</th>
+                      <th className="p-3">One-Time Reward</th>
+                      <th className="p-3">Monthly Salary</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#F0F0F0]">
+                    {LADDER_RANKS.map((r) => (
+                      <tr key={r.level} className={r.level === teamStats.ladderLevel ? 'bg-[#EBF3EA]' : ''}>
+                        <td className="p-3 font-semibold">LV{r.level}</td>
+                        <td className="p-3">{r.teamSize.toLocaleString()}{r.directOnly ? ' direct' : ''}</td>
+                        <td className="p-3">{r.level === 1 ? 'Kangen Air unit' : formatPrice(r.upgradeReward, currency)}</td>
+                        <td className="p-3">{r.monthlySalary ? formatPrice(r.monthlySalary, currency) : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg border border-[#E5E5E5] p-5 text-xs space-y-2">
+              <h3 className="uppercase tracking-wider font-bold">Your Earnings by Type</h3>
+              {Object.keys(earnedByType).length === 0 ? (
+                <p className="text-[#777777]">No commissions recorded yet.</p>
+              ) : (
+                Object.entries(earnedByType).map(([label, amount]) => (
+                  <div key={label} className="flex justify-between border-b border-[#F0F0F0] py-1.5">
+                    <span>{label}</span>
+                    <span className="font-bold text-[#2D5A27]">{formatPrice(amount, currency)}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
 
         {/* TAB 1: ORDER FULFILLMENT & STATUS */}
         {activeTab === 'orders' && (
