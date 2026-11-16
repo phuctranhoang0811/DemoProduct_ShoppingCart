@@ -481,6 +481,11 @@ function HellobeePortalContent() {
               )}
             </div>
           </div>
+
+          <div className="space-y-4 pt-4">
+            <h3 className="text-xs uppercase tracking-wider font-bold text-[#111111]">Network Benefits Preview</h3>
+            <BenefitsPanel ladderLevel={0} />
+          </div>
         </div>
       </div>
     );
