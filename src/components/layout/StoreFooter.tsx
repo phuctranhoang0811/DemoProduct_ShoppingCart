@@ -53,12 +53,9 @@ export function StoreFooter() {
               {t.footer.productsTitle}
             </p>
             <ul className="space-y-2 text-xs text-[#888888]">
-              <li><Link href="/product/enagic-leveluk-k8" className="hover:text-white transition-colors">LeveLuk K8</Link></li>
-              <li><Link href="/product/enagic-leveluk-sd501" className="hover:text-white transition-colors">LeveLuk SD501</Link></li>
-              <li><Link href="/product/enagic-leveluk-sd501-platinum" className="hover:text-white transition-colors">LeveLuk SD501 Platinum</Link></li>
-              <li><Link href="/product/enagic-leveluk-super-501" className="hover:text-white transition-colors">LeveLuk Super 501</Link></li>
-              <li><Link href="/product/enagic-leveluk-jriv" className="hover:text-white transition-colors">LeveLuk JRIV</Link></li>
-              <li><Link href="/product/enagic-anespa-dx" className="hover:text-white transition-colors">Anespa DX Mineral Spa</Link></li>
+              <li><Link href="/product/hellobee-filter-1500" className="hover:text-white transition-colors">emGuarde</Link></li>
+              <li><Link href="/product/emguarde-set-of-2" className="hover:text-white transition-colors">emGuarde Set of 2</Link></li>
+              <li><Link href="/product/kangen-air-500" className="hover:text-white transition-colors">Kangen Air 500</Link></li>
             </ul>
           </div>
 
@@ -68,9 +65,6 @@ export function StoreFooter() {
               {t.footer.customerCareTitle}
             </p>
             <ul className="space-y-2 text-xs text-[#888888]">
-              <li><Link href="/shop?category=cat-filters" className="hover:text-white transition-colors">FC1 High-Grade Filter</Link></li>
-              <li><Link href="/shop?category=cat-accessories" className="hover:text-white transition-colors">E-Cleaner Kit & Cleaning</Link></li>
-              <li><Link href="/shop?category=cat-bottles" className="hover:text-white transition-colors">UV-Protection Bottles</Link></li>
               <li><Link href="/cart" className="hover:text-white transition-colors">{t.cart.title}</Link></li>
               <li><Link href="/wishlist" className="hover:text-white transition-colors">{t.nav.savedItems}</Link></li>
               <li><Link href="/calculator" className="hover:text-white transition-colors">Tax Calculator (US & VN)</Link></li>

@@ -93,7 +93,6 @@ export function StoreHeader() {
   };
 
   const ionizerProducts = products
-    .filter((p) => p.categoryId === 'cat-ionizers' || p.categoryId === 'cat-spa')
     .slice(0, 4);
 
   const isHome = pathname === '/';

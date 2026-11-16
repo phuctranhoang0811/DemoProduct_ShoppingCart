@@ -42,10 +42,10 @@ import {
 import { generateId } from '@/lib/utils';
 
 const STORAGE_KEYS = {
-  products: 'enagic_kangen_products_v5',
-  categories: 'enagic_kangen_categories_v4',
+  products: 'enagic_kangen_products_v6',
+  categories: 'enagic_kangen_categories_v5',
   cart: 'enagic_kangen_cart_v2',
-  wishlist: 'enagic_kangen_wishlist_v2',
+  wishlist: 'enagic_kangen_wishlist_v3',
   orders: 'enagic_kangen_orders_v2',
   customers: 'enagic_kangen_customers_v2',
   discounts: 'enagic_kangen_discounts_v2',
@@ -247,7 +247,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     const products = getStorageItem<Product[]>(STORAGE_KEYS.products, initialProducts);
     const categories = getStorageItem<Category[]>(STORAGE_KEYS.categories, initialCategories);
     const cart = getStorageItem<CartItem[]>(STORAGE_KEYS.cart, []);
-    const wishlist = getStorageItem<string[]>(STORAGE_KEYS.wishlist, ['kangen-k8', 'kangen-sd501']);
+    const wishlist = getStorageItem<string[]>(STORAGE_KEYS.wishlist, ['emguarde-set-2', 'kangen-air-500']);
     const orders = getStorageItem<Order[]>(STORAGE_KEYS.orders, initialOrders);
     const customers = getStorageItem<Customer[]>(STORAGE_KEYS.customers, initialCustomers);
     const discounts = getStorageItem<Discount[]>(STORAGE_KEYS.discounts, initialDiscounts);
@@ -305,7 +305,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       products: initialProducts,
       categories: initialCategories,
       cart: [],
-      wishlist: ['kangen-k8', 'kangen-sd501'],
+      wishlist: ['emguarde-set-2', 'kangen-air-500'],
       orders: initialOrders,
       customers: initialCustomers,
       discounts: initialDiscounts,
