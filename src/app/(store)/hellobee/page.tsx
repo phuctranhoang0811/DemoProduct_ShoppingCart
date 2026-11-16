@@ -24,6 +24,7 @@ import {
   Send,
   AlertCircle,
   ExternalLink,
+  RotateCcw,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCommerceStore } from '@/stores/useCommerceStore';
@@ -47,6 +48,7 @@ function HellobeePortalContent() {
   const setActiveMemberId = useCommerceStore((state) => state.setActiveMemberId);
   const registerHellobeeMember = useCommerceStore((state) => state.registerHellobeeMember);
   const recordReferralOrder = useCommerceStore((state) => state.recordReferralOrder);
+  const resetMemberProgress = useCommerceStore((state) => state.resetMemberProgress);
   const requestPayout = useCommerceStore((state) => state.requestPayout);
   const currency = useCommerceStore((state) => state.currency);
 
@@ -661,6 +663,23 @@ function HellobeePortalContent() {
                 >
                   <ShoppingCart className="w-3.5 h-3.5 text-[#B9A58B]" />
                   <span>Simulate $1,500 Sale</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!currentMember) return;
+                    const ok = window.confirm(
+                      `Reset all progress for ${currentMember.name}?\n\nRank returns to 1A and orders, sales volume, commissions, balance and payout requests are cleared. This cannot be undone.`
+                    );
+                    if (!ok) return;
+                    resetMemberProgress(currentMember.id);
+                    toast.success('Progress reset to Rank 1A.');
+                  }}
+                  className="px-4 py-2 border border-[#B74747]/40 text-[#B74747] hover:bg-[#FBEAEA] font-semibold rounded-xs text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all"
+                  title="Reset this member's rank, orders, commissions and balance"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Reset Progress</span>
                 </button>
               </div>
             </div>

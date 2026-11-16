@@ -193,6 +193,7 @@ interface CommerceState {
     commissionsAwarded: CommissionTransaction[];
     upgrades: { memberName: string; oldRank: string; newRank: string }[];
   };
+  resetMemberProgress: (memberId: string) => void;
   requestPayout: (
     memberId: string,
     amount: number,
@@ -1488,6 +1489,34 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       commissionsAwarded,
       upgrades,
     };
+  },
+
+  // Demo reset: clears only this member's own sales and ledger; uplines keep commissions already credited to them.
+  resetMemberProgress: (memberId) => {
+    const state = get();
+    const updatedMembers = state.hellobeeMembers.map((m) =>
+      m.id === memberId
+        ? {
+            ...m,
+            rank: '1A' as RankLevel,
+            validOrdersCount: 0,
+            personalSalesVolume: 0,
+            networkSalesVolume: 0,
+            totalCommissionEarned: 0,
+            availableBalance: 0,
+          }
+        : m
+    );
+    const remainingCommissions = state.commissions.filter((c) => c.beneficiaryId !== memberId);
+    const remainingPayouts = state.payouts.filter((p) => p.memberId !== memberId);
+
+    setStorageItem(STORAGE_KEYS.hellobeeMembers, updatedMembers);
+    setStorageItem(STORAGE_KEYS.commissions, remainingCommissions);
+    setStorageItem(STORAGE_KEYS.payouts, remainingPayouts);
+    try {
+      localStorage.removeItem(`hellobee_celebrated_${memberId}`);
+    } catch {}
+    set({ hellobeeMembers: updatedMembers, commissions: remainingCommissions, payouts: remainingPayouts });
   },
 
   requestPayout: (memberId, amount, bankName, bankAccountNumber, bankAccountName) => {
