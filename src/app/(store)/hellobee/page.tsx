@@ -336,6 +336,11 @@ function HellobeePortalContent() {
         </div>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-8">
+          <div className="space-y-4">
+            <h3 className="text-xs uppercase tracking-wider font-bold text-[#111111]">Network Benefits</h3>
+            <BenefitsPanel ladderLevel={0} />
+          </div>
+
           {/* Account Status Card */}
           <div className="bg-white border border-[#E5E5E5] rounded-xl p-6 shadow-xs space-y-4">
             <div className="flex items-center justify-between pb-4 border-b border-[#F0F0F0]">
@@ -480,11 +485,6 @@ function HellobeePortalContent() {
                 </div>
               )}
             </div>
-          </div>
-
-          <div className="space-y-4 pt-4">
-            <h3 className="text-xs uppercase tracking-wider font-bold text-[#111111]">Network Benefits Preview</h3>
-            <BenefitsPanel ladderLevel={0} />
           </div>
         </div>
       </div>
