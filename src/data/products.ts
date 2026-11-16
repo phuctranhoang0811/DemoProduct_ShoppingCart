@@ -111,7 +111,8 @@ export const initialProducts: Product[] = [
       'Worldwide multi-voltage power supply (100V - 240V)',
       'Automated self-cleaning cycle',
     ],
-    price: 6200,
+    price: 5890,
+    originalPrice: 6200,
     categoryId: 'cat-ionizers',
     images: [
       'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1016_1_1.png',
@@ -128,7 +129,7 @@ export const initialProducts: Product[] = [
     featured: true,
     bestSeller: true,
     newArrival: true,
-    sale: false,
+    sale: true,
     gender: 'unisex',
     createdAt: '2026-01-01T08:00:00Z',
   },
@@ -172,7 +173,8 @@ export const initialProducts: Product[] = [
       'Clear voice prompts and LCD display',
       'Produces all 5 functional water types',
     ],
-    price: 5500,
+    price: 5360,
+    originalPrice: 5500,
     categoryId: 'cat-ionizers',
     images: [
       'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1064_1.png',
@@ -233,7 +235,8 @@ export const initialProducts: Product[] = [
       'Chamber 2 (7 plates) dedicated to heavy output of Strong Kangen and Strong Acidic waters',
       'Built-in tank for electrolysis enhancer solution',
     ],
-    price: 7200,
+    price: 7080,
+    originalPrice: 7200,
     categoryId: 'cat-ionizers',
     images: [
       'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1007_01.jpg',
@@ -293,7 +296,8 @@ export const initialProducts: Product[] = [
       'Convenient control display panel mounted right on the faucet',
       'Generates 5 types of Kangen water',
     ],
-    price: 6100,
+    price: 5890,
+    originalPrice: 6100,
     categoryId: 'cat-ionizers',
     images: [
       'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1010_1.jpg',
@@ -353,7 +357,8 @@ export const initialProducts: Product[] = [
       'Produces all 5 water types',
       'Compact size for smaller kitchens',
     ],
-    price: 3800,
+    price: 3530,
+    originalPrice: 3800,
     categoryId: 'cat-ionizers',
     images: [
       'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1062_1.jpg',
