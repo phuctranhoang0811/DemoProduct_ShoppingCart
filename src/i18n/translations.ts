@@ -272,7 +272,7 @@ const enTranslations: Translations = {
       japanQuality: 'Osaka, Japan (OEM Medical Facility)',
     },
     shop: {
-      pageTitle: 'Enagic® Water Ionizers & Genuine Accessories',
+      pageTitle: 'HelloBee Water Ionizers & Genuine Accessories',
       pageSubtitle: 'Authentic Japanese Kangen Water ionizers, Anespa mineral spas, high-grade replacement filters, and maintenance accessories.',
       filters: 'Filters',
       activeFilters: 'Active:',
