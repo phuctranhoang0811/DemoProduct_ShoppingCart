@@ -26,18 +26,6 @@ export const initialCategories: Category[] = [
     status: 'active',
   },
   {
-    id: 'cat-spa',
-    name: 'Anespa DX Mineral Spa',
-    nameVi: 'Anespa DX Mineral Spa',
-    nameEn: 'Anespa DX Mineral Spa',
-    slug: 'mineral-spa',
-    description: 'Japanese home Onsen mineral spa system removing 100% chlorine for radiant skin and hair.',
-    descriptionVi: 'Japanese home Onsen mineral spa system removing 100% chlorine for radiant skin and hair.',
-    descriptionEn: 'Japanese home Onsen mineral spa system removing 100% chlorine for radiant skin and hair.',
-    image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1041_1.jpg',
-    status: 'active',
-  },
-  {
     id: 'cat-air',
     name: 'Kangen Air Purifiers',
     nameVi: 'Kangen Air Purifiers',
