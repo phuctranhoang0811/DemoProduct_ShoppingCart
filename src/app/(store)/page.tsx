@@ -27,13 +27,6 @@ const HERO_IMAGES = [
   'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?auto=format&fit=crop&w=1600&q=75',
 ];
 
-const TRUST_STATS = [
-  { figure: '50+', label: 'Countries Worldwide' },
-  { figure: '1974', label: 'Founded in Osaka' },
-  { figure: '5-Yr', label: 'Factory Warranty' },
-  { figure: 'ISO', label: '13485 Certified' },
-];
-
 export default function HomePage() {
   const { t } = useTranslation();
 
@@ -94,23 +87,6 @@ export default function HomePage() {
         <h1 className="sr-only">Change Your Water. Change Your Life.</h1>
       </section>
 
-      {/* ─── 2. OVERSIZED STAT CALLOUTS (replaces icon+text trust bar) ─── */}
-      <section className="border-y border-white/[0.07] bg-[#0D0D0D]">
-        <div className="max-w-[1440px] mx-auto px-6 sm:px-12 lg:px-20">
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-white/[0.07]">
-            {TRUST_STATS.map((s) => (
-              <div key={s.figure} className="py-8 px-6 lg:px-10 flex flex-col gap-1 group">
-                <span className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-white leading-none group-hover:text-cyan-300 transition-colors duration-300">
-                  {s.figure}
-                </span>
-                <span className="text-[11px] uppercase tracking-widest text-[#555] font-mono mt-1">
-                  {s.label}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
     </div>
   );
