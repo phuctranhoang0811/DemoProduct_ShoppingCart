@@ -25,10 +25,14 @@ function readLang(): string {
 
 function writeLang(code: string) {
   const value = code === 'en' ? '' : `/en/${code}`;
-  const expires = code === 'en' ? 'Thu, 01 Jan 1970 00:00:00 GMT' : '';
+  const expires = code === 'en' ? '; expires=Thu, 01 Jan 1970 00:00:00 GMT' : '';
   const host = window.location.hostname;
-  document.cookie = `googtrans=${value}; path=/; expires=${expires}`;
-  document.cookie = `googtrans=${value}; path=/; domain=${host}; expires=${expires}`;
+  const root = host.split('.').slice(-2).join('.');
+  // Google also writes this cookie on the parent domain; stale copies on any scope would win over ours.
+  const domains = ['', `; domain=${host}`, `; domain=.${host}`, `; domain=${root}`, `; domain=.${root}`];
+  domains.forEach((d) => {
+    document.cookie = `googtrans=${value}; path=/${d}${expires}`;
+  });
 }
 
 // Google Translate rewrites text nodes, which breaks React's DOM bookkeeping unless these are guarded.
@@ -110,8 +114,8 @@ export function LanguageSwitcher({ dark = false, align = 'right' }: { dark?: boo
     if (code === current) return;
     writeLang(code);
     setCurrent(code);
-    // Restoring the original English text needs a clean reload; other languages translate in place.
-    if (code === 'en') {
+    // Translating an already translated page mixes languages, so only the first switch from English is done in place.
+    if (code === 'en' || current !== 'en') {
       window.location.reload();
       return;
     }
