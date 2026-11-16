@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { TaxRuleRepository } from '@/modules/tax-engine/rules/tax-rule.repository';
 import { validateTaxRuleSet } from '@/modules/tax-engine/rules/tax-rule.validator';
 import { logAudit } from '@/lib/tax-history';
+import { requireAdminApi } from '@/lib/session';
 
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const denied = await requireAdminApi(req);
+  if (denied) return denied;
+
   try {
     const existing = TaxRuleRepository.getById(params.id);
     if (!existing) {

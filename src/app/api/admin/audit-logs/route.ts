@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { listAuditLogs } from '@/lib/tax-history';
+import { requireAdminApi } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
+  const denied = await requireAdminApi(req);
+  if (denied) return denied;
+
   try {
     const { searchParams } = new URL(req.url);
     const limit = parseInt(searchParams.get('limit') || '50', 10);

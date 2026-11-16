@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
@@ -114,6 +115,14 @@ Route::prefix('v1/auth')->group(function (): void {
 
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('me', [AuthController::class, 'me']);
+        Route::put('me', [AccountController::class, 'updateProfile']);
         Route::post('logout', [AuthController::class, 'logout']);
     });
+});
+
+Route::prefix('v1/addresses')->middleware(['throttle:checkout', 'auth:sanctum'])->group(function (): void {
+    Route::post('/', [AccountController::class, 'storeAddress']);
+    Route::put('{address}', [AccountController::class, 'updateAddress']);
+    Route::delete('{address}', [AccountController::class, 'destroyAddress']);
+    Route::patch('{address}/default', [AccountController::class, 'setDefaultAddress']);
 });

@@ -56,6 +56,7 @@ const STORAGE_KEYS = {
   session: 'enagic_kangen_session_v2',
   currency: 'enagic_kangen_currency_v2',
   language: 'enagic_kangen_language_v2',
+  appliedDiscount: 'enagic_kangen_discount_v1',
   hellobeeMembers: 'hellobee_members_v3',
   commissions: 'hellobee_commissions_v1',
   payouts: 'hellobee_payouts_v1',
@@ -100,12 +101,14 @@ interface CommerceState {
   currentUser: Customer | null;
   currency: 'USD' | 'VND';
   language: Language;
+  appliedDiscountCode: string | null;
   isCartDrawerOpen: boolean;
 
   initHydrate: () => void;
   resetDemoData: () => void;
   setCurrency: (currency: 'USD' | 'VND') => void;
   setLanguage: (language: Language) => void;
+  setAppliedDiscountCode: (code: string | null) => void;
   setIsCartDrawerOpen: (open: boolean) => void;
 
   // Products
@@ -262,6 +265,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   currentUser: null,
   currency: 'USD',
   language: 'en',
+  appliedDiscountCode: null,
   isCartDrawerOpen: false,
 
   // Hellobee initial state
@@ -282,6 +286,11 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     set({ language });
     setStorageItem(STORAGE_KEYS.language, language);
   },
+  setAppliedDiscountCode: (code) => {
+    const normalized = code?.trim().toUpperCase() || null;
+    set({ appliedDiscountCode: normalized });
+    setStorageItem(STORAGE_KEYS.appliedDiscount, normalized);
+  },
   setIsCartDrawerOpen: (isCartDrawerOpen) => set({ isCartDrawerOpen }),
 
   initHydrate: () => {
@@ -297,9 +306,11 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     const reviews = getStorageItem<Review[]>(STORAGE_KEYS.reviews, initialReviews);
     const inventory = getStorageItem<InventoryMovement[]>(STORAGE_KEYS.inventory, initialInventoryMovements);
     const settings = getStorageItem<StoreSettings>(STORAGE_KEYS.settings, initialSettings);
-    const sessionUser = getStorageItem<Customer | null>(STORAGE_KEYS.session, initialCustomers[0]);
+    const rawSession = getStorageItem<Customer | null>(STORAGE_KEYS.session, null);
+    const sessionUser = rawSession ? { ...rawSession, role: rawSession.role ?? 'customer' } : null;
     const currency = getStorageItem<'USD' | 'VND'>(STORAGE_KEYS.currency, 'USD');
     const language = getStorageItem<Language>(STORAGE_KEYS.language, 'en');
+    const appliedDiscountCode = getStorageItem<string | null>(STORAGE_KEYS.appliedDiscount, null);
     const hellobeeMembers = getStorageItem<HellobeeMember[]>(
       STORAGE_KEYS.hellobeeMembers,
       initialHellobeeMembers
@@ -332,6 +343,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       currentUser: sessionUser,
       currency,
       language,
+      appliedDiscountCode,
       hellobeeMembers,
       commissions,
       payouts,
@@ -343,7 +355,6 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     if (typeof window !== 'undefined') {
       Object.values(STORAGE_KEYS).forEach((k) => localStorage.removeItem(k));
     }
-    const defaultUser = initialCustomers[0];
     set({
       products: initialProducts,
       categories: initialCategories,
@@ -355,9 +366,10 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       reviews: initialReviews,
       inventoryMovements: initialInventoryMovements,
       settings: initialSettings,
-      currentUser: defaultUser,
+      currentUser: null,
       currency: 'USD',
       language: 'en',
+      appliedDiscountCode: null,
       hellobeeMembers: initialHellobeeMembers,
       commissions: initialCommissionTransactions,
       payouts: initialPayoutRequests,
@@ -371,7 +383,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     setStorageItem(STORAGE_KEYS.reviews, initialReviews);
     setStorageItem(STORAGE_KEYS.inventory, initialInventoryMovements);
     setStorageItem(STORAGE_KEYS.settings, initialSettings);
-    setStorageItem(STORAGE_KEYS.session, defaultUser);
+    setStorageItem(STORAGE_KEYS.session, null);
   },
 
   // PRODUCTS
@@ -538,7 +550,8 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
   clearCart: () => {
     setStorageItem(STORAGE_KEYS.cart, []);
-    set({ cart: [] });
+    setStorageItem(STORAGE_KEYS.appliedDiscount, null);
+    set({ cart: [], appliedDiscountCode: null });
   },
 
   // WISHLIST
@@ -625,6 +638,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     setStorageItem(STORAGE_KEYS.products, updatedProducts);
     setStorageItem(STORAGE_KEYS.inventory, updatedMovements);
     setStorageItem(STORAGE_KEYS.cart, []);
+    setStorageItem(STORAGE_KEYS.appliedDiscount, null);
 
     // Update customer totalOrders and totalSpent if known
     let updatedCustomers = state.customers;
@@ -649,6 +663,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       discounts: updatedDiscounts,
       customers: updatedCustomers,
       cart: [],
+      appliedDiscountCode: null,
     });
 
     // If referral code is used, process commissions and rank updates
@@ -970,6 +985,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
         email: emp.email,
         phone: emp.phone || '+1 (555) 014-4411',
         role: 'employee',
+        referralCode: emp.referralCode,
         membershipTier: 'VIP Platinum',
         gender: 'male',
         birthday: '1992-04-18',
@@ -1008,6 +1024,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
         email: owner.email,
         phone: owner.phone || '+1 (555) 019-2831',
         role: 'admin',
+        referralCode: owner.referralCode,
         membershipTier: 'VIP Platinum',
         gender: 'male',
         birthday: '1985-09-12',
@@ -1101,6 +1118,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
         email: clean,
         phone: targetMember.phone || '+1 (555) 014-4411',
         role: isOwner ? 'admin' : 'employee',
+        referralCode: targetMember.referralCode,
         membershipTier: 'VIP Platinum',
         status: 'active',
         addresses: [

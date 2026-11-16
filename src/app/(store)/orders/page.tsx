@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Package, Calendar, Clock, ChevronRight, X, MapPin } from 'lucide-react';
+import { Package, Lock, X } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { Order } from '@/types';
 import { formatPrice, formatDate } from '@/lib/utils';
@@ -11,16 +11,40 @@ import { formatPrice, formatDate } from '@/lib/utils';
 export default function CustomerOrdersPage() {
   const orders = useCommerceStore((state) => state.orders);
   const currentUser = useCommerceStore((state) => state.currentUser);
+  const isHydrated = useCommerceStore((state) => state.isHydrated);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-  // If logged in, show user orders; otherwise show all mock orders for seamless demo testing
-  const displayedOrders = currentUser
-    ? orders.filter(
-        (o) =>
-          o.customerEmail.toLowerCase() === currentUser.email.toLowerCase() ||
-          o.customerName.toLowerCase() === currentUser.name.toLowerCase()
-      )
-    : orders;
+  if (!isHydrated) {
+    return (
+      <div className="max-w-[1440px] mx-auto px-4 py-28 text-center text-xs text-[#777777]">
+        Loading order history...
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="max-w-[1440px] mx-auto px-4 py-28 text-center space-y-4">
+        <div className="w-16 h-16 bg-[#F5F4F0] rounded-full flex items-center justify-center mx-auto text-[#111111] border border-[#E5E5E5]">
+          <Lock className="w-8 h-8 stroke-[1.2]" />
+        </div>
+        <h1 className="text-2xl font-light text-[#111111]">Account Sign In Required</h1>
+        <p className="text-xs text-[#777777] max-w-sm mx-auto">
+          Please sign in to view your Enagic order history and installation records.
+        </p>
+        <Link
+          href="/login?next=/orders"
+          className="inline-block mt-4 bg-[#111111] text-white px-8 py-3 text-xs uppercase font-semibold tracking-wider hover:bg-[#333333] transition-colors rounded-xs shadow-xs"
+        >
+          Sign In Now
+        </Link>
+      </div>
+    );
+  }
+
+  const displayedOrders = orders.filter(
+    (o) => o.customerEmail.toLowerCase() === currentUser.email.toLowerCase()
+  );
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -22,11 +22,10 @@ import {
   RotateCcw,
   Network,
   Briefcase,
-  AlertTriangle,
   Lock,
   CalendarDays,
 } from 'lucide-react';
-import { switchDemoRole } from '@/lib/auth-client';
+import { demoSignInAvailable, switchDemoRole } from '@/lib/auth-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { toast } from 'sonner';
 
@@ -50,7 +49,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const resetDemoData = useCommerceStore((state) => state.resetDemoData);
   const currentUser = useCommerceStore((state) => state.currentUser);
+  const isHydrated = useCommerceStore((state) => state.isHydrated);
+  const authMode = useCommerceStore((state) => state.authMode);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+  const [demoAvailable, setDemoAvailable] = useState(false);
+
+  useEffect(() => {
+    void demoSignInAvailable().then(setDemoAvailable);
+  }, []);
 
   const handleReset = () => {
     resetDemoData();
@@ -58,10 +64,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     toast.success('Demo data restored to initial state.');
   };
 
-  // RBAC Permission Check: If current user is logged in as Customer, deny admin entry
-  const isCustomerOnly = currentUser && currentUser.role === 'customer';
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen bg-[#F5F4F0] flex items-center justify-center p-4 text-xs text-[#666666]">
+        Verifying administrator access...
+      </div>
+    );
+  }
 
-  if (isCustomerOnly) {
+  // Strictly require an authenticated administrator before rendering any back-office UI.
+  if (!currentUser || currentUser.role !== 'admin') {
+    const returnUrl = `/login?next=${encodeURIComponent(pathname || '/admin')}`;
     return (
       <div className="min-h-screen bg-[#F5F4F0] flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-xl border border-[#E5E5E5] p-6 sm:p-8 text-center space-y-4 shadow-xl">
@@ -79,35 +92,41 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           <p className="text-xs text-[#666666] leading-relaxed">
-            You are currently signed in as <strong>{currentUser.name}</strong> with role{' '}
-            <span className="font-mono uppercase font-bold text-[#111111]">CUSTOMER</span>. This area is
-            restricted to system administrators.
+            {currentUser ? (
+              <>
+                You are currently signed in as <strong>{currentUser.name}</strong> with role{' '}
+                <span className="font-mono uppercase font-bold text-[#111111]">
+                  {currentUser.role || 'customer'}
+                </span>
+                . This area is restricted to system administrators.
+              </>
+            ) : (
+              'Please sign in with an authorized administrator account to access the Commerce Admin Portal.'
+            )}
           </p>
 
           <div className="pt-2 space-y-2">
-            <button
-              onClick={() => {
-                void switchDemoRole('admin', 'Signed in as Administrator (Johnathan Bee)');
-              }}
-              className="w-full bg-[#111111] text-white py-3 rounded-xs text-xs uppercase tracking-wider font-semibold hover:bg-[#333333] transition-colors shadow-xs"
+            <Link
+              href={returnUrl}
+              className="w-full block bg-[#111111] text-white py-3 rounded-xs text-xs uppercase tracking-wider font-semibold hover:bg-[#333333] transition-colors shadow-xs"
             >
-              1-Click Switch to Administrator (Johnathan Bee)
-            </button>
+              Sign In as Administrator
+            </Link>
 
-            <button
-              onClick={() => {
-                void switchDemoRole('employee', 'Signed in as Employee (David Nguyen)');
-              }}
-              className="w-full bg-[#2D5A27] text-white py-2.5 rounded-xs text-xs uppercase tracking-wider font-semibold hover:bg-[#23471f] transition-colors"
-            >
-              Switch to Employee Workspace (David Nguyen)
-            </button>
+            {currentUser?.role === 'employee' && (
+              <Link
+                href="/employee"
+                className="w-full block bg-[#2D5A27] text-white py-2.5 rounded-xs text-xs uppercase tracking-wider font-semibold hover:bg-[#23471f] transition-colors"
+              >
+                Open Employee Workspace
+              </Link>
+            )}
 
             <Link
-              href="/account"
+              href={currentUser ? '/account' : '/'}
               className="w-full block border border-[#E5E5E5] py-2.5 rounded-xs text-xs uppercase tracking-wider font-medium text-[#555] hover:bg-[#F5F4F0] transition-colors"
             >
-              Return to Customer Account
+              {currentUser ? 'Return to Account' : 'Return to Storefront'}
             </Link>
           </div>
         </div>
@@ -202,28 +221,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Quick Role Switcher for Evaluator Demo */}
-            <div className="hidden lg:flex items-center gap-1.5 text-xs">
-              <span className="text-[10px] text-[#888888] uppercase font-bold">Role:</span>
-              <button
-                onClick={() => {
-                  void switchDemoRole('employee', 'Switched to Employee role (David Nguyen)');
-                }}
-                className="text-[10px] uppercase font-bold text-[#2D5A27] bg-[#EBF3EA] px-2 py-0.5 rounded hover:bg-[#d8e8d6]"
-                title="Switch to Employee"
-              >
-                Staff (10%)
-              </button>
-              <button
-                onClick={() => {
-                  void switchDemoRole('customer', 'Switched to Customer role (Elena Rostova)');
-                }}
-                className="text-[10px] uppercase font-bold text-[#555] bg-[#F5F4F0] px-2 py-0.5 rounded hover:bg-[#EBEBEB]"
-                title="Switch to Customer"
-              >
-                Customer
-              </button>
-            </div>
+            {demoAvailable && authMode === 'local' && (
+              <div className="hidden lg:flex items-center gap-1.5 text-xs">
+                <span className="text-[10px] text-[#888888] uppercase font-bold">Role:</span>
+                <button
+                  onClick={() => {
+                    void switchDemoRole('employee', 'Switched to Employee role (David Nguyen)');
+                  }}
+                  className="text-[10px] uppercase font-bold text-[#2D5A27] bg-[#EBF3EA] px-2 py-0.5 rounded hover:bg-[#d8e8d6]"
+                  title="Switch to Employee"
+                >
+                  Staff (10%)
+                </button>
+                <button
+                  onClick={() => {
+                    void switchDemoRole('customer', 'Switched to Customer role (Elena Rostova)');
+                  }}
+                  className="text-[10px] uppercase font-bold text-[#555] bg-[#F5F4F0] px-2 py-0.5 rounded hover:bg-[#EBEBEB]"
+                  title="Switch to Customer"
+                >
+                  Customer
+                </button>
+              </div>
+            )}
 
             <Link
               href="/employee"
@@ -242,24 +262,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </Link>
           </div>
         </header>
-
-        {/* Staff notice banner if logged in as employee */}
-        {currentUser?.role === 'employee' && (
-          <div className="bg-[#FAF1E4] border-b border-[#8C5E1E]/20 px-4 sm:px-8 py-2.5 flex items-center justify-between text-xs text-[#8C5E1E]">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-              <span>
-                You are currently viewing the Administrator Portal in Staff mode ({currentUser.name} - HBEE03).
-              </span>
-            </div>
-            <Link
-              href="/employee"
-              className="font-bold underline hover:text-[#111111] ml-2 flex-shrink-0"
-            >
-              Open Employee Workspace &rarr;
-            </Link>
-          </div>
-        )}
 
         {/* Page Content */}
         <main className="flex-1 p-4 sm:p-8 max-w-[1440px] w-full mx-auto">{children}</main>

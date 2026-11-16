@@ -26,7 +26,14 @@ import {
   CreditCard,
   Wifi,
 } from 'lucide-react';
-import { signOut } from '@/lib/auth-client';
+import {
+  editAddress,
+  markDefaultAddress,
+  removeAddress,
+  saveAddress,
+  saveProfile,
+  signOut,
+} from '@/lib/auth-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { Address } from '@/types';
 import { formatPrice, formatDate } from '@/lib/utils';
@@ -35,11 +42,8 @@ import { toast } from 'sonner';
 export default function AccountPage() {
   const router = useRouter();
   const currentUser = useCommerceStore((state) => state.currentUser);
+  const isHydrated = useCommerceStore((state) => state.isHydrated);
   const updateProfile = useCommerceStore((state) => state.updateProfile);
-  const addAddress = useCommerceStore((state) => state.addAddress);
-  const updateAddress = useCommerceStore((state) => state.updateAddress);
-  const deleteAddress = useCommerceStore((state) => state.deleteAddress);
-  const setDefaultAddress = useCommerceStore((state) => state.setDefaultAddress);
   const orders = useCommerceStore((state) => state.orders);
 
   // Address form modal state
@@ -73,11 +77,16 @@ export default function AccountPage() {
 
   // Filter orders for current user
   const userOrders = orders.filter(
-    (o) =>
-      currentUser &&
-      (o.customerEmail.toLowerCase() === currentUser.email.toLowerCase() ||
-        o.customerName.toLowerCase() === currentUser.name.toLowerCase())
+    (o) => currentUser && o.customerEmail.toLowerCase() === currentUser.email.toLowerCase()
   );
+
+  if (!isHydrated) {
+    return (
+      <div className="max-w-[1440px] mx-auto px-4 py-28 text-center text-xs text-[#777777]">
+        Loading your account...
+      </div>
+    );
+  }
 
   if (!currentUser) {
     return (
@@ -110,15 +119,25 @@ export default function AccountPage() {
     setIsEditingProfile(true);
   };
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profileForm.name.trim()) {
       toast.error('Full name cannot be empty.');
       return;
     }
-    updateProfile({
+    const result = await saveProfile({
       name: profileForm.name.trim(),
       phone: profileForm.phone.trim(),
+      gender: profileForm.gender as any,
+      birthday: profileForm.birthday,
+      company: profileForm.company.trim(),
+    });
+    if (!result.ok) {
+      toast.error(result.message || 'Could not update profile.');
+      return;
+    }
+    // Preserve local-only optional preferences when backend does not store them.
+    updateProfile({
       gender: profileForm.gender as any,
       birthday: profileForm.birthday,
       company: profileForm.company.trim(),
@@ -154,52 +173,43 @@ export default function AccountPage() {
       district: addr.district || '',
       city: addr.city,
       postalCode: addr.postalCode || '',
-      country: addr.country || 'Vietnam',
+      country: addr.country || 'United States',
       deliveryNotes: addr.deliveryNotes || '',
       isDefault: !!addr.isDefault,
     });
     setIsAddressModalOpen(true);
   };
 
-  const handleSaveAddress = (e: React.FormEvent) => {
+  const handleSaveAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!addressForm.street.trim() || !addressForm.city.trim()) {
       toast.error('Street Address and City are required fields.');
       return;
     }
 
-    if (editingAddressId) {
-      updateAddress(editingAddressId, {
-        fullName: addressForm.fullName || currentUser.name,
-        phone: addressForm.phone || currentUser.phone,
-        street: addressForm.street.trim(),
-        ward: addressForm.ward.trim(),
-        district: addressForm.district.trim(),
-        city: addressForm.city.trim(),
-        postalCode: addressForm.postalCode.trim(),
-        country: addressForm.country.trim(),
-        deliveryNotes: addressForm.deliveryNotes.trim(),
-        isDefault: addressForm.isDefault,
-      });
-      if (addressForm.isDefault) {
-        setDefaultAddress(editingAddressId);
-      }
-      toast.success('Shipping address updated successfully.');
-    } else {
-      addAddress({
-        fullName: addressForm.fullName || currentUser.name,
-        phone: addressForm.phone || currentUser.phone,
-        street: addressForm.street.trim(),
-        ward: addressForm.ward.trim(),
-        district: addressForm.district.trim(),
-        city: addressForm.city.trim(),
-        postalCode: addressForm.postalCode.trim(),
-        country: addressForm.country.trim(),
-        deliveryNotes: addressForm.deliveryNotes.trim(),
-        isDefault: addressForm.isDefault || currentUser.addresses.length === 0,
-      });
-      toast.success('New shipping address saved.');
+    const payload = {
+      fullName: addressForm.fullName || currentUser.name,
+      phone: addressForm.phone || currentUser.phone,
+      street: addressForm.street.trim(),
+      ward: addressForm.ward.trim(),
+      district: addressForm.district.trim(),
+      city: addressForm.city.trim(),
+      postalCode: addressForm.postalCode.trim(),
+      country: addressForm.country.trim(),
+      deliveryNotes: addressForm.deliveryNotes.trim(),
+      isDefault: editingAddressId ? addressForm.isDefault : addressForm.isDefault || currentUser.addresses.length === 0,
+    };
+
+    const result = editingAddressId
+      ? await editAddress(editingAddressId, payload)
+      : await saveAddress(payload);
+
+    if (!result.ok) {
+      toast.error(result.message || 'Could not save address.');
+      return;
     }
+
+    toast.success(editingAddressId ? 'Shipping address updated successfully.' : 'New shipping address saved.');
     setIsAddressModalOpen(false);
   };
 
@@ -668,9 +678,10 @@ export default function AccountPage() {
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
                         <button
-                          onClick={() => {
-                            deleteAddress(addr.id);
-                            toast.info('Address removed.');
+                          onClick={async () => {
+                            const res = await removeAddress(addr.id);
+                            if (!res.ok) toast.error(res.message || 'Could not remove address.');
+                            else toast.info('Address removed.');
                           }}
                           className="p-1.5 text-[#777777] hover:text-[#B74747] hover:bg-[#FBEAEA] rounded-xs transition-colors"
                           title="Delete Address"
@@ -687,7 +698,7 @@ export default function AccountPage() {
                         {addr.district ? `${addr.district}, ` : ''}
                         {addr.city} {addr.postalCode ? `(${addr.postalCode})` : ''}
                       </p>
-                      <p className="text-[#777777]">{addr.country || 'Vietnam'}</p>
+                      <p className="text-[#777777]">{addr.country || 'United States'}</p>
                       <p className="text-[#111111] font-mono text-[11px] pt-1">
                         Phone: {addr.phone}
                       </p>
@@ -703,9 +714,10 @@ export default function AccountPage() {
                     {!addr.isDefault ? (
                       <button
                         type="button"
-                        onClick={() => {
-                          setDefaultAddress(addr.id);
-                          toast.success('Set as default delivery destination.');
+                        onClick={async () => {
+                          const res = await markDefaultAddress(addr.id);
+                          if (!res.ok) toast.error(res.message || 'Could not update default address.');
+                          else toast.success('Set as default delivery destination.');
                         }}
                         className="text-[11px] font-semibold text-[#111111] underline hover:text-[#477A5A]"
                       >

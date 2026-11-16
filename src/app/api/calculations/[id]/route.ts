@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { deleteCalculation, getCalculation } from '@/lib/tax-history';
+import { authBackendEnabled, forbidden, isSameOrigin } from '@/lib/session';
 
 export async function GET(
   req: NextRequest,
@@ -33,6 +34,8 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  if (authBackendEnabled && !isSameOrigin(req)) return forbidden();
+
   try {
     const deleted = await deleteCalculation(params.id);
     if (!deleted) {

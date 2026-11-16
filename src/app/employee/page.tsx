@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -35,7 +35,7 @@ import {
   Rocket,
   Award,
 } from 'lucide-react';
-import { signOut, switchDemoRole } from '@/lib/auth-client';
+import { demoSignInAvailable, signOut, switchDemoRole } from '@/lib/auth-client';
 import { submitPayout } from '@/lib/hellobee-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { OrderStatus, Order } from '@/types';
@@ -48,6 +48,8 @@ import { LevelUpCelebration } from '@/components/hellobee/LevelUpCelebration';
 
 export default function EmployeePage() {
   const currentUser = useCommerceStore((state) => state.currentUser);
+  const isHydrated = useCommerceStore((state) => state.isHydrated);
+  const authMode = useCommerceStore((state) => state.authMode);
   const orders = useCommerceStore((state) => state.orders);
   const customers = useCommerceStore((state) => state.customers);
   const updateOrderStatus = useCommerceStore((state) => state.updateOrderStatus);
@@ -55,6 +57,11 @@ export default function EmployeePage() {
   const hellobeeMembers = useCommerceStore((state) => state.hellobeeMembers);
   const commissions = useCommerceStore((state) => state.commissions);
   const currency = useCommerceStore((state) => state.currency);
+  const [demoAvailable, setDemoAvailable] = useState(false);
+
+  useEffect(() => {
+    void demoSignInAvailable().then(setDemoAvailable);
+  }, []);
 
   const [activeTab, setActiveTab] = useState<'orders' | 'leads' | 'inventory' | 'referral' | 'benefits'>('benefits');
   const [orderFilter, setOrderFilter] = useState<'ALL' | OrderStatus>('ALL');
@@ -132,6 +139,14 @@ export default function EmployeePage() {
           (o) => o.referralCode?.toUpperCase() === employeeCode.toUpperCase()
         );
 
+  if (!isHydrated) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center p-4 text-xs text-[#666666]">
+        Verifying employee workspace access...
+      </div>
+    );
+  }
+
   const isAuthorized = currentUser && (currentUser.role === 'employee' || currentUser.role === 'admin');
 
   // If user is not an employee or admin, show role-based access gate
@@ -154,7 +169,7 @@ export default function EmployeePage() {
 
           <p className="text-xs text-[#666666] leading-relaxed">
             {currentUser
-              ? `You are currently logged in as ${currentUser.name} with role "${currentUser.role?.toUpperCase()}". To become a certified referral employee, you must purchase a qualifying $1,500 water ionizer and accept consultant terms.`
+              ? `You are currently logged in as ${currentUser.name} with role "${(currentUser.role || 'customer').toUpperCase()}". To become a certified referral employee, you must purchase a qualifying $1,500 water ionizer and accept consultant terms.`
               : 'Sign in with an authorized employee account to access customer fulfillment, inventory lookup, and sales commission records.'}
           </p>
 
@@ -166,18 +181,20 @@ export default function EmployeePage() {
               <span>Unlock Employee Status ($1,500 Device) &rarr;</span>
             </Link>
 
-            <button
-              onClick={() => {
-                void switchDemoRole('employee', 'Signed in as David Nguyen (Employee / HBEE03)');
-              }}
-              className="w-full bg-[#2D5A27] text-white py-2.5 rounded-xs text-xs uppercase tracking-wider font-semibold hover:bg-[#23471f] transition-colors shadow-xs flex items-center justify-center gap-2"
-            >
-              <Briefcase className="w-4 h-4" />
-              <span>Demo Switch: Sign In as David Nguyen</span>
-            </button>
+            {demoAvailable && authMode === 'local' && (
+              <button
+                onClick={() => {
+                  void switchDemoRole('employee', 'Signed in as David Nguyen (Employee / HBEE03)');
+                }}
+                className="w-full bg-[#2D5A27] text-white py-2.5 rounded-xs text-xs uppercase tracking-wider font-semibold hover:bg-[#23471f] transition-colors shadow-xs flex items-center justify-center gap-2"
+              >
+                <Briefcase className="w-4 h-4" />
+                <span>Demo Switch: Sign In as David Nguyen</span>
+              </button>
+            )}
 
             <Link
-              href="/login"
+              href="/login?next=/employee"
               className="w-full block border border-[#E5E5E5] py-2.5 rounded-xs text-xs uppercase tracking-wider font-medium text-[#555] hover:bg-[#F5F4F0] transition-colors"
             >
               Go to Standard Sign In
@@ -271,26 +288,26 @@ export default function EmployeePage() {
               </div>
             </div>
 
-            {/* Quick role switcher for demo convenience */}
             <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => {
-                  void switchDemoRole('admin', 'Switched to Administrator role (Johnathan Bee)');
-                }}
-                className="text-[10px] uppercase font-bold text-[#555] hover:text-[#111111] px-2 py-1 border border-[#E5E5E5] rounded-xs hover:bg-[#F5F4F0]"
-                title="Switch to Admin"
-              >
-                Switch to Admin
-              </button>
-              <button
-                onClick={() => {
-                  void switchDemoRole('customer', 'Switched to Customer role (Elena Rostova)');
-                }}
-                className="text-[10px] uppercase font-bold text-[#555] hover:text-[#111111] px-2 py-1 border border-[#E5E5E5] rounded-xs hover:bg-[#F5F4F0]"
-                title="Switch to Customer"
-              >
-                Switch to Customer
-              </button>
+              {currentUser.role === 'admin' && (
+                <Link
+                  href="/admin"
+                  className="text-[10px] uppercase font-bold text-[#555] hover:text-[#111111] px-2 py-1 border border-[#E5E5E5] rounded-xs hover:bg-[#F5F4F0]"
+                >
+                  Admin Console
+                </Link>
+              )}
+              {demoAvailable && authMode === 'local' && (
+                <button
+                  onClick={() => {
+                    void switchDemoRole('customer', 'Switched to Customer role (Elena Rostova)');
+                  }}
+                  className="text-[10px] uppercase font-bold text-[#555] hover:text-[#111111] px-2 py-1 border border-[#E5E5E5] rounded-xs hover:bg-[#F5F4F0]"
+                  title="Switch to Customer"
+                >
+                  Switch to Customer
+                </button>
+              )}
               <button
                 onClick={() => {
                   void signOut().then(() => {

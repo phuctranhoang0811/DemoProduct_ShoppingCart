@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { TaxRuleRepository } from '@/modules/tax-engine/rules/tax-rule.repository';
 import { validateTaxRuleSet } from '@/modules/tax-engine/rules/tax-rule.validator';
 import { logAudit } from '@/lib/tax-history';
+import { requireAdminApi } from '@/lib/session';
 
 export async function GET(req: NextRequest) {
+  const denied = await requireAdminApi(req);
+  if (denied) return denied;
+
   try {
     const rules = TaxRuleRepository.getAll();
     return NextResponse.json({
@@ -19,6 +23,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const denied = await requireAdminApi(req);
+  if (denied) return denied;
+
   try {
     const body = await req.json();
 

@@ -5,7 +5,7 @@ import { syncBackoffice } from '@/lib/admin-client';
 import { syncNetwork } from '@/lib/hellobee-client';
 import { syncMyOrders } from '@/lib/orders-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
-import type { Customer } from '@/types';
+import type { Address, Customer } from '@/types';
 
 // Client-side entry points for authentication. Each call goes to the Next.js auth routes, which
 // hold the session in an httpOnly cookie. When no backend is configured those routes answer 501
@@ -132,15 +132,122 @@ export async function signUp(input: {
   email: string;
   phone: string;
   password: string;
+  referralCode?: string;
 }): Promise<AuthResult> {
-  const res = await post('/api/auth/register', input);
+  const cleanRef = input.referralCode?.trim().toUpperCase();
+  const res = await post('/api/auth/register', {
+    name: input.name,
+    email: input.email,
+    phone: input.phone,
+    password: input.password,
+    ...(cleanRef ? { sponsor_code: cleanRef } : {}),
+  });
 
   if (res.status === LOCAL_MODE) {
-    const user = useCommerceStore.getState().register(input.name, input.email, input.phone);
+    const user = useCommerceStore.getState().register(input.name, input.email, input.phone, cleanRef);
     return { ok: true, user };
   }
 
   return finish(res);
+}
+
+async function accountRequest(
+  path: string,
+  method: 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+  body?: unknown,
+): Promise<{ status: number; data: any }> {
+  try {
+    const res = await fetch(path, {
+      method,
+      headers: body !== undefined ? { 'Content-Type': 'application/json' } : undefined,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+    return { status: res.status, data: await res.json().catch(() => ({})) };
+  } catch {
+    return { status: 0, data: { message: 'Network error. Please try again.' } };
+  }
+}
+
+function addressPayload(a: Omit<Address, 'id'>): Record<string, unknown> {
+  return {
+    full_name: a.fullName,
+    phone: a.phone,
+    street: a.street,
+    ward: a.ward || null,
+    district: a.district || null,
+    city: a.city,
+    postal_code: a.postalCode || null,
+    country: a.country || null,
+    delivery_notes: a.deliveryNotes || null,
+    is_default: Boolean(a.isDefault),
+  };
+}
+
+export async function saveProfile(updates: Partial<Customer>): Promise<AuthResult> {
+  const res = await accountRequest('/api/account/profile', 'PUT', {
+    name: updates.name,
+    phone: updates.phone,
+  });
+
+  if (res.status === LOCAL_MODE) {
+    useCommerceStore.getState().updateProfile(updates);
+    return { ok: true, user: useCommerceStore.getState().currentUser ?? undefined };
+  }
+
+  if (res.status >= 200 && res.status < 300 && res.data.user) {
+    const user = adopt(res.data.user) ?? undefined;
+    return { ok: true, user };
+  }
+  return { ok: false, message: res.data?.message || 'Could not update profile.' };
+}
+
+export async function saveAddress(address: Omit<Address, 'id'>): Promise<AuthResult> {
+  const res = await accountRequest('/api/account/addresses', 'POST', addressPayload(address));
+  if (res.status === LOCAL_MODE) {
+    useCommerceStore.getState().addAddress(address);
+    return { ok: true, user: useCommerceStore.getState().currentUser ?? undefined };
+  }
+  if (res.status >= 200 && res.status < 300 && res.data.user) {
+    return { ok: true, user: adopt(res.data.user) ?? undefined };
+  }
+  return { ok: false, message: res.data?.message || 'Could not save address.' };
+}
+
+export async function editAddress(addressId: string, address: Omit<Address, 'id'>): Promise<AuthResult> {
+  const res = await accountRequest(`/api/account/addresses/${encodeURIComponent(addressId)}`, 'PUT', addressPayload(address));
+  if (res.status === LOCAL_MODE) {
+    useCommerceStore.getState().updateAddress(addressId, address);
+    if (address.isDefault) useCommerceStore.getState().setDefaultAddress(addressId);
+    return { ok: true, user: useCommerceStore.getState().currentUser ?? undefined };
+  }
+  if (res.status >= 200 && res.status < 300 && res.data.user) {
+    return { ok: true, user: adopt(res.data.user) ?? undefined };
+  }
+  return { ok: false, message: res.data?.message || 'Could not update address.' };
+}
+
+export async function removeAddress(addressId: string): Promise<AuthResult> {
+  const res = await accountRequest(`/api/account/addresses/${encodeURIComponent(addressId)}`, 'DELETE');
+  if (res.status === LOCAL_MODE) {
+    useCommerceStore.getState().deleteAddress(addressId);
+    return { ok: true, user: useCommerceStore.getState().currentUser ?? undefined };
+  }
+  if (res.status >= 200 && res.status < 300 && res.data.user) {
+    return { ok: true, user: adopt(res.data.user) ?? undefined };
+  }
+  return { ok: false, message: res.data?.message || 'Could not remove address.' };
+}
+
+export async function markDefaultAddress(addressId: string): Promise<AuthResult> {
+  const res = await accountRequest(`/api/account/addresses/${encodeURIComponent(addressId)}/default`, 'PATCH');
+  if (res.status === LOCAL_MODE) {
+    useCommerceStore.getState().setDefaultAddress(addressId);
+    return { ok: true, user: useCommerceStore.getState().currentUser ?? undefined };
+  }
+  if (res.status >= 200 && res.status < 300 && res.data.user) {
+    return { ok: true, user: adopt(res.data.user) ?? undefined };
+  }
+  return { ok: false, message: res.data?.message || 'Could not update default address.' };
 }
 
 export async function signOut(): Promise<void> {

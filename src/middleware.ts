@@ -8,6 +8,7 @@ type Role = 'customer' | 'employee' | 'admin';
 // First match wins. `roles: null` means any signed-in user.
 const RULES: { prefix: string; roles: Role[] | null }[] = [
   { prefix: '/api/admin', roles: ['admin'] },
+  { prefix: '/api/account', roles: null },
   { prefix: '/admin', roles: ['admin'] },
   { prefix: '/employee', roles: ['admin', 'employee'] },
   { prefix: '/account', roles: null },
@@ -59,5 +60,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/employee/:path*', '/account/:path*', '/orders/:path*', '/api/admin/:path*'],
+  matcher: ['/admin/:path*', '/employee/:path*', '/account/:path*', '/orders/:path*', '/api/admin/:path*', '/api/account/:path*'],
 };

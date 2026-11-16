@@ -119,3 +119,25 @@ export function passThrough(result: BackendResult<{ message?: string; errors?: R
     { status: result.status },
   );
 }
+
+// Guards non-proxied /api/admin/* handlers so they never run unauthenticated.
+export async function requireAdminApi(req: NextRequest): Promise<NextResponse | null> {
+  if (!authBackendEnabled) {
+    return NextResponse.json({ success: false, error: 'Administrator authentication required.' }, { status: 401 });
+  }
+  if (req.method !== 'GET' && !isSameOrigin(req)) {
+    return forbidden();
+  }
+
+  const token = getSessionToken();
+  if (!token) {
+    return NextResponse.json({ success: false, error: 'Unauthenticated.' }, { status: 401 });
+  }
+
+  const me = await backend<{ data?: { role?: string; status?: string } }>('/auth/me', { token }).catch(() => null);
+  if (!me?.ok || me.data.data?.status !== 'active' || me.data.data?.role !== 'admin') {
+    return NextResponse.json({ success: false, error: 'Forbidden.' }, { status: 403 });
+  }
+
+  return null;
+}

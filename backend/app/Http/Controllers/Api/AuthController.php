@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Models\HellobeeMember;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,7 +25,18 @@ class AuthController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'phone' => ['required', 'string', 'max:32'],
             'password' => ['required', 'string', 'max:255', Password::defaults()],
+            'sponsor_code' => ['nullable', 'string', 'max:32'],
         ]);
+
+        $sponsorCode = isset($data['sponsor_code']) ? Str::upper(trim((string) $data['sponsor_code'])) : '';
+        if ($sponsorCode !== '') {
+            if (! HellobeeMember::where('referral_code', $sponsorCode)->where('is_active', true)->exists()) {
+                throw ValidationException::withMessages(['sponsor_code' => 'Referral code not found or inactive.']);
+            }
+            $data['sponsor_code'] = $sponsorCode;
+        } else {
+            unset($data['sponsor_code']);
+        }
 
         // Role and status come from column defaults; they are never taken from the request.
         $user = User::create($data);

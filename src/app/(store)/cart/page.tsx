@@ -1,53 +1,70 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ShieldCheck, Tag, Truck } from 'lucide-react';
+import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ShieldCheck, Truck, X } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { useTranslation } from '@/i18n/useTranslation';
 import { formatPrice } from '@/lib/utils';
 import { toast } from 'sonner';
 
 export default function CartPage() {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const cart = useCommerceStore((state) => state.cart);
+  const settings = useCommerceStore((state) => state.settings);
   const updateCartQuantity = useCommerceStore((state) => state.updateCartQuantity);
   const removeFromCart = useCommerceStore((state) => state.removeFromCart);
-  const settings = useCommerceStore((state) => state.settings);
   const validateDiscount = useCommerceStore((state) => state.validateDiscount);
+  const appliedDiscountCode = useCommerceStore((state) => state.appliedDiscountCode);
+  const setAppliedDiscountCode = useCommerceStore((state) => state.setAppliedDiscountCode);
   const currency = useCommerceStore((state) => state.currency);
 
-  const [promoCode, setPromoCode] = useState('');
-  const [appliedDiscount, setAppliedDiscount] = useState<{
-    code: string;
-    amount: number;
-  } | null>(null);
+  const [promoCode, setPromoCode] = useState(appliedDiscountCode ?? '');
+
+  useEffect(() => {
+    if (appliedDiscountCode && !promoCode) setPromoCode(appliedDiscountCode);
+  }, [appliedDiscountCode, promoCode]);
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+  const activeValidation = appliedDiscountCode ? validateDiscount(appliedDiscountCode, subtotal) : null;
+  const appliedDiscount =
+    appliedDiscountCode && activeValidation?.valid
+      ? { code: appliedDiscountCode, amount: activeValidation.discountAmount }
+      : null;
+
   const handleApplyPromo = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!promoCode.trim()) return;
+    const clean = promoCode.trim().toUpperCase();
+    if (!clean) return;
 
-    const res = validateDiscount(promoCode, subtotal);
+    const res = validateDiscount(clean, subtotal);
     if (!res.valid) {
       toast.error(res.error || 'Invalid promotional code.');
-      setAppliedDiscount(null);
+      setAppliedDiscountCode(null);
     } else {
+      setAppliedDiscountCode(clean);
       toast.success(
-        `Code ${promoCode.toUpperCase()} applied! Saved ${formatPrice(res.discountAmount, currency)}`
+        `Code ${clean} applied! Saved ${formatPrice(res.discountAmount, currency)}`
       );
-      setAppliedDiscount({
-        code: promoCode.toUpperCase(),
-        amount: res.discountAmount,
-      });
     }
   };
 
+  const handleRemovePromo = () => {
+    setAppliedDiscountCode(null);
+    setPromoCode('');
+    toast.info('Promotional code removed.');
+  };
+
   const discountAmount = appliedDiscount ? appliedDiscount.amount : 0;
-  const shippingFee = 0; // Free installation nationwide
-  const grandTotal = Math.max(0, subtotal - discountAmount + shippingFee);
+  const payableAfterDiscount = Math.max(0, subtotal - discountAmount);
+  const shippingFee =
+    settings.shippingFee > 0 &&
+    (settings.freeShippingThreshold === 0 || payableAfterDiscount < settings.freeShippingThreshold)
+      ? settings.shippingFee
+      : 0;
+  const grandTotal = payableAfterDiscount + shippingFee;
 
   if (cart.length === 0) {
     return (
@@ -170,11 +187,23 @@ export default function CartPage() {
               </div>
               <div className="flex justify-between text-[#737373]">
                 <span>{t.cart.shipping}</span>
-                <span className="font-semibold text-[#2D5A27]">{t.cart.shippingFree}</span>
+                <span className="font-semibold text-[#2D5A27]">
+                  {shippingFee === 0 ? t.cart.shippingFree : formatPrice(shippingFee, currency)}
+                </span>
               </div>
               {appliedDiscount && (
-                <div className="flex justify-between text-[#2D5A27]">
-                  <span>Promo ({appliedDiscount.code})</span>
+                <div className="flex items-center justify-between text-[#2D5A27]">
+                  <span className="flex items-center gap-1.5">
+                    <span>Promo ({appliedDiscount.code})</span>
+                    <button
+                      type="button"
+                      onClick={handleRemovePromo}
+                      className="text-[#777777] hover:text-[#B74747]"
+                      aria-label="Remove promo code"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
                   <span className="font-semibold">-{formatPrice(appliedDiscount.amount, currency)}</span>
                 </div>
               )}

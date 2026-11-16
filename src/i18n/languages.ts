@@ -38,8 +38,9 @@ export const LANGUAGES: LanguageOption[] = [
   { code: 'tr', label: 'Türkçe', dir: 'ltr' },
 ];
 
-// Order matches the flag picker rows in the UI.
+// Order matches the flag picker rows in the UI (US first as default English region).
 export const COUNTRIES: CountryOption[] = [
+  { code: 'US', name: 'United States', language: 'en' },
   { code: 'AU', name: 'Australia', language: 'en' },
   { code: 'BR', name: 'Brasil', language: 'pt' },
   { code: 'CA', name: 'Canada', language: 'en' },
@@ -62,7 +63,6 @@ export const COUNTRIES: CountryOption[] = [
   { code: 'TW', name: '台灣', language: 'zh-TW' },
   { code: 'TH', name: 'ประเทศไทย', language: 'th' },
   { code: 'AE', name: 'الإمارات', language: 'ar' },
-  { code: 'US', name: 'United States', language: 'en' },
   { code: 'KH', name: 'កម្ពុជា', language: 'km' },
   { code: 'RO', name: 'România', language: 'ro' },
   { code: 'TR', name: 'Türkiye', language: 'tr' },

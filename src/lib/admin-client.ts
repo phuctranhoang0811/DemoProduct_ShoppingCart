@@ -176,7 +176,7 @@ function productPayload(p: Partial<Product>): Record<string, unknown> {
   set('details', p.details);
   set('specifications', p.specifications);
   set('price', p.price);
-  set('original_price', p.originalPrice);
+  if ('originalPrice' in p) body.original_price = p.originalPrice ?? null;
   set('category_id', p.categoryId);
   set('status', p.status);
   set('featured', p.featured);
@@ -197,7 +197,7 @@ function discountPayload(d: Partial<Discount>): Record<string, unknown> {
   if (d.type !== undefined) body.type = d.type;
   if (d.value !== undefined) body.value = d.value;
   if (d.minOrderAmount !== undefined) body.min_order_amount = d.minOrderAmount;
-  if (d.maxDiscount !== undefined) body.max_discount = d.maxDiscount;
+  if ('maxDiscount' in d) body.max_discount = d.maxDiscount ?? null;
   if (d.startDate !== undefined) body.starts_at = d.startDate || null;
   if (d.endDate !== undefined) body.ends_at = d.endDate || null;
   if (d.usageLimit !== undefined) body.usage_limit = d.usageLimit;
@@ -237,9 +237,10 @@ export async function syncBackoffice(): Promise<void> {
 
 // Runs one change on the server, then reloads. The page has usually already announced success,
 // so a failure is reported clearly and the reload puts the screen back in step with the server.
-async function mutate(request: Promise<{ ok: boolean; data: any }>): Promise<void> {
+async function mutate(request: Promise<{ ok: boolean; data: any }>, successMessage?: string): Promise<void> {
   const result = await request;
   if (!result.ok) toast.error(result.data?.message || 'The change could not be saved.');
+  else if (successMessage) toast.success(successMessage);
   await syncBackoffice();
 }
 
@@ -276,10 +277,13 @@ const handlers: BackofficeHandlers = {
   deleteCategory: (id) => void mutate(call('DELETE', `categories/${id}`)),
 
   updateOrderStatus: (orderId, status, note) =>
-    void mutate(call('PATCH', `orders/${orderId}/status`, { status, note: note ?? null })),
+    void mutate(
+      call('PATCH', `orders/${orderId}/status`, { status, note: note ?? null }),
+      note ? 'Internal note appended to order.' : `Order ${orderId} marked as ${status}.`,
+    ),
   updatePaymentStatus: (orderId, status) => {
-    if (status === 'Paid') return void mutate(call('POST', `orders/${orderId}/mark-paid`, {}));
-    if (status === 'Refunded') return void mutate(call('POST', `orders/${orderId}/refund`, {}));
+    if (status === 'Paid') return void mutate(call('POST', `orders/${orderId}/mark-paid`, {}), `Order ${orderId} payment updated to Paid.`);
+    if (status === 'Refunded') return void mutate(call('POST', `orders/${orderId}/refund`, {}), `Order ${orderId} payment updated to Refunded.`);
     toast.error('A payment cannot be set back to unpaid.');
   },
 

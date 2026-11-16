@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Database\Seeders\StoreSeeder;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -188,5 +189,61 @@ class AuthApiTest extends TestCase
         }
 
         $this->postJson('/api/v1/auth/login', ['email' => 'jane@example.com', 'password' => self::PASSWORD])->assertOk();
+    }
+
+    public function test_registration_links_valid_sponsor_code_and_rejects_unknown_code(): void
+    {
+        $this->seed(StoreSeeder::class);
+
+        $this->postJson('/api/v1/auth/register', [
+            'name' => 'Ref Buyer',
+            'email' => 'refbuyer@example.com',
+            'phone' => '+1 (555) 349-8201',
+            'password' => self::PASSWORD,
+            'sponsor_code' => 'NO-SUCH-CODE',
+        ])->assertUnprocessable()->assertJsonValidationErrors('sponsor_code');
+
+        $this->postJson('/api/v1/auth/register', [
+            'name' => 'Ref Buyer',
+            'email' => 'refbuyer@example.com',
+            'phone' => '+1 (555) 349-8201',
+            'password' => self::PASSWORD,
+            'sponsor_code' => 'hbee03',
+        ])->assertCreated()->assertJsonPath('user.sponsor_code', 'HBEE03');
+    }
+
+    public function test_signed_in_user_can_update_profile_and_manage_addresses(): void
+    {
+        $user = $this->makeUser();
+        $other = User::factory()->create();
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson('/api/v1/auth/me', ['name' => 'Jane Updated', 'phone' => '+1 (555) 888-9999'])
+            ->assertOk()
+            ->assertJsonPath('data.name', 'Jane Updated');
+
+        $created = $this->actingAs($user, 'sanctum')->postJson('/api/v1/addresses', [
+            'full_name' => 'Jane Updated',
+            'phone' => '+1 (555) 888-9999',
+            'street' => '100 Market St',
+            'city' => 'San Francisco',
+            'postal_code' => '94105',
+            'country' => 'United States',
+        ])->assertCreated();
+
+        $addressId = $created->json('data.addresses.0.id');
+        $this->assertTrue($created->json('data.addresses.0.is_default'));
+
+        $this->actingAs($other, 'sanctum')
+            ->putJson("/api/v1/addresses/{$addressId}", [
+                'full_name' => 'Intruder',
+                'phone' => '+1 (555) 111-2222',
+                'street' => '999 Evil St',
+                'city' => 'Nowhere',
+            ])->assertNotFound();
+
+        $this->actingAs($user, 'sanctum')->deleteJson("/api/v1/addresses/{$addressId}")
+            ->assertOk()
+            ->assertJsonCount(0, 'data.addresses');
     }
 }

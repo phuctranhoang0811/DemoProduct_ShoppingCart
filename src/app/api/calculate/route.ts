@@ -6,11 +6,12 @@ import { TaxEngineError } from '@/modules/tax-engine/core/errors';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    const { save, ...input } = (body && typeof body === 'object' ? body : {}) as Record<string, unknown>;
 
-    const result = await TaxEngineService.calculate(body);
+    const result = await TaxEngineService.calculate(input);
 
-    // Save calculation to history
-    const calculationId = await saveCalculation(body, result);
+    const shouldSave = save !== false && req.nextUrl.searchParams.get('save') !== 'false';
+    const calculationId = shouldSave ? await saveCalculation(input as never, result) : null;
 
     return NextResponse.json({
       success: true,

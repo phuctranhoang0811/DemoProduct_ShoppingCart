@@ -70,8 +70,8 @@ export default function CalculatorPage() {
   useEffect(() => {
     fetchHistory();
     fetchRules();
-    // Run initial calculation for default state
-    handleCalculate();
+    // Compute initial preview without polluting saved calculation history on every visit.
+    void handleCalculate(false);
   }, []);
 
   const fetchHistory = async () => {
@@ -111,7 +111,7 @@ export default function CalculatorPage() {
     }
   };
 
-  const handleCalculate = async () => {
+  const handleCalculate = async (save = true) => {
     setIsLoading(true);
     setApiError(null);
 
@@ -161,7 +161,7 @@ export default function CalculatorPage() {
       const res = await fetch('/api/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...payload, save }),
       });
 
       const data = await res.json();
@@ -171,7 +171,7 @@ export default function CalculatorPage() {
         toast.error(data.error || 'Calculation failed');
       } else {
         setResult(data.data);
-        fetchHistory();
+        if (save) fetchHistory();
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Network error';
@@ -665,7 +665,7 @@ export default function CalculatorPage() {
                 {/* Calculate Trigger Button */}
                 <button
                   type="button"
-                  onClick={handleCalculate}
+                  onClick={() => handleCalculate(true)}
                   disabled={isLoading}
                   className="w-full py-3 bg-[#111111] hover:bg-[#262626] text-white font-semibold rounded-xs uppercase tracking-wider text-xs transition-all flex items-center justify-center gap-2 shadow-xs disabled:opacity-50"
                 >

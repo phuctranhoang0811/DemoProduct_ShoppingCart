@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ShieldCheck, Sparkles, ArrowRight, UserCheck } from 'lucide-react';
+import { ArrowRight, UserCheck, Tag, CheckCircle, AlertCircle } from 'lucide-react';
 import { signUp } from '@/lib/auth-client';
+import { lookupReferralCode } from '@/lib/hellobee-client';
+import { useCommerceStore } from '@/stores/useCommerceStore';
 import { toast } from 'sonner';
 
 function formatUSPhoneNumber(value: string): string {
@@ -26,12 +28,46 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [referralCode, setReferralCode] = useState('');
+  const [sponsorMatch, setSponsorMatch] = useState<{ name: string; code: string } | null | undefined>(undefined);
+  const hellobeeMembers = useCommerceStore((state) => state.hellobeeMembers);
+
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get('ref');
+    if (ref) setReferralCode(ref.trim().toUpperCase());
+  }, []);
+
+  useEffect(() => {
+    const clean = referralCode.trim().toUpperCase();
+    if (!clean) {
+      setSponsorMatch(undefined);
+      return;
+    }
+
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      const serverFound = await lookupReferralCode(clean);
+      if (cancelled) return;
+      if (serverFound === undefined) {
+        const localFound = hellobeeMembers.find((m) => m.referralCode.toUpperCase() === clean && m.isActive);
+        setSponsorMatch(localFound ? { name: localFound.name, code: localFound.referralCode } : null);
+      } else {
+        setSponsorMatch(serverFound ? { name: serverFound.name, code: serverFound.referralCode } : null);
+      }
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [referralCode, hellobeeMembers]);
 
   const handleQuickFill = () => {
     setName('Alexander Wright');
     setEmail(`alex.wright.${Math.floor(Math.random() * 900 + 100)}@example.com`);
     setPhone('(555) 349-8201');
     setPassword('Password123');
+    setReferralCode('HBEE03');
     toast.success('Sample customer credentials filled!');
   };
 
@@ -49,12 +85,19 @@ export default function RegisterPage() {
       return;
     }
 
+    const cleanReferral = referralCode.trim().toUpperCase();
+    if (cleanReferral && sponsorMatch === null) {
+      toast.error(`Referral code "${cleanReferral}" was not found. Clear it or enter an active consultant code.`);
+      return;
+    }
+
     const fullUSPhone = `+1 ${phone}`;
     const result = await signUp({
       name: name.trim(),
       email: email.trim().toLowerCase(),
       phone: fullUSPhone,
       password,
+      referralCode: cleanReferral || undefined,
     });
 
     if (!result.ok) {
@@ -165,6 +208,35 @@ export default function RegisterPage() {
             placeholder="Minimum 6 characters"
             className="w-full border border-[#E5E5E5] px-3.5 py-2.5 text-xs outline-none focus:border-[#111111] transition-colors rounded-xs"
           />
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-[11px] text-[#777777] uppercase tracking-wider flex items-center gap-1.5">
+              <Tag className="w-3 h-3 text-[#B9A58B]" />
+              <span>Consultant Referral Code (Optional)</span>
+            </label>
+            <span className="text-[10px] text-[#888888]">e.g. HBEE03</span>
+          </div>
+          <input
+            type="text"
+            value={referralCode}
+            onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+            placeholder="Enter sponsor code (optional)"
+            className="w-full border border-[#E5E5E5] px-3.5 py-2.5 text-xs font-mono uppercase tracking-wider outline-none focus:border-[#111111] transition-colors rounded-xs"
+          />
+          {sponsorMatch && (
+            <p className="mt-1.5 text-[11px] text-[#2D5A27] flex items-center gap-1.5">
+              <CheckCircle className="w-3.5 h-3.5 shrink-0" />
+              <span>Linked specialist: <strong>{sponsorMatch.name}</strong> ({sponsorMatch.code})</span>
+            </p>
+          )}
+          {referralCode.trim() && sponsorMatch === null && (
+            <p className="mt-1.5 text-[11px] text-[#C2410C] flex items-center gap-1.5">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              <span>Code &quot;{referralCode.trim().toUpperCase()}&quot; was not found.</span>
+            </p>
+          )}
         </div>
 
         <button

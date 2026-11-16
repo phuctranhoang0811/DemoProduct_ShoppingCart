@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 
 export default function AdminOrdersPage() {
   const orders = useCommerceStore((state) => state.orders);
+  const authMode = useCommerceStore((state) => state.authMode);
   const updateOrderStatus = useCommerceStore((state) => state.updateOrderStatus);
   const updatePaymentStatus = useCommerceStore((state) => state.updatePaymentStatus);
 
@@ -56,16 +57,24 @@ export default function AdminOrdersPage() {
 
   const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
     updateOrderStatus(orderId, newStatus);
-    toast.success(`Order ${orderId} marked as ${newStatus}.`);
-    if (selectedOrder && selectedOrder.id === orderId) {
+    if (authMode !== 'backend') {
+      toast.success(`Order ${orderId} marked as ${newStatus}.`);
+    }
+    if (selectedOrder && selectedOrder.id === orderId && authMode !== 'backend') {
       setSelectedOrder({ ...selectedOrder, status: newStatus });
     }
   };
 
   const handlePaymentChange = (orderId: string, newPayment: PaymentStatus) => {
+    if (selectedOrder && selectedOrder.paymentStatus !== 'Unpaid' && newPayment === 'Unpaid') {
+      toast.error('A payment cannot be set back to unpaid.');
+      return;
+    }
     updatePaymentStatus(orderId, newPayment);
-    toast.success(`Order ${orderId} payment updated to ${newPayment}.`);
-    if (selectedOrder && selectedOrder.id === orderId) {
+    if (authMode !== 'backend') {
+      toast.success(`Order ${orderId} payment updated to ${newPayment}.`);
+    }
+    if (selectedOrder && selectedOrder.id === orderId && authMode !== 'backend') {
       setSelectedOrder({ ...selectedOrder, paymentStatus: newPayment });
     }
   };
@@ -81,7 +90,9 @@ export default function AdminOrdersPage() {
         : `[Staff Note]: ${internalNote.trim()}`,
     });
     setInternalNote('');
-    toast.success('Internal note appended to order.');
+    if (authMode !== 'backend') {
+      toast.success('Internal note appended to order.');
+    }
   };
 
   return (
@@ -323,7 +334,9 @@ export default function AdminOrdersPage() {
                   className="bg-white border px-2 py-1 text-xs outline-none"
                 >
                   <option value="Paid">Paid</option>
-                  <option value="Unpaid">Unpaid</option>
+                  <option value="Unpaid" disabled={selectedOrder.paymentStatus !== 'Unpaid'}>
+                    Unpaid
+                  </option>
                   <option value="Refunded">Refunded</option>
                 </select>
               </div>

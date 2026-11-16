@@ -21,6 +21,7 @@ import {
   ExternalLink,
   Zap,
   Check,
+  X,
 } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { PaymentMethod } from '@/types';
@@ -28,7 +29,7 @@ import { HellobeeMember } from '@/types/hellobee';
 import { formatPrice } from '@/lib/utils';
 import { toast } from 'sonner';
 import { lookupReferralCode } from '@/lib/hellobee-client';
-import { fetchPaymentMethods, placeOrder } from '@/lib/orders-client';
+import { fetchCheckoutQuote, fetchPaymentMethods, placeOrder, type CheckoutQuote } from '@/lib/orders-client';
 
 function CheckoutContent() {
   const router = useRouter();
@@ -37,6 +38,10 @@ function CheckoutContent() {
   const cart = useCommerceStore((state) => state.cart);
   const currentUser = useCommerceStore((state) => state.currentUser);
   const hellobeeMembers = useCommerceStore((state) => state.hellobeeMembers);
+  const settings = useCommerceStore((state) => state.settings);
+  const validateDiscount = useCommerceStore((state) => state.validateDiscount);
+  const appliedDiscountCode = useCommerceStore((state) => state.appliedDiscountCode);
+  const setAppliedDiscountCode = useCommerceStore((state) => state.setAppliedDiscountCode);
   const createOrder = useCommerceStore((state) => state.createOrder);
   const clearCart = useCommerceStore((state) => state.clearCart);
   const currency = useCommerceStore((state) => state.currency);
@@ -47,6 +52,13 @@ function CheckoutContent() {
   const [referralCode, setReferralCode] = useState(
     searchParams?.get('ref') || currentUser?.referralCode || ''
   );
+  const [promoInput, setPromoInput] = useState(appliedDiscountCode ?? '');
+
+  useEffect(() => {
+    if (appliedDiscountCode && !promoInput) {
+      setPromoInput(appliedDiscountCode);
+    }
+  }, [appliedDiscountCode, promoInput]);
 
   useEffect(() => {
     const refFromUrl = searchParams?.get('ref');
@@ -61,9 +73,26 @@ function CheckoutContent() {
   const [street, setStreet] = useState(defaultAddr?.street || '');
   const [ward, setWard] = useState(defaultAddr?.ward || '');
   const [district, setDistrict] = useState(defaultAddr?.district || '');
-  const [city, setCity] = useState(defaultAddr?.city || 'Ho Chi Minh City');
-  const [postalCode, setPostalCode] = useState(defaultAddr?.postalCode || '700000');
-  const [country, setCountry] = useState(defaultAddr?.country || 'Vietnam');
+  const [city, setCity] = useState(defaultAddr?.city || '');
+  const [postalCode, setPostalCode] = useState(defaultAddr?.postalCode || '');
+  const [country, setCountry] = useState(defaultAddr?.country || 'United States');
+
+  // Hydrate contact & default address once store finishes loading session.
+  useEffect(() => {
+    if (!currentUser) return;
+    setFullName((prev) => prev || currentUser.name || '');
+    setEmail((prev) => prev || currentUser.email || '');
+    setPhone((prev) => prev || currentUser.phone || '');
+    const addr = currentUser.addresses.find((a) => a.isDefault) || currentUser.addresses[0];
+    if (addr) {
+      setStreet((prev) => prev || addr.street || '');
+      setWard((prev) => prev || addr.ward || '');
+      setDistrict((prev) => prev || addr.district || '');
+      setCity((prev) => prev || addr.city || '');
+      setPostalCode((prev) => prev || addr.postalCode || '');
+      setCountry((prev) => prev || addr.country || 'United States');
+    }
+  }, [currentUser]);
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('stripe');
   const [notes, setNotes] = useState('');
@@ -97,9 +126,74 @@ function CheckoutContent() {
   const [stripeCardName, setStripeCardName] = useState(currentUser?.name || '');
   const [stripeZip, setStripeZip] = useState(defaultAddr?.postalCode || '90210');
   const [saveCardWithStripe, setSaveCardWithStripe] = useState(true);
+  const [serverQuote, setServerQuote] = useState<CheckoutQuote | null>(null);
 
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const grandTotal = subtotal;
+  const localSubtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const localDiscountCheck =
+    !backendMethods && appliedDiscountCode ? validateDiscount(appliedDiscountCode, localSubtotal) : null;
+  const localDiscountAmount = localDiscountCheck?.valid ? localDiscountCheck.discountAmount : 0;
+  const localPayableBeforeShip = Math.max(0, localSubtotal - localDiscountAmount);
+  const localShippingFee =
+    settings.shippingFee > 0 &&
+    (settings.freeShippingThreshold === 0 || localPayableBeforeShip < settings.freeShippingThreshold)
+      ? settings.shippingFee
+      : 0;
+
+  useEffect(() => {
+    if (!backendMethods || cart.length === 0) {
+      setServerQuote(null);
+      return;
+    }
+
+    let cancelled = false;
+    void fetchCheckoutQuote(cart, appliedDiscountCode).then((quote) => {
+      if (cancelled || !quote) return;
+      if (quote.error && appliedDiscountCode) {
+        toast.error(quote.error);
+        setAppliedDiscountCode(null);
+      }
+      setServerQuote(quote);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [backendMethods, cart, appliedDiscountCode, setAppliedDiscountCode]);
+
+  const subtotal = serverQuote ? serverQuote.subtotal : localSubtotal;
+  const discountAmount = serverQuote ? serverQuote.discountAmount : localDiscountAmount;
+  const activeDiscountCode = serverQuote
+    ? serverQuote.discountCode
+    : localDiscountCheck?.valid
+      ? appliedDiscountCode
+      : null;
+  const shippingFee = serverQuote ? serverQuote.shippingFee : localShippingFee;
+  const grandTotal = serverQuote ? serverQuote.total : Math.max(0, localPayableBeforeShip + localShippingFee);
+
+  const handleApplyPromo = (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = promoInput.trim().toUpperCase();
+    if (!clean) return;
+
+    if (!backendMethods) {
+      const check = validateDiscount(clean, localSubtotal);
+      if (!check.valid) {
+        toast.error(check.error || 'Invalid promotional code.');
+        return;
+      }
+      setAppliedDiscountCode(clean);
+      toast.success(`Code ${clean} applied! Saved ${formatPrice(check.discountAmount, currency)}`);
+      return;
+    }
+
+    setAppliedDiscountCode(clean);
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedDiscountCode(null);
+    setPromoInput('');
+    toast.info('Promotional code removed.');
+  };
 
   // Real-time lookup of employee/owner sponsor
   const localBeneficiary = useMemo(() => {
@@ -137,7 +231,8 @@ function CheckoutContent() {
 
   const verifiedBeneficiary = serverBeneficiary !== undefined ? serverBeneficiary : localBeneficiary;
 
-  const directCommissionAmount = verifiedBeneficiary ? Math.round(grandTotal * 0.1) : 0;
+  const commissionableAmount = Math.max(0, grandTotal - shippingFee);
+  const directCommissionAmount = verifiedBeneficiary ? Math.round(commissionableAmount * 0.1) : 0;
 
   // Detect card brand
   const detectedCardBrand = useMemo(() => {
@@ -187,6 +282,7 @@ function CheckoutContent() {
       shippingAddress: { street, ward, district, city },
       deliveryMethod: 'Enagic Certified Technician Delivery & In-Home Installation',
       paymentMethod,
+      discountCode: activeDiscountCode || undefined,
       referralCode: referralCode.trim() || undefined,
       notes: notes.trim() || undefined,
       idempotencyKey: idempotencyKey.current,
@@ -280,8 +376,9 @@ function CheckoutContent() {
           quantity: item.quantity,
         })),
         subtotal,
-        discountAmount: 0,
-        shippingFee: 0,
+        discountAmount,
+        discountCode: activeDiscountCode || undefined,
+        shippingFee,
         total: grandTotal,
         referralCode: referralCode.trim() || undefined,
         notes: notes.trim()
@@ -471,56 +568,56 @@ function CheckoutContent() {
                   required
                   value={street}
                   onChange={(e) => setStreet(e.target.value)}
-                  placeholder="e.g. 72 Le Loi Boulevard, Suite 402"
+                  placeholder="e.g. 742 Market Street, Suite 402"
                   className="w-full text-xs p-3 rounded-xs border border-[#E5E5E5] bg-white outline-none focus:border-[#111111] transition-colors"
                 />
               </div>
               <div>
                 <label className="text-xs text-[#737373] block mb-1 font-medium">
-                  Ward / Sub-district
+                  Unit / Neighborhood (Optional)
                 </label>
                 <input
                   type="text"
                   value={ward}
                   onChange={(e) => setWard(e.target.value)}
-                  placeholder="e.g. Ben Nghe Ward"
+                  placeholder="e.g. Apt 4B / SoMa"
                   className="w-full text-xs p-3 rounded-xs border border-[#E5E5E5] bg-white outline-none focus:border-[#111111] transition-colors"
                 />
               </div>
               <div>
                 <label className="text-xs text-[#737373] block mb-1 font-medium">
-                  District / County
+                  State / County (Optional)
                 </label>
                 <input
                   type="text"
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
-                  placeholder="e.g. District 1"
+                  placeholder="e.g. California"
                   className="w-full text-xs p-3 rounded-xs border border-[#E5E5E5] bg-white outline-none focus:border-[#111111] transition-colors"
                 />
               </div>
               <div>
                 <label className="text-xs text-[#737373] block mb-1 font-medium">
-                  City / State *
+                  City *
                 </label>
                 <input
                   type="text"
                   required
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  placeholder="e.g. Ho Chi Minh City"
+                  placeholder="e.g. San Francisco"
                   className="w-full text-xs p-3 rounded-xs border border-[#E5E5E5] bg-white outline-none focus:border-[#111111] transition-colors"
                 />
               </div>
               <div>
                 <label className="text-xs text-[#737373] block mb-1 font-medium">
-                  Postal / ZIP Code
+                  ZIP / Postal Code
                 </label>
                 <input
                   type="text"
                   value={postalCode}
                   onChange={(e) => setPostalCode(e.target.value)}
-                  placeholder="700000"
+                  placeholder="94105"
                   className="w-full text-xs p-3 rounded-xs border border-[#E5E5E5] bg-white outline-none focus:border-[#111111] transition-colors"
                 />
               </div>
@@ -958,9 +1055,45 @@ function CheckoutContent() {
                 <span>Equipment Subtotal</span>
                 <span className="font-semibold text-[#111111]">{formatPrice(subtotal, currency)}</span>
               </div>
+              {activeDiscountCode && discountAmount > 0 && (
+                <div className="flex items-center justify-between text-[#2D5A27]">
+                  <span className="flex items-center gap-1.5">
+                    <span>Promo ({activeDiscountCode})</span>
+                    <button
+                      type="button"
+                      onClick={handleRemovePromo}
+                      className="text-[#777777] hover:text-[#B74747]"
+                      aria-label="Remove promo code"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                  <span className="font-semibold">-{formatPrice(discountAmount, currency)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-[#737373]">
                 <span>Technician In-Home Setup</span>
-                <span className="font-semibold text-[#2D5A27]">FREE (Included)</span>
+                <span className="font-semibold text-[#2D5A27]">
+                  {shippingFee === 0 ? 'FREE (Included)' : formatPrice(shippingFee, currency)}
+                </span>
+              </div>
+
+              {/* Promo Code Input */}
+              <div className="pt-2 flex gap-2">
+                <input
+                  type="text"
+                  value={promoInput}
+                  onChange={(e) => setPromoInput(e.target.value)}
+                  placeholder="Promo code (e.g. WELCOME10)"
+                  className="flex-1 text-xs px-2.5 py-2 rounded-xs border border-[#E5E5E5] outline-none uppercase font-mono focus:border-[#111111] bg-white"
+                />
+                <button
+                  type="button"
+                  onClick={handleApplyPromo}
+                  className="bg-[#111111] text-white px-3 py-2 rounded-xs text-[11px] font-semibold uppercase tracking-wider hover:bg-[#333333]"
+                >
+                  Apply
+                </button>
               </div>
 
               {verifiedBeneficiary && (

@@ -105,9 +105,66 @@ export interface CheckoutInput {
   shippingAddress: { street: string; ward: string; district: string; city: string };
   deliveryMethod: string;
   paymentMethod: PaymentMethod;
+  discountCode?: string;
   referralCode?: string;
   notes?: string;
   idempotencyKey: string;
+}
+
+export interface CheckoutQuote {
+  subtotal: number;
+  discountAmount: number;
+  discountCode: string | null;
+  shippingFee: number;
+  total: number;
+  error?: string;
+}
+
+export async function fetchCheckoutQuote(
+  cart: CartItem[],
+  discountCode?: string | null,
+): Promise<CheckoutQuote | null> {
+  if (cart.length === 0) return null;
+
+  try {
+    const res = await fetch('/api/checkout/quote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: cart.map((item) => ({
+          product_id: item.productId,
+          size: item.size,
+          color_id: item.color.id,
+          quantity: item.quantity,
+        })),
+        discount_code: discountCode?.trim() || null,
+      }),
+      cache: 'no-store',
+    });
+
+    if (res.status === LOCAL_MODE) return null;
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return {
+        subtotal: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+        discountAmount: 0,
+        discountCode: null,
+        shippingFee: 0,
+        total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+        error: data.message || 'Promo code could not be applied.',
+      };
+    }
+
+    return {
+      subtotal: Number(data.subtotal ?? 0),
+      discountAmount: Number(data.discount_amount ?? 0),
+      discountCode: data.discount_code ?? null,
+      shippingFee: Number(data.shipping_fee ?? 0),
+      total: Number(data.total ?? 0),
+    };
+  } catch {
+    return null;
+  }
 }
 
 export type CheckoutResult =
@@ -131,6 +188,7 @@ export async function placeOrder(input: CheckoutInput): Promise<CheckoutResult> 
         shipping_address: input.shippingAddress,
         delivery_method: input.deliveryMethod,
         payment_method: input.paymentMethod,
+        discount_code: input.discountCode?.trim() || null,
         referral_code: input.referralCode || null,
         notes: input.notes || null,
         idempotency_key: input.idempotencyKey,
