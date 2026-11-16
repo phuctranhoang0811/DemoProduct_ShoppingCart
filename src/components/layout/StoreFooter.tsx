@@ -54,7 +54,6 @@ export function StoreFooter() {
             </p>
             <ul className="space-y-2 text-xs text-[#888888]">
               <li><Link href="/product/hellobee-filter-1500" className="hover:text-white transition-colors">emGuarde</Link></li>
-              <li><Link href="/product/emguarde-set-of-2" className="hover:text-white transition-colors">emGuarde Set of 2</Link></li>
               <li><Link href="/product/kangen-air-500" className="hover:text-white transition-colors">Kangen Air 500</Link></li>
             </ul>
           </div>
