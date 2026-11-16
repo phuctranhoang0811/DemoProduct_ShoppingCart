@@ -122,7 +122,7 @@ export default function HomePage() {
     <div className="bg-[#0A0A0A] text-white">
 
       {/* ─── 1. FULLSCREEN CINEMATIC HERO ─── */}
-      <section className="relative h-screen min-h-[640px] w-full overflow-hidden flex items-center">
+      <section className="relative h-[100svh] min-h-[640px] w-full overflow-hidden flex items-center">
         {HERO_IMAGES.map((src, i) => (
           <img
             key={src}
@@ -141,7 +141,7 @@ export default function HomePage() {
           type="button"
           onClick={() => goHero(-1)}
           aria-label="Previous image"
-          className="btn-tactile absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full glass-dark border border-white/20 flex items-center justify-center hover:bg-white/20"
+          className="btn-tactile absolute left-4 bottom-5 sm:bottom-auto sm:left-6 sm:top-1/2 sm:-translate-y-1/2 z-30 w-10 h-10 sm:w-11 sm:h-11 rounded-full glass-dark border border-white/20 flex items-center justify-center hover:bg-white/20"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
@@ -149,15 +149,15 @@ export default function HomePage() {
           type="button"
           onClick={() => goHero(1)}
           aria-label="Next image"
-          className="btn-tactile absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full glass-dark border border-white/20 flex items-center justify-center hover:bg-white/20"
+          className="btn-tactile absolute left-16 bottom-5 sm:left-auto sm:bottom-auto sm:right-6 sm:top-1/2 sm:-translate-y-1/2 z-30 w-10 h-10 sm:w-11 sm:h-11 rounded-full glass-dark border border-white/20 flex items-center justify-center hover:bg-white/20"
         >
           <ChevronRight className="w-5 h-5" />
         </button>
-        <div className="absolute bottom-6 right-6 sm:right-12 z-30 text-xs font-mono tracking-widest text-white/80">
+        <div className="absolute bottom-8 right-6 sm:bottom-6 sm:right-12 z-30 text-xs font-mono tracking-widest text-white/80">
           {String(heroIndex + 1).padStart(2, '0')} / {HERO_IMAGES.length}
         </div>
 
-        <div className="relative w-full max-w-[1440px] mx-auto px-6 sm:px-12 lg:px-20 z-20 pt-20 sm:pt-16 pb-12">
+        <div className="relative w-full max-w-[1440px] mx-auto px-6 sm:px-12 lg:px-20 z-20 pt-20 sm:pt-16 pb-24 sm:pb-12">
           <div className="max-w-2xl text-white space-y-5 sm:space-y-6">
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 glass-dark text-cyan-300 text-[11px] font-semibold tracking-wider uppercase px-3.5 py-1.5 rounded-full border border-cyan-400/30">
