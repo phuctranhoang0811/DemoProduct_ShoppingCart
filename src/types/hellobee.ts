@@ -110,6 +110,19 @@ export const LADDER_RANKS: LadderRank[] = [
   { level: 10, teamSize: 100000, directOnly: false, upgradeReward: 40000, monthlySalary: 4000 },
 ];
 
+export const LADDER_NAMES = [
+  'First Step',
+  'Team Builder',
+  'Rising Leader',
+  'Team Leader',
+  'Senior Leader',
+  'Elite Leader',
+  'Diamond Leader',
+  'Executive Leader',
+  'Master Leader',
+  'Grand Master',
+] as const;
+
 export interface TeamStats {
   directCount: number;
   teamSize: number;
