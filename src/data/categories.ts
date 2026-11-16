@@ -10,7 +10,7 @@ export const initialCategories: Category[] = [
     description: 'Flagship medical-grade alkaline water ionizers with 4 to 12 titanium-platinum electroplates.',
     descriptionVi: 'Flagship medical-grade alkaline water ionizers with 4 to 12 titanium-platinum electroplates.',
     descriptionEn: 'Flagship medical-grade alkaline water ionizers with 4 to 12 titanium-platinum electroplates.',
-    image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1016_1_1.png',
+    image: '/images/products/emguarde-2.webp',
     status: 'active',
   },
   {
@@ -22,7 +22,7 @@ export const initialCategories: Category[] = [
     description: 'Japanese home Onsen mineral spa system removing 100% chlorine for radiant skin and hair.',
     descriptionVi: 'Japanese home Onsen mineral spa system removing 100% chlorine for radiant skin and hair.',
     descriptionEn: 'Japanese home Onsen mineral spa system removing 100% chlorine for radiant skin and hair.',
-    image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1041_1.jpg',
+    image: '/images/products/emguarde-2.webp',
     status: 'active',
   },
   {
@@ -34,7 +34,7 @@ export const initialCategories: Category[] = [
     description: 'High-grade silver-impregnated activated carbon filters manufactured in Osaka, Japan.',
     descriptionVi: 'High-grade silver-impregnated activated carbon filters manufactured in Osaka, Japan.',
     descriptionEn: 'High-grade silver-impregnated activated carbon filters manufactured in Osaka, Japan.',
-    image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/3/0/3061_1.jpg',
+    image: '/images/products/emguarde-2.webp',
     status: 'active',
   },
   {
@@ -46,7 +46,7 @@ export const initialCategories: Category[] = [
     description: 'Electrolysis enhancer fluids for 2.5/11.5 water and Citric Acid E-cleaner deep maintenance kits.',
     descriptionVi: 'Electrolysis enhancer fluids for 2.5/11.5 water and Citric Acid E-cleaner deep maintenance kits.',
     descriptionEn: 'Electrolysis enhancer fluids for 2.5/11.5 water and Citric Acid E-cleaner deep maintenance kits.',
-    image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/3/0/3055_3.png',
+    image: '/images/products/emguarde-2.webp',
     status: 'active',
   },
   {
@@ -58,7 +58,7 @@ export const initialCategories: Category[] = [
     description: 'Medical-grade BPA-free Tritan bottles preserving active hydrogen and negative ORP.',
     descriptionVi: 'Medical-grade BPA-free Tritan bottles preserving active hydrogen and negative ORP.',
     descriptionEn: 'Medical-grade BPA-free Tritan bottles preserving active hydrogen and negative ORP.',
-    image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/4/0/4003_1.jpg',
+    image: '/images/products/emguarde-2.webp',
     status: 'active',
   },
 ];

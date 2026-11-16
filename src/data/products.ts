@@ -48,10 +48,12 @@ export const initialProducts: Product[] = [
     originalPrice: 1500,
     categoryId: 'cat-ionizers',
     images: [
-      'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1016_1_1.png',
+      '/images/products/emguarde-2.webp',
+      '/images/products/emguarde-1.webp',
+      '/images/products/emguarde-3.webp',
     ],
     colors: [
-      { id: 'c-pure-white', name: 'White & Gold Bee Edition', hex: '#FFFFFF', image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1016_1_1.png' },
+      { id: 'c-pure-white', name: 'White & Gold Bee Edition', hex: '#FFFFFF', image: '/images/products/emguarde-2.webp' },
     ],
     sizes: [
       { id: 'pkg-standard', label: 'Hellobee Official System ($1,500)', stock: 50 },
@@ -114,10 +116,12 @@ export const initialProducts: Product[] = [
     originalPrice: 6200,
     categoryId: 'cat-ionizers',
     images: [
-      'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1016_1_1.png',
+      '/images/products/emguarde-2.webp',
+      '/images/products/emguarde-1.webp',
+      '/images/products/emguarde-3.webp',
     ],
     colors: [
-      { id: 'c-pure-white', name: 'White Edition', hex: '#FFFFFF', image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1016_1_1.png' },
+      { id: 'c-pure-white', name: 'White Edition', hex: '#FFFFFF', image: '/images/products/emguarde-2.webp' },
     ],
     sizes: [
       { id: 'pkg-standard', label: 'Standard Package', stock: 15 },
@@ -176,10 +180,12 @@ export const initialProducts: Product[] = [
     originalPrice: 5500,
     categoryId: 'cat-ionizers',
     images: [
-      'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1064_1.png',
+      '/images/products/emguarde-2.webp',
+      '/images/products/emguarde-1.webp',
+      '/images/products/emguarde-3.webp',
     ],
     colors: [
-      { id: 'c-classic-white', name: 'Classic White', hex: '#FFFFFF', image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1064_1.png' },
+      { id: 'c-classic-white', name: 'Classic White', hex: '#FFFFFF', image: '/images/products/emguarde-2.webp' },
     ],
     sizes: [
       { id: 'pkg-standard', label: 'Standard Package', stock: 20 },
@@ -238,10 +244,12 @@ export const initialProducts: Product[] = [
     originalPrice: 7200,
     categoryId: 'cat-ionizers',
     images: [
-      'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1007_01.jpg',
+      '/images/products/emguarde-2.webp',
+      '/images/products/emguarde-1.webp',
+      '/images/products/emguarde-3.webp',
     ],
     colors: [
-      { id: 'c-super-white', name: 'Professional Black/White', hex: '#111111', image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1007_01.jpg' },
+      { id: 'c-super-white', name: 'Professional Black/White', hex: '#111111', image: '/images/products/emguarde-2.webp' },
     ],
     sizes: [
       { id: 'pkg-standard', label: 'Standard Package', stock: 8 },
@@ -299,10 +307,12 @@ export const initialProducts: Product[] = [
     originalPrice: 6100,
     categoryId: 'cat-ionizers',
     images: [
-      'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1010_1.jpg',
+      '/images/products/emguarde-2.webp',
+      '/images/products/emguarde-1.webp',
+      '/images/products/emguarde-3.webp',
     ],
     colors: [
-      { id: 'c-metallic', name: 'Metallic Chrome', hex: '#D1D5DB', image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1010_1.jpg' },
+      { id: 'c-metallic', name: 'Metallic Chrome', hex: '#D1D5DB', image: '/images/products/emguarde-2.webp' },
     ],
     sizes: [
       { id: 'pkg-standard', label: 'Standard Under-Sink Package', stock: 12 },
@@ -360,10 +370,12 @@ export const initialProducts: Product[] = [
     originalPrice: 3800,
     categoryId: 'cat-ionizers',
     images: [
-      'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1062_1.jpg',
+      '/images/products/emguarde-2.webp',
+      '/images/products/emguarde-1.webp',
+      '/images/products/emguarde-3.webp',
     ],
     colors: [
-      { id: 'c-clean-white', name: 'Pure White', hex: '#FFFFFF', image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1062_1.jpg' },
+      { id: 'c-clean-white', name: 'Pure White', hex: '#FFFFFF', image: '/images/products/emguarde-2.webp' },
     ],
     sizes: [
       { id: 'pkg-standard', label: 'Standard Package', stock: 25 },
@@ -418,10 +430,12 @@ export const initialProducts: Product[] = [
     originalPrice: 3950,
     categoryId: 'cat-spa',
     images: [
-      'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1041_1.jpg',
+      '/images/products/emguarde-2.webp',
+      '/images/products/emguarde-1.webp',
+      '/images/products/emguarde-3.webp',
     ],
     colors: [
-      { id: 'c-chrome-spa', name: 'Polished Stainless', hex: '#E5E7EB', image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/1/0/1041_1.jpg' },
+      { id: 'c-chrome-spa', name: 'Polished Stainless', hex: '#E5E7EB', image: '/images/products/emguarde-2.webp' },
     ],
     sizes: [
       { id: 'pkg-standard', label: 'Standard Anespa DX Package', stock: 14 },
@@ -474,10 +488,12 @@ export const initialProducts: Product[] = [
     originalPrice: 170,
     categoryId: 'cat-filters',
     images: [
-      'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/3/0/3061_1.jpg',
+      '/images/products/emguarde-2.webp',
+      '/images/products/emguarde-1.webp',
+      '/images/products/emguarde-3.webp',
     ],
     colors: [
-      { id: 'c-filter-white', name: 'White', hex: '#FFFFFF', image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/3/0/3061_1.jpg' },
+      { id: 'c-filter-white', name: 'White', hex: '#FFFFFF', image: '/images/products/emguarde-2.webp' },
     ],
     sizes: [
       { id: 'pack-1', label: 'Single FC1 Filter', stock: 50 },
@@ -523,10 +539,12 @@ export const initialProducts: Product[] = [
     originalPrice: 120,
     categoryId: 'cat-filters',
     images: [
-      'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/3/0/3055_3.png',
+      '/images/products/emguarde-2.webp',
+      '/images/products/emguarde-1.webp',
+      '/images/products/emguarde-3.webp',
     ],
     colors: [
-      { id: 'c-filter-std', name: 'Standard White', hex: '#FFFFFF', image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/3/0/3055_3.png' },
+      { id: 'c-filter-std', name: 'Standard White', hex: '#FFFFFF', image: '/images/products/emguarde-2.webp' },
     ],
     sizes: [
       { id: 'pack-1', label: 'Single Cartridge', stock: 40 },
@@ -570,10 +588,12 @@ export const initialProducts: Product[] = [
     originalPrice: 220,
     categoryId: 'cat-spa',
     images: [
-      'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/3/0/3058_4.png',
+      '/images/products/emguarde-2.webp',
+      '/images/products/emguarde-1.webp',
+      '/images/products/emguarde-3.webp',
     ],
     colors: [
-      { id: 'c-ceramic', name: 'Ceramic Core', hex: '#F3F4F6', image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/3/0/3058_4.png' },
+      { id: 'c-ceramic', name: 'Ceramic Core', hex: '#F3F4F6', image: '/images/products/emguarde-2.webp' },
     ],
     sizes: [
       { id: 'cart-int', label: '1 Ceramic Mineral Cartridge', stock: 25 },
@@ -617,10 +637,12 @@ export const initialProducts: Product[] = [
     originalPrice: 95,
     categoryId: 'cat-spa',
     images: [
-      'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/3/0/3057_3.png',
+      '/images/products/emguarde-2.webp',
+      '/images/products/emguarde-1.webp',
+      '/images/products/emguarde-3.webp',
     ],
     colors: [
-      { id: 'c-carbon', name: 'Carbon Filter', hex: '#FFFFFF', image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/3/0/3057_3.png' },
+      { id: 'c-carbon', name: 'Carbon Filter', hex: '#FFFFFF', image: '/images/products/emguarde-2.webp' },
     ],
     sizes: [
       { id: 'cart-ext', label: '1 External Carbon Filter', stock: 30 },
@@ -667,10 +689,12 @@ export const initialProducts: Product[] = [
     originalPrice: 30,
     categoryId: 'cat-accessories',
     images: [
-      'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/4/0/4023_1.jpg',
+      '/images/products/emguarde-2.webp',
+      '/images/products/emguarde-1.webp',
+      '/images/products/emguarde-3.webp',
     ],
     colors: [
-      { id: 'c-enhancer', name: 'Enhancer Bottle', hex: '#60A5FA', image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/4/0/4023_1.jpg' },
+      { id: 'c-enhancer', name: 'Enhancer Bottle', hex: '#60A5FA', image: '/images/products/emguarde-2.webp' },
     ],
     sizes: [
       { id: 'bottle-1', label: '1 Chai 400ml', stock: 60 },
@@ -715,10 +739,12 @@ export const initialProducts: Product[] = [
     originalPrice: 80,
     categoryId: 'cat-accessories',
     images: [
-      'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/4/1/4116_1_1.jpg',
+      '/images/products/emguarde-2.webp',
+      '/images/products/emguarde-1.webp',
+      '/images/products/emguarde-3.webp',
     ],
     colors: [
-      { id: 'c-chrome', name: 'Chrome', hex: '#E5E7EB', image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/4/1/4116_1_1.jpg' },
+      { id: 'c-chrome', name: 'Chrome', hex: '#E5E7EB', image: '/images/products/emguarde-2.webp' },
     ],
     sizes: [
       { id: 'len-std', label: 'Standard Length (48 cm)', stock: 30 },
@@ -763,10 +789,12 @@ export const initialProducts: Product[] = [
     originalPrice: 40,
     categoryId: 'cat-bottles',
     images: [
-      'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/4/0/4003_1.jpg',
+      '/images/products/emguarde-2.webp',
+      '/images/products/emguarde-1.webp',
+      '/images/products/emguarde-3.webp',
     ],
     colors: [
-      { id: 'c-tank-white', name: 'Medical White', hex: '#FFFFFF', image: 'https://e-store.enagic.com/media/catalog/product/cache/ac965754380c71ee6f8be10b6f457a7a/4/0/4003_1.jpg' },
+      { id: 'c-tank-white', name: 'Medical White', hex: '#FFFFFF', image: '/images/products/emguarde-2.webp' },
     ],
     sizes: [
       { id: 'tank-5l', label: '5-Liter Capacity', stock: 45 },
