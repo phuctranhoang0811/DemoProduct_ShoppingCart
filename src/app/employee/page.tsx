@@ -27,12 +27,25 @@ import {
   ArrowRight,
   RefreshCw,
   Search,
+  Crown,
+  Percent,
+  Coins,
+  TrendingUp,
 } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { OrderStatus, Order } from '@/types';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { toast } from 'sonner';
-import { GENERATION_RATES, LADDER_RANKS, getTeamStats, commissionLabel } from '@/types/hellobee';
+import { LADDER_RANKS, getTeamStats, commissionLabel } from '@/types/hellobee';
+
+const GENERATION_TABLE = [
+  { level: 1, percent: '10%', commission: '$150', members: '5', total: '$750' },
+  { level: 2, percent: '1%', commission: '$15', members: '25', total: '$375' },
+  { level: 3, percent: '1%', commission: '$15', members: '125', total: '$1,875' },
+  { level: 4, percent: '1%', commission: '$15', members: '625', total: '$9,375' },
+  { level: 5, percent: '1%', commission: '$15', members: '3,125', total: '$46,875' },
+  { level: 6, percent: '1%', commission: '$15', members: '15,625', total: '$234,375' },
+];
 
 export default function EmployeePage() {
   const currentUser = useCommerceStore((state) => state.currentUser);
@@ -47,7 +60,7 @@ export default function EmployeePage() {
   const requestPayout = useCommerceStore((state) => state.requestPayout);
   const currency = useCommerceStore((state) => state.currency);
 
-  const [activeTab, setActiveTab] = useState<'orders' | 'leads' | 'inventory' | 'referral' | 'benefits'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'leads' | 'inventory' | 'referral' | 'benefits'>('benefits');
   const [orderFilter, setOrderFilter] = useState<'ALL' | OrderStatus>('ALL');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -481,56 +494,88 @@ export default function EmployeePage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-white rounded-lg border border-[#E5E5E5] overflow-hidden text-xs">
-                <h3 className="p-4 text-xs uppercase tracking-wider font-bold border-b border-[#E5E5E5]">
-                  Generation Commissions (per $1,500 device)
-                </h3>
-                <table className="w-full text-left">
-                  <thead className="bg-[#FAF9F5] text-[10px] uppercase tracking-wider text-[#777777]">
+            <div className="space-y-6">
+              <div className="flex justify-center">
+                <Image
+                  src="/images/logo.png"
+                  alt="Hello Bee"
+                  width={878}
+                  height={914}
+                  className="h-28 sm:h-36 w-auto object-contain drop-shadow-md"
+                />
+              </div>
+              <div className="rounded-2xl border-2 border-[#E0A82E] bg-[#FFF8E7] overflow-x-auto shadow-xs">
+                <table className="w-full min-w-[640px] text-center text-sm">
+                  <thead className="bg-[#3A1B0A] text-[#F6C94C]">
                     <tr>
-                      <th className="p-3">Generation</th>
-                      <th className="p-3">Rate</th>
-                      <th className="p-3">Per Sale</th>
-                      <th className="p-3">Your Members</th>
+                      {[
+                        { label: 'Level', Icon: Crown },
+                        { label: 'Percent', Icon: Percent },
+                        { label: 'Commission', Icon: Coins },
+                        { label: 'Members Referred', Icon: Users },
+                        { label: 'Total', Icon: TrendingUp },
+                      ].map(({ label, Icon }) => (
+                        <th key={label} className="p-3 font-extrabold">
+                          <Icon className="w-5 h-5 mx-auto mb-0.5" />
+                          {label}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#F0F0F0]">
-                    {GENERATION_RATES.map((rate, i) => (
-                      <tr key={i}>
-                        <td className="p-3 font-semibold">{i === 0 ? 'Gen 1 (Direct)' : `Gen ${i + 1}`}</td>
-                        <td className="p-3">{rate * 100}%</td>
-                        <td className="p-3 font-bold text-[#2D5A27]">{formatPrice(1500 * rate, currency)}</td>
-                        <td className="p-3">{teamStats.byGeneration[i] ?? 0}</td>
+                  <tbody className="font-extrabold text-[#2A1206] text-base">
+                    {GENERATION_TABLE.map((row, i) => (
+                      <tr key={row.level} className={`border-t border-[#E0A82E]/50 ${i % 2 ? 'bg-[#FBE9A6]' : 'bg-[#FFF8E7]'}`}>
+                        <td className="p-2.5">
+                          <span
+                            className="inline-flex w-9 h-10 items-center justify-center bg-gradient-to-b from-[#F6C94C] to-[#B8781A] text-white text-lg"
+                            style={{ clipPath: 'polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%)' }}
+                          >
+                            <span
+                              className="inline-flex w-7 h-8 items-center justify-center bg-[#5A2E0E]"
+                              style={{ clipPath: 'polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%)' }}
+                            >
+                              {row.level}
+                            </span>
+                          </span>
+                        </td>
+                        <td className="p-2.5">{row.percent}</td>
+                        <td className="p-2.5">{row.commission}</td>
+                        <td className="p-2.5">{row.members}</td>
+                        <td className="p-2.5">{row.total}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-                <p className="p-3 text-[10px] text-[#777777] border-t border-[#F0F0F0]">
-                  Maximum 15% per sale. Commissions are paid only on completed device sales.
-                </p>
               </div>
 
-              <div className="bg-white rounded-lg border border-[#E5E5E5] overflow-hidden text-xs">
-                <h3 className="p-4 text-xs uppercase tracking-wider font-bold border-b border-[#E5E5E5]">
-                  Rank Ladder (LV1–LV10)
-                </h3>
-                <table className="w-full text-left">
-                  <thead className="bg-[#FAF9F5] text-[10px] uppercase tracking-wider text-[#777777]">
+              <div className="rounded-2xl border-2 border-[#E0A82E] bg-[#FFF8E7] overflow-x-auto shadow-xs">
+                <table className="w-full min-w-[560px] text-center text-sm">
+                  <thead className="bg-[#3A1B0A] text-[#F6C94C]">
                     <tr>
-                      <th className="p-3">Rank</th>
-                      <th className="p-3">Team Size</th>
-                      <th className="p-3">One-Time Reward</th>
-                      <th className="p-3">Monthly Salary</th>
+                      <th className="p-3 font-extrabold">Rank</th>
+                      <th className="p-3 font-extrabold">Team Members</th>
+                      <th className="p-3 font-extrabold">One Time Reward</th>
+                      <th className="p-3 font-extrabold">Fixed Salary Monthly</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#F0F0F0]">
-                    {LADDER_RANKS.map((r) => (
-                      <tr key={r.level} className={r.level === teamStats.ladderLevel ? 'bg-[#EBF3EA]' : ''}>
-                        <td className="p-3 font-semibold">LV{r.level}</td>
-                        <td className="p-3">{r.teamSize.toLocaleString()}{r.directOnly ? ' direct' : ''}</td>
-                        <td className="p-3">{r.level === 1 ? 'Kangen Air unit' : formatPrice(r.upgradeReward, currency)}</td>
-                        <td className="p-3">{r.monthlySalary ? formatPrice(r.monthlySalary, currency) : '—'}</td>
+                  <tbody className="font-extrabold text-[#2A1206]">
+                    {LADDER_RANKS.map((r, i) => (
+                      <tr
+                        key={r.level}
+                        className={`border-t border-[#E0A82E]/50 ${
+                          r.level === teamStats.ladderLevel
+                            ? 'bg-[#F6C94C]'
+                            : i % 2
+                            ? 'bg-[#FBE9A6]'
+                            : 'bg-[#FFF8E7]'
+                        }`}
+                      >
+                        <td className="p-3">LV{r.level}</td>
+                        <td className="p-3">
+                          {r.teamSize.toLocaleString('en-US')} {r.directOnly ? 'Direct Members' : 'Members'}
+                        </td>
+                        <td className="p-3">{r.level === 1 ? '$ Kangen Air' : `$${r.upgradeReward.toLocaleString('en-US')}`}</td>
+                        <td className="p-3">{r.monthlySalary ? `$${r.monthlySalary.toLocaleString('en-US')}` : '-'}</td>
                       </tr>
                     ))}
                   </tbody>

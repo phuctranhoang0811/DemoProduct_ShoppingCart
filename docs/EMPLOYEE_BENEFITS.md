@@ -76,7 +76,7 @@ Rank is based on **total team size** (all generations). Each rank pays a one-tim
 | LV4 | 500 MBs | $1,000 | $100 |
 | LV5 | 1,000 MBs | $2,000 | $200 |
 | LV6 | 2,500 MBs | $5,000 | $500 |
-| LV7 | 5,000 MBs | $10,000 | $1,000 |
+| LV7 | 5,100 MBs | $10,000 | $1,000 |
 | LV8 | 10,000 MBs | $20,000 | $2,000 |
 | LV9 | 50,000 MBs | $30,000 | $3,000 |
 | LV10 | 100,000 MBs | $40,000 | $4,000 |

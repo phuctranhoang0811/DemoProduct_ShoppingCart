@@ -104,7 +104,7 @@ export const LADDER_RANKS: LadderRank[] = [
   { level: 4, teamSize: 500, directOnly: false, upgradeReward: 1000, monthlySalary: 100 },
   { level: 5, teamSize: 1000, directOnly: false, upgradeReward: 2000, monthlySalary: 200 },
   { level: 6, teamSize: 2500, directOnly: false, upgradeReward: 5000, monthlySalary: 500 },
-  { level: 7, teamSize: 5000, directOnly: false, upgradeReward: 10000, monthlySalary: 1000 },
+  { level: 7, teamSize: 5100, directOnly: false, upgradeReward: 10000, monthlySalary: 1000 },
   { level: 8, teamSize: 10000, directOnly: false, upgradeReward: 20000, monthlySalary: 2000 },
   { level: 9, teamSize: 50000, directOnly: false, upgradeReward: 30000, monthlySalary: 3000 },
   { level: 10, teamSize: 100000, directOnly: false, upgradeReward: 40000, monthlySalary: 4000 },
