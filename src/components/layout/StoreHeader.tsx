@@ -325,6 +325,20 @@ export function StoreHeader() {
               <span>Hellobee Network</span>
               {navUnderline(pathname === '/hellobee')}
             </Link>
+
+            <Link
+              href="/events"
+              onMouseEnter={() => setActiveDropdown(null)}
+              className={`relative whitespace-nowrap shrink-0 h-full flex items-center transition-colors ${
+                isDarkHeader
+                  ? 'text-white/75 hover:text-white'
+                  : pathname === '/events'
+                  ? 'text-[#111111] font-bold'
+                  : 'text-[#444444] hover:text-[#111111]'
+              }`}
+            >
+              <span>Events</span>
+            </Link>
           </nav>
 
           {/* Right Action Icons: Currency, Search, Wishlist, User, Cart, Portals */}
@@ -706,6 +720,13 @@ export function StoreHeader() {
                   className="flex items-center justify-between py-1 font-semibold text-[#111111] hover:text-[var(--honey-deep)] transition-colors"
                 >
                   <span>Hellobee Network</span>
+                </Link>
+                <Link
+                  href="/events"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block py-1 font-semibold text-[#111111] hover:text-[#666666] transition-colors"
+                >
+                  Events
                 </Link>
               </div>
 

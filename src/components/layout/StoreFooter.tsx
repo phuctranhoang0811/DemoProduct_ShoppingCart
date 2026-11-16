@@ -74,6 +74,7 @@ export function StoreFooter() {
               <li><Link href="/cart" className="hover:text-white transition-colors">{t.cart.title}</Link></li>
               <li><Link href="/wishlist" className="hover:text-white transition-colors">{t.nav.savedItems}</Link></li>
               <li><Link href="/calculator" className="hover:text-white transition-colors">Tax Calculator (US & VN)</Link></li>
+              <li><Link href="/events" className="hover:text-white transition-colors">Member Events</Link></li>
               <li><Link href="/employee" className="hover:text-white transition-colors">Employee Portal</Link></li>
               <li><Link href="/admin" className="text-white hover:underline flex items-center gap-1">
                 <span>{t.nav.adminPortal}</span>
