@@ -22,6 +22,7 @@ import {
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { useTranslation } from '@/i18n/useTranslation';
 import { SearchModal } from '@/components/common/SearchModal';
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
 import { formatPrice } from '@/lib/utils';
 
 export function StoreHeader() {
@@ -359,6 +360,10 @@ export function StoreHeader() {
               >
                 <span>{currency === 'USD' ? '$ USD' : '₫ VND'}</span>
               </button>
+            </div>
+
+            <div className="hidden sm:block">
+              <LanguageSwitcher dark={isDarkHeader} />
             </div>
 
             {/* Subtle Divider */}
@@ -833,6 +838,10 @@ export function StoreHeader() {
               >
                 {currency === 'USD' ? '$ USD' : '₫ VND'}
               </button>
+            </div>
+            <div className="pt-4 flex items-center justify-between text-xs">
+              <span className="text-[11px] text-[#777777] font-medium">Language</span>
+              <LanguageSwitcher align="right" />
             </div>
           </div>
         </div>

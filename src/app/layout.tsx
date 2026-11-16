@@ -117,6 +117,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-white text-[#111111] antialiased selection:bg-[#0055A5] selection:text-white">
+        <div id="google_translate_element" className="hidden" />
         <StoreHydration />
         <Toaster position="top-right" richColors closeButton />
         {children}
