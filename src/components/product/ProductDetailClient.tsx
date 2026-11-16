@@ -16,6 +16,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
+import { submitProductReview } from '@/lib/admin-client';
 import { useTranslation } from '@/i18n/useTranslation';
 import { ProductCard } from '@/components/product/ProductCard';
 import { formatPrice, formatDate } from '@/lib/utils';
@@ -34,7 +35,6 @@ export function ProductDetailClient({
   relatedProducts,
 }: ProductDetailClientProps) {
   const { t, language } = useTranslation();
-  const addReview = useCommerceStore((state) => state.addReview);
   const addToCart = useCommerceStore((state) => state.addToCart);
   const toggleWishlist = useCommerceStore((state) => state.toggleWishlist);
   const isInWishlistStore = useCommerceStore((state) => state.isInWishlist);
@@ -111,30 +111,37 @@ export function ProductDetailClient({
     toast.success(`Added ${quantity}x "${productName}" to your bag.`);
   };
 
-  const handleReviewSubmit = (e: React.FormEvent) => {
+  const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!reviewName.trim() || !reviewComment.trim()) {
-      toast.error('Please complete all required fields.');
+    if (!reviewName.trim() || !reviewEmail.trim() || !reviewComment.trim()) {
+      toast.error('Please complete your name, email, and review comment.');
+      return;
+    }
+    if (reviewComment.trim().length < 10) {
+      toast.error('Please write at least 10 characters for your review.');
       return;
     }
 
     setIsSubmittingReview(true);
-    setTimeout(() => {
-      addReview({
-        productId: product.id,
-        productName,
-        customerName: reviewName,
-        customerEmail: reviewEmail || 'customer@example.com',
-        rating: reviewRating,
-        comment: reviewComment,
-      });
+    const result = await submitProductReview({
+      productId: product.id,
+      productName,
+      customerName: reviewName.trim(),
+      customerEmail: reviewEmail.trim(),
+      rating: reviewRating,
+      comment: reviewComment.trim(),
+    });
+    setIsSubmittingReview(false);
 
-      setIsSubmittingReview(false);
-      setReviewName('');
-      setReviewEmail('');
-      setReviewComment('');
-      toast.success('Thank you for your product review!');
-    }, 400);
+    if (!result.ok) {
+      toast.error(result.message || 'Your review could not be submitted.');
+      return;
+    }
+
+    setReviewName('');
+    setReviewEmail('');
+    setReviewComment('');
+    toast.success(result.message || 'Thank you for your product review!');
   };
 
   return (
@@ -457,11 +464,13 @@ export function ProductDetailClient({
                 value={reviewEmail}
                 onChange={(e) => setReviewEmail(e.target.value)}
                 className="text-xs p-2.5 border border-[#E5E5E5] bg-white outline-none"
+                required
               />
             </div>
             <textarea
               rows={3}
-              placeholder="Write your review..."
+              minLength={10}
+              placeholder="Write your review (at least 10 characters)..."
               value={reviewComment}
               onChange={(e) => setReviewComment(e.target.value)}
               className="w-full text-xs p-2.5 border border-[#E5E5E5] bg-white outline-none"

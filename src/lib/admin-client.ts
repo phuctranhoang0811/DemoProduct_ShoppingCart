@@ -332,7 +332,22 @@ const handlers: BackofficeHandlers = {
 
   // Public: any visitor can leave a review; it stays hidden until an administrator approves it.
   addReview: (review) => {
-    void fetch('/api/reviews', {
+    void submitProductReview(review).then((res) => {
+      if (!res.ok) toast.error(res.message || 'Your review could not be submitted.');
+    });
+  },
+};
+
+export async function submitProductReview(
+  review: Omit<Review, 'id' | 'createdAt' | 'status'>,
+): Promise<{ ok: boolean; message?: string }> {
+  if (useCommerceStore.getState().authMode === 'local') {
+    useCommerceStore.getState().addReview(review);
+    return { ok: true, message: 'Thank you for your product review!' };
+  }
+
+  try {
+    const res = await fetch('/api/reviews', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -342,12 +357,22 @@ const handlers: BackofficeHandlers = {
         rating: review.rating,
         comment: review.comment,
       }),
-    })
-      .then(async (res) => {
-        if (!res.ok) toast.error((await res.json().catch(() => null))?.message || 'Your review could not be submitted.');
-      })
-      .catch(() => toast.error('Your review could not be submitted.'));
-  },
-};
+    });
+
+    if (res.status === 501) {
+      useCommerceStore.setState({ authMode: 'local' });
+      useCommerceStore.getState().addReview(review);
+      return { ok: true, message: 'Thank you for your product review!' };
+    }
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return { ok: false, message: data.message || 'Your review could not be submitted.' };
+    }
+    return { ok: true, message: data.message || 'Thank you. Your review will appear once it has been approved.' };
+  } catch {
+    return { ok: false, message: 'Your review could not be submitted.' };
+  }
+}
 
 registerBackoffice(handlers);

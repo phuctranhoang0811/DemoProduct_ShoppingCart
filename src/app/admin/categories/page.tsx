@@ -30,7 +30,7 @@ export default function AdminCategoriesPage() {
     setName('');
     setSlug('');
     setDescription('');
-    setImage('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1000');
+    setImage('/images/products/emguarde-2.webp');
     setStatus('active');
     setIsModalOpen(true);
   };

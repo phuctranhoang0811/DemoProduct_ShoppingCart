@@ -116,6 +116,7 @@ function CheckoutContent() {
 
   const cardPaymentOffered = !backendMethods || backendMethods.includes('stripe');
   const [orderPlacedId, setOrderPlacedId] = useState<string | null>(null);
+  const [placedSummary, setPlacedSummary] = useState<{ total: number; directCommission: number } | null>(null);
   const [stripePaymentIntentId, setStripePaymentIntentId] = useState<string | null>(null);
   const [placedReferral, setPlacedReferral] = useState<HellobeeMember | null>(null);
 
@@ -301,6 +302,11 @@ function CheckoutContent() {
     }
 
     idempotencyKey.current = crypto.randomUUID();
+    const commissionable = Math.max(0, result.order.total - result.order.shippingFee);
+    setPlacedSummary({
+      total: result.order.total,
+      directCommission: verifiedBeneficiary && result.order.referralCode ? Math.round(commissionable * 0.1) : 0,
+    });
     if (verifiedBeneficiary && result.order.referralCode) setPlacedReferral(verifiedBeneficiary);
     clearCart();
     setIsSubmitting(false);
@@ -386,6 +392,10 @@ function CheckoutContent() {
           : `[Payment: ${paymentMethod.toUpperCase()}${generatedStripeId ? ` - Stripe Ref: ${generatedStripeId}` : ''}]`,
       });
 
+      setPlacedSummary({
+        total: grandTotal,
+        directCommission: directCommissionAmount,
+      });
       if (verifiedBeneficiary) {
         setPlacedReferral(verifiedBeneficiary);
       }
@@ -438,7 +448,7 @@ function CheckoutContent() {
               </a>
             </div>
             <p className="text-[#555555]">
-              Charged Amount: <strong className="text-[#111111]">{formatPrice(grandTotal, currency)}</strong>
+              Charged Amount: <strong className="text-[#111111]">{formatPrice(placedSummary?.total ?? grandTotal, currency)}</strong>
             </p>
             <p className="text-[11px] font-mono text-[#777777] truncate">
               Stripe Intent ID: {stripePaymentIntentId}
@@ -459,7 +469,7 @@ function CheckoutContent() {
               Consultant: {placedReferral.name} ({placedReferral.referralCode})
             </p>
             <p className="text-[11px] text-[#666666]">
-              Direct 10% commission ({formatPrice(directCommissionAmount, currency)}) has been credited to consultant’s Hellobee ledger.
+              Direct 10% commission ({formatPrice(placedSummary?.directCommission ?? directCommissionAmount, currency)}) has been credited to consultant’s Hellobee ledger.
             </p>
           </div>
         )}

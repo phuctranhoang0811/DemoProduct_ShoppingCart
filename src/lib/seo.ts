@@ -22,7 +22,7 @@ export function buildOrganizationSchema() {
     name: 'Enagic International - Kangen Water®',
     alternateName: ['Enagic', 'Kangen Water', 'Enagic K8', 'Enagic USA', 'Enagic Japan'],
     url: SITE_URL,
-    logo: `${SITE_URL}/logo-enagic.png`,
+    logo: `${SITE_URL}/images/logo.png`,
     sameAs: [
       ENAGIC_OFFICIAL_URL,
       'https://www.enagic.com',

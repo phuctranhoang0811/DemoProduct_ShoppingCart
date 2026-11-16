@@ -6,12 +6,14 @@ import Image from 'next/image';
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ShieldCheck, Truck, X } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { useTranslation } from '@/i18n/useTranslation';
+import { fetchCheckoutQuote, type CheckoutQuote } from '@/lib/orders-client';
 import { formatPrice } from '@/lib/utils';
 import { toast } from 'sonner';
 
 export default function CartPage() {
   const { t } = useTranslation();
   const cart = useCommerceStore((state) => state.cart);
+  const authMode = useCommerceStore((state) => state.authMode);
   const settings = useCommerceStore((state) => state.settings);
   const updateCartQuantity = useCommerceStore((state) => state.updateCartQuantity);
   const removeFromCart = useCommerceStore((state) => state.removeFromCart);
@@ -21,25 +23,78 @@ export default function CartPage() {
   const currency = useCommerceStore((state) => state.currency);
 
   const [promoCode, setPromoCode] = useState(appliedDiscountCode ?? '');
+  const [serverQuote, setServerQuote] = useState<CheckoutQuote | null>(null);
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
 
   useEffect(() => {
     if (appliedDiscountCode && !promoCode) setPromoCode(appliedDiscountCode);
   }, [appliedDiscountCode, promoCode]);
 
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  useEffect(() => {
+    if (cart.length === 0 || authMode === 'local') {
+      setServerQuote(null);
+      return;
+    }
 
-  const activeValidation = appliedDiscountCode ? validateDiscount(appliedDiscountCode, subtotal) : null;
-  const appliedDiscount =
+    let cancelled = false;
+    void fetchCheckoutQuote(cart, appliedDiscountCode).then((quote) => {
+      if (cancelled) return;
+      if (!quote) {
+        setServerQuote(null);
+        return;
+      }
+      if (quote.error && appliedDiscountCode) {
+        toast.error(quote.error);
+        setAppliedDiscountCode(null);
+      }
+      setServerQuote(quote);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authMode, cart, appliedDiscountCode, setAppliedDiscountCode]);
+
+  const localSubtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const activeValidation = !serverQuote && appliedDiscountCode ? validateDiscount(appliedDiscountCode, localSubtotal) : null;
+  const localAppliedDiscount =
     appliedDiscountCode && activeValidation?.valid
       ? { code: appliedDiscountCode, amount: activeValidation.discountAmount }
       : null;
 
-  const handleApplyPromo = (e: React.FormEvent) => {
+  const subtotal = serverQuote ? serverQuote.subtotal : localSubtotal;
+  const appliedDiscount = serverQuote
+    ? serverQuote.discountCode && serverQuote.discountAmount > 0
+      ? { code: serverQuote.discountCode, amount: serverQuote.discountAmount }
+      : null
+    : localAppliedDiscount;
+
+  const handleApplyPromo = async (e: React.FormEvent) => {
     e.preventDefault();
     const clean = promoCode.trim().toUpperCase();
     if (!clean) return;
 
-    const res = validateDiscount(clean, subtotal);
+    if (authMode !== 'local') {
+      setIsApplyingPromo(true);
+      const quote = await fetchCheckoutQuote(cart, clean);
+      setIsApplyingPromo(false);
+      if (quote) {
+        if (quote.error) {
+          toast.error(quote.error);
+          return;
+        }
+        const resolvedCode = quote.discountCode ?? clean;
+        setAppliedDiscountCode(resolvedCode);
+        setServerQuote(quote);
+        toast.success(
+          `Code ${resolvedCode} applied! Saved ${formatPrice(quote.discountAmount, currency)}`
+        );
+        return;
+      }
+    }
+
+    const res = validateDiscount(clean, localSubtotal);
     if (!res.valid) {
       toast.error(res.error || 'Invalid promotional code.');
       setAppliedDiscountCode(null);
@@ -59,12 +114,13 @@ export default function CartPage() {
 
   const discountAmount = appliedDiscount ? appliedDiscount.amount : 0;
   const payableAfterDiscount = Math.max(0, subtotal - discountAmount);
-  const shippingFee =
+  const localShippingFee =
     settings.shippingFee > 0 &&
     (settings.freeShippingThreshold === 0 || payableAfterDiscount < settings.freeShippingThreshold)
       ? settings.shippingFee
       : 0;
-  const grandTotal = payableAfterDiscount + shippingFee;
+  const shippingFee = serverQuote ? serverQuote.shippingFee : localShippingFee;
+  const grandTotal = serverQuote ? serverQuote.total : payableAfterDiscount + shippingFee;
 
   if (cart.length === 0) {
     return (
@@ -224,7 +280,8 @@ export default function CartPage() {
               />
               <button
                 type="submit"
-                className="bg-[#111111] text-white px-4 py-2.5 rounded-xs text-xs font-semibold uppercase tracking-wider hover:bg-[#262626] transition-all"
+                disabled={isApplyingPromo}
+                className="bg-[#111111] text-white px-4 py-2.5 rounded-xs text-xs font-semibold uppercase tracking-wider hover:bg-[#262626] disabled:opacity-60 transition-all"
               >
                 {t.cart.applyCode}
               </button>

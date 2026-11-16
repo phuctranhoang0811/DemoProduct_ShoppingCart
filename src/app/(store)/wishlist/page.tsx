@@ -26,7 +26,7 @@ export default function WishlistPage() {
           href="/shop"
           className="text-xs uppercase tracking-wider font-semibold text-[#111111] hover:underline flex items-center gap-1.5"
         >
-          Explore More Pieces <ArrowRight className="w-3.5 h-3.5" />
+          Explore More Products <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
 

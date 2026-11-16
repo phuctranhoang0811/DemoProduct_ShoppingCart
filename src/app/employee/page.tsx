@@ -107,12 +107,20 @@ export default function EmployeePage() {
     },
   ]);
 
-  // Current employee member record
-  const currentMember = hellobeeMembers.find((m) =>
-    currentUser?.role === 'employee'
-      ? m.referralCode === currentUser.referralCode || m.role === 'EMPLOYEE'
-      : m.role === 'EMPLOYEE'
-  ) || hellobeeMembers[2];
+  // Current member record matched to the authenticated user (by id, email, or referral code).
+  const currentMember =
+    hellobeeMembers.find(
+      (m) =>
+        Boolean(currentUser) &&
+        (m.id === currentUser?.id ||
+          m.email.toLowerCase() === currentUser?.email.toLowerCase() ||
+          (Boolean(currentUser?.referralCode) &&
+            m.referralCode.toUpperCase() === currentUser!.referralCode!.toUpperCase())),
+    ) ||
+    (currentUser?.role === 'admin'
+      ? hellobeeMembers.find((m) => m.role === 'OWNER')
+      : hellobeeMembers.find((m) => m.role === 'EMPLOYEE')) ||
+    hellobeeMembers[0];
   const employeeCode = currentMember?.referralCode || 'HBEE03';
   const assignedClients = customers.filter(
     (c) => c.referralCode?.toUpperCase() === employeeCode.toUpperCase()
@@ -338,7 +346,7 @@ export default function EmployeePage() {
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono uppercase bg-[#111111] text-white px-2 py-0.5 rounded-xs font-bold">
-                  {currentMember.rank} Associate
+                  {currentMember.rank} {currentMember.role === 'OWNER' ? 'Owner' : 'Associate'}
                 </span>
                 <span className="text-[10px] font-bold text-[#2D5A27] bg-[#EBF3EA] px-2.5 py-0.5 rounded-full border border-[#2D5A27]/20">
                   10% Direct Commission Eligible
