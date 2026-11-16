@@ -33,7 +33,7 @@ function makePieces(count: number): Piece[] {
   }));
 }
 
-function ConfettiBurst({ message, onDone }: { message: string; onDone: () => void }) {
+export function ConfettiBurst({ message, onDone }: { message: string; onDone: () => void }) {
   const [pieces, setPieces] = useState<Piece[]>([]);
 
   useEffect(() => {
