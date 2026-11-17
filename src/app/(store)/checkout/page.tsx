@@ -95,7 +95,7 @@ function CheckoutContent() {
     }
   }, [currentUser]);
 
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('stripe');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   // null while unknown or in local demo mode; otherwise the payment methods the backend accepts.
@@ -115,7 +115,7 @@ function CheckoutContent() {
     }
   }, []);
 
-  const cardPaymentOffered = !backendMethods || backendMethods.includes('stripe');
+  const cardPaymentOffered = false;
   const [orderPlacedId, setOrderPlacedId] = useState<string | null>(null);
   const [placedSummary, setPlacedSummary] = useState<{ total: number; directCommission: number; isPaid: boolean } | null>(null);
   const [stripePaymentIntentId, setStripePaymentIntentId] = useState<string | null>(null);
@@ -775,9 +775,9 @@ function CheckoutContent() {
 
             {/* Payment Options */}
             <div className="space-y-3">
-              {/* Option 1: STRIPE (Recommended) */}
+              {/* Option 1: STRIPE (Hidden while disabled) */}
+              {cardPaymentOffered && (
               <div
-                hidden={!cardPaymentOffered}
                 className={`rounded-lg border transition-all ${
                   paymentMethod === 'stripe'
                     ? 'border-[#635BFF] bg-[#FAFAFF] shadow-xs ring-1 ring-[#635BFF]/30'
@@ -984,6 +984,7 @@ function CheckoutContent() {
                   </div>
                 </label>
               </div>
+              )}
 
               {/* Option 2: Cash / Certified Check upon Technician Delivery */}
               <div

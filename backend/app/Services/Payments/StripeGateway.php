@@ -20,7 +20,7 @@ class StripeGateway implements PaymentGateway
 
     public function isAvailable(): bool
     {
-        return (bool) config('services.stripe.secret');
+        return (bool) config('services.stripe.enabled') && (bool) config('services.stripe.secret');
     }
 
     public function createCheckout(Order $order): array

@@ -296,7 +296,7 @@ function HellobeePortalContent() {
         city: currentUser.addresses[0]?.city || 'New York',
       },
       deliveryMethod: 'Hellobee White-Glove Technician Delivery',
-      paymentMethod: 'stripe',
+      paymentMethod: 'bank_transfer',
       paymentStatus: 'Paid',
       status: 'Processing',
       items: [

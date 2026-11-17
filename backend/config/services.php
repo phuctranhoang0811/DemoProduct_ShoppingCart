@@ -36,9 +36,10 @@ return [
     ],
 
     'stripe' => [
-        // Prefer a restricted key (rk_...) limited to Checkout Sessions.
-        'secret' => env('STRIPE_SECRET'),
-        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        // Disabled until live Stripe credentials are enabled.
+        'enabled' => (bool) env('STRIPE_ENABLED', false),
+        'secret' => env('STRIPE_ENABLED', false) ? env('STRIPE_SECRET') : null,
+        'webhook_secret' => env('STRIPE_ENABLED', false) ? env('STRIPE_WEBHOOK_SECRET') : null,
         'currency' => env('STRIPE_CURRENCY', 'usd'),
     ],
 
