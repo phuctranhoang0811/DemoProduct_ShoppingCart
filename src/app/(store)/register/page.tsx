@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, UserCheck, Tag, CheckCircle, AlertCircle } from 'lucide-react';
+import { ArrowRight, Tag, CheckCircle, AlertCircle } from 'lucide-react';
 import { signUp } from '@/lib/auth-client';
 import { lookupReferralCode } from '@/lib/hellobee-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
@@ -62,19 +62,15 @@ export default function RegisterPage() {
     };
   }, [referralCode, hellobeeMembers]);
 
-  const handleQuickFill = () => {
-    setName('Alexander Wright');
-    setEmail(`alex.wright.${Math.floor(Math.random() * 900 + 100)}@example.com`);
-    setPhone('(555) 349-8201');
-    setPassword('Password123');
-    setReferralCode('HBEE03');
-    toast.success('Sample customer credentials filled!');
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !phone.trim() || !password.trim()) {
       toast.error('Please fill in all required fields (*).');
+      return;
+    }
+
+    if (password.length < 8) {
+      toast.error('Password must be at least 8 characters long.');
       return;
     }
 
@@ -113,34 +109,14 @@ export default function RegisterPage() {
     <div className="max-w-xl mx-auto px-4 py-12 sm:py-20 animate-fade-up">
       <div className="text-center space-y-2 mb-8">
         <span className="text-[10px] tracking-[0.25em] text-[#777777] font-semibold uppercase">
-          Enagic® & Hellobee Network
+          Hellobee® Network
         </span>
         <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-[#111111]">
           Create Customer Account
         </h1>
         <p className="text-xs text-[#777777] max-w-md mx-auto">
-          Create an account to track Enagic medical device installations, scheduled filter maintenance, and official warranty records.
+          Create an account to track Hellobee medical device installations, scheduled filter maintenance, and official warranty records.
         </p>
-      </div>
-
-      {/* Quick Fill Demo Box */}
-      <div className="bg-[#FAF9F5] p-4 rounded-lg border border-[#E5E5E5] mb-6 flex items-center justify-between gap-3">
-        <div className="space-y-0.5">
-          <p className="text-xs font-semibold text-[#111111] flex items-center gap-1.5">
-            <UserCheck className="w-4 h-4 text-[#477A5A]" />
-            <span>Quick Fill Sample Data</span>
-          </p>
-          <p className="text-[11px] text-[#777777]">
-            Autofills mock customer details with valid US phone format
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={handleQuickFill}
-          className="bg-[#111111] text-white px-3.5 py-1.5 rounded-xs text-[11px] font-semibold hover:bg-[#333333] transition-colors flex-shrink-0 btn-tactile"
-        >
-          Quick Fill
-        </button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-lg border border-[#E5E5E5]">
@@ -203,9 +179,10 @@ export default function RegisterPage() {
           <input
             type="password"
             required
+            minLength={8}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Minimum 6 characters"
+            placeholder="Minimum 8 characters"
             className="w-full border border-[#E5E5E5] px-3.5 py-2.5 text-xs outline-none focus:border-[#111111] transition-colors rounded-xs"
           />
         </div>

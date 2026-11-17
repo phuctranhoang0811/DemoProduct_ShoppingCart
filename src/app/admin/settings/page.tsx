@@ -1,14 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Settings, Save, RotateCcw, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { toast } from 'sonner';
 
 export default function AdminSettingsPage() {
   const settings = useCommerceStore((state) => state.settings);
   const updateSettings = useCommerceStore((state) => state.updateSettings);
-  const resetDemoData = useCommerceStore((state) => state.resetDemoData);
 
   const [form, setForm] = useState({
     storeName: settings.storeName,
@@ -21,8 +20,6 @@ export default function AdminSettingsPage() {
     announcementText: settings.announcementText,
     lowStockThreshold: settings.lowStockThreshold,
   });
-
-  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,12 +35,6 @@ export default function AdminSettingsPage() {
       lowStockThreshold: Number(form.lowStockThreshold),
     });
     toast.success('Store parameters saved and synchronized with storefront.');
-  };
-
-  const handleReset = () => {
-    resetDemoData();
-    setIsResetConfirmOpen(false);
-    toast.success('All demo store datasets have been restored to defaults.');
   };
 
   return (
@@ -183,59 +174,6 @@ export default function AdminSettingsPage() {
           </button>
         </div>
       </form>
-
-      {/* Danger Zone: Reset Demo Data */}
-      <div className="bg-[#FFF5F5] border border-[#FBEAEA] p-6 space-y-4">
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-[#B74747] flex-shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <h3 className="text-sm font-semibold text-[#B74747]">Reset Demo Store Data</h3>
-            <p className="text-xs text-[#777777] leading-relaxed">
-              Resets all products, categories, orders, customers, reviews, and inventory adjustments back
-              to initial mock datasets. Clears all LocalStorage changes on this device.
-            </p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => setIsResetConfirmOpen(true)}
-          className="flex items-center gap-2 bg-[#B74747] text-white px-5 py-2.5 text-xs uppercase font-semibold hover:bg-[#963737] transition-colors"
-        >
-          <RotateCcw className="w-4 h-4" />
-          <span>Reset Demo Store Data</span>
-        </button>
-      </div>
-
-      {/* Confirmation Modal */}
-      {isResetConfirmOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white max-w-md w-full p-6 border border-[#E5E5E5] space-y-4">
-            <h3 className="text-base font-semibold text-[#111111]">
-              Confirm Demo Factory Reset?
-            </h3>
-            <p className="text-xs text-[#777777]">
-              This will overwrite all current changes and reset the prototype back to the initial 7 products,
-              20 orders, and 12 customers.
-            </p>
-            <div className="flex gap-3 pt-2">
-              <button
-                type="button"
-                onClick={handleReset}
-                className="flex-1 bg-[#B74747] text-white py-2 text-xs uppercase font-semibold"
-              >
-                Reset Everything
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsResetConfirmOpen(false)}
-                className="flex-1 border text-xs uppercase font-medium hover:bg-[#F5F4F0]"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

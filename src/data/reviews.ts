@@ -4,7 +4,7 @@ export const initialReviews: Review[] = [
   {
     id: 'rev-01',
     productId: 'kangen-k8',
-    productName: 'Enagic LeveLuk K8 (Kangen 8)',
+    productName: 'Hellobee LeveLuk K8 (Kangen 8)',
     customerName: 'Dr. Arthur Vance, MD (Gastroenterology)',
     customerEmail: 'dr.vance@medicalcenter.org',
     rating: 5,
@@ -15,7 +15,7 @@ export const initialReviews: Review[] = [
   {
     id: 'rev-02',
     productId: 'kangen-k8',
-    productName: 'Enagic LeveLuk K8 (Kangen 8)',
+    productName: 'Hellobee LeveLuk K8 (Kangen 8)',
     customerName: 'Eleanor Sterling (San Francisco, CA)',
     customerEmail: 'eleanor.sterling@sfdesign.com',
     rating: 5,
@@ -26,7 +26,7 @@ export const initialReviews: Review[] = [
   {
     id: 'rev-03',
     productId: 'kangen-sd501',
-    productName: 'Enagic LeveLuk SD501',
+    productName: 'Hellobee LeveLuk SD501',
     customerName: 'Marcus Bennett (Mechanical Engineer)',
     customerEmail: 'm.bennett@engcorp.com',
     rating: 5,
@@ -59,7 +59,7 @@ export const initialReviews: Review[] = [
   {
     id: 'rev-06',
     productId: 'kangen-super-501',
-    productName: 'Enagic LeveLuk Super 501',
+    productName: 'Hellobee LeveLuk Super 501',
     customerName: 'Sunshine Dental Surgery Group',
     customerEmail: 'clinic@sunshinedental.com',
     rating: 5,

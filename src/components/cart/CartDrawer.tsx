@@ -103,7 +103,7 @@ export function CartDrawer() {
                 </div>
                 <div>
                   <h3 className="text-base font-semibold text-[#111111]">Your Shopping Bag is Empty</h3>
-                  <p className="text-xs text-[#777777] mt-1 max-w-xs">Explore Enagic ionizers and certified filters to experience true hydration.</p>
+                  <p className="text-xs text-[#777777] mt-1 max-w-xs">Explore Hellobee ionizers and certified filters to experience true hydration.</p>
                 </div>
                 <button
                   onClick={() => setIsCartDrawerOpen(false)}

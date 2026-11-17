@@ -22,6 +22,7 @@ import {
   Zap,
   Check,
   X,
+  ShoppingBag,
 } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { PaymentMethod } from '@/types';
@@ -116,9 +117,9 @@ function CheckoutContent() {
 
   const cardPaymentOffered = !backendMethods || backendMethods.includes('stripe');
   const [orderPlacedId, setOrderPlacedId] = useState<string | null>(null);
-  const [placedSummary, setPlacedSummary] = useState<{ total: number; directCommission: number } | null>(null);
+  const [placedSummary, setPlacedSummary] = useState<{ total: number; directCommission: number; isPaid: boolean } | null>(null);
   const [stripePaymentIntentId, setStripePaymentIntentId] = useState<string | null>(null);
-  const [placedReferral, setPlacedReferral] = useState<HellobeeMember | null>(null);
+  const [placedReferral, setPlacedReferral] = useState<{ name: string; referralCode: string; role?: string; rank?: string } | null>(null);
 
   // Stripe form state
   const [stripeCardNumber, setStripeCardNumber] = useState('');
@@ -204,7 +205,12 @@ function CheckoutContent() {
   }, [referralCode, hellobeeMembers]);
 
   // With a backend the code is checked on the server (undefined = not checked / local demo mode).
-  const [serverBeneficiary, setServerBeneficiary] = useState<HellobeeMember | null | undefined>(undefined);
+  const [serverBeneficiary, setServerBeneficiary] = useState<{
+    name: string;
+    referralCode: string;
+    role?: string;
+    rank?: string;
+  } | null | undefined>(undefined);
 
   useEffect(() => {
     const code = referralCode.trim();
@@ -280,8 +286,14 @@ function CheckoutContent() {
     const result = await placeOrder({
       cart,
       customer: { name: fullName.trim(), email: email.trim(), phone: phone.trim() },
-      shippingAddress: { street, ward, district, city },
-      deliveryMethod: 'Enagic Certified Technician Delivery & In-Home Installation',
+      shippingAddress: {
+        street,
+        ward,
+        district,
+        city,
+        postalCode: postalCode.trim() || undefined,
+      },
+      deliveryMethod: 'Hellobee Certified Technician Delivery & In-Home Installation',
       paymentMethod,
       discountCode: activeDiscountCode || undefined,
       referralCode: referralCode.trim() || undefined,
@@ -306,6 +318,7 @@ function CheckoutContent() {
     setPlacedSummary({
       total: result.order.total,
       directCommission: verifiedBeneficiary && result.order.referralCode ? Math.round(commissionable * 0.1) : 0,
+      isPaid: result.order.paymentStatus === 'Paid',
     });
     if (verifiedBeneficiary && result.order.referralCode) setPlacedReferral(verifiedBeneficiary);
     clearCart();
@@ -366,8 +379,9 @@ function CheckoutContent() {
           ward,
           district,
           city,
+          postalCode: postalCode.trim() || undefined,
         },
-        deliveryMethod: 'Enagic Certified Technician Delivery & In-Home Installation',
+        deliveryMethod: 'Hellobee Certified Technician Delivery & In-Home Installation',
         paymentMethod,
         paymentStatus: paymentMethod === 'stripe' || paymentMethod === 'online_simulation' ? 'Paid' : 'Unpaid',
         status: 'Pending',
@@ -395,6 +409,7 @@ function CheckoutContent() {
       setPlacedSummary({
         total: grandTotal,
         directCommission: directCommissionAmount,
+        isPaid: paymentMethod === 'stripe' || paymentMethod === 'online_simulation',
       });
       if (verifiedBeneficiary) {
         setPlacedReferral(verifiedBeneficiary);
@@ -420,13 +435,13 @@ function CheckoutContent() {
           <CheckCircle className="w-10 h-10" />
         </div>
         <span className="text-xs font-mono uppercase tracking-widest text-[#2D5A27] bg-[#EBF3EA] px-3.5 py-1 rounded-xs border border-[#2D5A27]/20 font-bold">
-          Order Reference: #{orderPlacedId.slice(-8).toUpperCase()}
+          Order Reference: #{orderPlacedId.toUpperCase()}
         </span>
         <h1 className="text-2xl sm:text-3xl font-light text-[#111111]">
-          Thank You For Choosing Enagic®
+          Thank You For Choosing Hellobee®
         </h1>
         <p className="text-xs text-[#737373] max-w-md mx-auto leading-relaxed">
-          Your order has been recorded in the central Enagic enterprise registry. An authorized
+          Your order has been recorded in the central Hellobee enterprise registry. An authorized
           water-specialist will contact you within 24 hours to schedule complimentary certified
           in-home plumbing installation.
         </p>
@@ -469,7 +484,7 @@ function CheckoutContent() {
               Consultant: {placedReferral.name} ({placedReferral.referralCode})
             </p>
             <p className="text-[11px] text-[#666666]">
-              Direct 10% commission ({formatPrice(placedSummary?.directCommission ?? directCommissionAmount, currency)}) has been credited to consultant’s Hellobee ledger.
+              Direct 10% commission ({formatPrice(placedSummary?.directCommission ?? directCommissionAmount, currency)}) {placedSummary?.isPaid ? 'has been credited to consultant’s Hellobee ledger.' : 'is pending and will be credited to consultant’s Hellobee ledger once payment is confirmed.'}
             </p>
           </div>
         )}
@@ -492,12 +507,43 @@ function CheckoutContent() {
     );
   }
 
+  if (cart.length === 0) {
+    return (
+      <div className="max-w-[720px] mx-auto px-4 py-20 text-center space-y-5">
+        <div className="w-16 h-16 bg-[#F5F4F0] rounded-full flex items-center justify-center mx-auto text-[#111111] border border-[#E5E5E5]">
+          <ShoppingBag className="w-7 h-7" />
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-light text-[#111111]">
+          Your Shopping Bag Is Empty
+        </h1>
+        <p className="text-xs text-[#737373] max-w-md mx-auto leading-relaxed">
+          Add an Hellobee water ionizer, emGuarde device, or genuine replacement filter to your bag before proceeding to checkout.
+        </p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <Link
+            href="/shop"
+            className="w-full sm:w-auto bg-[#111111] text-white px-8 py-3 text-xs uppercase font-semibold tracking-wider rounded-xs hover:bg-[#333333] transition-colors inline-flex items-center justify-center gap-2"
+          >
+            <span>Browse Products</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+          <Link
+            href="/cart"
+            className="w-full sm:w-auto border border-[#E5E5E5] px-8 py-3 text-xs uppercase font-medium hover:bg-[#F5F4F0] transition-colors"
+          >
+            View Shopping Bag
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       {/* Checkout Breadcrumb Header */}
       <div className="mb-8 pb-4 border-b border-[#E5E5E5]">
         <span className="text-xs uppercase tracking-widest text-[#737373]">
-          Enagic® Global Medical Equipment &bull; Secure Checkout
+          Hellobee® Global Medical Equipment &bull; Secure Checkout
         </span>
         <h1 className="text-2xl sm:text-3xl font-light text-[#111111] mt-1">
           Complete Your Order
@@ -651,7 +697,7 @@ function CheckoutContent() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-semibold text-[#111111] uppercase tracking-wider">
                 <Tag className="w-4 h-4 text-[#B9A58B]" />
-                <span>Enagic Consultant Referral Code</span>
+                <span>Hellobee Consultant Referral Code</span>
               </div>
               <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 bg-[#EAE8E1] text-[#555] font-semibold rounded-xs">
                 Optional
@@ -659,7 +705,7 @@ function CheckoutContent() {
             </div>
 
             <p className="text-xs text-[#737373] leading-relaxed">
-              If an Enagic Certified Hydration Associate assisted you (e.g. <code>HBEE03</code>),
+              If an Hellobee Certified Hydration Associate assisted you (e.g. <code>HBEE03</code>),
               enter their code below to credit their direct commission and assign them as your dedicated customer specialist.
             </p>
 
@@ -667,7 +713,13 @@ function CheckoutContent() {
               <div className="flex items-center gap-2 p-2.5 bg-[#FAF9F5] border border-[#E5E5E5] rounded-xs text-xs text-[#2D5A27]">
                 <CheckCircle className="w-4 h-4 shrink-0 text-[#2D5A27]" />
                 <span>
-                  Auto-linked from your registered account specialist: <strong>{currentUser.sponsorName || currentUser.referralCode} ({currentUser.referralCode})</strong>.
+                  Auto-linked from your registered account specialist:{' '}
+                  <strong>
+                    {currentUser.sponsorName && currentUser.sponsorName !== currentUser.referralCode
+                      ? `${currentUser.sponsorName} (${currentUser.referralCode})`
+                      : currentUser.referralCode}
+                  </strong>
+                  .
                 </span>
               </div>
             )}
@@ -681,44 +733,6 @@ function CheckoutContent() {
                 className="w-full text-xs p-3 rounded-xs border border-[#D5D5D5] bg-white uppercase font-mono font-bold tracking-wider outline-none focus:border-[#111111] transition-colors"
               />
 
-              {/* Quick Pick Chips */}
-              <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px]">
-                <span className="text-[#888888]">Quick samples:</span>
-                <button
-                  type="button"
-                  onClick={() => setReferralCode('HBEE03')}
-                  className={`px-2.5 py-1 rounded-xs border text-[10px] font-mono font-semibold transition-all ${
-                    referralCode === 'HBEE03'
-                      ? 'bg-[#111111] text-white border-[#111111]'
-                      : 'bg-white border-[#D5D5D5] text-[#333333] hover:border-[#111111]'
-                  }`}
-                >
-                  HBEE03 (David Nguyen - 10%)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setReferralCode('HBEE04')}
-                  className={`px-2.5 py-1 rounded-xs border text-[10px] font-mono font-semibold transition-all ${
-                    referralCode === 'HBEE04'
-                      ? 'bg-[#111111] text-white border-[#111111]'
-                      : 'bg-white border-[#D5D5D5] text-[#333333] hover:border-[#111111]'
-                  }`}
-                >
-                  HBEE04 (Sophia Miller - 10%)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setReferralCode('HBEE01')}
-                  className={`px-2.5 py-1 rounded-xs border text-[10px] font-mono font-semibold transition-all ${
-                    referralCode === 'HBEE01'
-                      ? 'bg-[#111111] text-white border-[#111111]'
-                      : 'bg-white border-[#D5D5D5] text-[#333333] hover:border-[#111111]'
-                  }`}
-                >
-                  HBEE01 (Managing Owner)
-                </button>
-              </div>
-
               {/* Verification Status */}
               {verifiedBeneficiary ? (
                 <div className="mt-3 p-3.5 bg-[#EBF3EA] rounded-xs border border-[#2D5A27]/20 flex items-start gap-2.5 text-xs text-[#2D5A27]">
@@ -728,7 +742,13 @@ function CheckoutContent() {
                       ✓ Valid Code: {verifiedBeneficiary.name} ({verifiedBeneficiary.referralCode})
                     </p>
                     <p className="text-[11px] text-[#2D5A27]/80">
-                      Role: <strong>{verifiedBeneficiary.role}</strong> (Rank {verifiedBeneficiary.rank}) &bull;
+                      {verifiedBeneficiary.role && verifiedBeneficiary.rank ? (
+                        <>
+                          Role: <strong>{verifiedBeneficiary.role}</strong> (Rank {verifiedBeneficiary.rank}) &bull;{' '}
+                        </>
+                      ) : (
+                        <>Hellobee Certified Hydration Consultant &bull; </>
+                      )}
                       Direct 10% Associate commission will be credited upon order completion.
                     </p>
                   </div>
@@ -736,7 +756,7 @@ function CheckoutContent() {
               ) : referralCode.trim() ? (
                 <div className="mt-2 p-2.5 bg-[#FFF7ED] rounded-xs border border-[#EA580C]/20 flex items-center gap-2 text-xs text-[#C2410C]">
                   <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                  <span>Referral code &quot;{referralCode}&quot; is not found. Please verify spelling or pick a demo code above.</span>
+                  <span>Referral code &quot;{referralCode}&quot; is not found. Please verify the consultant code spelling.</span>
                 </div>
               ) : null}
             </div>
@@ -843,21 +863,6 @@ function CheckoutContent() {
                             Or pay with Card via Stripe Elements
                           </span>
                           <div className="flex-1 h-px bg-[#E5E5E5]" />
-                        </div>
-
-                        {/* Test card filler shortcut */}
-                        <div className="flex items-center justify-between bg-white p-2.5 rounded-md border border-[#D8D8F6]">
-                          <span className="text-[11px] text-[#555555]">
-                            Testing this demo? Autofill Stripe test card credentials:
-                          </span>
-                          <button
-                            type="button"
-                            onClick={fillStripeTestCard}
-                            className="inline-flex items-center gap-1 bg-[#635BFF] text-white px-2.5 py-1 rounded text-[10px] uppercase tracking-wider font-bold hover:bg-[#5046E5] transition-colors shadow-2xs"
-                          >
-                            <Zap className="w-3 h-3" />
-                            Fill Test Card
-                          </button>
                         </div>
 
                         {/* Card Input Elements */}
@@ -1027,10 +1032,10 @@ function CheckoutContent() {
                   <CreditCard className="w-4 h-4 text-[#111111]" />
                   <div className="flex-1">
                     <span className="font-bold text-xs uppercase tracking-wider text-[#111111] block">
-                      Enagic Corporate Bank Wire Transfer
+                      Hellobee Corporate Bank Wire Transfer
                     </span>
                     <span className="text-[11px] text-[#777777]">
-                      Direct wire to Enagic Vietnam / Enagic USA corporate account.
+                      Direct wire to Hellobee USA corporate account.
                     </span>
                   </div>
                 </label>
@@ -1149,7 +1154,7 @@ function CheckoutContent() {
 
             <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#737373] pt-2 border-t border-[#E5E5E5]">
               <ShieldCheck className="w-4 h-4 text-[#111111]" />
-              <span>Official Enagic Medical Grade Certification Guarantee</span>
+              <span>Official Hellobee Medical Grade Certification Guarantee</span>
             </div>
           </div>
         </div>

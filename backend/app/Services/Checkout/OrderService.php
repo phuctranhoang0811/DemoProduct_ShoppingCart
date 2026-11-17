@@ -253,6 +253,7 @@ class OrderService
             'shipping_ward' => $data['shipping_address']['ward'] ?? null,
             'shipping_district' => $data['shipping_address']['district'] ?? null,
             'shipping_city' => $data['shipping_address']['city'],
+            'shipping_postal_code' => $data['shipping_address']['postal_code'] ?? null,
             'delivery_method' => $data['delivery_method'] ?? 'Standard Delivery',
             'payment_method' => $data['payment_method'],
             'payment_status' => 'Unpaid',

@@ -92,7 +92,7 @@ export function BenefitsPanel({ ladderLevel }: { ladderLevel: number }) {
                 <td className="p-3">
                   {r.teamSize.toLocaleString('en-US')} {r.directOnly ? 'Direct Members' : 'Members'}
                 </td>
-                <td className="p-3">{r.level === 1 ? '$ Kangen Air' : `$${r.upgradeReward.toLocaleString('en-US')}`}</td>
+                <td className="p-3">{r.level === 1 ? 'Air Purifier Unit' : `$${r.upgradeReward.toLocaleString('en-US')}`}</td>
                 <td className="p-3">{r.monthlySalary ? `$${r.monthlySalary.toLocaleString('en-US')}` : '-'}</td>
               </tr>
             ))}

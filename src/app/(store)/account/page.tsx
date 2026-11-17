@@ -64,12 +64,10 @@ export default function AccountPage() {
 
   // Profile edit state
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isRequestingReset, setIsRequestingReset] = useState(false);
   const [profileForm, setProfileForm] = useState({
     name: currentUser?.name || '',
     phone: currentUser?.phone || '',
-    gender: currentUser?.gender || 'prefer_not_to_say',
-    birthday: currentUser?.birthday || '',
-    company: currentUser?.company || '',
   });
 
   // Active tab in account
@@ -96,7 +94,7 @@ export default function AccountPage() {
         </div>
         <h1 className="text-2xl font-light text-[#111111]">Account Sign In Required</h1>
         <p className="text-xs text-[#777777] max-w-sm mx-auto">
-          Please log in to manage your personal details, shipping destinations, and Enagic order history.
+          Please log in to manage your personal details, shipping destinations, and Hellobee order history.
         </p>
         <Link
           href="/login"
@@ -112,9 +110,6 @@ export default function AccountPage() {
     setProfileForm({
       name: currentUser.name,
       phone: currentUser.phone || '',
-      gender: currentUser.gender || 'prefer_not_to_say',
-      birthday: currentUser.birthday || '',
-      company: currentUser.company || '',
     });
     setIsEditingProfile(true);
   };
@@ -128,22 +123,31 @@ export default function AccountPage() {
     const result = await saveProfile({
       name: profileForm.name.trim(),
       phone: profileForm.phone.trim(),
-      gender: profileForm.gender as any,
-      birthday: profileForm.birthday,
-      company: profileForm.company.trim(),
     });
     if (!result.ok) {
       toast.error(result.message || 'Could not update profile.');
       return;
     }
-    // Preserve local-only optional preferences when backend does not store them.
-    updateProfile({
-      gender: profileForm.gender as any,
-      birthday: profileForm.birthday,
-      company: profileForm.company.trim(),
-    });
     setIsEditingProfile(false);
     toast.success('Personal profile information updated successfully.');
+  };
+
+  const handleRequestPasswordReset = async () => {
+    setIsRequestingReset(true);
+    const res = await fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: currentUser.email.trim().toLowerCase() }),
+    }).catch(() => null);
+    setIsRequestingReset(false);
+
+    if (!res || (!res.ok && res.status !== 501)) {
+      const data = await res?.json().catch(() => null);
+      toast.error(data?.message || 'Could not send password reset instructions.');
+      return;
+    }
+
+    toast.success(`Password reset instructions sent to ${currentUser.email}.`);
   };
 
   const handleOpenAddAddress = () => {
@@ -226,8 +230,9 @@ export default function AccountPage() {
     .join('')
     .toUpperCase();
 
-  // Compute 1A–5A rank from how many orders used this customer's referral code
-  const referredOrderCount = currentUser.referralCode
+  // Compute 1A–5A rank only for authorized consultants / admins
+  const isStaffOrAdmin = currentUser.role === 'employee' || currentUser.role === 'admin';
+  const referredOrderCount = isStaffOrAdmin && currentUser.referralCode
     ? orders.filter(
         (o) =>
           o.referralCode &&
@@ -245,7 +250,7 @@ export default function AccountPage() {
     return null;
   };
 
-  const customerRank = getRank(referredOrderCount);
+  const customerRank = isStaffOrAdmin ? getRank(referredOrderCount) : null;
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -332,13 +337,13 @@ export default function AccountPage() {
           <div className="bg-white p-3 rounded-lg border border-[#EBEBEB]">
             <span className="text-[11px] text-[#777777] block">Total Orders</span>
             <span className="font-semibold text-[#111111] text-sm mt-0.5">
-              {userOrders.length} Completed
+              {userOrders.length} {userOrders.length === 1 ? 'Order' : 'Orders'}
             </span>
           </div>
           <div className="bg-white p-3 rounded-lg border border-[#EBEBEB]">
             <span className="text-[11px] text-[#777777] block">Saved Addresses</span>
             <span className="font-semibold text-[#111111] text-sm mt-0.5">
-              {currentUser.addresses.length} Locations
+              {currentUser.addresses.length} {currentUser.addresses.length === 1 ? 'Location' : 'Locations'}
             </span>
           </div>
           <div className="bg-white p-3 rounded-lg border border-[#EBEBEB]">
@@ -421,12 +426,7 @@ export default function AccountPage() {
                   <span className="text-[11px] uppercase tracking-wider text-[#888888] font-medium block">
                     Primary Email Address
                   </span>
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-[#111111]">{currentUser.email}</p>
-                    <span className="text-[10px] bg-[#EBF3EA] text-[#2D5A27] px-1.5 py-0.5 rounded font-bold">
-                      Verified
-                    </span>
-                  </div>
+                  <p className="text-sm font-semibold text-[#111111]">{currentUser.email}</p>
                 </div>
 
                 <div className="space-y-1">
@@ -438,42 +438,18 @@ export default function AccountPage() {
                   </p>
                 </div>
 
-                <div className="space-y-1">
-                  <span className="text-[11px] uppercase tracking-wider text-[#888888] font-medium block">
-                    Gender
-                  </span>
-                  <p className="text-sm font-semibold text-[#111111] capitalize">
-                    {currentUser.gender ? currentUser.gender.replace('_', ' ') : 'Not specified'}
-                  </p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[11px] uppercase tracking-wider text-[#888888] font-medium block">
-                    Date of Birth
-                  </span>
-                  <p className="text-sm font-semibold text-[#111111]">
-                    {currentUser.birthday || 'Not specified'}
-                  </p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[11px] uppercase tracking-wider text-[#888888] font-medium block">
-                    Organization / Company
-                  </span>
-                  <p className="text-sm font-semibold text-[#111111]">
-                    {currentUser.company || 'Private Residence'}
-                  </p>
-                </div>
-
                 <div className="space-y-1 sm:col-span-2 pt-2 border-t border-[#F0F0F0]">
                   <span className="text-[11px] uppercase tracking-wider text-[#888888] font-medium block">
-                    Assigned Enagic® Consultant / Specialist
+                    Assigned Hellobee® Consultant / Specialist
                   </span>
                   {currentUser.referralCode ? (
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#FAF9F5] border border-[#E5E5E5] rounded-xs text-xs text-[#2D5A27] font-medium">
                       <CheckCircle className="w-3.5 h-3.5 shrink-0" />
                       <span>
-                        {currentUser.sponsorName || 'Hydration Specialist'} (<code>{currentUser.referralCode}</code>) &bull; Auto-credited on purchases
+                        {currentUser.sponsorName && currentUser.sponsorName !== currentUser.referralCode
+                          ? `${currentUser.sponsorName} `
+                          : 'Hydration Specialist '}
+                        (<code>{currentUser.referralCode}</code>) &bull; Auto-credited on purchases
                       </span>
                     </div>
                   ) : (
@@ -500,7 +476,7 @@ export default function AccountPage() {
                     />
                   </div>
 
-                  <div>
+                  <div className="sm:col-span-2">
                     <label className="text-[11px] uppercase tracking-wider font-semibold text-[#555555] block mb-1">
                       Phone Number
                     </label>
@@ -510,47 +486,6 @@ export default function AccountPage() {
                       onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
                       className="w-full border border-[#D5D5D5] px-3.5 py-2.5 rounded-xs outline-none focus:border-[#111111] transition-colors bg-white text-xs"
                       placeholder="e.g. +1 (555) 349-8201"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] uppercase tracking-wider font-semibold text-[#555555] block mb-1">
-                      Gender
-                    </label>
-                    <select
-                      value={profileForm.gender}
-                      onChange={(e) => setProfileForm({ ...profileForm, gender: e.target.value as any })}
-                      className="w-full border border-[#D5D5D5] px-3.5 py-2.5 rounded-xs outline-none focus:border-[#111111] transition-colors bg-white text-xs"
-                    >
-                      <option value="prefer_not_to_say">Prefer not to say</option>
-                      <option value="female">Female</option>
-                      <option value="male">Male</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] uppercase tracking-wider font-semibold text-[#555555] block mb-1">
-                      Date of Birth
-                    </label>
-                    <input
-                      type="date"
-                      value={profileForm.birthday}
-                      onChange={(e) => setProfileForm({ ...profileForm, birthday: e.target.value })}
-                      className="w-full border border-[#D5D5D5] px-3.5 py-2.5 rounded-xs outline-none focus:border-[#111111] transition-colors bg-white text-xs"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] uppercase tracking-wider font-semibold text-[#555555] block mb-1">
-                      Company / Organization (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={profileForm.company}
-                      onChange={(e) => setProfileForm({ ...profileForm, company: e.target.value })}
-                      className="w-full border border-[#D5D5D5] px-3.5 py-2.5 rounded-xs outline-none focus:border-[#111111] transition-colors bg-white text-xs"
-                      placeholder="e.g. Design Studio Inc."
                     />
                   </div>
                 </div>
@@ -584,26 +519,27 @@ export default function AccountPage() {
                 </h3>
               </div>
               <p className="text-xs text-[#666666] leading-relaxed">
-                All Enagic® medical devices registered under this account are backed by
+                All Hellobee® medical devices registered under this account are backed by
                 our 3 to 5-year international manufacturer guarantee and free biannual deep-clean checkups.
               </p>
               <div className="pt-2 text-xs font-semibold text-[#111111]">
                 Need technician dispatch? Call toll-free:{' '}
-                <span className="text-[#2D5A27]">1-800-ENAGIC</span>
+                <span className="text-[#2D5A27]">1-800-HELLOBEE</span>
               </div>
             </div>
 
             <div className="bg-white p-6 rounded-lg border border-[#E5E5E5] space-y-3 text-xs">
               <h3 className="uppercase tracking-wider font-bold text-[#111111]">Account Security</h3>
               <p className="text-[#666666]">
-                Two-factor authentication is active on this session. Password last verified recently.
+                Send a password reset verification link to your registered email address ({currentUser.email}).
               </p>
               <button
                 type="button"
-                onClick={() => toast.success('Password update instructions sent to your registered email.')}
-                className="w-full text-center border border-[#111111] py-2 text-xs uppercase tracking-wider font-medium hover:bg-[#F5F4F0] transition-colors rounded-xs"
+                disabled={isRequestingReset}
+                onClick={handleRequestPasswordReset}
+                className="w-full text-center border border-[#111111] py-2 text-xs uppercase tracking-wider font-medium hover:bg-[#F5F4F0] transition-colors rounded-xs disabled:opacity-50"
               >
-                Request Password Reset
+                {isRequestingReset ? 'Sending Reset Link...' : 'Request Password Reset'}
               </button>
             </div>
           </div>
@@ -619,7 +555,7 @@ export default function AccountPage() {
                 Delivery & Installation Addresses
               </h2>
               <p className="text-xs text-[#777777] mt-0.5">
-                Manage destination addresses where Enagic certified technicians install your devices.
+                Manage destination addresses where Hellobee certified technicians install your devices.
               </p>
             </div>
             <button
@@ -758,7 +694,7 @@ export default function AccountPage() {
               <Package className="w-8 h-8 text-[#888888] mx-auto" />
               <h3 className="text-sm font-semibold text-[#111111]">No Orders Placed Yet</h3>
               <p className="text-xs text-[#777777] max-w-sm mx-auto">
-                Once you order an Enagic ionizer or replacement filter, your invoice and delivery status will appear here.
+                Once you order an Hellobee ionizer or replacement filter, your invoice and delivery status will appear here.
               </p>
               <Link
                 href="/shop"
@@ -776,9 +712,9 @@ export default function AccountPage() {
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#F0F0F0]">
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <span className="font-mono font-bold text-xs text-[#111111]">
-                          Order #{order.id.slice(-8).toUpperCase()}
+                          Order #{order.id.toUpperCase()}
                         </span>
                         <span className="text-[10px] uppercase font-bold bg-[#EBF3EA] text-[#2D5A27] px-2 py-0.5 rounded-full">
                           {order.status}
@@ -788,7 +724,8 @@ export default function AccountPage() {
                         </span>
                       </div>
                       <p className="text-[11px] text-[#777777] mt-0.5">
-                        Placed on {formatDate(order.createdAt)} &bull; {order.items.length} items
+                        Placed on {formatDate(order.createdAt)} &bull; {order.items.length}{' '}
+                        {order.items.length === 1 ? 'item' : 'items'}
                       </p>
                     </div>
 
@@ -796,6 +733,11 @@ export default function AccountPage() {
                       <span className="text-base font-bold text-[#111111]">
                         {formatPrice(order.total)}
                       </span>
+                      {order.discountAmount > 0 && (
+                        <p className="text-[10px] text-[#B74747] font-semibold">
+                          Discount {order.discountCode ? `(${order.discountCode})` : ''}: -{formatPrice(order.discountAmount)}
+                        </p>
+                      )}
                       <p className="text-[10px] text-[#477A5A] font-semibold">
                         Installation Guaranteed
                       </p>
@@ -819,10 +761,35 @@ export default function AccountPage() {
                     ))}
                   </div>
 
+                  {order.statusHistory && order.statusHistory.length > 0 && (
+                    <div className="pt-2 border-t border-[#F5F5F5] text-[11px] text-[#666666] space-y-1">
+                      <p className="font-semibold text-[#111111] uppercase tracking-wider text-[10px]">
+                        Status History
+                      </p>
+                      {order.statusHistory.map((h, idx) => (
+                        <div key={idx} className="flex items-center justify-between gap-2">
+                          <span>
+                            <strong>{h.status}</strong>
+                            {h.note ? ` — ${h.note}` : ''}
+                          </span>
+                          <span className="text-[#888888]">{formatDate(h.timestamp)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   <div className="pt-2 border-t border-[#F0F0F0] flex flex-col sm:flex-row sm:items-center justify-between text-xs text-[#777777] gap-2">
                     <p>
-                      <strong>Delivery to:</strong> {order.shippingAddress.street},{' '}
-                      {order.shippingAddress.city}
+                      <strong>Delivery to:</strong>{' '}
+                      {[
+                        order.shippingAddress.street,
+                        order.shippingAddress.ward,
+                        order.shippingAddress.district,
+                        order.shippingAddress.city,
+                      ]
+                        .filter(Boolean)
+                        .join(', ')}
+                      {order.shippingAddress.postalCode ? ` ${order.shippingAddress.postalCode}` : ''}
                     </p>
                     {order.referralCode && (
                       <span className="font-mono text-[11px] bg-[#FAF9F5] px-2 py-0.5 rounded border border-[#E5E5E5] text-[#111111]">
@@ -852,7 +819,7 @@ export default function AccountPage() {
               {editingAddressId ? 'Edit Shipping Address' : 'Add New Shipping Address'}
             </h3>
             <p className="text-xs text-[#777777] mb-5">
-              Enter precise delivery and installation location for Enagic certified technicians.
+              Enter precise delivery and installation location for Hellobee certified technicians.
             </p>
 
             <form onSubmit={handleSaveAddress} className="space-y-4 text-xs">
@@ -895,39 +862,39 @@ export default function AccountPage() {
                     value={addressForm.street}
                     onChange={(e) => setAddressForm({ ...addressForm, street: e.target.value })}
                     className="w-full border border-[#D5D5D5] px-3 py-2 rounded-xs outline-none focus:border-[#111111]"
-                    placeholder="e.g. 72 Le Loi Boulevard, Suite 402"
+                    placeholder="e.g. 742 Market Street, Suite 402"
                   />
                 </div>
 
                 <div>
                   <label className="text-[11px] uppercase tracking-wider font-semibold text-[#555] block mb-1">
-                    Ward / Sub-district
+                    Unit / Apt / Suite
                   </label>
                   <input
                     type="text"
                     value={addressForm.ward}
                     onChange={(e) => setAddressForm({ ...addressForm, ward: e.target.value })}
                     className="w-full border border-[#D5D5D5] px-3 py-2 rounded-xs outline-none focus:border-[#111111]"
-                    placeholder="e.g. Ben Nghe Ward"
+                    placeholder="e.g. Apt 4B / SoMa"
                   />
                 </div>
 
                 <div>
                   <label className="text-[11px] uppercase tracking-wider font-semibold text-[#555] block mb-1">
-                    District / County
+                    State / County
                   </label>
                   <input
                     type="text"
                     value={addressForm.district}
                     onChange={(e) => setAddressForm({ ...addressForm, district: e.target.value })}
                     className="w-full border border-[#D5D5D5] px-3 py-2 rounded-xs outline-none focus:border-[#111111]"
-                    placeholder="e.g. District 1"
+                    placeholder="e.g. California"
                   />
                 </div>
 
                 <div>
                   <label className="text-[11px] uppercase tracking-wider font-semibold text-[#555] block mb-1">
-                    City / Province *
+                    City *
                   </label>
                   <input
                     type="text"
@@ -935,7 +902,7 @@ export default function AccountPage() {
                     value={addressForm.city}
                     onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
                     className="w-full border border-[#D5D5D5] px-3 py-2 rounded-xs outline-none focus:border-[#111111]"
-                    placeholder="e.g. Ho Chi Minh City"
+                    placeholder="e.g. San Francisco"
                   />
                 </div>
 
@@ -948,7 +915,7 @@ export default function AccountPage() {
                     value={addressForm.postalCode}
                     onChange={(e) => setAddressForm({ ...addressForm, postalCode: e.target.value })}
                     className="w-full border border-[#D5D5D5] px-3 py-2 rounded-xs outline-none focus:border-[#111111]"
-                    placeholder="700000"
+                    placeholder="94105"
                   />
                 </div>
 
@@ -961,7 +928,7 @@ export default function AccountPage() {
                     value={addressForm.country}
                     onChange={(e) => setAddressForm({ ...addressForm, country: e.target.value })}
                     className="w-full border border-[#D5D5D5] px-3 py-2 rounded-xs outline-none focus:border-[#111111]"
-                    placeholder="Vietnam / United States"
+                    placeholder="United States"
                   />
                 </div>
 

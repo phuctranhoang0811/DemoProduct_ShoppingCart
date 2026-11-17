@@ -172,6 +172,7 @@ export interface Order {
     ward: string;
     district: string;
     city: string;
+    postalCode?: string;
   };
   deliveryMethod: string;
   paymentMethod: PaymentMethod;

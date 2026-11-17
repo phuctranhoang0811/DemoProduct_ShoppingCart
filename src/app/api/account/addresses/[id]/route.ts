@@ -7,6 +7,7 @@ import {
   getSessionToken,
   isSameOrigin,
   localMode,
+  normalizeAddressCountryBody,
 } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
@@ -27,11 +28,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (!id) return NextResponse.json({ message: 'Unknown address.' }, { status: 404 });
 
   const body = await req.json().catch(() => null);
-  if (!body) return NextResponse.json({ message: 'Invalid request.' }, { status: 400 });
+  if (!body || typeof body !== 'object') return NextResponse.json({ message: 'Invalid request.' }, { status: 400 });
 
   const result = await backend<{ data?: unknown; message?: string; errors?: Record<string, string[]> }>(
     `/addresses/${id}`,
-    { method: 'PUT', token, body },
+    { method: 'PUT', token, body: normalizeAddressCountryBody(body as Record<string, unknown>) },
   );
 
   if (!result.ok) {

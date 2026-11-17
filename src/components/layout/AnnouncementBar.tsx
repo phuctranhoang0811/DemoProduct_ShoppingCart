@@ -15,9 +15,9 @@ export function AnnouncementBar() {
 
   return (
     <div className="bg-[#111111] text-white py-2 px-4 text-center text-[10px] sm:text-[11px] tracking-wider uppercase font-medium flex items-center justify-center gap-3 sm:gap-6 border-b border-white/10">
-      <div className="flex items-center gap-1.5 truncate">
+      <div className="flex items-center gap-1.5 min-w-0 max-w-full">
         <ShieldCheck className="w-3.5 h-3.5 text-[#B9A58B] flex-shrink-0" />
-        <span>{t.brand.announcement}</span>
+        <span className="truncate">{t.brand.announcement}</span>
       </div>
       <div className="hidden md:flex items-center gap-1.5 text-white/70 border-l border-white/20 pl-4">
         <Award className="w-3.5 h-3.5 text-[#B9A58B]" />

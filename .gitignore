@@ -36,3 +36,7 @@ yarn-error.log*
 .vercel
 .env*
 !.env.example
+
+# handover package bundle
+/handover-package
+

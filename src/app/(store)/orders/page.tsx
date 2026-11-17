@@ -30,7 +30,7 @@ export default function CustomerOrdersPage() {
         </div>
         <h1 className="text-2xl font-light text-[#111111]">Account Sign In Required</h1>
         <p className="text-xs text-[#777777] max-w-sm mx-auto">
-          Please sign in to view your Enagic order history and installation records.
+          Please sign in to view your Hellobee order history and installation records.
         </p>
         <Link
           href="/login?next=/orders"
@@ -54,7 +54,8 @@ export default function CustomerOrdersPage() {
             Order History
           </h1>
           <p className="text-xs sm:text-sm text-[#777777] mt-1">
-            Tracking your past acquisitions and delivery status ({displayedOrders.length} orders).
+            Tracking your past acquisitions and delivery status ({displayedOrders.length}{' '}
+            {displayedOrders.length === 1 ? 'order' : 'orders'}).
           </p>
         </div>
         <Link
@@ -185,10 +186,38 @@ export default function CustomerOrdersPage() {
                   Shipping Address
                 </p>
                 <p>{selectedOrder.shippingAddress.street}</p>
-                <p>{selectedOrder.shippingAddress.ward}, {selectedOrder.shippingAddress.district}</p>
-                <p>{selectedOrder.shippingAddress.city}</p>
+                {(selectedOrder.shippingAddress.ward || selectedOrder.shippingAddress.district) && (
+                  <p>
+                    {[selectedOrder.shippingAddress.ward, selectedOrder.shippingAddress.district]
+                      .filter(Boolean)
+                      .join(', ')}
+                  </p>
+                )}
+                <p>
+                  {selectedOrder.shippingAddress.city}
+                  {selectedOrder.shippingAddress.postalCode ? ` ${selectedOrder.shippingAddress.postalCode}` : ''}
+                </p>
               </div>
             </div>
+
+            {selectedOrder.statusHistory && selectedOrder.statusHistory.length > 0 && (
+              <div className="mb-6 bg-[#FAF9F5] border border-[#E5E5E5] rounded-xs p-3.5 text-xs space-y-2">
+                <p className="font-semibold text-[#111111] uppercase tracking-wider">
+                  Status Timeline
+                </p>
+                <div className="space-y-1.5">
+                  {selectedOrder.statusHistory.map((entry, idx) => (
+                    <div key={idx} className="flex items-start justify-between gap-3 text-[11px]">
+                      <div>
+                        <span className="font-semibold text-[#111111]">{entry.status}</span>
+                        {entry.note && <span className="text-[#666666]"> &mdash; {entry.note}</span>}
+                      </div>
+                      <span className="text-[#888888] shrink-0">{formatDate(entry.timestamp)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Items */}
             <div className="divide-y divide-[#E5E5E5] mb-6">

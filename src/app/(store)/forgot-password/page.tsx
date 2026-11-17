@@ -101,7 +101,7 @@ export default function ForgotPasswordPage() {
             <div className="p-3 bg-[#FAF9F5] border border-[#EAEAEA] rounded-xs text-[11px] text-[#666666] flex items-start gap-2">
               <ShieldCheck className="w-4 h-4 text-[#477A5A] flex-shrink-0 mt-0.5" />
               <span>
-                For security reasons, demo accounts (<code className="text-[#111111]">owner@hellobee.com</code>, <code className="text-[#111111]">employee@hellobee.com</code>) remain accessible via 1-click login on the sign-in page.
+                For your security, password recovery links expire 60 minutes after issuance.
               </span>
             </div>
 

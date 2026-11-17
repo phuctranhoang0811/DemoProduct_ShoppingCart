@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -18,16 +18,12 @@ import {
   Menu,
   X,
   ExternalLink,
-  Shield,
-  RotateCcw,
   Network,
   Briefcase,
   Lock,
   CalendarDays,
 } from 'lucide-react';
-import { demoSignInAvailable, switchDemoRole } from '@/lib/auth-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
-import { toast } from 'sonner';
 
 const NAV_LINKS = [
   { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -47,22 +43,8 @@ const NAV_LINKS = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const resetDemoData = useCommerceStore((state) => state.resetDemoData);
   const currentUser = useCommerceStore((state) => state.currentUser);
   const isHydrated = useCommerceStore((state) => state.isHydrated);
-  const authMode = useCommerceStore((state) => state.authMode);
-  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
-  const [demoAvailable, setDemoAvailable] = useState(false);
-
-  useEffect(() => {
-    void demoSignInAvailable().then(setDemoAvailable);
-  }, []);
-
-  const handleReset = () => {
-    resetDemoData();
-    setIsResetConfirmOpen(false);
-    toast.success('Demo data restored to initial state.');
-  };
 
   if (!isHydrated) {
     return (
@@ -176,13 +158,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         <div className="p-4 border-t border-[#262626] space-y-2">
-          <button
-            onClick={() => setIsResetConfirmOpen(true)}
-            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#B74747] hover:bg-[#222222] transition-colors"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset Demo Data</span>
-          </button>
           <Link
             href="/"
             className="w-full flex items-center justify-between px-3 py-2 text-xs text-[#999999] hover:text-white hover:bg-[#222222] transition-colors"
@@ -221,30 +196,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           <div className="flex items-center gap-3">
-            {demoAvailable && authMode === 'local' && (
-              <div className="hidden lg:flex items-center gap-1.5 text-xs">
-                <span className="text-[10px] text-[#888888] uppercase font-bold">Role:</span>
-                <button
-                  onClick={() => {
-                    void switchDemoRole('employee', 'Switched to Employee role (David Nguyen)');
-                  }}
-                  className="text-[10px] uppercase font-bold text-[#2D5A27] bg-[#EBF3EA] px-2 py-0.5 rounded hover:bg-[#d8e8d6]"
-                  title="Switch to Employee"
-                >
-                  Staff (10%)
-                </button>
-                <button
-                  onClick={() => {
-                    void switchDemoRole('customer', 'Switched to Customer role (Elena Rostova)');
-                  }}
-                  className="text-[10px] uppercase font-bold text-[#555] bg-[#F5F4F0] px-2 py-0.5 rounded hover:bg-[#EBEBEB]"
-                  title="Switch to Customer"
-                >
-                  Customer
-                </button>
-              </div>
-            )}
-
             <Link
               href="/employee"
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-[#2D5A27] text-white text-[11px] uppercase font-semibold hover:bg-[#23471f] transition-colors rounded-xs"
@@ -317,37 +268,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <ArrowLeft className="w-4 h-4" />
                 Back to Store
               </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Reset Demo Data Confirmation Modal */}
-      {isResetConfirmOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white max-w-md w-full p-6 border border-[#E5E5E5] space-y-4 rounded-lg">
-            <h3 className="text-base font-semibold text-[#111111]">
-              Reset All Demo Data?
-            </h3>
-            <p className="text-xs text-[#777777] leading-relaxed">
-              This will restore all products, orders, categories, customers, discounts, and inventory
-              adjustments back to initial mock datasets and clear your custom edits from LocalStorage.
-            </p>
-            <div className="flex gap-3 pt-2">
-              <button
-                type="button"
-                onClick={handleReset}
-                className="flex-1 bg-[#B74747] text-white py-2.5 text-xs uppercase font-semibold hover:bg-[#963737] rounded-xs"
-              >
-                Confirm Reset
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsResetConfirmOpen(false)}
-                className="flex-1 border border-[#E5E5E5] text-[#111111] py-2.5 text-xs uppercase font-medium hover:bg-[#F5F4F0] rounded-xs"
-              >
-                Cancel
-              </button>
             </div>
           </div>
         </div>

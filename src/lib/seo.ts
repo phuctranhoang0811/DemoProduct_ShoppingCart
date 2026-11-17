@@ -19,8 +19,8 @@ export function buildOrganizationSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'Enagic International - Kangen Water®',
-    alternateName: ['Enagic', 'Kangen Water', 'Enagic K8', 'Enagic USA', 'Enagic Japan'],
+    name: 'Hellobee International - Kangen Water®',
+    alternateName: ['Hellobee', 'Kangen Water', 'Hellobee K8', 'Hellobee USA', 'Hellobee Japan'],
     url: SITE_URL,
     logo: `${SITE_URL}/images/logo.png`,
     sameAs: [
@@ -75,7 +75,7 @@ export function buildProductSchema(product: RatedProduct, reviews: Review[] = []
     mpn: product.sku,
     brand: {
       '@type': 'Brand',
-      name: 'Enagic',
+      name: 'Hellobee',
     },
     offers: {
       '@type': 'Offer',
@@ -141,15 +141,15 @@ export function buildFAQSchema() {
       },
       {
         '@type': 'Question',
-        name: 'Why are Enagic Kangen ionizers certified as medical devices in Japan?',
+        name: 'Why are Hellobee Kangen ionizers certified as medical devices in Japan?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Enagic is an OEM manufacturer certified under ISO 13485 medical device standards and certified by the Japanese Ministry of Health, Labour and Welfare (License No. 27BZ006010). Its solid medical-grade titanium electrode plates are dipped in 99.97% pure platinum, endorsed by over 6,500 JAPA medical specialists.',
+          text: 'Hellobee is an OEM manufacturer certified under ISO 13485 medical device standards and certified by the Japanese Ministry of Health, Labour and Welfare (License No. 27BZ006010). Its solid medical-grade titanium electrode plates are dipped in 99.97% pure platinum, endorsed by over 6,500 JAPA medical specialists.',
         },
       },
       {
         '@type': 'Question',
-        name: 'What are the 5 types of water produced by Enagic Kangen machines?',
+        name: 'What are the 5 types of water produced by Hellobee Kangen machines?',
         acceptedAnswer: {
           '@type': 'Answer',
           text: '1. Strong Kangen Water (pH 11.5): Food preparation, oil emulsification, and produce cleaning.\n2. Kangen Water® (pH 8.5 - 9.5): Antioxidant-rich daily drinking water, tea brewing, and cooking.\n3. Clean Water (pH 7.0): Taking medication and baby formula preparation.\n4. Beauty Water (pH 6.0): Facial toning, skin tightening, and haircare.\n5. Strong Acidic Water (pH 2.5): Sanitizing surfaces, kitchenware, and hygiene cleansing.',

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['number', 'user_id', 'customer_name', 'customer_email', 'customer_phone', 'shipping_street', 'shipping_ward', 'shipping_district', 'shipping_city', 'delivery_method', 'payment_method', 'payment_status', 'status', 'subtotal', 'discount_amount', 'discount_code', 'shipping_fee', 'total', 'referral_code', 'notes', 'idempotency_key', 'guest_token', 'stripe_session_id', 'paid_at'])]
+#[Fillable(['number', 'user_id', 'customer_name', 'customer_email', 'customer_phone', 'shipping_street', 'shipping_ward', 'shipping_district', 'shipping_city', 'shipping_postal_code', 'delivery_method', 'payment_method', 'payment_status', 'status', 'subtotal', 'discount_amount', 'discount_code', 'shipping_fee', 'total', 'referral_code', 'notes', 'idempotency_key', 'guest_token', 'stripe_session_id', 'paid_at'])]
 #[Hidden(['guest_token', 'idempotency_key'])]
 class Order extends Model
 {

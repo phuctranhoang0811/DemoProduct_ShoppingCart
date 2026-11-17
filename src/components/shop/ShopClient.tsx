@@ -330,7 +330,7 @@ export function ShopClient({ products, categories, fixedCategory }: ShopClientPr
         </aside>
 
         {/* Product Catalog Grid (9 cols) */}
-        <main className="lg:col-span-9 space-y-6">
+        <div className="lg:col-span-9 space-y-6">
           {/* Top Bar: Count & Sort */}
           <div className="flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-[#E5E5E5]">
             <div className="flex items-center gap-3">
@@ -432,7 +432,7 @@ export function ShopClient({ products, categories, fixedCategory }: ShopClientPr
               </button>
             </div>
           )}
-        </main>
+        </div>
       </div>
     </div>
   );

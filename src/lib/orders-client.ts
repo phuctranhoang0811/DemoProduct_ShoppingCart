@@ -13,7 +13,13 @@ interface ApiOrder {
   customer_name: string;
   customer_email: string;
   customer_phone: string;
-  shipping_address: { street: string; ward: string | null; district: string | null; city: string };
+  shipping_address: {
+    street: string;
+    ward: string | null;
+    district: string | null;
+    city: string;
+    postal_code?: string | null;
+  };
   delivery_method: string;
   payment_method: PaymentMethod;
   payment_status: Order['paymentStatus'];
@@ -50,6 +56,7 @@ export function apiOrderToOrder(o: ApiOrder): Order {
       ward: o.shipping_address.ward ?? '',
       district: o.shipping_address.district ?? '',
       city: o.shipping_address.city,
+      postalCode: o.shipping_address.postal_code ?? undefined,
     },
     deliveryMethod: o.delivery_method,
     paymentMethod: o.payment_method,
@@ -102,7 +109,7 @@ export async function fetchPaymentMethods(): Promise<PaymentMethod[] | null> {
 export interface CheckoutInput {
   cart: CartItem[];
   customer: { name: string; email: string; phone: string };
-  shippingAddress: { street: string; ward: string; district: string; city: string };
+  shippingAddress: { street: string; ward: string; district: string; city: string; postalCode?: string };
   deliveryMethod: string;
   paymentMethod: PaymentMethod;
   discountCode?: string;
@@ -185,7 +192,13 @@ export async function placeOrder(input: CheckoutInput): Promise<CheckoutResult> 
           quantity: item.quantity,
         })),
         customer: input.customer,
-        shipping_address: input.shippingAddress,
+        shipping_address: {
+          street: input.shippingAddress.street,
+          ward: input.shippingAddress.ward,
+          district: input.shippingAddress.district,
+          city: input.shippingAddress.city,
+          postal_code: input.shippingAddress.postalCode || null,
+        },
         delivery_method: input.deliveryMethod,
         payment_method: input.paymentMethod,
         discount_code: input.discountCode?.trim() || null,

@@ -46,7 +46,7 @@ const STORAGE_KEYS = {
   products: 'enagic_kangen_products_v14',
   categories: 'enagic_kangen_categories_v8',
   cart: 'enagic_kangen_cart_v2',
-  wishlist: 'enagic_kangen_wishlist_v4',
+  wishlist: 'enagic_kangen_wishlist_v5',
   orders: 'enagic_kangen_orders_v2',
   customers: 'enagic_kangen_customers_v2',
   discounts: 'enagic_kangen_discounts_v2',
@@ -299,7 +299,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     const products = getStorageItem<Product[]>(STORAGE_KEYS.products, initialProducts);
     const categories = getStorageItem<Category[]>(STORAGE_KEYS.categories, initialCategories);
     const cart = getStorageItem<CartItem[]>(STORAGE_KEYS.cart, []);
-    const wishlist = getStorageItem<string[]>(STORAGE_KEYS.wishlist, ['hellobee-filter-1500', 'kangen-air-500']);
+    const wishlist = getStorageItem<string[]>(STORAGE_KEYS.wishlist, []);
     const orders = getStorageItem<Order[]>(STORAGE_KEYS.orders, initialOrders);
     const customers = getStorageItem<Customer[]>(STORAGE_KEYS.customers, initialCustomers);
     const discounts = getStorageItem<Discount[]>(STORAGE_KEYS.discounts, initialDiscounts);
@@ -359,7 +359,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       products: initialProducts,
       categories: initialCategories,
       cart: [],
-      wishlist: ['hellobee-filter-1500', 'kangen-air-500'],
+      wishlist: [],
       orders: initialOrders,
       customers: initialCustomers,
       discounts: initialDiscounts,
@@ -989,7 +989,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
         membershipTier: 'VIP Platinum',
         gender: 'male',
         birthday: '1992-04-18',
-        company: 'Enagic Hellobee Associate Network',
+        company: 'Hellobee Associate Network',
         status: 'active',
         addresses: [
           {
@@ -1002,7 +1002,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
             city: 'Ho Chi Minh City',
             postalCode: '700000',
             country: 'Vietnam',
-            deliveryNotes: 'Enagic Regional Consultant Office - 4th Floor',
+            deliveryNotes: 'Hellobee Regional Consultant Office - 4th Floor',
             isDefault: true,
           },
         ],
@@ -1028,7 +1028,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
         membershipTier: 'VIP Platinum',
         gender: 'male',
         birthday: '1985-09-12',
-        company: 'Enagic Corporation & Hellobee HQ',
+        company: 'Hellobee Corporation & Hellobee HQ',
         status: 'active',
         addresses: [
           {
@@ -1081,6 +1081,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
         email: clean,
         phone: owner.phone || '+1 (555) 019-2831',
         role: 'admin',
+        referralCode: owner.referralCode,
         membershipTier: 'VIP Platinum',
         gender: 'male',
         status: 'active',
@@ -1103,7 +1104,8 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
         totalSpent: 45000,
       };
       setStorageItem(STORAGE_KEYS.session, adminUser);
-      set({ currentUser: adminUser });
+      setStorageItem(STORAGE_KEYS.activeMemberId, owner.id);
+      set({ currentUser: adminUser, activeMemberId: owner.id });
       return true;
     }
 

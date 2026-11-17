@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { SITE_NAME, buildBreadcrumbsSchema, safeJsonLd } from '@/lib/seo';
 
 const description =
-  'Join Hellobee member events, hydration workshops, wellness hikes, and leadership summits across the Enagic® Kangen Water® community.';
+  'Join Hellobee member events, hydration workshops, wellness hikes, and leadership summits across the Hellobee® Kangen Water® community.';
 
 export const metadata: Metadata = {
   title: 'Hellobee Member Events & Workshops',

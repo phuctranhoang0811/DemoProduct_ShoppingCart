@@ -22,7 +22,9 @@ class HellobeeController extends Controller
 
         abort_unless($member, 404, 'Referral code not found.');
 
-        return response()->json(['data' => ['referral_code' => $member->referral_code, 'name' => $member->name, 'role' => $member->role, 'rank' => $member->rank]]);
+        $firstName = Str::of($member->name)->before('(')->trim()->before(' ')->value();
+
+        return response()->json(['data' => ['referral_code' => $member->referral_code, 'name' => $firstName ?: $member->name]]);
     }
 
     /**

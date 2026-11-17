@@ -594,47 +594,7 @@ export function StoreHeader() {
                 <SlidersHorizontal className="w-3 h-3 text-[#B9A58B]" />
                 <span>{t.header.admin}</span>
               </Link>
-            ) : (
-              <div className="relative group/portal hidden xl:block shrink-0">
-                <button
-                  type="button"
-                  className={`flex items-center gap-1 text-[10px] uppercase tracking-wider px-2.5 py-1 rounded transition-all font-semibold ${
-                    isDarkHeader
-                      ? 'border border-white/30 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm'
-                      : 'border border-[#E5E5E5] hover:border-gray-400 bg-white hover:bg-[#FAFAF9] text-[#666666] hover:text-[#111111]'
-                  }`}
-                >
-                  <span>{t.header.portal}</span>
-                  <ChevronDown className={`w-3 h-3 ${isDarkHeader ? 'text-white/80' : 'text-[#888888]'}`} />
-                </button>
-                <div className="absolute right-0 top-full pt-1.5 hidden group-hover/portal:block z-50 animate-scale-in">
-                  <div className={`w-44 border shadow-lg rounded-md py-1.5 text-xs ${
-                    isDarkHeader
-                      ? 'bg-[#141414] border-[#2A2A2A] text-white'
-                      : 'bg-white border-[#E5E5E5] text-[#111111]'
-                  }`}>
-                    <Link
-                      href="/employee"
-                      className={`flex items-center gap-2 px-3 py-2 font-medium transition-colors ${
-                        isDarkHeader ? 'text-[#CCCCCC] hover:bg-[#222222]' : 'text-[#333333] hover:bg-[#F5F4F0]'
-                      }`}
-                    >
-                      <Briefcase className="w-3.5 h-3.5 text-[#888888]" />
-                      <span>{t.header.staffWorkspace}</span>
-                    </Link>
-                    <Link
-                      href="/admin"
-                      className={`flex items-center gap-2 px-3 py-2 font-medium transition-colors ${
-                        isDarkHeader ? 'text-[#CCCCCC] hover:bg-[#222222]' : 'text-[#333333] hover:bg-[#F5F4F0]'
-                      }`}
-                    >
-                      <SlidersHorizontal className="w-3.5 h-3.5 text-[#888888]" />
-                      <span>{t.header.adminConsole}</span>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            )}
+            ) : null}
           </div>
         </div>
       </header>
@@ -702,13 +662,6 @@ export function StoreHeader() {
                   className="block py-1 hover:text-[var(--honey-deep)] transition-colors"
                 >
                   {t.nav.products}
-                </Link>
-                <Link
-                  href="/calculator"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="block py-1 font-semibold text-[#111111] hover:text-[var(--honey-deep)] transition-colors"
-                >
-                  {t.header.taxCalculator}
                 </Link>
                 <Link
                   href="/hellobee"
@@ -787,23 +740,27 @@ export function StoreHeader() {
                   )}
                 </button>
 
-                <Link
-                  href="/employee"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-2.5 py-2 text-xs font-medium text-[#777777] hover:text-[#111111]"
-                >
-                  <Briefcase className="w-4 h-4" />
-                  <span>{t.header.staffWorkspace}</span>
-                </Link>
+                {currentUser?.role === 'employee' && (
+                  <Link
+                    href="/employee"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-2.5 py-2 text-xs font-medium text-[#777777] hover:text-[#111111]"
+                  >
+                    <Briefcase className="w-4 h-4" />
+                    <span>{t.header.staffWorkspace}</span>
+                  </Link>
+                )}
 
-                <Link
-                  href="/admin"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-2.5 py-2 text-xs font-medium text-[#777777] hover:text-[#111111]"
-                >
-                  <SlidersHorizontal className="w-4 h-4" />
-                  <span>{t.header.adminPortal}</span>
-                </Link>
+                {currentUser?.role === 'admin' && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-2.5 py-2 text-xs font-medium text-[#777777] hover:text-[#111111]"
+                  >
+                    <SlidersHorizontal className="w-4 h-4" />
+                    <span>{t.header.adminPortal}</span>
+                  </Link>
+                )}
                 {currentUser && (
                   <button
                     type="button"

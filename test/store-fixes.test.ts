@@ -1,5 +1,10 @@
 /// <reference types="vitest/globals" />
+import { vi } from 'vitest';
+
+vi.mock('server-only', () => ({}));
+
 import { useCommerceStore } from '../src/stores/useCommerceStore';
+import { normalizeAddressCountryBody } from '../src/lib/session';
 
 describe('Store Security, Promo Persistence, and Referral Regression Tests', () => {
   beforeEach(() => {
@@ -98,5 +103,45 @@ describe('Store Security, Promo Persistence, and Referral Regression Tests', () 
     });
 
     expect(order.referralCode).toBe('HBEE03');
+  });
+
+  it('defaults wishlist to empty array on clean or reset state', () => {
+    expect(useCommerceStore.getState().wishlist).toEqual([]);
+  });
+
+  it('preserves postalCode on local orders', () => {
+    const order = useCommerceStore.getState().createOrder({
+      customerName: 'Zip Buyer',
+      customerEmail: 'zip@example.com',
+      customerPhone: '+1 (415) 555-0188',
+      shippingAddress: {
+        street: '742 Market Street',
+        ward: 'Suite 402',
+        district: 'CA',
+        city: 'San Francisco',
+        postalCode: '94105',
+      },
+      deliveryMethod: 'Standard',
+      paymentMethod: 'cod',
+      paymentStatus: 'Unpaid',
+      status: 'Pending',
+      items: [],
+      subtotal: 100,
+      discountAmount: 0,
+      shippingFee: 0,
+      total: 100,
+    });
+
+    expect(order.shippingAddress.postalCode).toBe('94105');
+  });
+
+  it('normalizes address country payloads to ISO-2 codes for DB compatibility', () => {
+    expect(normalizeAddressCountryBody({ street: '100 Main', country: 'United States' })).toEqual({
+      street: '100 Main',
+      country: 'US',
+    });
+    expect(normalizeAddressCountryBody({ country: 'USA' })).toEqual({ country: 'US' });
+    expect(normalizeAddressCountryBody({ country: 'us' })).toEqual({ country: 'US' });
+    expect(normalizeAddressCountryBody({ country: '' })).toEqual({ country: null });
   });
 });

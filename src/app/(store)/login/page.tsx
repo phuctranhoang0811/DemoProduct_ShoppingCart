@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, UserCheck, Shield } from 'lucide-react';
-import { demoSignIn, demoSignInAvailable, homeForRole, signIn } from '@/lib/auth-client';
+import { ArrowRight } from 'lucide-react';
+import { homeForRole, signIn } from '@/lib/auth-client';
 import type { Customer } from '@/types';
 import { toast } from 'sonner';
 
@@ -11,11 +11,6 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showDemoLogins, setShowDemoLogins] = useState(false);
-
-  useEffect(() => {
-    void demoSignInAvailable().then(setShowDemoLogins);
-  }, []);
 
   // Full navigation so the freshly set session cookie reaches the server-side route guard.
   const enter = (user?: Customer) => {
@@ -43,11 +38,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleQuickLogin = async (role: 'customer' | 'employee' | 'admin', name: string) => {
-    const result = await demoSignIn(role, `Signed in as: ${name}`);
-    if (result.ok) enter(result.user);
-  };
-
   return (
     <div className="max-w-md mx-auto px-4 py-12 sm:py-20 animate-fade-up">
       {/* Clean Header */}
@@ -56,7 +46,7 @@ export default function LoginPage() {
           Sign In
         </h1>
         <p className="text-xs text-[#777777]">
-          Sign in to access your Enagic® account
+          Sign in to access your Hellobee® account
         </p>
       </div>
 
@@ -107,59 +97,10 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Quick Demo Logins - Minimalist 3-Pill Grid */}
-        {showDemoLogins && (
-        <div className="pt-5 border-t border-[#F0F0F0]">
-          <p className="text-[10px] uppercase tracking-wider text-[#888888] font-semibold text-center mb-3">
-            Quick Demo Access
-          </p>
-          <div className="grid grid-cols-3 gap-2">
-            {/* Admin */}
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('admin', 'Admin')}
-              className="p-2.5 rounded-lg border border-[#E5E5E5] hover:border-[#111111] hover:bg-[#F9F9F8] transition-all text-center btn-tactile group"
-              title="owner@hellobee.com"
-            >
-              <span className="block text-[9px] uppercase font-bold tracking-wider text-white bg-[#111111] px-1.5 py-0.5 rounded-xs w-max mx-auto mb-1">
-                Admin
-              </span>
-              <span className="block text-xs font-semibold text-[#111111] truncate">Johnathan</span>
-            </button>
-
-            {/* Staff */}
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('employee', 'Staff')}
-              className="p-2.5 rounded-lg border border-[#E5E5E5] hover:border-[#2D5A27] hover:bg-[#F5F9F4] transition-all text-center btn-tactile group"
-              title="employee@hellobee.com"
-            >
-              <span className="block text-[9px] uppercase font-bold tracking-wider text-[#2D5A27] bg-[#EBF3EA] px-1.5 py-0.5 rounded-xs w-max mx-auto mb-1">
-                Staff
-              </span>
-              <span className="block text-xs font-semibold text-[#111111] truncate">David</span>
-            </button>
-
-            {/* Customer */}
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('customer', 'Customer')}
-              className="p-2.5 rounded-lg border border-[#E5E5E5] hover:border-[#111111] hover:bg-[#F9F9F8] transition-all text-center btn-tactile group"
-              title="customer@example.com"
-            >
-              <span className="block text-[9px] uppercase font-bold tracking-wider text-[#555555] bg-[#F5F4F0] px-1.5 py-0.5 rounded-xs w-max mx-auto mb-1">
-                User
-              </span>
-              <span className="block text-xs font-semibold text-[#111111] truncate">Elena</span>
-            </button>
-          </div>
-        </div>
-        )}
-
         {/* Register CTA Box */}
         <div className="pt-4 border-t border-[#F0F0F0] text-center">
           <p className="text-xs text-[#777777] mb-2.5">
-            Do not have an Enagic account yet?
+            Do not have an Hellobee account yet?
           </p>
           <Link
             href="/register"
@@ -174,7 +115,7 @@ export default function LoginPage() {
       {/* Navigation Footer */}
       <div className="mt-6 text-center text-xs text-[#777777]">
         <p>
-          New to Enagic?{' '}
+          New to Hellobee?{' '}
           <Link href="/register" className="text-[#111111] underline font-semibold hover:text-black">
             Create an account &rarr;
           </Link>

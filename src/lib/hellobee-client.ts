@@ -155,14 +155,19 @@ export async function decidePayout(payoutId: string, status: PayoutStatus): Prom
 // undefined = no backend (caller should check its local list); null = not a valid code.
 export async function lookupReferralCode(
   code: string,
-): Promise<Pick<HellobeeMember, 'name' | 'referralCode' | 'role' | 'rank'> | null | undefined> {
+): Promise<Partial<Pick<HellobeeMember, 'role' | 'rank'>> & Pick<HellobeeMember, 'name' | 'referralCode'> | null | undefined> {
   try {
     const res = await fetch(`/api/referral-codes/${encodeURIComponent(code.trim())}`, { cache: 'no-store' });
     if (res.status === LOCAL_MODE) return undefined;
     if (!res.ok) return null;
 
     const { data } = await res.json();
-    return { name: data.name, referralCode: data.referral_code, role: data.role, rank: data.rank };
+    return {
+      name: data.name,
+      referralCode: data.referral_code,
+      ...(data.role ? { role: data.role } : {}),
+      ...(data.rank ? { rank: data.rank } : {}),
+    };
   } catch {
     return null;
   }

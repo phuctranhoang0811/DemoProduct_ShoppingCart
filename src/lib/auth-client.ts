@@ -76,7 +76,7 @@ function toCustomer(user: ApiUser): Customer {
       district: a.district ?? '',
       city: a.city,
       postalCode: a.postal_code ?? undefined,
-      country: a.country ?? undefined,
+      country: a.country === 'US' ? 'United States' : (a.country ?? undefined),
       deliveryNotes: a.delivery_notes ?? undefined,
       isDefault: a.is_default,
     })),

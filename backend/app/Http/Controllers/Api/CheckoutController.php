@@ -62,6 +62,7 @@ class CheckoutController extends Controller
             'shipping_address.ward' => ['nullable', 'string', 'max:255'],
             'shipping_address.district' => ['nullable', 'string', 'max:255'],
             'shipping_address.city' => ['required', 'string', 'max:255'],
+            'shipping_address.postal_code' => ['nullable', 'string', 'max:32'],
             'delivery_method' => ['nullable', 'string', 'max:255'],
             'payment_method' => ['required', Rule::in(['stripe', 'cod', 'bank_transfer'])],
             'discount_code' => ['nullable', 'string', 'max:32'],

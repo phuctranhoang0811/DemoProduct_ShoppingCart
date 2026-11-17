@@ -120,6 +120,33 @@ export function passThrough(result: BackendResult<{ message?: string; errors?: R
   );
 }
 
+const COUNTRY_ISO_MAP: Record<string, string> = {
+  'united states': 'US',
+  'united states of america': 'US',
+  usa: 'US',
+  'u.s.': 'US',
+  'u.s.a.': 'US',
+  canada: 'CA',
+  'united kingdom': 'GB',
+  uk: 'GB',
+  australia: 'AU',
+  japan: 'JP',
+  singapore: 'SG',
+  mexico: 'MX',
+  germany: 'DE',
+  france: 'FR',
+};
+
+// Keeps address country payloads compatible with the 2-char column until all DBs migrate to 100 chars.
+export function normalizeAddressCountryBody(body: Record<string, unknown>): Record<string, unknown> {
+  const raw = typeof body.country === 'string' ? body.country.trim() : '';
+  if (!raw) return { ...body, country: null };
+  const mapped = COUNTRY_ISO_MAP[raw.toLowerCase()];
+  if (mapped) return { ...body, country: mapped };
+  if (/^[A-Za-z]{2}$/.test(raw)) return { ...body, country: raw.toUpperCase() };
+  return { ...body, country: raw.slice(0, 2).toUpperCase() };
+}
+
 // Guards non-proxied /api/admin/* handlers so they never run unauthenticated.
 export async function requireAdminApi(req: NextRequest): Promise<NextResponse | null> {
   if (!authBackendEnabled) {

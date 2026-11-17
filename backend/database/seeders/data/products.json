@@ -12,7 +12,7 @@
     "materials": "Matte black housing with LED indicator; 5,000mAh rechargeable lithium battery.",
     "specifications": {
       "warranty": "1-Year Limited Manufacturer Warranty",
-      "origin": "Enagic",
+      "origin": "Hellobee",
       "powerConsumption": "0.5W",
       "capacity": "5,000mAh, up to 72 hours",
       "compatibility": "3 MHz to 1000 MHz, about 3 m (9.8 ft) diameter",
@@ -85,7 +85,7 @@
     "materials": "Compact ABS housing with photocatalyst filter and UV LED module.",
     "specifications": {
       "warranty": "1-Year Limited Manufacturer Warranty",
-      "origin": "Enagic",
+      "origin": "Hellobee",
       "powerConsumption": "2.0W low / 2.4W high",
       "packageIncludes": "1 Kangen Air unit, 1 USB-C charging cable"
     },
@@ -163,9 +163,9 @@
     "nameEn": "LeveLuk K8 Water Ionizer",
     "slug": "enagic-leveluk-k8",
     "sku": "1016",
-    "description": "The Mighty 8-Plate Anti-Oxidizer from Enagic Japan. Features 8 platinum-dipped titanium plates, intuitive multi-language touchscreen with 8 audio voices, producing 5 distinct water types with ORP down to -850mV.",
-    "descriptionVi": "The Mighty 8-Plate Anti-Oxidizer from Enagic Japan. Features 8 platinum-dipped titanium plates, intuitive multi-language touchscreen with 8 audio voices, producing 5 distinct water types with ORP down to -850mV.",
-    "descriptionEn": "The Mighty 8-Plate Anti-Oxidizer from Enagic Japan. Features 8 platinum-dipped titanium plates, intuitive multi-language touchscreen with 8 audio voices, producing 5 distinct water types with ORP down to -850mV.",
+    "description": "The Mighty 8-Plate Anti-Oxidizer from Hellobee Japan. Features 8 platinum-dipped titanium plates, intuitive multi-language touchscreen with 8 audio voices, producing 5 distinct water types with ORP down to -850mV.",
+    "descriptionVi": "The Mighty 8-Plate Anti-Oxidizer from Hellobee Japan. Features 8 platinum-dipped titanium plates, intuitive multi-language touchscreen with 8 audio voices, producing 5 distinct water types with ORP down to -850mV.",
+    "descriptionEn": "The Mighty 8-Plate Anti-Oxidizer from Hellobee Japan. Features 8 platinum-dipped titanium plates, intuitive multi-language touchscreen with 8 audio voices, producing 5 distinct water types with ORP down to -850mV.",
     "materials": "8 Solid 99.97% platinum-dipped titanium plates, medical grade Osaka Japan. Touchscreen LCD.",
     "specifications": {
       "electrodes": 8,

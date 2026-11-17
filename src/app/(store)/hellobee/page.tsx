@@ -295,7 +295,7 @@ function HellobeePortalContent() {
         district: currentUser.addresses[0]?.district || 'Manhattan',
         city: currentUser.addresses[0]?.city || 'New York',
       },
-      deliveryMethod: 'Enagic White-Glove Technician Delivery',
+      deliveryMethod: 'Hellobee White-Glove Technician Delivery',
       paymentMethod: 'stripe',
       paymentStatus: 'Paid',
       status: 'Processing',
@@ -352,7 +352,7 @@ function HellobeePortalContent() {
               Consultant Qualification & Verification
             </h1>
             <p className="mt-1 text-sm text-[#666666] max-w-2xl">
-              To join the Hellobee Network (1A–5A) and earn 10% direct commissions ($150/unit), consultants must first purchase a qualifying $1,500 Enagic® water device and accept distributor terms.
+              To join the Hellobee Network (LV1–LV10 leadership ladder & 1A–5A direct consultant tiers) and earn 10% direct commissions ($150/unit), consultants must first purchase a qualifying $1,500 Hellobee® water device and accept distributor terms.
             </p>
           </div>
         </div>
@@ -425,17 +425,17 @@ function HellobeePortalContent() {
                   <span>Requirement 1: Personal Device Ownership ($1,500 Unit)</span>
                 </p>
                 <p className="text-[#666666] pl-5">
-                  To ethically demonstrate and recommend Enagic® medical-grade ionization water to prospective clients, every Hellobee consultant must own at least one qualifying unit (such as the standardized $1,500 emGuarde Personal Protection Device or Leveluk machine).
+                  To ethically demonstrate and recommend Hellobee® medical-grade ionization water to prospective clients, every Hellobee consultant must own at least one qualifying unit (such as the standardized $1,500 emGuarde Personal Protection Device or Leveluk machine).
                 </p>
               </div>
 
               <div className="p-3 bg-[#FAF9F5] rounded-lg border border-[#EAE8E1] space-y-1">
                 <p className="font-semibold text-[#111111] flex items-center gap-1.5">
                   <CheckCircle className="w-3.5 h-3.5 text-[#2D5A27]" />
-                  <span>Requirement 2: 1A–5A Rank Promotion & Direct 10% Commissions</span>
+                  <span>Requirement 2: Rank Progression (1A–5A / LV1–LV10) & Direct 10% Commissions</span>
                 </p>
                 <p className="text-[#666666] pl-5">
-                  Qualified consultants receive an official referral code (e.g. <code>HBEE03</code>). When new buyers enter your code, you earn an instant 10% commission ($150 per machine), advancing from 1A base rank up to 5A master distributor based on cumulative unit sales.
+                  Qualified consultants receive an official referral code (e.g. <code>HBEE03</code>). When new buyers enter your code, you earn an instant 10% commission ($150 per machine) on paid orders, advancing from 1A base rank up to 5A and climbing the LV1–LV10 Hellobee leadership ladder based on cumulative team volume.
                 </p>
               </div>
 
@@ -445,7 +445,7 @@ function HellobeePortalContent() {
                   <span>Requirement 3: Authentic Medical Water Standards</span>
                 </p>
                 <p className="text-[#666666] pl-5">
-                  Consultants agree to provide truthful, scientific pH/ORP antioxidant demonstrations and abide by Enagic® ISO 13485 medical device quality protocols.
+                  Consultants agree to provide truthful, scientific pH/ORP antioxidant demonstrations and abide by Hellobee® ISO 13485 medical device quality protocols.
                 </p>
               </div>
             </div>
@@ -473,23 +473,12 @@ function HellobeePortalContent() {
 
             <div className="pt-4 border-t border-[#E5E5E5] flex flex-col sm:flex-row items-center gap-3">
               {currentUser ? (
-                <>
-                  <Link
-                    href="/product/hellobee-filter-1500"
-                    className="w-full sm:w-auto flex-1 bg-[#111111] text-white py-3 px-6 text-center text-xs uppercase tracking-wider font-semibold hover:bg-[#333333] transition-colors rounded-xs btn-tactile"
-                  >
-                    Purchase $1,500 Machine in Store &rarr;
-                  </Link>
-
-                  <button
-                    type="button"
-                    onClick={handleActivateWithPurchase}
-                    className="w-full sm:w-auto bg-[#2D5A27] text-white py-3 px-6 text-center text-xs uppercase tracking-wider font-semibold hover:bg-[#23471f] transition-colors rounded-xs shadow-xs btn-tactile flex items-center justify-center gap-2"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    <span>Instant Demo: Activate with $1,500 Order</span>
-                  </button>
-                </>
+                <Link
+                  href="/product/hellobee-filter-1500"
+                  className="w-full sm:w-auto flex-1 bg-[#111111] text-white py-3 px-6 text-center text-xs uppercase tracking-wider font-semibold hover:bg-[#333333] transition-colors rounded-xs btn-tactile"
+                >
+                  Purchase $1,500 Machine in Store &rarr;
+                </Link>
               ) : (
                 <div className="w-full flex flex-col sm:flex-row gap-3">
                   <Link
@@ -533,32 +522,6 @@ function HellobeePortalContent() {
                   : 'Track your personal $1,500 ionizer sales, monitor 10% direct commissions ($150/unit), and advance through ranks 1A to 5A.'}
               </p>
             </div>
-
-            {/* Persona Switcher for Live Demo (Admin Only) */}
-            {currentUser?.role === 'admin' && (
-              <div className="bg-[#F5F4F0] p-3 rounded-xs border border-[#E5E5E5] text-xs space-y-2">
-                <span className="text-[#777777] font-semibold uppercase tracking-wider block text-[10px]">
-                  Simulate Demo Account Persona (Admin Only):
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {members.map((m) => (
-                    <button
-                      key={m.id}
-                      type="button"
-                      onClick={() => setActiveMemberId(m.id)}
-                      className={`px-3 py-1.5 rounded-xs font-medium text-xs uppercase tracking-wider transition-all ${
-                        m.id === currentMember?.id
-                          ? 'bg-[#111111] text-white shadow-xs font-semibold'
-                          : 'bg-white text-[#555555] hover:text-[#111111] hover:bg-[#FAF9F5] border border-[#E0E0E0]'
-                      }`}
-                    >
-                      <span>{m.name.split(' ')[0]}</span>
-                      <span className="text-[10px] opacity-75 ml-1">({m.role === 'OWNER' ? 'Owner' : m.rank})</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Navigation Sub-Tabs */}

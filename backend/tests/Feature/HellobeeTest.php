@@ -262,7 +262,9 @@ class HellobeeTest extends TestCase
     {
         $this->getJson('/api/v1/referral-codes/hbee03')->assertOk()
             ->assertJsonPath('data.referral_code', 'HBEE03')
-            ->assertJsonMissingPath('data.email');
+            ->assertJsonMissingPath('data.email')
+            ->assertJsonMissingPath('data.role')
+            ->assertJsonMissingPath('data.rank');
         $this->getJson('/api/v1/referral-codes/HB-NOPE-1')->assertNotFound();
     }
 }

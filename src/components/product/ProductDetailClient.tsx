@@ -229,6 +229,49 @@ export function ProductDetailClient({
             </p>
           </div>
 
+          {/* Color / Finish Selector */}
+          {product.colors.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-[#111111] uppercase tracking-wider">
+                  Finish / Color
+                </span>
+                <span className="text-[#555555] font-medium">
+                  {activeColor?.name}
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2.5">
+                {product.colors.map((c) => {
+                  const isSelected = activeColor?.id === c.id;
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedColor(c);
+                        if (c.image) setSelectedImage(c.image);
+                      }}
+                      title={c.name}
+                      aria-label={`Select color ${c.name}`}
+                      aria-pressed={isSelected}
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xs border text-xs transition-colors ${
+                        isSelected
+                          ? 'border-[#111111] bg-[#F5F4F0] font-semibold text-[#111111]'
+                          : 'border-[#E5E5E5] bg-white text-[#555555] hover:border-[#111111]'
+                      }`}
+                    >
+                      <span
+                        className="w-3.5 h-3.5 rounded-full border border-black/15 shrink-0"
+                        style={{ backgroundColor: c.hex }}
+                      />
+                      <span>{c.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Package Configuration Selection */}
           {product.sizes.length > 0 && (
             <div className="space-y-2">
@@ -308,18 +351,37 @@ export function ProductDetailClient({
 
             {/* Guarantees */}
             <div className="p-3 border border-[#E5E5E5] bg-[#FAF9F5] rounded-xs text-xs space-y-1.5 text-[#555555]">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#111111]" />
-                <span>{t.productDetail.japanCertified}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Truck className="w-4 h-4 text-[#111111]" />
-                <span>{t.productDetail.freeInstallation}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Award className="w-4 h-4 text-[#111111]" />
-                <span>{t.productDetail.fiveYearWarranty}</span>
-              </div>
+              {product.categoryId === 'cat-ionizers' || Boolean(product.specifications?.electrodes) ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[#111111]" />
+                    <span>{t.productDetail.japanCertified}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Truck className="w-4 h-4 text-[#111111]" />
+                    <span>{t.productDetail.freeInstallation}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Award className="w-4 h-4 text-[#111111]" />
+                    <span>{product.specifications?.warranty || t.productDetail.fiveYearWarranty}</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[#111111]" />
+                    <span>Genuine Hellobee® Hardware &amp; Quality Assurance</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Truck className="w-4 h-4 text-[#111111]" />
+                    <span>Free Nationwide Insured Shipping</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Award className="w-4 h-4 text-[#111111]" />
+                    <span>{product.specifications?.warranty || 'Limited Manufacturer Warranty Included'}</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -336,26 +398,37 @@ export function ProductDetailClient({
                 </button>
                 {openAccordion === 'specs' && (
                   <div className="pb-4 text-xs space-y-1.5 text-[#555555]">
-                    <div className="flex justify-between py-1 border-b border-gray-100">
-                      <span className="text-[#888888]">{t.showcase.electrodes}:</span>
-                      <span className="font-medium text-[#111111]">{product.specifications.electrodes} Solid Platinum-Dipped Titanium Plates</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-gray-100">
-                      <span className="text-[#888888]">{t.showcase.phRange}:</span>
-                      <span className="font-medium text-[#111111]">{product.specifications.phRange}</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-gray-100">
-                      <span className="text-[#888888]">{t.showcase.orpLevel}:</span>
-                      <span className="font-medium text-[#111111]">{product.specifications.orp}</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-gray-100">
-                      <span className="text-[#888888]">{t.showcase.warranty}:</span>
-                      <span className="font-medium text-[#111111]">{product.specifications.warranty}</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-gray-100">
-                      <span className="text-[#888888]">{t.showcase.origin}:</span>
-                      <span className="font-medium text-[#111111]">{product.specifications.origin}</span>
-                    </div>
+                    {[
+                      [
+                        t.showcase.electrodes,
+                        product.specifications.electrodes
+                          ? `${product.specifications.electrodes} Solid Platinum-Dipped Titanium Plates`
+                          : undefined,
+                      ],
+                      [t.showcase.phRange, product.specifications.phRange],
+                      [t.showcase.orpLevel, product.specifications.orp],
+                      ['Production Rate', product.specifications.productionRate],
+                      ['Power Consumption', product.specifications.powerConsumption],
+                      ['Voice Languages', product.specifications.languages],
+                      ['Capacity / Lifetime', product.specifications.capacity],
+                      ['Compatibility', product.specifications.compatibility],
+                      ['Filtration / Removal', product.specifications.removalRate],
+                      ['Flow Rate', product.specifications.flowRate],
+                      ['Minerals', product.specifications.minerals],
+                      ['Material', product.specifications.materialDetail],
+                      ['Dimensions', product.specifications.dimensions],
+                      ['Weight', product.specifications.weight],
+                      ['Package Includes', product.specifications.packageIncludes],
+                      [t.showcase.warranty, product.specifications.warranty],
+                      [t.showcase.origin, product.specifications.origin],
+                    ]
+                      .filter(([, val]) => val !== undefined && val !== null && String(val).trim() !== '')
+                      .map(([label, val]) => (
+                        <div key={String(label)} className="flex justify-between gap-4 py-1 border-b border-gray-100">
+                          <span className="text-[#888888] shrink-0">{label}:</span>
+                          <span className="font-medium text-[#111111] text-right">{val}</span>
+                        </div>
+                      ))}
                   </div>
                 )}
               </div>

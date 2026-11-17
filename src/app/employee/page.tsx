@@ -35,7 +35,7 @@ import {
   Rocket,
   Award,
 } from 'lucide-react';
-import { demoSignInAvailable, signOut, switchDemoRole } from '@/lib/auth-client';
+import { signOut } from '@/lib/auth-client';
 import { submitPayout } from '@/lib/hellobee-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { OrderStatus, Order } from '@/types';
@@ -49,7 +49,6 @@ import { LevelUpCelebration } from '@/components/hellobee/LevelUpCelebration';
 export default function EmployeePage() {
   const currentUser = useCommerceStore((state) => state.currentUser);
   const isHydrated = useCommerceStore((state) => state.isHydrated);
-  const authMode = useCommerceStore((state) => state.authMode);
   const orders = useCommerceStore((state) => state.orders);
   const customers = useCommerceStore((state) => state.customers);
   const updateOrderStatus = useCommerceStore((state) => state.updateOrderStatus);
@@ -57,11 +56,6 @@ export default function EmployeePage() {
   const hellobeeMembers = useCommerceStore((state) => state.hellobeeMembers);
   const commissions = useCommerceStore((state) => state.commissions);
   const currency = useCommerceStore((state) => state.currency);
-  const [demoAvailable, setDemoAvailable] = useState(false);
-
-  useEffect(() => {
-    void demoSignInAvailable().then(setDemoAvailable);
-  }, []);
 
   const [activeTab, setActiveTab] = useState<'orders' | 'leads' | 'inventory' | 'referral' | 'benefits'>('benefits');
   const [orderFilter, setOrderFilter] = useState<'ALL' | OrderStatus>('ALL');
@@ -70,7 +64,7 @@ export default function EmployeePage() {
   // Payout request modal state
   const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
   const [payoutAmount, setPayoutAmount] = useState('500');
-  const [payoutBank, setPayoutBank] = useState('Chase Bank / Vietcombank');
+  const [payoutBank, setPayoutBank] = useState('Chase Bank');
   const [payoutAccount, setPayoutAccount] = useState('001100223344');
 
   // Lead contact simulation state
@@ -189,18 +183,6 @@ export default function EmployeePage() {
               <span>Unlock Employee Status ($1,500 Device) &rarr;</span>
             </Link>
 
-            {demoAvailable && authMode === 'local' && (
-              <button
-                onClick={() => {
-                  void switchDemoRole('employee', 'Signed in as David Nguyen (Employee / HBEE03)');
-                }}
-                className="w-full bg-[#2D5A27] text-white py-2.5 rounded-xs text-xs uppercase tracking-wider font-semibold hover:bg-[#23471f] transition-colors shadow-xs flex items-center justify-center gap-2"
-              >
-                <Briefcase className="w-4 h-4" />
-                <span>Demo Switch: Sign In as David Nguyen</span>
-              </button>
-            )}
-
             <Link
               href="/login?next=/employee"
               className="w-full block border border-[#E5E5E5] py-2.5 rounded-xs text-xs uppercase tracking-wider font-medium text-[#555] hover:bg-[#F5F4F0] transition-colors"
@@ -305,17 +287,6 @@ export default function EmployeePage() {
                   Admin Console
                 </Link>
               )}
-              {demoAvailable && authMode === 'local' && (
-                <button
-                  onClick={() => {
-                    void switchDemoRole('customer', 'Switched to Customer role (Elena Rostova)');
-                  }}
-                  className="text-[10px] uppercase font-bold text-[#555] hover:text-[#111111] px-2 py-1 border border-[#E5E5E5] rounded-xs hover:bg-[#F5F4F0]"
-                  title="Switch to Customer"
-                >
-                  Switch to Customer
-                </button>
-              )}
               <button
                 onClick={() => {
                   void signOut().then(() => {
@@ -356,7 +327,7 @@ export default function EmployeePage() {
                 Welcome back, {currentUser.name}
               </h1>
               <p className="text-xs text-[#666666]">
-                Enagic Certified Water Consultant &bull; Consultant Referral Code:{' '}
+                Hellobee Certified Water Consultant &bull; Consultant Referral Code:{' '}
                 <strong className="text-[#111111] font-mono">{employeeCode}</strong>
               </p>
             </div>
@@ -1007,7 +978,7 @@ export default function EmployeePage() {
             <div className="lg:col-span-2 bg-white rounded-lg border border-[#E5E5E5] p-6 sm:p-7 space-y-6">
               <div className="space-y-1 pb-4 border-b border-[#F0F0F0]">
                 <span className="text-[10px] uppercase font-bold text-[#2D5A27] bg-[#EBF3EA] px-2.5 py-0.5 rounded-full border border-[#2D5A27]/20">
-                  Enagic Associate Code &bull; 10% Direct Commission
+                  Hellobee Associate Code &bull; 10% Direct Commission
                 </span>
                 <h2 className="text-base font-bold text-[#111111] pt-1">
                   Your Personal Referral Link & Promotion Tool
