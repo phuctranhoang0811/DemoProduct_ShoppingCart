@@ -5,7 +5,7 @@ export const mn: DeepPartial<Translations> = {
   showcase: { viewAll: 'Бүх төхөөрөмжийг харах' },
   cart: { title: 'Таны сагс' },
   header: {
-    logoAlt: 'Enagic Kangen Water лого',
+    logoAlt: 'Enagic лого',
     toggleMenu: 'Цэсийг нээх/хаах',
     closeMenu: 'Цэсийг хаах',
     taxCalculator: 'Татварын тооцоолуур',
@@ -40,7 +40,7 @@ export const mn: DeepPartial<Translations> = {
     portal: 'Портал',
   },
   home: {
-    heroSubtitle: 'Албан ёсны баталгаатай жинхэнэ Enagic Kangen Water® ионжуулагч.',
+    heroSubtitle: 'Албан ёсны баталгаатай жинхэнэ Enagic® ионжуулагч.',
     shopIonizers: 'Ионжуулагч худалдаж авах',
     heroTitle: 'Усаа өөрчил. Амьдралаа өөрчил.',
     prevImage: 'Өмнөх зураг',

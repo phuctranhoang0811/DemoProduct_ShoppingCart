@@ -584,7 +584,7 @@ export default function AccountPage() {
                 </h3>
               </div>
               <p className="text-xs text-[#666666] leading-relaxed">
-                All Enagic® Kangen Water® medical devices registered under this account are backed by
+                All Enagic® medical devices registered under this account are backed by
                 our 3 to 5-year international manufacturer guarantee and free biannual deep-clean checkups.
               </p>
               <div className="pt-2 text-xs font-semibold text-[#111111]">

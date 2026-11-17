@@ -5,7 +5,7 @@ export const fil: DeepPartial<Translations> = {
   showcase: { viewAll: 'Tingnan ang lahat ng device' },
   cart: { title: 'Iyong Shopping Bag' },
   header: {
-    logoAlt: 'Logo ng Enagic Kangen Water',
+    logoAlt: 'Logo ng Enagic',
     toggleMenu: 'Buksan/isara ang menu',
     closeMenu: 'Isara ang menu',
     taxCalculator: 'Tax Calculator',
@@ -40,7 +40,7 @@ export const fil: DeepPartial<Translations> = {
     portal: 'Portal',
   },
   home: {
-    heroSubtitle: 'Orihinal na Enagic Kangen Water® ionizer na may opisyal na warranty.',
+    heroSubtitle: 'Orihinal na Enagic® ionizer na may opisyal na warranty.',
     shopIonizers: 'Mamili ng Ionizer',
     heroTitle: 'Baguhin ang Iyong Tubig. Baguhin ang Iyong Buhay.',
     prevImage: 'Nakaraang larawan',

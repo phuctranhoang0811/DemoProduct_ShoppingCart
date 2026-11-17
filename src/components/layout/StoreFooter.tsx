@@ -5,7 +5,6 @@ import { useTranslation } from '@/i18n/useTranslation';
 
 const SHOP_LINKS = [
   { label: 'All Products', href: '/shop' },
-  { label: 'Tax Calculator', href: '/calculator' },
   { label: 'Hellobee Network', href: '/hellobee' },
   { label: 'Events', href: '/events' },
 ];

@@ -5,7 +5,7 @@ export const de: DeepPartial<Translations> = {
   showcase: { viewAll: 'Alle Geräte ansehen' },
   cart: { title: 'Ihr Warenkorb' },
   header: {
-    logoAlt: 'Enagic Kangen Water Logo',
+    logoAlt: 'Enagic Logo',
     toggleMenu: 'Menü umschalten',
     closeMenu: 'Menü schließen',
     taxCalculator: 'Steuerrechner',
@@ -40,7 +40,7 @@ export const de: DeepPartial<Translations> = {
     portal: 'Portal',
   },
   home: {
-    heroSubtitle: 'Original Enagic Kangen Water® Ionisatoren mit offizieller Garantie.',
+    heroSubtitle: 'Original Enagic® Ionisatoren mit offizieller Garantie.',
     shopIonizers: 'Ionisatoren kaufen',
     heroTitle: 'Verändern Sie Ihr Wasser. Verändern Sie Ihr Leben.',
     prevImage: 'Vorheriges Bild',

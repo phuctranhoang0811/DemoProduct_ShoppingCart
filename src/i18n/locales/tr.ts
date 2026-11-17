@@ -5,7 +5,7 @@ export const tr: DeepPartial<Translations> = {
   showcase: { viewAll: 'Tüm cihazları gör' },
   cart: { title: 'Alışveriş Çantanız' },
   header: {
-    logoAlt: 'Enagic Kangen Water Logosu',
+    logoAlt: 'Enagic Logosu',
     toggleMenu: 'Menüyü aç/kapat',
     closeMenu: 'Menüyü kapat',
     taxCalculator: 'Vergi Hesaplayıcı',
@@ -40,7 +40,7 @@ export const tr: DeepPartial<Translations> = {
     portal: 'Portal',
   },
   home: {
-    heroSubtitle: 'Resmi garantili orijinal Enagic Kangen Water® iyonizerleri.',
+    heroSubtitle: 'Resmi garantili orijinal Enagic® iyonizerleri.',
     shopIonizers: 'İyonizerleri Keşfet',
     heroTitle: 'Suyunu Değiştir. Hayatını Değiştir.',
     prevImage: 'Önceki görsel',

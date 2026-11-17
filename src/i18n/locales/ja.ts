@@ -5,7 +5,7 @@ export const ja: DeepPartial<Translations> = {
   showcase: { viewAll: 'すべての製品を見る' },
   cart: { title: 'ショッピングバッグ' },
   header: {
-    logoAlt: 'Enagic Kangen Water ロゴ',
+    logoAlt: 'Enagic ロゴ',
     toggleMenu: 'メニューを切り替え',
     closeMenu: 'メニューを閉じる',
     taxCalculator: '税金計算ツール',
@@ -40,7 +40,7 @@ export const ja: DeepPartial<Translations> = {
     portal: 'ポータル',
   },
   home: {
-    heroSubtitle: '正規保証付きの純正 Enagic Kangen Water® 電解水素水生成器。',
+    heroSubtitle: '正規保証付きの純正 Enagic® 電解水素水生成器。',
     shopIonizers: '生成器を見る',
     heroTitle: '水を変える。人生を変える。',
     prevImage: '前の画像',

@@ -5,7 +5,7 @@ export const zhTW: DeepPartial<Translations> = {
   showcase: { viewAll: '查看所有機型' },
   cart: { title: '您的購物袋' },
   header: {
-    logoAlt: 'Enagic Kangen Water 標誌',
+    logoAlt: 'Enagic 標誌',
     toggleMenu: '切換選單',
     closeMenu: '關閉選單',
     taxCalculator: '稅務計算機',
@@ -40,7 +40,7 @@ export const zhTW: DeepPartial<Translations> = {
     portal: '入口',
   },
   home: {
-    heroSubtitle: '附官方保固的正品 Enagic Kangen Water® 電解水機。',
+    heroSubtitle: '附官方保固的正品 Enagic® 電解水機。',
     shopIonizers: '選購電解水機',
     heroTitle: '改變您的水，改變您的生活。',
     prevImage: '上一張圖片',

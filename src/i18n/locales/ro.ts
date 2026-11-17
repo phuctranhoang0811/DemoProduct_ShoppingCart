@@ -5,7 +5,7 @@ export const ro: DeepPartial<Translations> = {
   showcase: { viewAll: 'Vezi toate dispozitivele' },
   cart: { title: 'Coșul tău de cumpărături' },
   header: {
-    logoAlt: 'Sigla Enagic Kangen Water',
+    logoAlt: 'Sigla Enagic',
     toggleMenu: 'Deschide/închide meniul',
     closeMenu: 'Închide meniul',
     taxCalculator: 'Calculator de taxe',
@@ -40,7 +40,7 @@ export const ro: DeepPartial<Translations> = {
     portal: 'Portal',
   },
   home: {
-    heroSubtitle: 'Ionizatoare Enagic Kangen Water® originale cu garanție oficială.',
+    heroSubtitle: 'Ionizatoare Enagic® originale cu garanție oficială.',
     shopIonizers: 'Cumpără ionizatoare',
     heroTitle: 'Schimbă-ți apa. Schimbă-ți viața.',
     prevImage: 'Imaginea anterioară',

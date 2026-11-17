@@ -310,15 +310,6 @@ export function StoreHeader() {
             </div>
 
             <Link
-              href="/calculator"
-              onMouseEnter={() => setActiveDropdown(null)}
-              className={navLinkClass(pathname === '/calculator')}
-            >
-              <span>{t.header.taxCalculator}</span>
-              {navUnderline(pathname === '/calculator')}
-            </Link>
-
-            <Link
               href="/hellobee"
               onMouseEnter={() => setActiveDropdown(null)}
               className={navLinkClass(pathname === '/hellobee')}

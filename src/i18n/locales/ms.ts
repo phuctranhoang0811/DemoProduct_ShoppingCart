@@ -5,7 +5,7 @@ export const ms: DeepPartial<Translations> = {
   showcase: { viewAll: 'Lihat semua peranti' },
   cart: { title: 'Bakul Beli-belah Anda' },
   header: {
-    logoAlt: 'Logo Enagic Kangen Water',
+    logoAlt: 'Logo Enagic',
     toggleMenu: 'Togol menu',
     closeMenu: 'Tutup menu',
     taxCalculator: 'Kalkulator Cukai',
@@ -40,7 +40,7 @@ export const ms: DeepPartial<Translations> = {
     portal: 'Portal',
   },
   home: {
-    heroSubtitle: 'Pengionan Enagic Kangen Water® tulen dengan waranti rasmi.',
+    heroSubtitle: 'Pengionan Enagic® tulen dengan waranti rasmi.',
     shopIonizers: 'Beli Pengionan',
     heroTitle: 'Ubah Air Anda. Ubah Hidup Anda.',
     prevImage: 'Imej sebelumnya',

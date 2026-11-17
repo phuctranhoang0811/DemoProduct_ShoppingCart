@@ -56,7 +56,7 @@ export default function LoginPage() {
           Sign In
         </h1>
         <p className="text-xs text-[#777777]">
-          Sign in to access your Enagic® Kangen Water® account
+          Sign in to access your Enagic® account
         </p>
       </div>
 

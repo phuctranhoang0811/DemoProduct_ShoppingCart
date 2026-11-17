@@ -425,7 +425,7 @@ function HellobeePortalContent() {
                   <span>Requirement 1: Personal Device Ownership ($1,500 Unit)</span>
                 </p>
                 <p className="text-[#666666] pl-5">
-                  To ethically demonstrate and recommend Enagic® medical-grade ionization water to prospective clients, every Hellobee consultant must own at least one qualifying unit (such as the standardized $1,500 emGuarde Personal Protection Device or Kangen Leveluk machine).
+                  To ethically demonstrate and recommend Enagic® medical-grade ionization water to prospective clients, every Hellobee consultant must own at least one qualifying unit (such as the standardized $1,500 emGuarde Personal Protection Device or Leveluk machine).
                 </p>
               </div>
 

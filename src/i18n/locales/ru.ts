@@ -5,7 +5,7 @@ export const ru: DeepPartial<Translations> = {
   showcase: { viewAll: 'Смотреть все устройства' },
   cart: { title: 'Ваша корзина' },
   header: {
-    logoAlt: 'Логотип Enagic Kangen Water',
+    logoAlt: 'Логотип Enagic',
     toggleMenu: 'Открыть/закрыть меню',
     closeMenu: 'Закрыть меню',
     taxCalculator: 'Налоговый калькулятор',
@@ -40,7 +40,7 @@ export const ru: DeepPartial<Translations> = {
     portal: 'Портал',
   },
   home: {
-    heroSubtitle: 'Оригинальные ионизаторы Enagic Kangen Water® с официальной гарантией.',
+    heroSubtitle: 'Оригинальные ионизаторы Enagic® с официальной гарантией.',
     shopIonizers: 'Купить ионизаторы',
     heroTitle: 'Измените свою воду. Измените свою жизнь.',
     prevImage: 'Предыдущее изображение',

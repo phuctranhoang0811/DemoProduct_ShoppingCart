@@ -5,7 +5,7 @@ export const th: DeepPartial<Translations> = {
   showcase: { viewAll: 'ดูอุปกรณ์ทั้งหมด' },
   cart: { title: 'ตะกร้าสินค้าของคุณ' },
   header: {
-    logoAlt: 'โลโก้ Enagic Kangen Water',
+    logoAlt: 'โลโก้ Enagic',
     toggleMenu: 'เปิด/ปิดเมนู',
     closeMenu: 'ปิดเมนู',
     taxCalculator: 'เครื่องคิดเลขภาษี',
@@ -40,7 +40,7 @@ export const th: DeepPartial<Translations> = {
     portal: 'พอร์ทัล',
   },
   home: {
-    heroSubtitle: 'เครื่องผลิตน้ำด่าง Enagic Kangen Water® แท้ พร้อมการรับประกันอย่างเป็นทางการ',
+    heroSubtitle: 'เครื่องผลิตน้ำด่าง Enagic® แท้ พร้อมการรับประกันอย่างเป็นทางการ',
     shopIonizers: 'เลือกซื้อเครื่องผลิตน้ำด่าง',
     heroTitle: 'เปลี่ยนน้ำของคุณ เปลี่ยนชีวิตของคุณ',
     prevImage: 'รูปก่อนหน้า',

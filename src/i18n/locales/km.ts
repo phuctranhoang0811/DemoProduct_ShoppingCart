@@ -5,7 +5,7 @@ export const km: DeepPartial<Translations> = {
   showcase: { viewAll: 'មើលឧបករណ៍ទាំងអស់' },
   cart: { title: 'កាបូបទិញទំនិញរបស់អ្នក' },
   header: {
-    logoAlt: 'និមិត្តសញ្ញា Enagic Kangen Water',
+    logoAlt: 'និមិត្តសញ្ញា Enagic',
     toggleMenu: 'បើក/បិទម៉ឺនុយ',
     closeMenu: 'បិទម៉ឺនុយ',
     taxCalculator: 'ម៉ាស៊ីនគណនាពន្ធ',
@@ -40,7 +40,7 @@ export const km: DeepPartial<Translations> = {
     portal: 'ច្រកចូល',
   },
   home: {
-    heroSubtitle: 'ឧបករណ៍ Enagic Kangen Water® ពិតប្រាកដ ជាមួយការធានាផ្លូវការ។',
+    heroSubtitle: 'ឧបករណ៍ Enagic® ពិតប្រាកដ ជាមួយការធានាផ្លូវការ។',
     shopIonizers: 'ទិញឧបករណ៍អ៊ីយ៉ូន',
     heroTitle: 'ផ្លាស់ប្តូរទឹករបស់អ្នក។ ផ្លាស់ប្តូរជីវិតរបស់អ្នក។',
     prevImage: 'រូបភាពមុន',

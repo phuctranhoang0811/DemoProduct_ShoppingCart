@@ -5,7 +5,7 @@ export const ar: DeepPartial<Translations> = {
   showcase: { viewAll: 'عرض جميع الأجهزة' },
   cart: { title: 'حقيبة التسوق' },
   header: {
-    logoAlt: 'شعار Enagic Kangen Water',
+    logoAlt: 'شعار Enagic',
     toggleMenu: 'تبديل القائمة',
     closeMenu: 'إغلاق القائمة',
     taxCalculator: 'حاسبة الضرائب',
@@ -40,7 +40,7 @@ export const ar: DeepPartial<Translations> = {
     portal: 'البوابة',
   },
   home: {
-    heroSubtitle: 'أجهزة Enagic Kangen Water® الأصلية مع ضمان رسمي.',
+    heroSubtitle: 'أجهزة Enagic® الأصلية مع ضمان رسمي.',
     shopIonizers: 'تسوق أجهزة التأين',
     heroTitle: 'غيّر مياهك. غيّر حياتك.',
     prevImage: 'الصورة السابقة',

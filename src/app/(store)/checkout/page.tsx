@@ -423,7 +423,7 @@ function CheckoutContent() {
           Order Reference: #{orderPlacedId.slice(-8).toUpperCase()}
         </span>
         <h1 className="text-2xl sm:text-3xl font-light text-[#111111]">
-          Thank You For Choosing Enagic® Kangen Water®
+          Thank You For Choosing Enagic®
         </h1>
         <p className="text-xs text-[#737373] max-w-md mx-auto leading-relaxed">
           Your order has been recorded in the central Enagic enterprise registry. An authorized

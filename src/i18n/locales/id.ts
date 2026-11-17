@@ -5,7 +5,7 @@ export const id: DeepPartial<Translations> = {
   showcase: { viewAll: 'Lihat semua perangkat' },
   cart: { title: 'Keranjang Belanja Anda' },
   header: {
-    logoAlt: 'Logo Enagic Kangen Water',
+    logoAlt: 'Logo Enagic',
     toggleMenu: 'Buka/tutup menu',
     closeMenu: 'Tutup menu',
     taxCalculator: 'Kalkulator Pajak',
@@ -40,7 +40,7 @@ export const id: DeepPartial<Translations> = {
     portal: 'Portal',
   },
   home: {
-    heroSubtitle: 'Ionizer Enagic Kangen Water® asli dengan garansi resmi.',
+    heroSubtitle: 'Ionizer Enagic® asli dengan garansi resmi.',
     shopIonizers: 'Belanja Ionizer',
     heroTitle: 'Ubah Air Anda. Ubah Hidup Anda.',
     prevImage: 'Gambar sebelumnya',

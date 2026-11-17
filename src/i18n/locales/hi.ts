@@ -5,7 +5,7 @@ export const hi: DeepPartial<Translations> = {
   showcase: { viewAll: 'सभी डिवाइस देखें' },
   cart: { title: 'आपका शॉपिंग बैग' },
   header: {
-    logoAlt: 'Enagic Kangen Water लोगो',
+    logoAlt: 'Enagic लोगो',
     toggleMenu: 'मेनू खोलें/बंद करें',
     closeMenu: 'मेनू बंद करें',
     taxCalculator: 'टैक्स कैलकुलेटर',
@@ -40,7 +40,7 @@ export const hi: DeepPartial<Translations> = {
     portal: 'पोर्टल',
   },
   home: {
-    heroSubtitle: 'आधिकारिक वारंटी के साथ असली Enagic Kangen Water® आयोनाइज़र।',
+    heroSubtitle: 'आधिकारिक वारंटी के साथ असली Enagic® आयोनाइज़र।',
     shopIonizers: 'आयोनाइज़र खरीदें',
     heroTitle: 'अपना पानी बदलें। अपना जीवन बदलें।',
     prevImage: 'पिछली छवि',

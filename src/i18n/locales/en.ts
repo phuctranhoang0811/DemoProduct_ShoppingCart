@@ -2,10 +2,10 @@ import type { Translations } from '../types';
 
 export const en: Translations = {
   brand: {
-    name: 'ENAGIC® KANGEN WATER®',
+    name: 'ENAGIC®',
     tagline: 'CHANGE YOUR WATER, CHANGE YOUR LIFE®',
     subTagline: 'Change Your Water, Change Your Life®',
-    announcement: 'EXCLUSIVE GLOBAL PRODUCER OF MEDICAL-GRADE KANGEN WATER® IONIZERS SINCE 1974 | ISO 13485 CERTIFIED',
+    announcement: 'EXCLUSIVE GLOBAL PRODUCER OF MEDICAL-GRADE WATER IONIZERS SINCE 1974 | ISO 13485 CERTIFIED',
     medicalBadge: 'Japan Medical Device (ISO 13485)',
     isoBadge: 'ISO 9001 & ISO 14001',
     wqaBadge: 'WQA Gold Seal Awarded',
@@ -14,7 +14,7 @@ export const en: Translations = {
   nav: {
     home: 'Home',
     products: 'Shop',
-    waterTypes: '5 Kangen Waters',
+    waterTypes: '5 Water Types',
     technology: 'Electrode Tech',
     certifications: 'Certifications',
     accessories: 'Filters & Parts',
@@ -26,7 +26,7 @@ export const en: Translations = {
     consultation: 'Free Consultation',
   },
   header: {
-    logoAlt: 'Enagic Kangen Water Logo',
+    logoAlt: 'Enagic Logo',
     toggleMenu: 'Toggle menu',
     closeMenu: 'Close menu',
     taxCalculator: 'Tax Calculator',
@@ -61,7 +61,7 @@ export const en: Translations = {
     portal: 'Portal',
   },
   home: {
-    heroSubtitle: 'Genuine Enagic Kangen Water® ionizers with official warranty.',
+    heroSubtitle: 'Genuine Enagic® ionizers with official warranty.',
     shopIonizers: 'Shop Ionizers',
     heroTitle: 'Change Your Water. Change Your Life.',
     prevImage: 'Previous image',
@@ -73,7 +73,7 @@ export const en: Translations = {
     titleLine2: 'Change Your Life.®',
     subtitle: 'Original medical-grade water ionizers engineered with solid platinum-coated titanium plates in Osaka, Japan.',
     ctaPrimary: 'Shop All Ionizers',
-    ctaSecondary: '5 Kangen Waters',
+    ctaSecondary: '5 Water Types',
     trustPlates: '8 Titanium Plates',
     trustOrp: 'ORP to -850mV',
     trustWarranty: '5-Year Warranty',
@@ -91,13 +91,13 @@ export const en: Translations = {
   },
   watersSection: {
     badge: 'Pillar of True Health',
-    title: 'Discover the 5 Miraculous Kangen Waters®',
+    title: 'Discover the 5 Miraculous Waters',
     subtitle: 'A single touch on the intuitive digital panel transforms ordinary tap water into 5 customized waters for cellular health, culinary excellence, natural skincare, and medical sanitization.',
-    water1Title: 'Strong Kangen Water (pH 11.5)',
+    water1Title: 'Strong Alkaline Water (pH 11.5)',
     water1Ph: 'pH 11.5',
     water1Desc: 'Potent non-chemical emulsifier. Dissolves agricultural chemicals, pesticides, and wax coatings on fruits and vegetables.',
     water1Usage: 'Food prep, produce washing, chemical-free kitchen degreasing',
-    water2Title: 'Kangen Water® (pH 8.5 - 9.5)',
+    water2Title: 'Alkaline Water (pH 8.5 - 9.5)',
     water2Ph: 'pH 8.5 - 9.5',
     water2Desc: 'Daily drinking water packed with active molecular hydrogen, negative ORP antioxidant power, and micro-clustered hydration.',
     water2Usage: 'Daily hydration, brewing tea & coffee, cooking soups and rice',
@@ -116,7 +116,7 @@ export const en: Translations = {
   },
   showcase: {
     newArrivalsBadge: 'Flagship Collection 2026',
-    newArrivalsTitle: 'Premier Kangen® Ionization Systems',
+    newArrivalsTitle: 'Premier Ionization Systems',
     bestSellersBadge: 'World Best-Seller',
     bestSellersTitle: 'Iconic Enagic® Health Technology',
     viewAll: 'View All Devices',
@@ -133,7 +133,7 @@ export const en: Translations = {
   },
   shop: {
     pageTitle: 'HelloBee Water Ionizers & Genuine Accessories',
-    pageSubtitle: 'Authentic Japanese Kangen Water® ionizers, emGuarde personal protection device, and Kangen Air 500 purifier.',
+    pageSubtitle: 'Authentic Japanese water ionizers, emGuarde personal protection device, and Kangen Air 500 purifier.',
     filters: 'Filters',
     activeFilters: 'Active:',
     resetFilters: 'Reset all filters',
@@ -174,7 +174,7 @@ export const en: Translations = {
   cart: {
     title: 'Your Shopping Bag',
     emptyTitle: 'Your bag is empty',
-    emptyDesc: 'Discover genuine Japanese Kangen Water ionizers and take your family health to the highest standard.',
+    emptyDesc: 'Discover genuine Japanese water ionizers and take your family health to the highest standard.',
     startShopping: 'Browse Devices',
     subtotal: 'Subtotal',
     shipping: 'Water Survey & Installation',
@@ -207,7 +207,7 @@ export const en: Translations = {
     notes: 'Preferred installation date, water source notes...',
     placeOrder: 'Confirm Order',
     orderSuccessTitle: 'ORDER CONFIRMED!',
-    orderSuccessDesc: 'Thank you for choosing genuine Kangen Water®. An Enagic specialist will contact you within 30 minutes to confirm your water survey and installation time.',
+    orderSuccessDesc: 'Thank you for choosing genuine Enagic products. An Enagic specialist will contact you within 30 minutes to confirm your water survey and installation time.',
   },
   footer: {
     aboutTitle: 'Enagic® International',
@@ -218,7 +218,7 @@ export const en: Translations = {
     hotline: 'Specialist Hotline: +1 (800) 555-KANGEN',
     email: 'Email: support@hellobee.com',
     address: 'Enagic USA & Hellobee Network Global Headquarters',
-    rights: '© 1974 - 2026 Enagic International. All rights reserved. KANGEN WATER® is a registered trademark.',
-    medicalDisclaimer: 'Disclaimer: Kangen Water® is an ionized alkaline water supporting hydration and vitality. It is not intended to diagnose, cure or prevent diseases.',
+    rights: '© 1974 - 2026 Enagic International. All rights reserved. ENAGIC® is a registered trademark.',
+    medicalDisclaimer: 'Disclaimer: Enagic water is an ionized alkaline water supporting hydration and vitality. It is not intended to diagnose, cure or prevent diseases.',
   },
 };

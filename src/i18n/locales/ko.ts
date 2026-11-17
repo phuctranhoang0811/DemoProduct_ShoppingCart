@@ -5,7 +5,7 @@ export const ko: DeepPartial<Translations> = {
   showcase: { viewAll: '모든 기기 보기' },
   cart: { title: '쇼핑백' },
   header: {
-    logoAlt: 'Enagic Kangen Water 로고',
+    logoAlt: 'Enagic 로고',
     toggleMenu: '메뉴 열기/닫기',
     closeMenu: '메뉴 닫기',
     taxCalculator: '세금 계산기',
@@ -40,7 +40,7 @@ export const ko: DeepPartial<Translations> = {
     portal: '포털',
   },
   home: {
-    heroSubtitle: '공식 보증이 제공되는 정품 Enagic Kangen Water® 이오나이저.',
+    heroSubtitle: '공식 보증이 제공되는 정품 Enagic® 이오나이저.',
     shopIonizers: '이오나이저 쇼핑',
     heroTitle: '물을 바꾸세요. 삶을 바꾸세요.',
     prevImage: '이전 이미지',

@@ -113,7 +113,7 @@ export default function RegisterPage() {
     <div className="max-w-xl mx-auto px-4 py-12 sm:py-20 animate-fade-up">
       <div className="text-center space-y-2 mb-8">
         <span className="text-[10px] tracking-[0.25em] text-[#777777] font-semibold uppercase">
-          Enagic® Kangen Water® & Hellobee Network
+          Enagic® & Hellobee Network
         </span>
         <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-[#111111]">
           Create Customer Account
