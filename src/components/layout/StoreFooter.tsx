@@ -7,8 +7,8 @@ const SHOP_LINKS = [
   { label: 'All Products', href: '/shop' },
   { label: 'Hello Bee Network', href: '/hellobee' },
   { label: 'Events', href: '/events' },
-  { label: 'Meetings & Offline', href: '/events#meetings' },
-  { label: 'Member Chat', href: '/events#chat' },
+  { label: 'Meetings', href: '/meetings' },
+  { label: 'Member Chat', href: '/meetings#chat' },
 ];
 
 const CARE_LINKS = [

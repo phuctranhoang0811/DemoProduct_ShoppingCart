@@ -6,7 +6,6 @@ import { CalendarDays, Clock, MapPin, Flame } from 'lucide-react';
 import type { MemberEvent } from '@/data/events';
 import { syncEvents } from '@/lib/events-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
-import { CommunityHub } from '@/components/community/CommunityHub';
 import { useEventsStore } from '@/stores/useEventsStore';
 
 const CATEGORIES = ['All', 'Community', 'Training', 'Wellness', 'Leadership'] as const;
@@ -50,13 +49,6 @@ function EventCard({ event }: { event: MemberEvent }) {
         <p className="text-xs italic text-[#777777] border-l-2 border-[#E0A82E] pl-3 leading-relaxed">
           {event.meaning}
         </p>
-        <Link
-          href="#meetings"
-          onClick={() => window.dispatchEvent(new CustomEvent('hellobee:community-tab', { detail: 'meetings' }))}
-          className="mt-auto bg-[#111111] text-white text-center text-xs uppercase tracking-wider font-semibold py-2.5 rounded-xs hover:bg-[#333333] transition-colors btn-tactile"
-        >
-          View Meetings &amp; Join
-        </Link>
       </div>
     </article>
   );
@@ -103,25 +95,7 @@ export function EventsClient({ initialEvents }: { initialEvents: MemberEvent[] }
           healthy living for everyone. The circle has no front and no back, so every member, from LV1 to LV10, stands
           equal and connected. Each person who steps in makes the circle wider and the light brighter.
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
-          {[
-            { label: 'Official Events', href: '#official-events', tab: null },
-            { label: 'Meetings & Offline', href: '#meetings', tab: 'meetings' },
-            { label: 'Dining & Offline Feed', href: '#posts', tab: 'posts' },
-            { label: 'Member Chat', href: '#chat', tab: 'chat' },
-          ].map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              onClick={() => {
-                if (item.tab) window.dispatchEvent(new CustomEvent('hellobee:community-tab', { detail: item.tab }));
-              }}
-              className="px-4 py-2 rounded-full border border-[#E5E5E5] bg-white text-xs font-semibold text-[#111111] hover:border-[#111111] transition-colors"
-            >
-              {item.label}
-            </a>
-          ))}
-        </div>
+
       </section>
 
       <section id="official-events" className="max-w-[1440px] mx-auto px-6 sm:px-12 lg:px-20 pb-20 scroll-mt-24">
@@ -148,8 +122,6 @@ export function EventsClient({ initialEvents }: { initialEvents: MemberEvent[] }
           ))}
         </div>
       </section>
-
-      <CommunityHub />
 
       <section className="bg-[#111111] text-white text-center px-6 py-14 space-y-4">
         <h2 className="text-xs uppercase tracking-wider font-bold">Shop</h2>

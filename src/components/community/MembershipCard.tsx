@@ -32,7 +32,7 @@ export function MembershipCard() {
           <Link href="/hellobee" className="text-xs font-semibold underline">
             Hellobee Network
           </Link>
-          <Link href="/events#community" className="text-xs font-semibold underline">
+          <Link href="/meetings#community" className="text-xs font-semibold underline">
             Open community
           </Link>
         </div>

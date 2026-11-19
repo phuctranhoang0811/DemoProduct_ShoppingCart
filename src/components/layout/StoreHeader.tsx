@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
@@ -19,8 +19,6 @@ import {
   Briefcase,
   LogOut,
   MessageCircle,
-  CalendarDays,
-  Newspaper,
 } from 'lucide-react';
 import { signOut } from '@/lib/auth-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
@@ -34,7 +32,7 @@ export function StoreHeader() {
   const { t, format } = useTranslation();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<'ionizers' | 'events' | null>(null);
+  const [activeDropdown, setActiveDropdown] = useState<'ionizers' | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isCartBounced, setIsCartBounced] = useState(false);
 
@@ -85,7 +83,7 @@ export function StoreHeader() {
     setActiveDropdown(null);
   }, [pathname, setIsCartDrawerOpen]);
 
-  const handleMouseEnter = (menu: 'ionizers' | 'events') => {
+  const handleMouseEnter = (menu: 'ionizers') => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setActiveDropdown(menu);
   };
@@ -321,62 +319,26 @@ export function StoreHeader() {
               {navUnderline(pathname === '/hellobee')}
             </Link>
 
-            <div
-              className="relative h-full flex items-center shrink-0"
-              onMouseEnter={() => handleMouseEnter('events')}
+            <Link
+              href="/events"
+              onMouseEnter={() => setActiveDropdown(null)}
+              className={navLinkClass(pathname === '/events')}
             >
-              <Link
-                href="/events"
-                className={navLinkClass(activeDropdown === 'events' || pathname === '/events')}
-              >
-                <span>{t.header.events}</span>
-                <ChevronDown
-                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                    activeDropdown === 'events' ? 'rotate-180' : ''
-                  }`}
-                />
-                {navUnderline(activeDropdown === 'events' || pathname === '/events')}
-              </Link>
-
-              {activeDropdown === 'events' && (
-                <div
-                  className={`absolute top-full left-1/2 -translate-x-1/2 w-64 border shadow-2xl p-2 z-50 rounded-b-md animate-scale-in duration-200 ${
-                    isDarkHeader
-                      ? 'bg-[#141414] border-[#2A2A2A] text-white'
-                      : 'bg-white border-[#E5E5E5] text-[#111111]'
-                  }`}
-                  onMouseEnter={() => handleMouseEnter('events')}
-                  onMouseLeave={handleMouseLeave}
-                >
-                  {[
-                    { label: 'Official Events', href: '/events', Icon: CalendarDays, tab: null },
-                    { label: 'Meetings & Offline', href: '/events#meetings', Icon: CalendarDays, tab: 'meetings' },
-                    { label: 'Dining & Offline Posts', href: '/events#posts', Icon: Newspaper, tab: 'posts' },
-                    { label: 'Member Chat', href: '/events#chat', Icon: MessageCircle, tab: 'chat' },
-                  ].map(({ label, href, Icon, tab }) => (
-                    <Link
-                      key={href}
-                      href={href}
-                      onClick={() => {
-                        setActiveDropdown(null);
-                        if (tab) window.dispatchEvent(new CustomEvent('hellobee:community-tab', { detail: tab }));
-                      }}
-                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-sm text-xs font-medium normal-case tracking-normal transition-colors ${
-                        isDarkHeader
-                          ? 'hover:bg-[#1C1C1C] hover:text-[var(--honey)]'
-                          : 'hover:bg-[var(--honey-tint)] hover:text-[#111111]'
-                      }`}
-                    >
-                      <Icon className="w-3.5 h-3.5 shrink-0" />
-                      <span>{label}</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
+              <span>{t.header.events}</span>
+              {navUnderline(pathname === '/events')}
+            </Link>
 
             <Link
-              href="/events#chat"
+              href="/meetings"
+              onMouseEnter={() => setActiveDropdown(null)}
+              className={navLinkClass(pathname === '/meetings')}
+            >
+              <span>Meetings</span>
+              {navUnderline(pathname === '/meetings')}
+            </Link>
+
+            <Link
+              href="/meetings#chat"
               onMouseEnter={() => setActiveDropdown(null)}
               onClick={() => window.dispatchEvent(new CustomEvent('hellobee:community-tab', { detail: 'chat' }))}
               className={navLinkClass(false)}
@@ -732,27 +694,14 @@ export function StoreHeader() {
                   {t.header.events}
                 </Link>
                 <Link
-                  href="/events#meetings"
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    window.dispatchEvent(new CustomEvent('hellobee:community-tab', { detail: 'meetings' }));
-                  }}
-                  className="block py-1 pl-3 text-[11px] font-medium text-[#555555] hover:text-[#111111] transition-colors"
+                  href="/meetings"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block py-1 font-semibold text-[#111111] hover:text-[#666666] transition-colors"
                 >
-                  Meetings &amp; Offline
+                  Meetings
                 </Link>
                 <Link
-                  href="/events#posts"
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    window.dispatchEvent(new CustomEvent('hellobee:community-tab', { detail: 'posts' }));
-                  }}
-                  className="block py-1 pl-3 text-[11px] font-medium text-[#555555] hover:text-[#111111] transition-colors"
-                >
-                  Dining &amp; Offline Posts
-                </Link>
-                <Link
-                  href="/events#chat"
+                  href="/meetings#chat"
                   onClick={() => {
                     setIsMobileMenuOpen(false);
                     window.dispatchEvent(new CustomEvent('hellobee:community-tab', { detail: 'chat' }));

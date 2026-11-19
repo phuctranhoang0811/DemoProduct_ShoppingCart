@@ -138,7 +138,7 @@ export function CommunityHub() {
       <span id="chat" className="scroll-mt-28" aria-hidden />
 
       <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-        <h2 className="text-xs uppercase tracking-wider font-bold">Meetings, Offline Dining &amp; Member Chat</h2>
+        <h2 className="text-xs uppercase tracking-wider font-bold">Meetings, Offline Posts &amp; Member Chat</h2>
         <span
           className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
             socketConnected
@@ -182,7 +182,7 @@ export function CommunityHub() {
                 </p>
               </div>
               <Link
-                href="/login?next=/events%23community"
+                href="/login?next=/meetings%23community"
                 className="shrink-0 bg-[#111111] text-white px-6 py-2.5 text-xs uppercase font-semibold tracking-wider rounded-xs btn-tactile text-center"
               >
                 Sign in to post, RSVP &amp; chat
@@ -278,7 +278,7 @@ function Meetings({ me, canInteract }: { me: Person; canInteract: boolean }) {
                 </button>
               ) : (
                 <Link
-                  href="/login?next=/events%23meetings"
+                  href="/login?next=/meetings%23meetings"
                   className="mt-auto text-center text-xs font-semibold uppercase tracking-wider py-2 rounded-xs border border-[#E5E5E5] text-[#666666] hover:border-[#111111] hover:text-[#111111]"
                 >
                   Sign in to Join
