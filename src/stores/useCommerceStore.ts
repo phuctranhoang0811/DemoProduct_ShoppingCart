@@ -978,7 +978,9 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
   loginAsDemo: (role = 'customer') => {
     const state = get();
     if (role === 'employee') {
-      const emp = state.hellobeeMembers.find((m) => m.role === 'EMPLOYEE') || initialHellobeeMembers[2];
+      const emp =
+        state.hellobeeMembers.find((m) => m.email.toLowerCase() === 'employee@hellobee.com') ||
+        initialHellobeeMembers[2];
       const empUser: Customer = {
         id: emp.id,
         name: emp.name.replace(/\s*\(.*\)/, ''),
@@ -1017,7 +1019,10 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     }
 
     if (role === 'owner' || role === 'admin') {
-      const owner = state.hellobeeMembers.find((m) => m.role === 'OWNER') || initialHellobeeMembers[0];
+      const owner =
+        state.hellobeeMembers.find((m) => m.email.toLowerCase() === 'owner@hellobee.com') ||
+        state.hellobeeMembers.find((m) => m.role === 'OWNER') ||
+        initialHellobeeMembers[0];
       const ownerUser: Customer = {
         id: owner.id,
         name: owner.name.replace(/\s*\(.*\)/, ''),
@@ -1055,7 +1060,8 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       return;
     }
 
-    const demo = state.customers[0] || initialCustomers[0];
+    const demo =
+      state.customers.find((c) => c.email.toLowerCase() === 'customer@example.com') || initialCustomers[0];
     const customerUser: Customer = {
       ...demo,
       role: 'customer',
@@ -1074,7 +1080,10 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
     // Check if email matches admin/owner
     if (clean.includes('admin') || clean.includes('owner') || clean === 'owner@hellobee.com') {
-      const owner = state.hellobeeMembers.find((m) => m.role === 'OWNER') || initialHellobeeMembers[0];
+      const owner =
+        state.hellobeeMembers.find((m) => m.email.toLowerCase() === 'owner@hellobee.com') ||
+        state.hellobeeMembers.find((m) => m.role === 'OWNER') ||
+        initialHellobeeMembers[0];
       const adminUser: Customer = {
         id: owner.id,
         name: owner.name.replace(/\s*\(.*\)/, ''),

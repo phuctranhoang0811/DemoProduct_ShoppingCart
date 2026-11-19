@@ -24,6 +24,15 @@ import {
   type Person,
   type PostCategory,
 } from '@/stores/useCommunityStore';
+import {
+  emitAddMeeting,
+  emitAddPost,
+  emitAddToGroup,
+  emitCreateGroup,
+  emitEnsureMember,
+  emitSendMessage,
+  emitToggleRsvp,
+} from '@/lib/community-socket';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { MembershipCard } from './MembershipCard';
 import { useIsMember } from './useIsMember';
@@ -68,13 +77,14 @@ export function CommunityHub() {
   const [mounted, setMounted] = useState(false);
   const [tab, setTab] = useState<Tab>('meetings');
   const sectionRef = useRef<HTMLElement>(null);
+  const socketConnected = useCommunityStore((s) => s.socketConnected);
   const { user, isMember } = useIsMember();
 
   useEffect(() => {
     setMounted(true);
 
-    const syncHash = () => {
-      const hash = window.location.hash.toLowerCase();
+    const activateTabFromHash = (rawHash: string) => {
+      const hash = rawHash.toLowerCase();
       if (hash === '#meetings') setTab('meetings');
       else if (hash === '#posts') setTab('posts');
       else if (hash === '#chat') setTab('chat');
@@ -86,9 +96,24 @@ export function CommunityHub() {
       }
     };
 
-    syncHash();
-    window.addEventListener('hashchange', syncHash);
-    return () => window.removeEventListener('hashchange', syncHash);
+    const onHashChange = () => activateTabFromHash(window.location.hash);
+    const onTabEvent = (e: Event) => {
+      const target = (e as CustomEvent<Tab>).detail;
+      if (target === 'meetings' || target === 'posts' || target === 'chat') {
+        setTab(target);
+        requestAnimationFrame(() => {
+          sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+    };
+
+    onHashChange();
+    window.addEventListener('hashchange', onHashChange);
+    window.addEventListener('hellobee:community-tab', onTabEvent);
+    return () => {
+      window.removeEventListener('hashchange', onHashChange);
+      window.removeEventListener('hellobee:community-tab', onTabEvent);
+    };
   }, []);
 
   if (!mounted) return null;
@@ -112,7 +137,19 @@ export function CommunityHub() {
       <span id="posts" className="scroll-mt-28" aria-hidden />
       <span id="chat" className="scroll-mt-28" aria-hidden />
 
-      <h2 className="text-xs uppercase tracking-wider font-bold mb-2">Meetings, Offline Dining &amp; Member Chat</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+        <h2 className="text-xs uppercase tracking-wider font-bold">Meetings, Offline Dining &amp; Member Chat</h2>
+        <span
+          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
+            socketConnected
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+              : 'bg-[#F5F4F0] text-[#666666] border-[#E5E5E5]'
+          }`}
+        >
+          <span className={`w-1.5 h-1.5 rounded-full ${socketConnected ? 'bg-emerald-500' : 'bg-[#999999]'}`} />
+          {socketConnected ? 'Socket.IO Live' : 'Local Mode'}
+        </span>
+      </div>
       <p className="text-sm text-[#666666] mb-6">
         Organize offline meetings and dinners, share dining &amp; meetup photos, and chat with Hello Bee members.
       </p>
@@ -174,18 +211,16 @@ export function CommunityHub() {
 
 function Meetings({ me, canInteract }: { me: Person; canInteract: boolean }) {
   const meetings = useCommunityStore((s) => s.meetings);
-  const addMeeting = useCommunityStore((s) => s.addMeeting);
-  const toggleRsvp = useCommunityStore((s) => s.toggleRsvp);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ title: '', kind: 'Meeting' as MeetingKind, date: '', time: '', location: '', description: '' });
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim() || !form.date || !form.location.trim()) {
       toast.error('Add a title, date and location.');
       return;
     }
-    addMeeting({ ...form, hostName: me.name });
+    await emitAddMeeting({ ...form, hostName: me.name });
     setForm({ title: '', kind: 'Meeting', date: '', time: '', location: '', description: '' });
     setOpen(false);
     toast.success('Meeting posted.');
@@ -234,7 +269,7 @@ function Meetings({ me, canInteract }: { me: Person; canInteract: boolean }) {
               {canInteract ? (
                 <button
                   type="button"
-                  onClick={() => toggleRsvp(m.id, me.email)}
+                  onClick={() => emitToggleRsvp(m.id, me.email)}
                   className={`mt-auto text-xs font-semibold uppercase tracking-wider py-2 rounded-xs border btn-tactile ${
                     going ? 'bg-emerald-600 text-white border-emerald-600' : 'border-[#111111] text-[#111111]'
                   }`}
@@ -259,7 +294,6 @@ function Meetings({ me, canInteract }: { me: Person; canInteract: boolean }) {
 
 function Posts({ me, canInteract }: { me: Person; canInteract: boolean }) {
   const posts = useCommunityStore((s) => s.posts);
-  const addPost = useCommunityStore((s) => s.addPost);
   const [body, setBody] = useState('');
   const [category, setCategory] = useState<PostCategory>('Dining & Drinks');
   const [location, setLocation] = useState('');
@@ -277,10 +311,10 @@ function Posts({ me, canInteract }: { me: Person; canInteract: boolean }) {
     }
   };
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!body.trim()) return;
-    addPost(me, body.trim(), {
+    await emitAddPost(me, body.trim(), {
       category,
       location: location.trim() || undefined,
       imageUrl,
@@ -408,10 +442,7 @@ function Chat({ me }: { me: Person }) {
   const groups = useCommunityStore((s) => s.groups);
   const messages = useCommunityStore((s) => s.messages);
   const joined = useCommunityStore((s) => s.members);
-  const ensureMember = useCommunityStore((s) => s.ensureMember);
-  const sendMessage = useCommunityStore((s) => s.sendMessage);
-  const createGroup = useCommunityStore((s) => s.createGroup);
-  const addToGroup = useCommunityStore((s) => s.addToGroup);
+  const socketConnected = useCommunityStore((s) => s.socketConnected);
   const hellobeeMembers = useCommerceStore((s) => s.hellobeeMembers);
 
   const [thread, setThread] = useState(LIVE_THREAD);
@@ -438,7 +469,9 @@ function Chat({ me }: { me: Person }) {
     return Array.from(map, ([email, name]) => ({ email, name }));
   }, [joined, hellobeeMembers, myEmail]);
 
-  useEffect(() => ensureMember(me), [ensureMember, me.email, me.name]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    emitEnsureMember(me);
+  }, [me.email, me.name, socketConnected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const myGroups = groups.filter((g) => g.memberEmails.includes(myEmail));
   const activeGroup = myGroups.find((g) => g.id === thread);
@@ -458,26 +491,27 @@ function Chat({ me }: { me: Person }) {
   const send = (e: React.FormEvent) => {
     e.preventDefault();
     if (!text.trim()) return;
-    sendMessage(thread, { email: myEmail, name: me.name }, text.trim());
+    emitSendMessage(thread, { email: myEmail, name: me.name }, text.trim());
     setText('');
   };
 
-  const invite = (e: React.FormEvent) => {
+  const invite = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeGroup || invitePicked.length === 0) return;
-    const added = addToGroup(activeGroup.id, myEmail, invitePicked);
+    const added = await emitAddToGroup(activeGroup.id, myEmail, invitePicked);
     toast.success(added > 0 ? `Added ${added} to ${activeGroup.name}.` : 'Nobody new to add.');
     setInvitePicked([]);
     setInviting(false);
   };
 
-  const makeGroup = (e: React.FormEvent) => {
+  const makeGroup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!groupName.trim() || picked.length === 0) {
       toast.error('Name the group and pick at least one member.');
       return;
     }
-    setThread(createGroup(groupName.trim(), myEmail, picked));
+    const id = await emitCreateGroup(groupName.trim(), myEmail, picked);
+    setThread(id);
     setGroupName('');
     setPicked([]);
     setCreating(false);

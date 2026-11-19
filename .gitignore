@@ -40,3 +40,6 @@ yarn-error.log*
 # handover package bundle
 /handover-package
 
+# local socket runtime persistence
+server/.community-data.json
+

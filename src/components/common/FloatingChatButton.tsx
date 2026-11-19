@@ -11,6 +11,7 @@ export function FloatingChatButton() {
   return (
     <Link
       href="/events#chat"
+      onClick={() => window.dispatchEvent(new CustomEvent('hellobee:community-tab', { detail: 'chat' }))}
       aria-label="Open Hello Bee member chat"
       className="fixed bottom-6 left-6 z-40 inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#111111] text-white border border-white/20 shadow-lg hover:bg-[#262626] transition-all btn-tactile"
     >

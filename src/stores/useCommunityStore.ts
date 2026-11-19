@@ -69,6 +69,11 @@ interface CommunityState {
   posts: Post[];
   groups: ChatGroup[];
   messages: ChatMessage[];
+  socketConnected: boolean;
+  setSocketConnected: (connected: boolean) => void;
+  applySnapshot: (
+    snapshot: Partial<Pick<CommunityState, 'codes' | 'members' | 'meetings' | 'posts' | 'groups' | 'messages'>>,
+  ) => void;
   createCode: (adminName: string) => MembershipCode;
   redeemCode: (person: Person, code: string) => { ok: boolean; message: string };
   ensureMember: (person: Person) => void;
@@ -191,6 +196,22 @@ export const useCommunityStore = create<CommunityState>()(
       posts: SEED_POSTS,
       groups: [],
       messages: [],
+      socketConnected: false,
+
+      setSocketConnected: (connected) => set({ socketConnected: connected }),
+
+      applySnapshot: (snapshot) =>
+        set((s) => ({
+          codes: Array.isArray(snapshot.codes) ? snapshot.codes : s.codes,
+          members:
+            snapshot.members && typeof snapshot.members === 'object' && !Array.isArray(snapshot.members)
+              ? snapshot.members
+              : s.members,
+          meetings: Array.isArray(snapshot.meetings) ? snapshot.meetings : s.meetings,
+          posts: Array.isArray(snapshot.posts) ? snapshot.posts : s.posts,
+          groups: Array.isArray(snapshot.groups) ? snapshot.groups : s.groups,
+          messages: Array.isArray(snapshot.messages) ? snapshot.messages : s.messages,
+        })),
 
       createCode: (adminName) => {
         const now = Date.now();
@@ -286,6 +307,14 @@ export const useCommunityStore = create<CommunityState>()(
     {
       name: STORAGE_KEY,
       version: 1,
+      partialize: (state) => ({
+        codes: state.codes,
+        members: state.members,
+        meetings: state.meetings,
+        posts: state.posts,
+        groups: state.groups,
+        messages: state.messages,
+      }),
       // Damaged or hand-edited storage must not crash the page.
       merge: mergeStored,
     },

@@ -4,16 +4,16 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { BadgeCheck, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
-import { useCommunityStore } from '@/stores/useCommunityStore';
 import { useCommerceStore } from '@/stores/useCommerceStore';
+import { emitRedeemCode } from '@/lib/community-socket';
 import { useIsMember } from './useIsMember';
 
 export function MembershipCard() {
   const { user, isMember } = useIsMember();
-  const redeem = useCommunityStore((s) => s.redeemCode);
   const hellobeeMembers = useCommerceStore((s) => s.hellobeeMembers);
   const registerHellobeeMember = useCommerceStore((s) => s.registerHellobeeMember);
   const [code, setCode] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
@@ -40,9 +40,12 @@ export function MembershipCard() {
     );
   }
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = redeem({ email: user.email, name: user.name }, code);
+    if (submitting) return;
+    setSubmitting(true);
+    const result = await emitRedeemCode({ email: user.email, name: user.name }, code);
+    setSubmitting(false);
     if (result.ok) {
       const existsInNetwork = hellobeeMembers.some(
         (m) => m.email && m.email.toLowerCase() === user.email.toLowerCase()
@@ -83,10 +86,10 @@ export function MembershipCard() {
         />
         <button
           type="submit"
-          disabled={code.length < 8}
+          disabled={code.length < 8 || submitting}
           className="bg-[#111111] text-white px-5 text-xs uppercase font-semibold tracking-wider rounded-xs disabled:opacity-40 btn-tactile"
         >
-          Join
+          {submitting ? 'Joining...' : 'Join'}
         </button>
       </form>
     </section>

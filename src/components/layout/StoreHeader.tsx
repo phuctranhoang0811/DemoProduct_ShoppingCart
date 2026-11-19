@@ -349,15 +349,18 @@ export function StoreHeader() {
                   onMouseLeave={handleMouseLeave}
                 >
                   {[
-                    { label: 'Official Events', href: '/events', Icon: CalendarDays },
-                    { label: 'Meetings & Offline', href: '/events#meetings', Icon: CalendarDays },
-                    { label: 'Dining & Offline Posts', href: '/events#posts', Icon: Newspaper },
-                    { label: 'Member Chat', href: '/events#chat', Icon: MessageCircle },
-                  ].map(({ label, href, Icon }) => (
+                    { label: 'Official Events', href: '/events', Icon: CalendarDays, tab: null },
+                    { label: 'Meetings & Offline', href: '/events#meetings', Icon: CalendarDays, tab: 'meetings' },
+                    { label: 'Dining & Offline Posts', href: '/events#posts', Icon: Newspaper, tab: 'posts' },
+                    { label: 'Member Chat', href: '/events#chat', Icon: MessageCircle, tab: 'chat' },
+                  ].map(({ label, href, Icon, tab }) => (
                     <Link
                       key={href}
                       href={href}
-                      onClick={() => setActiveDropdown(null)}
+                      onClick={() => {
+                        setActiveDropdown(null);
+                        if (tab) window.dispatchEvent(new CustomEvent('hellobee:community-tab', { detail: tab }));
+                      }}
                       className={`flex items-center gap-2.5 px-3 py-2.5 rounded-sm text-xs font-medium normal-case tracking-normal transition-colors ${
                         isDarkHeader
                           ? 'hover:bg-[#1C1C1C] hover:text-[var(--honey)]'
@@ -375,6 +378,7 @@ export function StoreHeader() {
             <Link
               href="/events#chat"
               onMouseEnter={() => setActiveDropdown(null)}
+              onClick={() => window.dispatchEvent(new CustomEvent('hellobee:community-tab', { detail: 'chat' }))}
               className={navLinkClass(false)}
             >
               <MessageCircle className="w-3.5 h-3.5" />
@@ -729,21 +733,30 @@ export function StoreHeader() {
                 </Link>
                 <Link
                   href="/events#meetings"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    window.dispatchEvent(new CustomEvent('hellobee:community-tab', { detail: 'meetings' }));
+                  }}
                   className="block py-1 pl-3 text-[11px] font-medium text-[#555555] hover:text-[#111111] transition-colors"
                 >
                   Meetings &amp; Offline
                 </Link>
                 <Link
                   href="/events#posts"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    window.dispatchEvent(new CustomEvent('hellobee:community-tab', { detail: 'posts' }));
+                  }}
                   className="block py-1 pl-3 text-[11px] font-medium text-[#555555] hover:text-[#111111] transition-colors"
                 >
                   Dining &amp; Offline Posts
                 </Link>
                 <Link
                   href="/events#chat"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    window.dispatchEvent(new CustomEvent('hellobee:community-tab', { detail: 'chat' }));
+                  }}
                   className="flex items-center gap-2 py-1 font-semibold text-[#111111] hover:text-[var(--honey-deep)] transition-colors"
                 >
                   <MessageCircle className="w-3.5 h-3.5" />

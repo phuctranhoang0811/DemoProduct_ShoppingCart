@@ -52,6 +52,7 @@ function EventCard({ event }: { event: MemberEvent }) {
         </p>
         <Link
           href="#meetings"
+          onClick={() => window.dispatchEvent(new CustomEvent('hellobee:community-tab', { detail: 'meetings' }))}
           className="mt-auto bg-[#111111] text-white text-center text-xs uppercase tracking-wider font-semibold py-2.5 rounded-xs hover:bg-[#333333] transition-colors btn-tactile"
         >
           View Meetings &amp; Join
@@ -104,14 +105,17 @@ export function EventsClient({ initialEvents }: { initialEvents: MemberEvent[] }
         </p>
         <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
           {[
-            { label: 'Official Events', href: '#official-events' },
-            { label: 'Meetings & Offline', href: '#meetings' },
-            { label: 'Dining & Offline Feed', href: '#posts' },
-            { label: 'Member Chat', href: '#chat' },
+            { label: 'Official Events', href: '#official-events', tab: null },
+            { label: 'Meetings & Offline', href: '#meetings', tab: 'meetings' },
+            { label: 'Dining & Offline Feed', href: '#posts', tab: 'posts' },
+            { label: 'Member Chat', href: '#chat', tab: 'chat' },
           ].map((item) => (
             <a
               key={item.href}
               href={item.href}
+              onClick={() => {
+                if (item.tab) window.dispatchEvent(new CustomEvent('hellobee:community-tab', { detail: item.tab }));
+              }}
               className="px-4 py-2 rounded-full border border-[#E5E5E5] bg-white text-xs font-semibold text-[#111111] hover:border-[#111111] transition-colors"
             >
               {item.label}

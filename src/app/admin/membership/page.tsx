@@ -5,12 +5,13 @@ import { Copy, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { useCommunityStore, type MembershipCode } from '@/stores/useCommunityStore';
+import { emitCreateCode } from '@/lib/community-socket';
 
 function remaining(code: MembershipCode, now: number): string {
   const ms = code.expiresAt - now;
   if (code.usedBy) return `Used by ${code.usedBy}`;
   if (ms <= 0) return 'Expired';
-  const s = Math.ceil(ms / 1000);
+  const s = Math.min(600, Math.ceil(ms / 1000));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')} left`;
 }
 
@@ -18,7 +19,7 @@ export default function AdminMembershipPage() {
   const admin = useCommerceStore((s) => s.currentUser);
   const codes = useCommunityStore((s) => s.codes);
   const members = useCommunityStore((s) => s.members);
-  const createCode = useCommunityStore((s) => s.createCode);
+  const socketConnected = useCommunityStore((s) => s.socketConnected);
   const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
@@ -36,17 +37,29 @@ export default function AdminMembershipPage() {
 
   return (
     <div className="space-y-8">
-      <div className="pb-4 border-b border-[#E5E5E5]">
-        <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-[#111111]">Membership Codes</h1>
-        <p className="text-sm text-[#666666] mt-1">
-          A customer who has not bought a system can join the membership with a one-time code. Each code works for 10
-          minutes. Codes are stored in this browser for now.
-        </p>
+      <div className="pb-4 border-b border-[#E5E5E5] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-[#111111]">Membership Codes</h1>
+          <p className="text-sm text-[#666666] mt-1">
+            A customer who has not bought a system can join the membership with a one-time code. Each code works for 10
+            minutes.
+          </p>
+        </div>
+        <span
+          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border w-fit shrink-0 ${
+            socketConnected
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+              : 'bg-[#F5F4F0] text-[#666666] border-[#E5E5E5]'
+          }`}
+        >
+          <span className={`w-2 h-2 rounded-full ${socketConnected ? 'bg-emerald-500' : 'bg-[#999999]'}`} />
+          {socketConnected ? 'Socket.IO Live' : 'Local Browser Only'}
+        </span>
       </div>
 
       <button
         type="button"
-        onClick={() => createCode(admin?.name ?? 'Admin')}
+        onClick={() => void emitCreateCode(admin?.name ?? 'Admin')}
         className="inline-flex items-center gap-2 bg-[#111111] text-white px-5 py-2.5 text-xs uppercase font-semibold tracking-wider rounded-xs btn-tactile"
       >
         <KeyRound className="w-4 h-4" /> Generate code
