@@ -225,6 +225,10 @@ class OrderService
                 Discount::where('code', $order->discount_code)->where('used_count', '>', 0)->decrement('used_count');
             }
 
+            if ($order->payment_status === 'Paid') {
+                $this->commissions->revokeForOrder($order);
+            }
+
             $order->update(['status' => 'Cancelled']);
             $order->statusHistory()->create(['status' => 'Cancelled', 'note' => $reason]);
         });

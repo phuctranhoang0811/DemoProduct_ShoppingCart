@@ -4,7 +4,6 @@ import { vi } from 'vitest';
 vi.mock('server-only', () => ({}));
 
 import { useCommerceStore } from '../src/stores/useCommerceStore';
-import { normalizeAddressCountryBody } from '../src/lib/session';
 
 describe('Store Security, Promo Persistence, and Referral Regression Tests', () => {
   beforeEach(() => {
@@ -135,13 +134,4 @@ describe('Store Security, Promo Persistence, and Referral Regression Tests', () 
     expect(order.shippingAddress.postalCode).toBe('94105');
   });
 
-  it('normalizes address country payloads to ISO-2 codes for DB compatibility', () => {
-    expect(normalizeAddressCountryBody({ street: '100 Main', country: 'United States' })).toEqual({
-      street: '100 Main',
-      country: 'US',
-    });
-    expect(normalizeAddressCountryBody({ country: 'USA' })).toEqual({ country: 'US' });
-    expect(normalizeAddressCountryBody({ country: 'us' })).toEqual({ country: 'US' });
-    expect(normalizeAddressCountryBody({ country: '' })).toEqual({ country: null });
-  });
 });

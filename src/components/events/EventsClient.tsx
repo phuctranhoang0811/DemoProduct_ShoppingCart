@@ -6,6 +6,7 @@ import { CalendarDays, Clock, MapPin, Flame } from 'lucide-react';
 import type { MemberEvent } from '@/data/events';
 import { syncEvents } from '@/lib/events-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
+import { CommunityHub } from '@/components/community/CommunityHub';
 import { useEventsStore } from '@/stores/useEventsStore';
 
 const CATEGORIES = ['All', 'Community', 'Training', 'Wellness', 'Leadership'] as const;
@@ -126,6 +127,16 @@ export function EventsClient({ initialEvents }: { initialEvents: MemberEvent[] }
             <EventCard key={e.id} event={e} />
           ))}
         </div>
+      </section>
+
+      <CommunityHub />
+
+      <section className="bg-[#111111] text-white text-center px-6 py-14 space-y-4">
+        <h2 className="text-xs uppercase tracking-wider font-bold">Shop</h2>
+        <p className="text-sm text-white/70 max-w-md mx-auto">Water systems, filters and accessories for you and your guests.</p>
+        <Link href="/shop" className="inline-block bg-white text-[#111111] px-8 py-3 text-xs uppercase font-semibold tracking-wider rounded-xs btn-tactile">
+          Browse the shop
+        </Link>
       </section>
     </div>
   );

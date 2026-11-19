@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { MembershipCard } from '@/components/community/MembershipCard';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -254,6 +255,10 @@ export default function AccountPage() {
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="mb-8">
+        <MembershipCard />
+      </div>
+
       {/* Account Hero Card */}
       <div className="bg-[#FAF9F5] border border-[#E5E5E5] rounded-xl p-6 sm:p-8 mb-8 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">

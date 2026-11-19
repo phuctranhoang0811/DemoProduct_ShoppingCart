@@ -7,7 +7,6 @@ import {
   getSessionToken,
   isSameOrigin,
   localMode,
-  normalizeAddressCountryBody,
 } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
@@ -24,7 +23,7 @@ export async function POST(req: NextRequest) {
 
   const result = await backend<{ data?: unknown; message?: string; errors?: Record<string, string[]> }>(
     '/addresses',
-    { method: 'POST', token, body: normalizeAddressCountryBody(body as Record<string, unknown>) },
+    { method: 'POST', token, body: body },
   );
 
   if (!result.ok) {

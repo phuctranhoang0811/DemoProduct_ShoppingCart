@@ -18,6 +18,8 @@ class AuthController extends Controller
 {
     private const MAX_LOGIN_ATTEMPTS = 5;
 
+    private const MAX_ACCOUNT_ATTEMPTS = 20;
+
     public function register(Request $request): JsonResponse
     {
         $data = $request->validate([
@@ -52,24 +54,32 @@ class AuthController extends Controller
         ]);
 
         $email = Str::lower($credentials['email']);
-        // Requests arrive through the storefront server, so the address alone cannot identify a client.
-        $throttleKey = 'login:'.sha1($email);
+        // Requests arrive through the storefront server, which forwards the real visitor address.
+        // One visitor is locked out quickly; a wider per-account cap still stops slow guessing
+        // without letting a stranger lock the owner out with a handful of bad tries.
+        $clientIp = (string) $request->header('X-Client-Ip', $request->ip());
+        $throttleKey = 'login:'.sha1($email.'|'.$clientIp);
+        $accountKey = 'login-account:'.sha1($email);
 
-        if (RateLimiter::tooManyAttempts($throttleKey, self::MAX_LOGIN_ATTEMPTS)) {
-            throw ValidationException::withMessages([
-                'email' => __('auth.throttle', ['seconds' => RateLimiter::availableIn($throttleKey)]),
-            ])->status(429);
+        foreach ([[$throttleKey, self::MAX_LOGIN_ATTEMPTS], [$accountKey, self::MAX_ACCOUNT_ATTEMPTS]] as [$key, $max]) {
+            if (RateLimiter::tooManyAttempts($key, $max)) {
+                throw ValidationException::withMessages([
+                    'email' => __('auth.throttle', ['seconds' => RateLimiter::availableIn($key)]),
+                ])->status(429);
+            }
         }
 
         $user = User::where('email', $email)->first();
 
         if (! $user || ! Hash::check($credentials['password'], $user->password) || ! $user->isActive()) {
             RateLimiter::hit($throttleKey, 60);
+            RateLimiter::hit($accountKey, 900);
 
             throw ValidationException::withMessages(['email' => __('auth.failed')]);
         }
 
         RateLimiter::clear($throttleKey);
+        RateLimiter::clear($accountKey);
 
         return $this->tokenResponse($user);
     }

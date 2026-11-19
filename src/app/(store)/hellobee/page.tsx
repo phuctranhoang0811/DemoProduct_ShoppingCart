@@ -819,7 +819,7 @@ function HellobeePortalContent() {
 
               {memberCommissions.length === 0 ? (
                 <div className="text-center py-8 text-xs text-[#888888]">
-                  No commissions logged yet. Share your referral code or click "Simulate $1,500 Sale" to generate earnings.
+                  No commissions logged yet. Share your referral code or click &quot;Simulate $1,500 Sale&quot; to generate earnings.
                 </div>
               ) : (
                 <div className="divide-y divide-[#EEEEEE] text-xs">
@@ -880,7 +880,7 @@ function HellobeePortalContent() {
 
             {teamEmployees.length === 0 ? (
               <div className="text-center py-12 text-xs text-[#888888]">
-                No employees registered under this Owner yet. Use "Invite New Employee" with your referral code {currentMember?.referralCode}.
+                No employees registered under this Owner yet. Use &quot;Invite New Employee&quot; with your referral code {currentMember?.referralCode}.
               </div>
             ) : (
               <div className="border border-[#EEEEEE] rounded-xl overflow-hidden text-xs">

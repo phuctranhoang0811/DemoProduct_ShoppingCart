@@ -7,5 +7,9 @@ export async function POST(req: NextRequest) {
 
   const { email, password } = await req.json().catch(() => ({}));
 
-  return sessionResponse(await backend('/auth/login', { method: 'POST', body: { email, password } }));
+  return sessionResponse(await backend('/auth/login', {
+      method: 'POST',
+      body: { email, password },
+      clientIp: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim(),
+    }));
 }

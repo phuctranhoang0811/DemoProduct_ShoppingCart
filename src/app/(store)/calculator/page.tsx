@@ -899,7 +899,7 @@ export default function CalculatorPage() {
                       Awaiting Calculation Parameters
                     </p>
                     <p className="text-xs text-[#888888] max-w-sm mx-auto">
-                      Adjust your income and deductions on the left and click "Compute Tax Breakdown"
+                      Adjust your income and deductions on the left and click &quot;Compute Tax Breakdown&quot;
                       to generate an itemized calculation.
                     </p>
                   </div>

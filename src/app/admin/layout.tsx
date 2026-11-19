@@ -22,6 +22,7 @@ import {
   Briefcase,
   Lock,
   CalendarDays,
+  KeyRound,
 } from 'lucide-react';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 
@@ -35,6 +36,7 @@ const NAV_LINKS = [
   { label: 'Inventory', href: '/admin/inventory', icon: Boxes },
   { label: 'Discounts', href: '/admin/discounts', icon: TicketPercent },
   { label: 'Events', href: '/admin/events', icon: CalendarDays },
+  { label: 'Membership Codes', href: '/admin/membership', icon: KeyRound },
   { label: 'Reviews', href: '/admin/reviews', icon: MessageSquare },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
   { label: 'Employee Workspace', href: '/employee', icon: Briefcase },

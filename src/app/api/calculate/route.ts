@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Internal calculation error occurred.',
+        error: 'Internal calculation error occurred.',
         code: 'INTERNAL_ERROR',
       },
       { status: 500 }
