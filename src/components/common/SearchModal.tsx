@@ -145,7 +145,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             })
           ) : (
             <div className="py-6 text-center text-xs text-[#888888]">
-              Suggestions: Try searching &quot;emGuarde&quot;, &quot;Kangen Air&quot;, &quot;K8&quot;, &quot;SD501&quot;, &quot;Titanium&quot;...
+              Suggestions: Try searching &quot;emGuarde&quot;, &quot;Hello Bee Air&quot;, &quot;K8&quot;, &quot;SD501&quot;, &quot;Titanium&quot;...
             </div>
           )}
         </div>

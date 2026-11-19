@@ -51,10 +51,10 @@ function EventCard({ event }: { event: MemberEvent }) {
           {event.meaning}
         </p>
         <Link
-          href="/hellobee"
+          href="#meetings"
           className="mt-auto bg-[#111111] text-white text-center text-xs uppercase tracking-wider font-semibold py-2.5 rounded-xs hover:bg-[#333333] transition-colors btn-tactile"
         >
-          Member Sign-Up
+          View Meetings &amp; Join
         </Link>
       </div>
     </article>
@@ -95,16 +95,32 @@ export function EventsClient({ initialEvents }: { initialEvents: MemberEvent[] }
         </div>
       </section>
 
-      <section className="max-w-4xl mx-auto px-6 py-14 text-center space-y-4">
+      <section className="max-w-4xl mx-auto px-6 py-14 text-center space-y-5">
         <h2 className="text-xs uppercase tracking-wider font-bold">The Meaning Behind the Circle</h2>
         <p className="text-sm sm:text-base text-[#555555] leading-relaxed">
-          A ring of hands around a single fire is the heart of every Hellobee gathering. The fire is our shared purpose,
-          healthy living for everyone. The circle has no front and no back, so every member, from rank 1A to 5A, stands
+          A ring of hands around a single fire is the heart of every Hello Bee gathering. The fire is our shared purpose,
+          healthy living for everyone. The circle has no front and no back, so every member, from LV1 to LV10, stands
           equal and connected. Each person who steps in makes the circle wider and the light brighter.
         </p>
+        <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+          {[
+            { label: 'Official Events', href: '#official-events' },
+            { label: 'Meetings & Offline', href: '#meetings' },
+            { label: 'Dining & Offline Feed', href: '#posts' },
+            { label: 'Member Chat', href: '#chat' },
+          ].map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className="px-4 py-2 rounded-full border border-[#E5E5E5] bg-white text-xs font-semibold text-[#111111] hover:border-[#111111] transition-colors"
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
       </section>
 
-      <section className="max-w-[1440px] mx-auto px-6 sm:px-12 lg:px-20 pb-20">
+      <section id="official-events" className="max-w-[1440px] mx-auto px-6 sm:px-12 lg:px-20 pb-20 scroll-mt-24">
         <div className="flex gap-2 overflow-x-auto pb-4">
           {CATEGORIES.map((c) => (
             <button
@@ -122,7 +138,7 @@ export function EventsClient({ initialEvents }: { initialEvents: MemberEvent[] }
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
           {events.map((e) => (
             <EventCard key={e.id} event={e} />
           ))}

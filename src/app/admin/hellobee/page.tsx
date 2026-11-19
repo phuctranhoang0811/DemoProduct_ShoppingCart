@@ -131,7 +131,7 @@ export default function AdminHellobeePage() {
             ${totalNetworkVolume.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
           <div className="text-xs text-[#737373] mt-1.5">
-            ${(totalNetworkVolume / 1500).toFixed(0)} units @ $1,500/unit
+            {(totalNetworkVolume / 1500).toFixed(0)} units @ $1,500/unit
           </div>
         </div>
 
@@ -266,85 +266,92 @@ export default function AdminHellobeePage() {
             <table className="w-full text-left text-xs">
               <thead className="bg-[#FBFBFA] border-b border-[#E5E5E5] text-[#737373] uppercase tracking-wider text-[11px]">
                 <tr>
-                  <th className="py-3 px-4 font-medium">Member</th>
-                  <th className="py-3 px-4 font-medium">Role</th>
-                  <th className="py-3 px-4 font-medium">Rank (LV1–LV10)</th>
-                  <th className="py-3 px-4 font-medium">Referral Code</th>
-                  <th className="py-3 px-4 font-medium">Supervisor (Owner)</th>
-                  <th className="py-3 px-4 font-medium">Level Title</th>
-                  <th className="py-3 px-4 font-medium text-right">Direct / Team</th>
-                  <th className="py-3 px-4 font-medium text-right">Monthly Salary</th>
-                  <th className="py-3 px-4 font-medium text-right">Direct Units</th>
-                  <th className="py-3 px-4 font-medium text-right">Sales Volume</th>
-                  <th className="py-3 px-4 font-medium text-right">Available Balance</th>
+                  <th className="py-3 px-3 font-medium">Member</th>
+                  <th className="py-3 px-3 font-medium">Role</th>
+                  <th className="py-3 px-3 font-medium">Rank</th>
+                  <th className="py-3 px-3 font-medium">Referral Code</th>
+                  <th className="py-3 px-3 font-medium">Supervisor (Owner)</th>
+                  <th className="py-3 px-3 font-medium text-right">Direct / Team</th>
+                  <th className="py-3 px-3 font-medium text-right">Monthly Salary</th>
+                  <th className="py-3 px-3 font-medium text-right">Direct Units</th>
+                  <th className="py-3 px-3 font-medium text-right">Sales Volume</th>
+                  <th className="py-3 px-3 font-medium text-right">Available Balance</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E5E5E5]">
-                {filteredMembers.map((m) => {
-                  const supervisor = m.ownerId ? members.find((o) => o.id === m.ownerId) : null;
-                  const team = getTeamStats(m.id, members);
-                  const lvLevel = getMemberLvLevel(m, members);
-                  const ladder = LADDER_RANKS.find((r) => r.level === lvLevel);
-                  return (
-                    <tr key={m.id} className="hover:bg-[#FBFBFA]/80">
-                      <td className="py-3.5 px-4">
-                        <div className="font-medium text-[#111111]">{m.name}</div>
-                        <div className="text-[11px] text-[#737373]">{m.email}</div>
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] uppercase tracking-wider font-semibold ${
-                            m.role === 'OWNER'
-                              ? 'bg-[#111111] text-white'
-                              : 'bg-[#F2EFE9] text-[#111111]'
-                          }`}
-                        >
-                          {m.role === 'OWNER' ? (
-                            <Building2 className="w-3 h-3 text-[#B9A58B]" />
+                {filteredMembers.length === 0 ? (
+                  <tr>
+                    <td colSpan={10} className="py-10 text-center text-[#737373]">
+                      No members found matching the selected rank or filter.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredMembers.map((m) => {
+                    const supervisor = m.ownerId ? members.find((o) => o.id === m.ownerId) : null;
+                    const team = getTeamStats(m.id, members);
+                    const lvLevel = getMemberLvLevel(m, members);
+                    const ladder = LADDER_RANKS.find((r) => r.level === lvLevel);
+                    return (
+                      <tr key={m.id} className="hover:bg-[#FBFBFA]/80">
+                        <td className="py-3 px-3">
+                          <div className="font-medium text-[#111111]">{m.name}</div>
+                          <div className="text-[11px] text-[#737373]">{m.email}</div>
+                        </td>
+                        <td className="py-3 px-3">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] uppercase tracking-wider font-semibold ${
+                              m.role === 'OWNER'
+                                ? 'bg-[#111111] text-white'
+                                : 'bg-[#F2EFE9] text-[#111111]'
+                            }`}
+                          >
+                            {m.role === 'OWNER' ? (
+                              <Building2 className="w-3 h-3 text-[#B9A58B]" />
+                            ) : (
+                              <UserCheck className="w-3 h-3" />
+                            )}
+                            {m.role}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3">
+                          <span className="inline-block font-mono font-bold text-xs px-2 py-0.5 bg-[#FAF8F5] border border-[#E5E5E5] text-[#111111]">
+                            LV{lvLevel}
+                          </span>
+                          <div className="text-[10px] text-[#737373] mt-0.5 whitespace-nowrap">
+                            {LADDER_NAMES[lvLevel - 1]}
+                          </div>
+                        </td>
+                        <td className="py-3 px-3 font-mono font-medium text-[#111111]">
+                          {m.referralCode}
+                        </td>
+                        <td className="py-3 px-3 text-[#737373]">
+                          {supervisor ? (
+                            <div className="font-medium text-[#111111]">{supervisor.name}</div>
                           ) : (
-                            <UserCheck className="w-3 h-3" />
+                            <span className="text-[#999999] italic">— Independent Node —</span>
                           )}
-                          {m.role}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <span className="font-mono font-bold text-xs px-2 py-0.5 bg-[#FAF8F5] border border-[#E5E5E5] text-[#111111]">
-                          LV{lvLevel}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 font-mono font-medium text-[#111111]">
-                        {m.referralCode}
-                      </td>
-                      <td className="py-3.5 px-4 text-[#737373]">
-                        {supervisor ? (
-                          <div className="font-medium text-[#111111]">{supervisor.name}</div>
-                        ) : (
-                          <span className="text-[#999999] italic">— Independent Node —</span>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-4 font-medium text-[#111111]">
-                        {LADDER_NAMES[lvLevel - 1]}
-                      </td>
-                      <td className="py-3.5 px-4 text-right font-mono">
-                        {team.directCount} / {team.teamSize}
-                      </td>
-                      <td className="py-3.5 px-4 text-right font-mono text-[#2D5A27]">
-                        ${(ladder?.monthlySalary ?? 0).toLocaleString('en-US')}
-                      </td>
-                      <td className="py-3.5 px-4 text-right font-mono font-semibold text-[#111111]">
-                        {m.validOrdersCount}
-                      </td>
-                      <td className="py-3.5 px-4 text-right font-mono text-[#111111]">
-                        ${(m.role === 'OWNER' ? m.networkSalesVolume : m.personalSalesVolume).toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                        })}
-                      </td>
-                      <td className="py-3.5 px-4 text-right font-mono font-semibold text-[#2D5A27]">
-                        ${m.availableBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                      </td>
-                    </tr>
-                  );
-                })}
+                        </td>
+                        <td className="py-3 px-3 text-right font-mono">
+                          {team.directCount} / {team.teamSize}
+                        </td>
+                        <td className="py-3 px-3 text-right font-mono text-[#2D5A27]">
+                          ${(ladder?.monthlySalary ?? 0).toLocaleString('en-US')}
+                        </td>
+                        <td className="py-3 px-3 text-right font-mono font-semibold text-[#111111]">
+                          {m.validOrdersCount}
+                        </td>
+                        <td className="py-3 px-3 text-right font-mono text-[#111111]">
+                          ${(m.role === 'OWNER' ? m.networkSalesVolume : m.personalSalesVolume).toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                          })}
+                        </td>
+                        <td className="py-3 px-3 text-right font-mono font-semibold text-[#2D5A27]">
+                          ${m.availableBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>

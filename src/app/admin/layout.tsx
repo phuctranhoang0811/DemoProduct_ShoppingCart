@@ -23,7 +23,10 @@ import {
   Lock,
   CalendarDays,
   KeyRound,
+  LogOut,
 } from 'lucide-react';
+import { toast } from 'sonner';
+import { signOut } from '@/lib/auth-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 
 const NAV_LINKS = [
@@ -47,6 +50,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const currentUser = useCommerceStore((state) => state.currentUser);
   const isHydrated = useCommerceStore((state) => state.isHydrated);
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.info('Signed out.');
+    window.location.assign('/login');
+  };
 
   if (!isHydrated) {
     return (
@@ -170,6 +179,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </span>
             <ExternalLink className="w-3 h-3" />
           </Link>
+          <button
+            type="button"
+            onClick={() => void handleSignOut()}
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#F87171] hover:text-white hover:bg-[#222222] transition-colors"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Sign Out</span>
+          </button>
         </div>
       </aside>
 
@@ -213,6 +230,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <span>View Store</span>
               <ExternalLink className="w-3 h-3" />
             </Link>
+            <button
+              type="button"
+              onClick={() => void handleSignOut()}
+              className="flex items-center gap-1.5 px-3 py-1.5 border border-[#B74747]/40 text-[#B74747] text-[11px] uppercase font-semibold hover:bg-[#FBEAEA] transition-colors rounded-xs"
+            >
+              <LogOut className="w-3 h-3" />
+              <span>Sign Out</span>
+            </button>
           </div>
         </header>
 
@@ -270,6 +295,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <ArrowLeft className="w-4 h-4" />
                 Back to Store
               </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileOpen(false);
+                  void handleSignOut();
+                }}
+                className="flex items-center gap-2 text-xs text-[#F87171] hover:text-white"
+              >
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </button>
             </div>
           </div>
         </div>

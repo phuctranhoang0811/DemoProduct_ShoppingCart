@@ -2,16 +2,16 @@ import type { Metadata } from 'next';
 import { SITE_NAME, buildBreadcrumbsSchema, safeJsonLd } from '@/lib/seo';
 
 const description =
-  'Join Hellobee member events, hydration workshops, wellness hikes, and leadership summits across the Hellobee® Kangen Water® community.';
+  'Join Hello Bee member events, offline meetings, dining gatherings, wellness workshops, and member chat.';
 
 export const metadata: Metadata = {
-  title: 'Hellobee Member Events & Workshops',
+  title: 'Events, Meetings & Community',
   description,
   alternates: {
     canonical: '/events',
   },
   openGraph: {
-    title: `Hellobee Member Events & Workshops | ${SITE_NAME}`,
+    title: `Events, Meetings & Community | ${SITE_NAME}`,
     description,
     url: '/events',
     siteName: SITE_NAME,

@@ -19,14 +19,14 @@ export const MEMBER_EVENTS: MemberEvent[] = [
     time: '6:30 PM',
     location: 'Lakeside Camp, Austin, TX',
     description:
-      'An evening around the bonfire with music, group dances, and stories from members across every rank, 1A to 5A.',
+      'An evening around the bonfire with music, group dances, and stories from members across every rank, LV1 to LV10.',
     meaning:
       'Joined hands around one fire show that every member stands equal in the circle. The warmth belongs to everyone, and the circle grows stronger with each person who joins.',
     image: '/images/events/campfire.webp',
   },
   {
     id: 'evt-hydration-workshop',
-    title: 'Hydration & Kangen Water Workshop',
+    title: 'Hydration & Alkaline Water Workshop',
     category: 'Training',
     date: '2026-12-05',
     time: '10:00 AM',
@@ -57,7 +57,7 @@ export const MEMBER_EVENTS: MemberEvent[] = [
     time: '9:00 AM',
     location: 'Downtown Conference Center, Dallas, TX',
     description:
-      'Rank-up celebrations, team-building sessions, and strategy talks for 3A to 5A leaders and rising consultants.',
+      'Rank-up celebrations, team-building sessions, and strategy talks for LV3 to LV10 leaders and rising consultants.',
     meaning:
       'Leaders grow by lifting others. This summit recognizes the members whose teams have grown the network.',
     image: '/images/events/campfire.webp',

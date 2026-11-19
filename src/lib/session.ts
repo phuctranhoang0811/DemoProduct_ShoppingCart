@@ -84,7 +84,7 @@ export function forbidden(): NextResponse {
 
 // Returned when no backend is configured; the client then keeps its local demo sign-in.
 export function localMode(): NextResponse {
-  return NextResponse.json({ mode: 'local' }, { status: 501 });
+  return NextResponse.json({ mode: 'local' }, { status: 200 });
 }
 
 interface TokenPayload {

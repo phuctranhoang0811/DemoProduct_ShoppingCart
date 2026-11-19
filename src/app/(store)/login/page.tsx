@@ -51,7 +51,7 @@ export default function LoginPage() {
           Sign In
         </h1>
         <p className="text-xs text-[#777777]">
-          Sign in to access your Hellobee® account
+          Sign in to access your Hello Bee account
         </p>
       </div>
 
@@ -152,7 +152,7 @@ export default function LoginPage() {
         {/* Register CTA Box */}
         <div className="pt-4 border-t border-[#F0F0F0] text-center">
           <p className="text-xs text-[#777777] mb-2.5">
-            Do not have an Hellobee account yet?
+            Do not have a Hello Bee account yet?
           </p>
           <Link
             href="/register"
@@ -167,7 +167,7 @@ export default function LoginPage() {
       {/* Navigation Footer */}
       <div className="mt-6 text-center text-xs text-[#777777]">
         <p>
-          New to Hellobee?{' '}
+          New to Hello Bee?{' '}
           <Link href="/register" className="text-[#111111] underline font-semibold hover:text-black">
             Create an account &rarr;
           </Link>

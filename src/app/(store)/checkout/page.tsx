@@ -372,7 +372,7 @@ function CheckoutContent() {
 
       const order = createOrder({
         customerName: fullName,
-        customerEmail: email || 'customer@enagic.com',
+        customerEmail: email || 'customer@hellobee.com',
         customerPhone: phone,
         shippingAddress: {
           street,

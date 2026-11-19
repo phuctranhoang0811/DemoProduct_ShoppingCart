@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { MembershipCard } from '@/components/community/MembershipCard';
+import { LADDER_RANKS } from '@/types/hellobee';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -231,7 +232,7 @@ export default function AccountPage() {
     .join('')
     .toUpperCase();
 
-  // Compute 1A–5A rank only for authorized consultants / admins
+  // Compute LV1–LV10 rank only for authorized consultants / admins
   const isStaffOrAdmin = currentUser.role === 'employee' || currentUser.role === 'admin';
   const referredOrderCount = isStaffOrAdmin && currentUser.referralCode
     ? orders.filter(
@@ -243,12 +244,12 @@ export default function AccountPage() {
     : 0;
 
   const getRank = (count: number): string | null => {
-    if (count >= 625) return '5A';
-    if (count >= 125) return '4A';
-    if (count >= 25) return '3A';
-    if (count >= 5) return '2A';
-    if (count >= 1) return '1A';
-    return null;
+    if (count < 1) return null;
+    let level = 1;
+    for (const r of LADDER_RANKS) {
+      if (count >= r.teamSize) level = r.level;
+    }
+    return `LV${level}`;
   };
 
   const customerRank = isStaffOrAdmin ? getRank(referredOrderCount) : null;

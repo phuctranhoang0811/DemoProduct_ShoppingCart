@@ -18,6 +18,9 @@ import {
   SlidersHorizontal,
   Briefcase,
   LogOut,
+  MessageCircle,
+  CalendarDays,
+  Newspaper,
 } from 'lucide-react';
 import { signOut } from '@/lib/auth-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
@@ -31,7 +34,7 @@ export function StoreHeader() {
   const { t, format } = useTranslation();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<'ionizers' | null>(null);
+  const [activeDropdown, setActiveDropdown] = useState<'ionizers' | 'events' | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isCartBounced, setIsCartBounced] = useState(false);
 
@@ -82,7 +85,7 @@ export function StoreHeader() {
     setActiveDropdown(null);
   }, [pathname, setIsCartDrawerOpen]);
 
-  const handleMouseEnter = (menu: 'ionizers') => {
+  const handleMouseEnter = (menu: 'ionizers' | 'events') => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setActiveDropdown(menu);
   };
@@ -174,7 +177,7 @@ export function StoreHeader() {
               <span className={`hidden sm:block text-sm xl:text-base tracking-[0.22em] font-bold uppercase whitespace-nowrap transition-colors ${
                 isDarkHeader ? 'text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]' : 'text-[#111111]'
               }`}>
-                HelloBee
+                Hello Bee
               </span>
             </Link>
           </div>
@@ -318,18 +321,65 @@ export function StoreHeader() {
               {navUnderline(pathname === '/hellobee')}
             </Link>
 
-            <Link
-              href="/events"
-              onMouseEnter={() => setActiveDropdown(null)}
-              className={`relative whitespace-nowrap shrink-0 h-full flex items-center transition-colors ${
-                isDarkHeader
-                  ? 'text-white/75 hover:text-white'
-                  : pathname === '/events'
-                  ? 'text-[#111111] font-bold'
-                  : 'text-[#444444] hover:text-[#111111]'
-              }`}
+            <div
+              className="relative h-full flex items-center shrink-0"
+              onMouseEnter={() => handleMouseEnter('events')}
             >
-              <span>{t.header.events}</span>
+              <Link
+                href="/events"
+                className={navLinkClass(activeDropdown === 'events' || pathname === '/events')}
+              >
+                <span>{t.header.events}</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                    activeDropdown === 'events' ? 'rotate-180' : ''
+                  }`}
+                />
+                {navUnderline(activeDropdown === 'events' || pathname === '/events')}
+              </Link>
+
+              {activeDropdown === 'events' && (
+                <div
+                  className={`absolute top-full left-1/2 -translate-x-1/2 w-64 border shadow-2xl p-2 z-50 rounded-b-md animate-scale-in duration-200 ${
+                    isDarkHeader
+                      ? 'bg-[#141414] border-[#2A2A2A] text-white'
+                      : 'bg-white border-[#E5E5E5] text-[#111111]'
+                  }`}
+                  onMouseEnter={() => handleMouseEnter('events')}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  {[
+                    { label: 'Official Events', href: '/events', Icon: CalendarDays },
+                    { label: 'Meetings & Offline', href: '/events#meetings', Icon: CalendarDays },
+                    { label: 'Dining & Offline Posts', href: '/events#posts', Icon: Newspaper },
+                    { label: 'Member Chat', href: '/events#chat', Icon: MessageCircle },
+                  ].map(({ label, href, Icon }) => (
+                    <Link
+                      key={href}
+                      href={href}
+                      onClick={() => setActiveDropdown(null)}
+                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-sm text-xs font-medium normal-case tracking-normal transition-colors ${
+                        isDarkHeader
+                          ? 'hover:bg-[#1C1C1C] hover:text-[var(--honey)]'
+                          : 'hover:bg-[var(--honey-tint)] hover:text-[#111111]'
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5 shrink-0" />
+                      <span>{label}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <Link
+              href="/events#chat"
+              onMouseEnter={() => setActiveDropdown(null)}
+              className={navLinkClass(false)}
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span>Chat</span>
+              {navUnderline(false)}
             </Link>
           </nav>
 
@@ -622,7 +672,7 @@ export function StoreHeader() {
                     className="h-8 w-auto object-contain"
                   />
                   <span className="text-[10px] uppercase tracking-[0.2em] text-[#333333] font-semibold border-l border-gray-300 pl-2">
-                    HELLOBEE
+                    HELLO BEE
                   </span>
                 </div>
                 <button
@@ -676,6 +726,28 @@ export function StoreHeader() {
                   className="block py-1 font-semibold text-[#111111] hover:text-[#666666] transition-colors"
                 >
                   {t.header.events}
+                </Link>
+                <Link
+                  href="/events#meetings"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block py-1 pl-3 text-[11px] font-medium text-[#555555] hover:text-[#111111] transition-colors"
+                >
+                  Meetings &amp; Offline
+                </Link>
+                <Link
+                  href="/events#posts"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block py-1 pl-3 text-[11px] font-medium text-[#555555] hover:text-[#111111] transition-colors"
+                >
+                  Dining &amp; Offline Posts
+                </Link>
+                <Link
+                  href="/events#chat"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-2 py-1 font-semibold text-[#111111] hover:text-[var(--honey-deep)] transition-colors"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span>Chat</span>
                 </Link>
               </div>
 

@@ -2,14 +2,14 @@ import type { Metadata } from 'next';
 import { SITE_NAME } from '@/lib/seo';
 
 const description =
-  'Join the Hellobee consultant network: earn 10% direct commission on Kangen Water® system sales and advance from rank 1A to 5A.';
+  'Join the Hello Bee consultant network: earn 10% direct commission on device sales and advance from LV1 to LV10.';
 
 export const metadata: Metadata = {
-  title: 'Hellobee Consultant Network',
+  title: 'Hello Bee Network',
   description,
   alternates: { canonical: '/hellobee' },
   openGraph: {
-    title: `Hellobee Consultant Network | ${SITE_NAME}`,
+    title: `Hello Bee Network | ${SITE_NAME}`,
     description,
     url: '/hellobee',
     siteName: SITE_NAME,

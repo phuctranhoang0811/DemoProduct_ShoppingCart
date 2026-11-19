@@ -11,7 +11,8 @@ export async function syncEvents(): Promise<void> {
     const res = await fetch('/api/events', { cache: 'no-store' });
     if (res.status === LOCAL_MODE || !res.ok) return;
 
-    const json = (await res.json()) as { data?: MemberEvent[] };
+    const json = (await res.json().catch(() => ({}))) as { mode?: string; data?: MemberEvent[] };
+    if (json.mode === 'local') return;
     if (Array.isArray(json.data)) {
       useEventsStore.setState({ events: json.data });
     }

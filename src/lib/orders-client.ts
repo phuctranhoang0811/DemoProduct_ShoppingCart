@@ -99,8 +99,11 @@ export async function fetchPaymentMethods(): Promise<PaymentMethod[] | null> {
   try {
     const res = await fetch('/api/checkout/config', { cache: 'no-store' });
     if (res.status === LOCAL_MODE) return null;
+    const data = await res.json().catch(() => ({}));
+    if (data?.mode === 'local') return null;
+    if (data?.mode === 'local') return null;
     if (!res.ok) return [];
-    return (await res.json()).payment_methods ?? [];
+    return data.payment_methods ?? [];
   } catch {
     return [];
   }
@@ -151,6 +154,7 @@ export async function fetchCheckoutQuote(
 
     if (res.status === LOCAL_MODE) return null;
     const data = await res.json().catch(() => ({}));
+    if (data?.mode === 'local') return null;
     if (!res.ok) {
       return {
         subtotal: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
@@ -225,7 +229,10 @@ export async function fetchOrder(number: string, accessToken?: string | null): P
     const res = await fetch(`/api/orders/${encodeURIComponent(number)}${query}`, { cache: 'no-store' });
     if (!res.ok) return null;
 
-    const order = apiOrderToOrder((await res.json()).data);
+    const json = await res.json().catch(() => ({}));
+    if (json?.mode === 'local' || !json?.data) return null;
+
+    const order = apiOrderToOrder(json.data);
     remember(order);
     return order;
   } catch {
@@ -239,7 +246,10 @@ export async function syncMyOrders(): Promise<void> {
     const res = await fetch('/api/orders', { cache: 'no-store' });
     if (!res.ok) return;
 
-    const orders: Order[] = ((await res.json()).data ?? []).map(apiOrderToOrder);
+    const json = await res.json().catch(() => ({}));
+    if (json?.mode === 'local') return;
+
+    const orders: Order[] = (json.data ?? []).map(apiOrderToOrder);
     useCommerceStore.setState({ orders });
   } catch {
     // Keep the cached list when the backend cannot be reached.

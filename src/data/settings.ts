@@ -1,10 +1,10 @@
 import { StoreSettings } from '@/types';
 
 export const initialSettings: StoreSettings = {
-  storeName: 'HELLOBEE® KANGEN WATER® & HELLOBEE NETWORK',
-  storeDescription: 'Official OEM manufacturer of medical-grade ionized alkaline Kangen Water® machines since 1974. Change Your Water, Change Your Life.®',
+  storeName: 'HELLO BEE',
+  storeDescription: 'Official distributor of Hello Bee medical-grade alkaline water ionizers and wellness devices.',
   contactEmail: 'support@hellobee.com',
-  contactPhone: '+1 (800) 555-KANGEN',
+  contactPhone: '+1 (800) 555-4355',
   shippingFee: 0,
   freeShippingThreshold: 0,
   currency: 'USD',

@@ -42,7 +42,7 @@ import { OrderStatus, Order } from '@/types';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { toast } from 'sonner';
 import { SITE_URL } from '@/lib/seo';
-import { LADDER_NAMES, LADDER_RANKS, getTeamStats, commissionLabel } from '@/types/hellobee';
+import { LADDER_NAMES, LADDER_RANKS, getMemberLvLevel, getTeamStats, commissionLabel } from '@/types/hellobee';
 import { BenefitsPanel } from '@/components/hellobee/BenefitsPanel';
 import { LevelUpCelebration } from '@/components/hellobee/LevelUpCelebration';
 
@@ -74,7 +74,7 @@ export default function EmployeePage() {
       name: 'Dr. Arthur Vance',
       phone: '+1 (555) 234-8899',
       email: 'a.vance@wellnessclinic.org',
-      interestedIn: 'Kangen K8 (8-Plate Medical Grade)',
+      interestedIn: 'LeveLuk K8 (8-Plate Medical Grade)',
       status: 'Consultation Scheduled',
       date: 'Today, 10:30 AM',
       notes: 'Requested clinic installation for 2 doctor consultation rooms.',
@@ -317,7 +317,7 @@ export default function EmployeePage() {
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono uppercase bg-[#111111] text-white px-2 py-0.5 rounded-xs font-bold">
-                  {currentMember.rank} {currentMember.role === 'OWNER' ? 'Owner' : 'Associate'}
+                  LV{getMemberLvLevel(currentMember, hellobeeMembers)} {currentMember.role === 'OWNER' ? 'Owner' : 'Associate'}
                 </span>
                 <span className="text-[10px] font-bold text-[#2D5A27] bg-[#EBF3EA] px-2.5 py-0.5 rounded-full border border-[#2D5A27]/20">
                   10% Direct Commission Eligible
@@ -1033,7 +1033,7 @@ export default function EmployeePage() {
                         <td className="p-3 text-[#777777]">Upon payment confirmation</td>
                       </tr>
                       <tr>
-                        <td className="p-3 font-semibold text-[#111111]">Kangen Air 500</td>
+                        <td className="p-3 font-semibold text-[#111111]">Hello Bee Air 500</td>
                         <td className="p-3">{formatPrice(500)}</td>
                         <td className="p-3 font-bold text-[#2D5A27]">{formatPrice(50)}</td>
                         <td className="p-3 text-[#777777]">Upon payment confirmation</td>

@@ -43,16 +43,16 @@ import { generateId } from '@/lib/utils';
 import type { Language } from '@/i18n/types';
 
 const STORAGE_KEYS = {
-  products: 'enagic_kangen_products_v14',
-  categories: 'enagic_kangen_categories_v8',
+  products: 'enagic_kangen_products_v15',
+  categories: 'enagic_kangen_categories_v9',
   cart: 'enagic_kangen_cart_v2',
   wishlist: 'enagic_kangen_wishlist_v5',
   orders: 'enagic_kangen_orders_v2',
   customers: 'enagic_kangen_customers_v2',
   discounts: 'enagic_kangen_discounts_v2',
-  reviews: 'enagic_kangen_reviews_v2',
+  reviews: 'enagic_kangen_reviews_v3',
   inventory: 'enagic_kangen_inventory_v2',
-  settings: 'enagic_kangen_settings_v2',
+  settings: 'enagic_kangen_settings_v3',
   session: 'enagic_kangen_session_v2',
   currency: 'enagic_kangen_currency_v2',
   language: 'enagic_kangen_language_v2',

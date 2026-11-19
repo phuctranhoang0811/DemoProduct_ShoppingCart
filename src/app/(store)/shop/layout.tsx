@@ -2,16 +2,16 @@ import type { Metadata } from 'next';
 import { SITE_NAME, buildBreadcrumbsSchema, safeJsonLd } from '@/lib/seo';
 
 const description =
-  'Shop the 7-product Hellobee® lineup: emGuarde Personal Protection Device, Kangen Air 500 purifier, and LeveLuk alkaline water ionizers.';
+  'Shop the 7-product Hello Bee lineup: emGuarde Personal Protection Device, Hello Bee Air 500 purifier, and LeveLuk alkaline water ionizers.';
 
 export const metadata: Metadata = {
   title: 'Shop Water Ionizers & Wellness Devices',
   description,
   keywords: [
-    'Kangen Water ionizer',
-    'Hellobee',
+    'Hello Bee water ionizer',
+    'Hello Bee',
     'emGuarde',
-    'Kangen Air 500',
+    'Hello Bee Air 500',
     'LeveLuk K8',
     'alkaline water',
   ],

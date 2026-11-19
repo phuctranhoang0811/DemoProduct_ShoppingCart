@@ -15,6 +15,7 @@ const nextConfig = {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',

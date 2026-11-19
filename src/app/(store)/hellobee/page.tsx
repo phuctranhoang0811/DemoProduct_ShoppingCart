@@ -556,7 +556,7 @@ function HellobeePortalContent() {
               <p className="mt-1 text-sm text-[#666666] max-w-2xl">
                 {isOwner
                   ? 'Manage your network sales, supervise assigned employees, track 1% override commissions and scale your Hellobee organization.'
-                  : 'Track your personal $1,500 ionizer sales, monitor 10% direct commissions ($150/unit), and advance through the 10-level ranks LV1 to LV10.'}
+                  : 'Track your personal $1,500 device sales, monitor 10% direct commissions ($150/unit), and advance through the 10-level ranks LV1 to LV10.'}
               </p>
             </div>
           </div>

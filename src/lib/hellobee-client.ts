@@ -77,7 +77,8 @@ export async function syncNetwork(): Promise<void> {
     const res = await fetch('/api/hellobee/network', { cache: 'no-store' });
     if (!res.ok) return;
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
+    if (data?.mode === 'local' || !Array.isArray(data?.members)) return;
     const members: HellobeeMember[] = data.members.map(toMember);
 
     useCommerceStore.setState((state) => ({
@@ -159,9 +160,11 @@ export async function lookupReferralCode(
   try {
     const res = await fetch(`/api/referral-codes/${encodeURIComponent(code.trim())}`, { cache: 'no-store' });
     if (res.status === LOCAL_MODE) return undefined;
+    const json = await res.json().catch(() => ({}));
+    if (json?.mode === 'local') return undefined;
     if (!res.ok) return null;
 
-    const { data } = await res.json();
+    const { data } = json;
     return {
       name: data.name,
       referralCode: data.referral_code,

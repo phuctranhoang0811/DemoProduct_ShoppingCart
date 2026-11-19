@@ -16,6 +16,6 @@ export const useEventsStore = create<EventsState>()(
         set((s) => ({ events: [{ ...event, id: `evt-${Date.now()}` }, ...s.events] })),
       deleteEvent: (id) => set((s) => ({ events: s.events.filter((e) => e.id !== id) })),
     }),
-    { name: 'hellobee_events_v1' }
+    { name: 'hellobee_events_v2' }
   )
 );

@@ -47,6 +47,8 @@ export interface AuthResult {
 }
 
 const LOCAL_MODE = 501;
+const isLocal = (status: number, data?: { mode?: string } | null) =>
+  status === LOCAL_MODE || data?.mode === 'local';
 
 export function homeForRole(role?: Role): string {
   if (role === 'admin') return '/admin';
@@ -118,7 +120,7 @@ function finish({ status, data }: { status: number; data: any }): AuthResult {
 export async function signIn(email: string, password: string): Promise<AuthResult> {
   const res = await post('/api/auth/login', { email, password });
 
-  if (res.status === LOCAL_MODE) {
+  if (isLocal(res.status, res.data)) {
     const store = useCommerceStore.getState();
     const ok = store.loginWithEmail(email);
     return { ok, user: useCommerceStore.getState().currentUser ?? undefined };
@@ -143,7 +145,7 @@ export async function signUp(input: {
     ...(cleanRef ? { sponsor_code: cleanRef } : {}),
   });
 
-  if (res.status === LOCAL_MODE) {
+  if (isLocal(res.status, res.data)) {
     const user = useCommerceStore.getState().register(input.name, input.email, input.phone, cleanRef);
     return { ok: true, user };
   }
@@ -189,7 +191,7 @@ export async function saveProfile(updates: Partial<Customer>): Promise<AuthResul
     phone: updates.phone,
   });
 
-  if (res.status === LOCAL_MODE) {
+  if (isLocal(res.status, res.data)) {
     useCommerceStore.getState().updateProfile(updates);
     return { ok: true, user: useCommerceStore.getState().currentUser ?? undefined };
   }
@@ -203,7 +205,7 @@ export async function saveProfile(updates: Partial<Customer>): Promise<AuthResul
 
 export async function saveAddress(address: Omit<Address, 'id'>): Promise<AuthResult> {
   const res = await accountRequest('/api/account/addresses', 'POST', addressPayload(address));
-  if (res.status === LOCAL_MODE) {
+  if (isLocal(res.status, res.data)) {
     useCommerceStore.getState().addAddress(address);
     return { ok: true, user: useCommerceStore.getState().currentUser ?? undefined };
   }
@@ -215,7 +217,7 @@ export async function saveAddress(address: Omit<Address, 'id'>): Promise<AuthRes
 
 export async function editAddress(addressId: string, address: Omit<Address, 'id'>): Promise<AuthResult> {
   const res = await accountRequest(`/api/account/addresses/${encodeURIComponent(addressId)}`, 'PUT', addressPayload(address));
-  if (res.status === LOCAL_MODE) {
+  if (isLocal(res.status, res.data)) {
     useCommerceStore.getState().updateAddress(addressId, address);
     if (address.isDefault) useCommerceStore.getState().setDefaultAddress(addressId);
     return { ok: true, user: useCommerceStore.getState().currentUser ?? undefined };
@@ -228,7 +230,7 @@ export async function editAddress(addressId: string, address: Omit<Address, 'id'
 
 export async function removeAddress(addressId: string): Promise<AuthResult> {
   const res = await accountRequest(`/api/account/addresses/${encodeURIComponent(addressId)}`, 'DELETE');
-  if (res.status === LOCAL_MODE) {
+  if (isLocal(res.status, res.data)) {
     useCommerceStore.getState().deleteAddress(addressId);
     return { ok: true, user: useCommerceStore.getState().currentUser ?? undefined };
   }
@@ -240,7 +242,7 @@ export async function removeAddress(addressId: string): Promise<AuthResult> {
 
 export async function markDefaultAddress(addressId: string): Promise<AuthResult> {
   const res = await accountRequest(`/api/account/addresses/${encodeURIComponent(addressId)}/default`, 'PATCH');
-  if (res.status === LOCAL_MODE) {
+  if (isLocal(res.status, res.data)) {
     useCommerceStore.getState().setDefaultAddress(addressId);
     return { ok: true, user: useCommerceStore.getState().currentUser ?? undefined };
   }
@@ -260,7 +262,7 @@ export async function signOut(): Promise<void> {
 export async function demoSignIn(role: DemoRole, successMessage?: string): Promise<AuthResult> {
   const res = await post('/api/auth/demo', { role });
 
-  if (res.status === LOCAL_MODE) {
+  if (isLocal(res.status, res.data)) {
     useCommerceStore.getState().loginAsDemo(role);
     if (successMessage) toast.success(successMessage);
     return { ok: true, user: useCommerceStore.getState().currentUser ?? undefined };
@@ -288,8 +290,9 @@ export async function switchDemoRole(role: DemoRole, successMessage: string): Pr
 export async function demoSignInAvailable(): Promise<boolean> {
   try {
     const res = await fetch('/api/auth/demo');
-    if (res.status === LOCAL_MODE) return true;
-    return res.ok && (await res.json()).enabled === true;
+    const data = await res.json().catch(() => ({}));
+    if (isLocal(res.status, data)) return true;
+    return res.ok && data.enabled === true;
   } catch {
     return false;
   }
@@ -299,8 +302,9 @@ export async function demoSignInAvailable(): Promise<boolean> {
 export async function syncSession(): Promise<void> {
   try {
     const res = await fetch('/api/auth/me', { cache: 'no-store' });
+    const data = await res.json().catch(() => ({}));
 
-    if (res.status === LOCAL_MODE) {
+    if (isLocal(res.status, data)) {
       useCommerceStore.setState({ authMode: 'local' });
       return;
     }
@@ -308,7 +312,7 @@ export async function syncSession(): Promise<void> {
     useCommerceStore.setState({ authMode: 'backend' });
     if (!res.ok) return;
 
-    const user = adopt((await res.json()).user ?? null);
+    const user = adopt(data.user ?? null);
     // Customers see their real order history. Staff screens still run on local demo data.
     if (!user) {
       useCommerceStore.setState({ orders: [] });

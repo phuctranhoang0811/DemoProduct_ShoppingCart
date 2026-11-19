@@ -8,8 +8,7 @@ export const SITE_URL = (
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
     : 'http://localhost:3000')
 ).replace(/\/+$/, '');
-export const SITE_NAME = 'Hellobee® Kangen Water®';
-export const ENAGIC_OFFICIAL_URL = 'https://www.enagic.com/';
+export const SITE_NAME = 'Hello Bee';
 
 export function safeJsonLd(data: object): string {
   return JSON.stringify(data).replace(/</g, '\\u003c');
@@ -19,16 +18,10 @@ export function buildOrganizationSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'Hellobee International - Kangen Water®',
-    alternateName: ['Hellobee', 'Kangen Water', 'Hellobee K8', 'Hellobee USA', 'Hellobee Japan'],
+    name: 'Hello Bee',
+    alternateName: ['Hello Bee', 'Hellobee', 'Hello Bee Network'],
     url: SITE_URL,
     logo: `${SITE_URL}/images/logo.png`,
-    sameAs: [
-      ENAGIC_OFFICIAL_URL,
-      'https://www.enagic.com',
-      'https://www.facebook.com/kangenwater.official',
-      'https://www.youtube.com/@EnagicGlobal',
-    ],
     contactPoint: {
       '@type': 'ContactPoint',
       telephone: '+1-800-866-814',
@@ -45,7 +38,7 @@ export function buildWebSiteSchema() {
     '@type': 'WebSite',
     name: SITE_NAME,
     url: SITE_URL,
-    description: 'Global pioneer in medical-grade water ionizers and electrolyzed water systems since 1974. Change Your Water, Change Your Life®.',
+    description: 'Official Hello Bee wellness devices, medical-grade water ionizers, air purifiers, and member community.',
     potentialAction: {
       '@type': 'SearchAction',
       target: {
@@ -75,7 +68,7 @@ export function buildProductSchema(product: RatedProduct, reviews: Review[] = []
     mpn: product.sku,
     brand: {
       '@type': 'Brand',
-      name: 'Hellobee',
+      name: 'Hello Bee',
     },
     offers: {
       '@type': 'Offer',
@@ -133,34 +126,34 @@ export function buildFAQSchema() {
     mainEntity: [
       {
         '@type': 'Question',
-        name: 'What is Kangen Water® and how does it support wellness?',
+        name: 'What is Hello Bee ionized alkaline water and how does it support wellness?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Kangen Water® ("Return to Origin" in Japanese) is ionized alkaline water rich in active molecular hydrogen (H2), featuring a natural alkaline pH of 8.5 - 9.5 and negative oxidation-reduction potential (ORP down to -850mV). It helps neutralize excess acidity, fight free radicals, and hydrate cells efficiently.',
+          text: 'Hello Bee ionized alkaline water is rich in active molecular hydrogen (H2), featuring an alkaline pH of 8.5 - 9.5 and negative oxidation-reduction potential (ORP down to -850mV) to support daily hydration.',
         },
       },
       {
         '@type': 'Question',
-        name: 'Why are Hellobee Kangen ionizers certified as medical devices in Japan?',
+        name: 'Why are Hello Bee water ionizers certified as medical-grade devices?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Hellobee is an OEM manufacturer certified under ISO 13485 medical device standards and certified by the Japanese Ministry of Health, Labour and Welfare (License No. 27BZ006010). Its solid medical-grade titanium electrode plates are dipped in 99.97% pure platinum, endorsed by over 6,500 JAPA medical specialists.',
+          text: 'Hello Bee partners with ISO 13485 certified OEM manufacturing facilities featuring solid medical-grade titanium electrode plates dipped in 99.97% pure platinum.',
         },
       },
       {
         '@type': 'Question',
-        name: 'What are the 5 types of water produced by Hellobee Kangen machines?',
+        name: 'What are the 5 types of water produced by Hello Bee LeveLuk systems?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: '1. Strong Kangen Water (pH 11.5): Food preparation, oil emulsification, and produce cleaning.\n2. Kangen Water® (pH 8.5 - 9.5): Antioxidant-rich daily drinking water, tea brewing, and cooking.\n3. Clean Water (pH 7.0): Taking medication and baby formula preparation.\n4. Beauty Water (pH 6.0): Facial toning, skin tightening, and haircare.\n5. Strong Acidic Water (pH 2.5): Sanitizing surfaces, kitchenware, and hygiene cleansing.',
+          text: '1. Strong Alkaline Water (pH 11.5): Food preparation and produce cleaning.\n2. Alkaline Water (pH 8.5 - 9.5): Antioxidant-rich daily drinking water and cooking.\n3. Clean Water (pH 7.0): Taking medication and baby formula preparation.\n4. Beauty Water (pH 6.0): Facial toning and haircare.\n5. Strong Acidic Water (pH 2.5): Sanitizing surfaces and kitchenware.',
         },
       },
       {
         '@type': 'Question',
-        name: 'What is the difference between Kangen LeveLuk K8 and LeveLuk SD501?',
+        name: 'What is the difference between Hello Bee LeveLuk K8 and LeveLuk SD501?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'LeveLuk K8 features 8 solid platinum-dipped titanium electrode plates (versus 7 on SD501), generating higher antioxidant potential (ORP up to -850mV). The K8 also includes a full-color LCD touchscreen, voice prompts in 8 languages, automatic cleaning, and a worldwide multi-voltage power supply (100-240V).',
+          text: 'LeveLuk K8 features 8 solid platinum-dipped titanium electrode plates (versus 7 on SD501), generating higher antioxidant potential (ORP up to -850mV) with a full-color LCD touchscreen and multi-voltage power supply (100-240V).',
         },
       },
     ],

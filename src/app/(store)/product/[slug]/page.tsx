@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: product.name,
     description: product.description,
-    keywords: [product.name, category?.name, 'Hellobee', 'Kangen Water', `SKU ${product.sku}`].filter(
+    keywords: [product.name, category?.name, 'Hello Bee', `SKU ${product.sku}`].filter(
       (k): k is string => Boolean(k),
     ),
     alternates: {

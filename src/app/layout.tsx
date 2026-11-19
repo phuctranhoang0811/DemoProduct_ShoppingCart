@@ -13,38 +13,37 @@ import {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Hellobee® Kangen Water® | Japanese Medical-Grade Water Ionizers',
+    default: 'Hello Bee',
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    'Official distributor of Hellobee® Kangen Water® medical-grade water ionizers, emGuarde, and Kangen Air 500: LeveLuk K8, SD501 DX, Super 501, SD501U, JrIV. Certified Medical Device.',
+    'Official Hello Bee store: medical-grade alkaline water ionizers, emGuarde, Hello Bee Air 500, and the Hello Bee member network & community.',
   keywords: [
-    'kangen water',
-    'enagic kangen',
+    'hello bee',
+    'hellobee',
     'water ionizer',
     'leveluk k8',
     'leveluk sd501',
     'super 501',
     'emguarde',
-    'kangen air 500',
+    'hello bee air 500',
     'alkaline water machine',
     'electrolyzed water',
     'medical grade water ionizer',
-    'enagic international',
-    'change your water change your life',
+    'hello bee network',
   ],
-  authors: [{ name: 'Hellobee', url: SITE_URL }],
-  creator: 'Hellobee',
-  publisher: 'Hellobee® Kangen Water®',
+  authors: [{ name: 'Hello Bee', url: SITE_URL }],
+  creator: 'Hello Bee',
+  publisher: 'Hello Bee',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
   openGraph: {
-    title: 'Hellobee® Kangen Water® | Japanese Medical-Grade Water Ionizers',
+    title: 'Hello Bee | Wellness Devices & Member Network',
     description:
-      'Pioneer in electrolyzed water ionizer systems since 1974. Featuring solid medical-grade titanium platinum-coated plates producing 5 types of functional waters.',
+      'Medical-grade alkaline water ionizer systems, emGuarde, Hello Bee Air 500, and the Hello Bee community.',
     url: SITE_URL,
     siteName: SITE_NAME,
     locale: 'en_US',
@@ -54,15 +53,15 @@ export const metadata: Metadata = {
         url: 'https://www.hellobee.org/images/og-bee.jpg',
         width: 1200,
         height: 630,
-        alt: 'Hellobee bee mascot on a honeycomb badge',
+        alt: 'Hello Bee mascot on a honeycomb badge',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Hellobee® Kangen Water® | Change Your Water, Change Your Life®',
+    title: 'Hello Bee',
     description:
-      'Exclusive Global Producer of Medical-Grade Kangen Water® Ionizers Since 1974.',
+      'Official Hello Bee wellness devices, water ionizers, air purifiers, and member community.',
     images: ['https://www.hellobee.org/images/og-bee.jpg'],
   },
   icons: {
@@ -108,7 +107,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-white text-[#111111] antialiased selection:bg-[#0055A5] selection:text-white">
         <StoreHydration />
-        <Toaster position="top-right" richColors closeButton />
+        <Toaster position="bottom-right" richColors closeButton />
         {children}
       </body>
     </html>

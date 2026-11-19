@@ -4,7 +4,7 @@ export const initialReviews: Review[] = [
   {
     id: 'rev-01',
     productId: 'kangen-k8',
-    productName: 'Hellobee LeveLuk K8 (Kangen 8)',
+    productName: 'Hello Bee LeveLuk K8',
     customerName: 'Dr. Arthur Vance, MD (Gastroenterology)',
     customerEmail: 'dr.vance@medicalcenter.org',
     rating: 5,
@@ -15,7 +15,7 @@ export const initialReviews: Review[] = [
   {
     id: 'rev-02',
     productId: 'kangen-k8',
-    productName: 'Hellobee LeveLuk K8 (Kangen 8)',
+    productName: 'Hello Bee LeveLuk K8',
     customerName: 'Eleanor Sterling (San Francisco, CA)',
     customerEmail: 'eleanor.sterling@sfdesign.com',
     rating: 5,
@@ -48,11 +48,11 @@ export const initialReviews: Review[] = [
   {
     id: 'rev-05',
     productId: 'kangen-air-500',
-    productName: 'Kangen Air 500',
+    productName: 'Hello Bee Air 500',
     customerName: 'David H. Miller (Hydration Specialist)',
     customerEmail: 'david.miller@waterclub.net',
     rating: 5,
-    comment: 'The Kangen Air 500 runs silently on my studio desk via USB-C. Love the compact cube form factor and clean air circulation in smaller workspaces.',
+    comment: 'The Hello Bee Air 500 runs silently on my studio desk via USB-C. Love the compact cube form factor and clean air circulation in smaller workspaces.',
     status: 'approved',
     createdAt: '2026-10-25T10:15:00Z',
   },

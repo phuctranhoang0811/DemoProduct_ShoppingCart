@@ -359,13 +359,12 @@ export async function submitProductReview(
       }),
     });
 
-    if (res.status === 501) {
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 501 || data?.mode === 'local') {
       useCommerceStore.setState({ authMode: 'local' });
       useCommerceStore.getState().addReview(review);
       return { ok: true, message: 'Thank you for your product review!' };
     }
-
-    const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       return { ok: false, message: data.message || 'Your review could not be submitted.' };
     }

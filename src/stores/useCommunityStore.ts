@@ -8,6 +8,7 @@ export const LIVE_THREAD = 'live';
 const STORAGE_KEY = 'hellobee_community_v1';
 
 export type MeetingKind = 'Meeting' | 'Dining' | 'Gathering';
+export type PostCategory = 'Dining & Drinks' | 'Offline Meetup' | 'Team Gathering' | 'General';
 
 export interface MembershipCode {
   code: string;
@@ -34,6 +35,9 @@ export interface Post {
   authorEmail: string;
   authorName: string;
   body: string;
+  category?: PostCategory;
+  location?: string;
+  imageUrl?: string;
   createdAt: number;
 }
 
@@ -70,7 +74,7 @@ interface CommunityState {
   ensureMember: (person: Person) => void;
   addMeeting: (m: Omit<Meeting, 'id' | 'attendees'>) => void;
   toggleRsvp: (meetingId: string, email: string) => void;
-  addPost: (person: Person, body: string) => void;
+  addPost: (person: Person, body: string, meta?: { category?: PostCategory; location?: string; imageUrl?: string }) => void;
   createGroup: (name: string, creator: string, memberEmails: string[]) => string;
   addToGroup: (groupId: string, actorEmail: string, emails: string[]) => number;
   sendMessage: (threadId: string, person: Person, body: string) => void;
@@ -114,21 +118,54 @@ const SEED_MEETINGS: Meeting[] = [
     kind: 'Meeting',
     date: '2026-12-05',
     time: '7:00 PM',
-    location: 'Hellobee Studio, Ho Chi Minh City',
-    description: 'Product updates, rank progress and open questions for every member.',
-    hostName: 'Hellobee Team',
+    location: 'Hello Bee Studio, Ho Chi Minh City',
+    description: 'Product updates, LV1–LV10 rank progress and open questions for every member.',
+    hostName: 'Hello Bee Team',
     attendees: [],
   },
   {
     id: 'meet-seed-2',
-    title: 'Members Dinner',
+    title: 'Weekend Team Dinner & Drinks',
     kind: 'Dining',
     date: '2026-12-12',
     time: '6:30 PM',
     location: 'Riverside Garden Restaurant',
-    description: 'Eat together and meet your upline and downline in person.',
-    hostName: 'Hellobee Team',
+    description: 'Eat, drink, share stories and meet your upline and downline offline.',
+    hostName: 'Johnathan Bee',
     attendees: [],
+  },
+  {
+    id: 'meet-seed-3',
+    title: 'Sunday Coffee & Offline Meetup',
+    kind: 'Gathering',
+    date: '2026-12-19',
+    time: '9:30 AM',
+    location: 'The Hive Coffee, District 1',
+    description: 'Casual weekend coffee meetup to welcome new members and exchange ideas.',
+    hostName: 'David Nguyen',
+    attendees: [],
+  },
+];
+
+const SEED_POSTS: Post[] = [
+  {
+    id: 'post-seed-1',
+    authorEmail: 'owner@hellobee.com',
+    authorName: 'Johnathan Bee (Managing Owner)',
+    category: 'Dining & Drinks',
+    location: 'Riverside Garden Restaurant',
+    body: 'Great dinner & drinks tonight with the crew! Looking forward to welcoming everyone at our next weekend meetup.',
+    imageUrl: '/images/events/campfire.webp',
+    createdAt: Date.UTC(2026, 10, 15, 19, 30),
+  },
+  {
+    id: 'post-seed-2',
+    authorEmail: 'employee@hellobee.com',
+    authorName: 'David Nguyen (Senior Associate)',
+    category: 'Offline Meetup',
+    location: 'The Hive Coffee, District 1',
+    body: 'Hosting a casual coffee and offline hangout this Sunday morning. Bring any new friends who want to learn about Hello Bee!',
+    createdAt: Date.UTC(2026, 10, 18, 9, 15),
   },
 ];
 
@@ -151,7 +188,7 @@ export const useCommunityStore = create<CommunityState>()(
       codes: [],
       members: {},
       meetings: SEED_MEETINGS,
-      posts: [],
+      posts: SEED_POSTS,
       groups: [],
       messages: [],
 
@@ -203,9 +240,21 @@ export const useCommunityStore = create<CommunityState>()(
           ),
         })),
 
-      addPost: (person, body) =>
+      addPost: (person, body, meta) =>
         set((s) => ({
-          posts: [{ id: uid('post'), authorEmail: person.email, authorName: person.name, body, createdAt: Date.now() }, ...s.posts].slice(0, 200),
+          posts: [
+            {
+              id: uid('post'),
+              authorEmail: person.email,
+              authorName: person.name,
+              body,
+              ...(meta?.category ? { category: meta.category } : {}),
+              ...(meta?.location ? { location: meta.location } : {}),
+              ...(meta?.imageUrl ? { imageUrl: meta.imageUrl } : {}),
+              createdAt: Date.now(),
+            },
+            ...s.posts,
+          ].slice(0, 200),
         })),
 
       createGroup: (name, creator, memberEmails) => {
