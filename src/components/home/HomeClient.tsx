@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from '@/i18n/useTranslation';
 
@@ -95,20 +94,6 @@ export function HomeClient() {
           <p className="mt-4 max-w-md text-sm sm:text-base text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.7)]">
             {t.home.heroSubtitle}
           </p>
-          <div className="mt-8 flex flex-col sm:flex-row gap-3 max-w-xs sm:max-w-none">
-            <Link
-              href="/shop"
-              className="btn-tactile inline-flex items-center justify-center px-7 py-3.5 bg-white text-[#111111] text-xs uppercase tracking-wider font-bold hover:bg-white/90"
-            >
-              {t.home.shopIonizers}
-            </Link>
-            <Link
-              href="/hellobee"
-              className="btn-tactile inline-flex items-center justify-center px-7 py-3.5 border border-white/60 text-white text-xs uppercase tracking-wider font-bold hover:bg-white/10"
-            >
-              {t.header.hellobeeNetwork}
-            </Link>
-          </div>
         </div>
       </section>
     </div>
