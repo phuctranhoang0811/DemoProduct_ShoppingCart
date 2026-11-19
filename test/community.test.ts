@@ -62,3 +62,20 @@ describe('guessing and damaged storage', () => {
     expect(Array.isArray(merged.posts)).toBe(true);
   });
 });
+
+describe('adding people to a group', () => {
+  it('lets a member invite others and skips people already in', () => {
+    const store = useCommunityStore.getState();
+    const id = store.createGroup('Crew', 'a@x.com', ['b@x.com']);
+    expect(store.addToGroup(id, 'A@x.com', ['b@x.com', 'C@x.com', 'c@x.com'])).toBe(1);
+    const group = useCommunityStore.getState().groups.find((g) => g.id === id);
+    expect(group?.memberEmails.sort()).toEqual(['a@x.com', 'b@x.com', 'c@x.com']);
+  });
+
+  it('refuses an outsider and unknown groups', () => {
+    const store = useCommunityStore.getState();
+    const id = store.createGroup('Closed', 'a@x.com', []);
+    expect(store.addToGroup(id, 'outsider@x.com', ['d@x.com'])).toBe(0);
+    expect(store.addToGroup('nope', 'a@x.com', ['d@x.com'])).toBe(0);
+  });
+});

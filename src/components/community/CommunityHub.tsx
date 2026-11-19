@@ -195,11 +195,14 @@ function Chat({ me }: { me: Person }) {
   const ensureMember = useCommunityStore((s) => s.ensureMember);
   const sendMessage = useCommunityStore((s) => s.sendMessage);
   const createGroup = useCommunityStore((s) => s.createGroup);
+  const addToGroup = useCommunityStore((s) => s.addToGroup);
   const [thread, setThread] = useState(LIVE_THREAD);
   const [text, setText] = useState('');
   const [creating, setCreating] = useState(false);
   const [groupName, setGroupName] = useState('');
   const [picked, setPicked] = useState<string[]>([]);
+  const [inviting, setInviting] = useState(false);
+  const [invitePicked, setInvitePicked] = useState<string[]>([]);
   const endRef = useRef<HTMLDivElement>(null);
 
   const myEmail = me.email.toLowerCase();
@@ -214,6 +217,8 @@ function Chat({ me }: { me: Person }) {
   useEffect(() => ensureMember(me), [ensureMember, me.email, me.name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const myGroups = groups.filter((g) => g.memberEmails.includes(myEmail));
+  const activeGroup = myGroups.find((g) => g.id === thread);
+  const invitable = activeGroup ? people.filter((p) => !activeGroup.memberEmails.includes(p.email)) : [];
   const current = messages.filter((m) => m.threadId === thread);
 
   useEffect(() => {
@@ -232,6 +237,15 @@ function Chat({ me }: { me: Person }) {
     setText('');
   };
 
+  const invite = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeGroup || invitePicked.length === 0) return;
+    const added = addToGroup(activeGroup.id, myEmail, invitePicked);
+    toast.success(added > 0 ? `Added ${added} to ${activeGroup.name}.` : 'Nobody new to add.');
+    setInvitePicked([]);
+    setInviting(false);
+  };
+
   const makeGroup = (e: React.FormEvent) => {
     e.preventDefault();
     if (!groupName.trim() || picked.length === 0) {
@@ -248,7 +262,11 @@ function Chat({ me }: { me: Person }) {
     <button
       key={id}
       type="button"
-      onClick={() => setThread(id)}
+      onClick={() => {
+        setThread(id);
+        setInviting(false);
+        setInvitePicked([]);
+      }}
       className={`w-full text-left px-3 py-2 text-sm rounded-xs truncate ${thread === id ? 'bg-[#111111] text-white' : 'hover:bg-[#F5F4F0]'}`}
     >
       {label}
@@ -291,7 +309,44 @@ function Chat({ me }: { me: Person }) {
       </aside>
 
       <div className="flex flex-col">
-        <header className="px-4 py-3 border-b border-[#E5E5E5] text-sm font-semibold">{title}</header>
+        <header className="px-4 py-3 border-b border-[#E5E5E5] text-sm font-semibold flex items-center justify-between gap-3">
+          <span className="truncate">
+            {title}
+            {activeGroup && (
+              <span className="ml-2 text-xs font-normal text-[#888888]">
+                {activeGroup.memberEmails.length} members
+              </span>
+            )}
+          </span>
+          {activeGroup && (
+            <button type="button" onClick={() => setInviting((v) => !v)} className="inline-flex items-center gap-1 text-xs font-semibold underline shrink-0">
+              <Plus className="w-3.5 h-3.5" /> Add members
+            </button>
+          )}
+        </header>
+        {activeGroup && inviting && (
+          <form onSubmit={invite} className="p-3 border-b border-[#E5E5E5] space-y-2 bg-[#FAF9F5]">
+            {invitable.length === 0 ? (
+              <p className="text-xs text-[#777777]">Everyone is already in this group.</p>
+            ) : (
+              <div className="max-h-28 overflow-y-auto space-y-1">
+                {invitable.map((p) => (
+                  <label key={p.email} className="flex items-center gap-2 text-xs">
+                    <input
+                      type="checkbox"
+                      checked={invitePicked.includes(p.email)}
+                      onChange={(e) => setInvitePicked(e.target.checked ? [...invitePicked, p.email] : invitePicked.filter((x) => x !== p.email))}
+                    />
+                    {p.name}
+                  </label>
+                ))}
+              </div>
+            )}
+            <button type="submit" disabled={invitePicked.length === 0} className="bg-[#111111] text-white px-4 py-1.5 text-xs uppercase font-semibold rounded-xs disabled:opacity-40">
+              Add
+            </button>
+          </form>
+        )}
         <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[360px]">
           {current.length === 0 && <p className="text-xs text-[#888888]">No messages yet. Say hello.</p>}
           {current.map((m) => {

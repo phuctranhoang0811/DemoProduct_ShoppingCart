@@ -72,6 +72,7 @@ interface CommunityState {
   toggleRsvp: (meetingId: string, email: string) => void;
   addPost: (person: Person, body: string) => void;
   createGroup: (name: string, creator: string, memberEmails: string[]) => string;
+  addToGroup: (groupId: string, actorEmail: string, emails: string[]) => number;
   sendMessage: (threadId: string, person: Person, body: string) => void;
 }
 
@@ -211,6 +212,21 @@ export const useCommunityStore = create<CommunityState>()(
         const id = uid('grp');
         set((s) => ({ groups: [...s.groups, { id, name, createdBy: creator, memberEmails: Array.from(new Set([creator, ...memberEmails])) }] }));
         return id;
+      },
+
+      // Only someone already in the group can invite; returns how many people were added.
+      addToGroup: (groupId, actorEmail, emails) => {
+        const group = get().groups.find((g) => g.id === groupId);
+        const actor = norm(actorEmail);
+        if (!group || !group.memberEmails.includes(actor)) return 0;
+
+        const added = Array.from(new Set(emails.map(norm))).filter((e) => e && !group.memberEmails.includes(e));
+        if (added.length === 0) return 0;
+
+        set((s) => ({
+          groups: s.groups.map((g) => (g.id === groupId ? { ...g, memberEmails: [...g.memberEmails, ...added] } : g)),
+        }));
+        return added.length;
       },
 
       sendMessage: (threadId, person, body) =>
