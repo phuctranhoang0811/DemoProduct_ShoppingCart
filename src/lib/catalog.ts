@@ -7,7 +7,7 @@ import type { Category, Product, Review } from '@/types';
 
 // Server-side source of truth for catalog data. Reads the Laravel API when API_URL is set and
 // falls back to the bundled demo data otherwise, so the storefront still builds without a backend.
-const API_URL = process.env.API_URL?.replace(/\/+$/, '');
+const API_URL: string | undefined = undefined;
 
 export const CATALOG_TAG = 'catalog';
 export const productTag = (slug: string) => `product:${slug}`;

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const SESSION_COOKIE = 'hb_session';
-const API_URL = process.env.API_URL?.replace(/\/+$/, '');
+const API_URL: string | undefined = undefined;
 
 type Role = 'customer' | 'employee' | 'admin';
 

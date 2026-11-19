@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export const SESSION_COOKIE = 'hb_session';
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 
-const API_URL = process.env.API_URL?.replace(/\/+$/, '');
+const API_URL: string | undefined = undefined;
 
 export const authBackendEnabled = Boolean(API_URL);
 

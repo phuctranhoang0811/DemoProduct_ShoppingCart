@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { NetworkTree } from '@/components/hellobee/NetworkTree';
-import { submitPayout } from '@/lib/hellobee-client';
+import { submitPayout, syncNetwork } from '@/lib/hellobee-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import {
   HellobeeRole,
@@ -77,19 +77,26 @@ function HellobeePortalContent() {
 
   const hasPurchasedMachine = userOrders.some(
     (o) =>
-      o.total >= 1500 ||
-      o.items.some(
-        (item) =>
-          item.price >= 1500 ||
-          item.productId === 'hellobee-filter-1500' ||
-          item.productName.toLowerCase().includes('filter 1500') ||
-          item.productName.toLowerCase().includes('ionizer') ||
-          item.productName.toLowerCase().includes('k8') ||
-          item.productName.toLowerCase().includes('sd501')
-      )
+      (!liveNetwork || o.paymentStatus === 'Paid') &&
+      (o.total >= 1500 ||
+        o.items.some(
+          (item) =>
+            item.price >= 1500 ||
+            item.productId === 'hellobee-filter-1500' ||
+            item.productName.toLowerCase().includes('filter 1500') ||
+            item.productName.toLowerCase().includes('ionizer') ||
+            item.productName.toLowerCase().includes('k8') ||
+            item.productName.toLowerCase().includes('sd501')
+        ))
   );
 
   const isQualified = isDirectStaff || hasPurchasedMachine;
+
+  useEffect(() => {
+    if (liveNetwork && isDirectStaff) {
+      void syncNetwork();
+    }
+  }, [liveNetwork, isDirectStaff, activeTab]);
 
   // Registration Form State
   const [regName, setRegName] = useState('');
@@ -109,9 +116,12 @@ function HellobeePortalContent() {
   // Match logged in user if they are a consultant, or activeMemberId if admin
   let currentMember = members.find((m) =>
     currentUser
-      ? m.email.toLowerCase() === currentUser.email.toLowerCase() ||
+      ? (liveNetwork && m.id === activeMemberId) ||
+        (m.email && m.email.toLowerCase() === currentUser.email.toLowerCase()) ||
         m.id === currentUser.id ||
-        (currentUser.referralCode && m.referralCode.toUpperCase() === currentUser.referralCode.toUpperCase())
+        (isDirectStaff &&
+          currentUser.referralCode &&
+          m.referralCode.toUpperCase() === currentUser.referralCode.toUpperCase())
       : false
   );
 

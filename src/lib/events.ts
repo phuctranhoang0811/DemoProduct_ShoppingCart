@@ -2,7 +2,7 @@ import 'server-only';
 
 import { MEMBER_EVENTS, type MemberEvent } from '@/data/events';
 
-const API_URL = process.env.API_URL?.replace(/\/+$/, '');
+const API_URL: string | undefined = undefined;
 
 export const EVENTS_TAG = 'events';
 export const EVENTS_REVALIDATE_SECONDS = 3600;
