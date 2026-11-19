@@ -87,14 +87,7 @@ export function HomeClient() {
           {String(heroIndex + 1).padStart(2, '0')} / {HERO_IMAGES.length}
         </div>
 
-        <div className="relative z-20 w-full max-w-[1440px] mx-auto px-4 sm:px-20 pt-20 pb-24">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight max-w-2xl drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]">
-            {t.home.heroTitle}
-          </h1>
-          <p className="mt-4 max-w-md text-sm sm:text-base text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.7)]">
-            {t.home.heroSubtitle}
-          </p>
-        </div>
+        <h1 className="sr-only">{t.home.heroTitle}</h1>
       </section>
     </div>
   );

@@ -5,11 +5,14 @@ import Link from 'next/link';
 import { BadgeCheck, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCommunityStore } from '@/stores/useCommunityStore';
+import { useCommerceStore } from '@/stores/useCommerceStore';
 import { useIsMember } from './useIsMember';
 
 export function MembershipCard() {
   const { user, isMember } = useIsMember();
   const redeem = useCommunityStore((s) => s.redeemCode);
+  const hellobeeMembers = useCommerceStore((s) => s.hellobeeMembers);
+  const registerHellobeeMember = useCommerceStore((s) => s.registerHellobeeMember);
   const [code, setCode] = useState('');
   const [mounted, setMounted] = useState(false);
 
@@ -23,11 +26,16 @@ export function MembershipCard() {
         <BadgeCheck className="w-8 h-8 text-emerald-600 shrink-0" />
         <div className="flex-1">
           <h2 className="text-sm font-semibold uppercase tracking-wider">Membership active</h2>
-          <p className="text-xs text-[#666666] mt-1">Meetings, posts and chat are unlocked.</p>
+          <p className="text-xs text-[#666666] mt-1">Hellobee Network, meetings, posts and chat are unlocked.</p>
         </div>
-        <Link href="/events#community" className="text-xs font-semibold underline">
-          Open community
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/hellobee" className="text-xs font-semibold underline">
+            Hellobee Network
+          </Link>
+          <Link href="/events#community" className="text-xs font-semibold underline">
+            Open community
+          </Link>
+        </div>
       </section>
     );
   }
@@ -36,6 +44,18 @@ export function MembershipCard() {
     e.preventDefault();
     const result = redeem({ email: user.email, name: user.name }, code);
     if (result.ok) {
+      const existsInNetwork = hellobeeMembers.some(
+        (m) => m.email && m.email.toLowerCase() === user.email.toLowerCase()
+      );
+      if (!existsInNetwork) {
+        registerHellobeeMember({
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: 'EMPLOYEE',
+          sponsorCode: user.referralCode || undefined,
+        });
+      }
       toast.success(result.message);
       setCode('');
     } else {

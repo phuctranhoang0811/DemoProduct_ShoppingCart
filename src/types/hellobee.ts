@@ -174,6 +174,56 @@ export function getTeamStats(memberId: string, members: HellobeeMember[]): TeamS
   return { directCount, teamSize, byGeneration, ladderLevel };
 }
 
+export const LV_RANKS = ['LV1', 'LV2', 'LV3', 'LV4', 'LV5', 'LV6', 'LV7', 'LV8', 'LV9', 'LV10'] as const;
+export type LvRankLevel = (typeof LV_RANKS)[number];
+
+export function getMemberLvLevel(member: HellobeeMember, members: HellobeeMember[]): number {
+  const team = getTeamStats(member.id, members);
+  const legacyLevel = parseInt(member.rank, 10) || 1;
+  let orderLevel = 1;
+  for (const r of LADDER_RANKS) {
+    if (member.validOrdersCount >= r.teamSize) orderLevel = r.level;
+  }
+  return Math.min(10, Math.max(1, team.ladderLevel, legacyLevel, orderLevel));
+}
+
+export function getNextLvProgress(member: HellobeeMember, members: HellobeeMember[]): {
+  currentLevel: number;
+  currentRank: LvRankLevel;
+  nextRank: LvRankLevel | 'MAX';
+  required: number;
+  current: number;
+  percent: number;
+} {
+  const currentLevel = getMemberLvLevel(member, members);
+  const currentRank = `LV${currentLevel}` as LvRankLevel;
+  const team = getTeamStats(member.id, members);
+  const count = Math.max(team.teamSize, member.validOrdersCount);
+
+  if (currentLevel >= 10) {
+    return {
+      currentLevel: 10,
+      currentRank: 'LV10',
+      nextRank: 'MAX',
+      required: count,
+      current: count,
+      percent: 100,
+    };
+  }
+
+  const nextRule = LADDER_RANKS.find((r) => r.level === currentLevel + 1) || LADDER_RANKS[LADDER_RANKS.length - 1];
+  const percent = Math.min(100, Math.round((count / nextRule.teamSize) * 100));
+
+  return {
+    currentLevel,
+    currentRank,
+    nextRank: `LV${nextRule.level}` as LvRankLevel,
+    required: nextRule.teamSize,
+    current: count,
+    percent,
+  };
+}
+
 export function getNextRankProgress(currentRank: RankLevel, ordersCount: number): {
   nextRank: RankLevel | 'MAX';
   required: number;

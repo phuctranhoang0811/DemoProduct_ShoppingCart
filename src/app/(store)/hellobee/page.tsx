@@ -31,13 +31,17 @@ import { submitPayout, syncNetwork } from '@/lib/hellobee-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import {
   HellobeeRole,
-  RankLevel,
-  getNextRankProgress,
+  LADDER_RANKS,
+  LADDER_NAMES,
+  getMemberLvLevel,
+  getNextLvProgress,
   commissionLabel,
   getTeamStats,
 } from '@/types/hellobee';
 import { BenefitsPanel } from '@/components/hellobee/BenefitsPanel';
 import { LevelUpCelebration, ConfettiBurst } from '@/components/hellobee/LevelUpCelebration';
+import { MembershipCard } from '@/components/community/MembershipCard';
+import { useIsMember } from '@/components/community/useIsMember';
 import { formatPrice } from '@/lib/utils';
 
 function HellobeePortalContent() {
@@ -90,7 +94,25 @@ function HellobeePortalContent() {
         ))
   );
 
-  const isQualified = isDirectStaff || hasPurchasedMachine;
+  const { isMember } = useIsMember();
+  const isQualified = isDirectStaff || hasPurchasedMachine || isMember;
+
+  useEffect(() => {
+    if (!liveNetwork && isQualified && currentUser) {
+      const exists = members.some(
+        (m) => m.email && m.email.toLowerCase() === currentUser.email.toLowerCase()
+      );
+      if (!exists) {
+        registerHellobeeMember({
+          name: currentUser.name,
+          email: currentUser.email,
+          phone: currentUser.phone,
+          role: 'EMPLOYEE',
+          sponsorCode: currentUser.referralCode || undefined,
+        });
+      }
+    }
+  }, [liveNetwork, isQualified, currentUser, members, registerHellobeeMember]);
 
   useEffect(() => {
     if (liveNetwork && isDirectStaff) {
@@ -144,8 +166,11 @@ function HellobeePortalContent() {
   const memberCommissions = commissions.filter((c) => c.beneficiaryId === currentMember?.id);
   const memberPayouts = payouts.filter((p) => p.memberId === currentMember?.id);
 
-  // Rank progression details
-  const rankProgress = getNextRankProgress(currentMember?.rank || '1A', currentMember?.validOrdersCount || 0);
+  // Rank progression details (10-level LV1–LV10 ladder)
+  const currentLvLevel = currentMember ? getMemberLvLevel(currentMember, members) : 1;
+  const rankProgress = currentMember
+    ? getNextLvProgress(currentMember, members)
+    : { currentLevel: 1, currentRank: 'LV1' as const, nextRank: 'LV2' as const, required: 25, current: 0, percent: 0 };
   const teamStats = currentMember
     ? getTeamStats(currentMember.id, members)
     : { directCount: 0, teamSize: 0, byGeneration: [], ladderLevel: 0 };
@@ -362,12 +387,14 @@ function HellobeePortalContent() {
               Consultant Qualification & Verification
             </h1>
             <p className="mt-1 text-sm text-[#666666] max-w-2xl">
-              To join the Hellobee Network (LV1–LV10 leadership ladder & 1A–5A direct consultant tiers) and earn 10% direct commissions ($150/unit), consultants must first purchase a qualifying $1,500 Hellobee® water device and accept distributor terms.
+              To join the Hellobee Network (LV1–LV10 10-level leadership ladder) and earn 10% direct commissions ($150/unit), consultants can either enter a one-time membership code from an admin or purchase a qualifying $1,500 Hellobee® device.
             </p>
           </div>
         </div>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-8">
+          <MembershipCard />
+
           <div className="space-y-4">
             <h3 className="text-xs uppercase tracking-wider font-bold text-[#111111]">Network Benefits</h3>
             <BenefitsPanel ladderLevel={0} />
@@ -442,10 +469,10 @@ function HellobeePortalContent() {
               <div className="p-3 bg-[#FAF9F5] rounded-lg border border-[#EAE8E1] space-y-1">
                 <p className="font-semibold text-[#111111] flex items-center gap-1.5">
                   <CheckCircle className="w-3.5 h-3.5 text-[#2D5A27]" />
-                  <span>Requirement 2: Rank Progression (1A–5A / LV1–LV10) & Direct 10% Commissions</span>
+                  <span>Requirement 2: Rank Progression (LV1–LV10) & Direct 10% Commissions</span>
                 </p>
                 <p className="text-[#666666] pl-5">
-                  Qualified consultants receive an official referral code (e.g. <code>HBEE03</code>). When new buyers enter your code, you earn an instant 10% commission ($150 per machine) on paid orders, advancing from 1A base rank up to 5A and climbing the LV1–LV10 Hellobee leadership ladder based on cumulative team volume.
+                  Qualified consultants receive an official referral code (e.g. <code>HBEE03</code>). When new buyers enter your code, you earn an instant 10% commission ($150 per machine) on paid orders, advancing from LV1 base rank up to LV10 on the 10-level Hellobee leadership ladder based on cumulative team volume.
                 </p>
               </div>
 
@@ -529,7 +556,7 @@ function HellobeePortalContent() {
               <p className="mt-1 text-sm text-[#666666] max-w-2xl">
                 {isOwner
                   ? 'Manage your network sales, supervise assigned employees, track 1% override commissions and scale your Hellobee organization.'
-                  : 'Track your personal $1,500 ionizer sales, monitor 10% direct commissions ($150/unit), and advance through ranks 1A to 5A.'}
+                  : 'Track your personal $1,500 ionizer sales, monitor 10% direct commissions ($150/unit), and advance through the 10-level ranks LV1 to LV10.'}
               </p>
             </div>
           </div>
@@ -641,7 +668,7 @@ function HellobeePortalContent() {
                       {currentMember?.role}
                     </span>
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                      Rank {currentMember?.rank}
+                      Rank LV{currentLvLevel} • {LADDER_NAMES[currentLvLevel - 1]}
                     </span>
                   </div>
                   <p className="text-xs text-[#777777] mt-0.5">
@@ -682,11 +709,11 @@ function HellobeePortalContent() {
                       onClick={() => {
                         if (!currentMember) return;
                         const ok = window.confirm(
-                          `Reset all progress for ${currentMember.name}?\n\nRank returns to 1A and orders, sales volume, commissions, balance and payout requests are cleared. This cannot be undone.`
+                          `Reset all progress for ${currentMember.name}?\n\nRank returns to LV1 and orders, sales volume, commissions, balance and payout requests are cleared. This cannot be undone.`
                         );
                         if (!ok) return;
                         resetMemberProgress(currentMember.id);
-                        toast.success('Progress reset to Rank 1A.');
+                        toast.success('Progress reset to Rank LV1.');
                       }}
                       className="px-4 py-2 border border-[#B74747]/40 text-[#B74747] hover:bg-[#FBEAEA] font-semibold rounded-xs text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all"
                       title="Reset this member's rank, orders, commissions and balance"
@@ -699,18 +726,18 @@ function HellobeePortalContent() {
               </div>
             </div>
 
-            {/* Rank Progression Bar (for Employees and Ranks 1A-4A) */}
+            {/* 10-Level Rank Progression Bar (LV1 → LV10) */}
             <div className="bg-white p-6 rounded-2xl border border-[#E5E5E5] shadow-xs space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700">
-                    Rank Advancement Ladder (1A → 5A)
+                    Rank Advancement Ladder (LV1 → LV10)
                   </span>
                   <h3 className="text-base font-semibold text-[#111111]">
-                    Current Rank: <span className="text-amber-600 font-bold">{currentMember?.rank}</span>
+                    Current Rank: <span className="text-amber-600 font-bold">{rankProgress.currentRank} ({LADDER_NAMES[currentLvLevel - 1]})</span>
                     {rankProgress.nextRank !== 'MAX' ? (
                       <span className="text-sm font-normal text-[#666666] ml-2">
-                        • Next Target: <span className="font-semibold text-[#111111]">{rankProgress.nextRank}</span> ({rankProgress.current}/{rankProgress.required} orders)
+                        • Next Target: <span className="font-semibold text-[#111111]">{rankProgress.nextRank}</span> ({rankProgress.current}/{rankProgress.required} members/orders)
                       </span>
                     ) : (
                       <span className="text-sm font-normal text-emerald-600 ml-2">
@@ -733,28 +760,26 @@ function HellobeePortalContent() {
                 />
               </div>
 
-              <div className="flex justify-between text-[11px] text-[#888888] pt-1">
-                {(['1A (Base)', '2A (5 Orders)', '3A (25 Orders)', '4A (125 Orders)', '5A (625 Orders)'] as const).map(
-                  (label, i) => {
-                    const reached = i + 1 <= (parseInt(currentMember?.rank || '1A', 10) || 1);
-                    const isCurrent = label.startsWith(currentMember?.rank || '1A');
-                    return (
-                      <span
-                        key={label}
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 transition-colors ${
-                          isCurrent
-                            ? 'bg-[#F6C94C] text-[#3A1B0A] font-bold shadow-[0_0_12px_rgba(246,201,76,0.8)] animate-badge-pop'
-                            : reached
-                            ? 'text-[#8A5A0B] font-semibold'
-                            : ''
-                        }`}
-                      >
-                        {reached && <CheckCircle className="w-3 h-3" />}
-                        {label}
-                      </span>
-                    );
-                  }
-                )}
+              <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-1.5 text-[11px] text-[#888888] pt-1">
+                {LADDER_RANKS.map((r) => {
+                  const reached = r.level <= currentLvLevel;
+                  const isCurrent = r.level === currentLvLevel;
+                  return (
+                    <span
+                      key={r.level}
+                      className={`inline-flex items-center justify-center gap-1 rounded-full px-2 py-1 transition-colors text-center ${
+                        isCurrent
+                          ? 'bg-[#F6C94C] text-[#3A1B0A] font-bold shadow-[0_0_12px_rgba(246,201,76,0.8)] animate-badge-pop'
+                          : reached
+                          ? 'bg-amber-50 text-[#8A5A0B] font-semibold border border-amber-200'
+                          : 'bg-[#FAF9F5] border border-[#EAE8E1]'
+                      }`}
+                    >
+                      {reached && <CheckCircle className="w-3 h-3 shrink-0" />}
+                      <span>LV{r.level}</span>
+                    </span>
+                  );
+                })}
               </div>
             </div>
 
@@ -919,7 +944,7 @@ function HellobeePortalContent() {
 
                         <div className="col-span-1 text-center">
                           <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold text-[10px]">
-                            {emp.rank}
+                            LV{getMemberLvLevel(emp, members)}
                           </span>
                         </div>
 

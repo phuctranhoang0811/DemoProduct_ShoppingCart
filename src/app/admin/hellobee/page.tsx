@@ -16,7 +16,16 @@ import {
 import { decidePayout } from '@/lib/hellobee-client';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { NetworkTree } from '@/components/hellobee/NetworkTree';
-import { RankLevel, PayoutStatus, commissionLabel, getTeamStats, LADDER_RANKS } from '@/types/hellobee';
+import {
+  LvRankLevel,
+  LV_RANKS,
+  PayoutStatus,
+  commissionLabel,
+  getTeamStats,
+  getMemberLvLevel,
+  LADDER_RANKS,
+  LADDER_NAMES,
+} from '@/types/hellobee';
 import { toast } from 'sonner';
 
 export default function AdminHellobeePage() {
@@ -26,7 +35,7 @@ export default function AdminHellobeePage() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | 'OWNER' | 'EMPLOYEE'>('ALL');
-  const [rankFilter, setRankFilter] = useState<'ALL' | RankLevel>('ALL');
+  const [rankFilter, setRankFilter] = useState<'ALL' | LvRankLevel>('ALL');
   const [payoutStatusFilter, setPayoutStatusFilter] = useState<'ALL' | PayoutStatus>('ALL');
   const [activeTab, setActiveTab] = useState<'MEMBERS' | 'TREE' | 'COMMISSIONS' | 'PAYOUTS'>('MEMBERS');
 
@@ -48,7 +57,8 @@ export default function AdminHellobeePage() {
       m.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       m.referralCode.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRole = roleFilter === 'ALL' || m.role === roleFilter;
-    const matchesRank = rankFilter === 'ALL' || m.rank === rankFilter;
+    const memberLvRank = `LV${getMemberLvLevel(m, members)}` as LvRankLevel;
+    const matchesRank = rankFilter === 'ALL' || memberLvRank === rankFilter;
     return matchesSearch && matchesRole && matchesRank;
   });
 
@@ -76,7 +86,7 @@ export default function AdminHellobeePage() {
               Hellobee Multi-Tier Affiliate Network
             </span>
             <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-medium bg-[#111111] text-white">
-              1A – 5A Model
+              LV1 – LV10 Model
             </span>
           </div>
           <h1 className="text-2xl font-serif text-[#111111]">Affiliate & Network Management</h1>
@@ -235,9 +245,9 @@ export default function AdminHellobeePage() {
                 ))}
               </div>
 
-              <div className="flex items-center gap-1 bg-white border border-[#E5E5E5] p-1 text-xs">
+              <div className="flex items-center gap-1 bg-white border border-[#E5E5E5] p-1 text-xs flex-wrap">
                 <span className="text-[#999999] px-2 text-[11px] uppercase tracking-wider">Rank:</span>
-                {(['ALL', '1A', '2A', '3A', '4A', '5A'] as const).map((rk) => (
+                {(['ALL', ...LV_RANKS] as const).map((rk) => (
                   <button
                     key={rk}
                     onClick={() => setRankFilter(rk)}
@@ -258,10 +268,10 @@ export default function AdminHellobeePage() {
                 <tr>
                   <th className="py-3 px-4 font-medium">Member</th>
                   <th className="py-3 px-4 font-medium">Role</th>
-                  <th className="py-3 px-4 font-medium">Rank</th>
+                  <th className="py-3 px-4 font-medium">Rank (LV1–LV10)</th>
                   <th className="py-3 px-4 font-medium">Referral Code</th>
                   <th className="py-3 px-4 font-medium">Supervisor (Owner)</th>
-                  <th className="py-3 px-4 font-medium">LV Rank</th>
+                  <th className="py-3 px-4 font-medium">Level Title</th>
                   <th className="py-3 px-4 font-medium text-right">Direct / Team</th>
                   <th className="py-3 px-4 font-medium text-right">Monthly Salary</th>
                   <th className="py-3 px-4 font-medium text-right">Direct Units</th>
@@ -273,7 +283,8 @@ export default function AdminHellobeePage() {
                 {filteredMembers.map((m) => {
                   const supervisor = m.ownerId ? members.find((o) => o.id === m.ownerId) : null;
                   const team = getTeamStats(m.id, members);
-                  const ladder = LADDER_RANKS.find((r) => r.level === team.ladderLevel);
+                  const lvLevel = getMemberLvLevel(m, members);
+                  const ladder = LADDER_RANKS.find((r) => r.level === lvLevel);
                   return (
                     <tr key={m.id} className="hover:bg-[#FBFBFA]/80">
                       <td className="py-3.5 px-4">
@@ -298,7 +309,7 @@ export default function AdminHellobeePage() {
                       </td>
                       <td className="py-3.5 px-4">
                         <span className="font-mono font-bold text-xs px-2 py-0.5 bg-[#FAF8F5] border border-[#E5E5E5] text-[#111111]">
-                          {m.rank}
+                          LV{lvLevel}
                         </span>
                       </td>
                       <td className="py-3.5 px-4 font-mono font-medium text-[#111111]">
@@ -311,8 +322,8 @@ export default function AdminHellobeePage() {
                           <span className="text-[#999999] italic">— Independent Node —</span>
                         )}
                       </td>
-                      <td className="py-3.5 px-4 font-mono font-bold">
-                        {team.ladderLevel ? `LV${team.ladderLevel}` : '—'}
+                      <td className="py-3.5 px-4 font-medium text-[#111111]">
+                        {LADDER_NAMES[lvLevel - 1]}
                       </td>
                       <td className="py-3.5 px-4 text-right font-mono">
                         {team.directCount} / {team.teamSize}
