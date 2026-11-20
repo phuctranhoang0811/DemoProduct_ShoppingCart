@@ -286,6 +286,42 @@ io.on('connection', (socket) => {
     if (typeof ack === 'function') ack({ ok: true, added: added.length });
   });
 
+  const systemNote = (threadId, body) => {
+    state.messages = [...state.messages, { id: uid('msg'), threadId, fromEmail: 'system', fromName: 'System', body, system: true, at: Date.now() }].slice(-1000);
+  };
+
+  socket.on('group:rename', (payload, ack) => {
+    const group = state.groups.find((g) => g.id === String(payload?.groupId || ''));
+    const actor = norm(payload?.actorEmail);
+    const name = String(payload?.name || '').trim().slice(0, 40);
+    const actorName = String(payload?.actorName || actor).slice(0, 60);
+    if (!group || !name || name === group.name || !group.memberEmails.includes(actor)) {
+      if (typeof ack === 'function') ack({ ok: false });
+      return;
+    }
+    state.groups = state.groups.map((g) => (g.id === group.id ? { ...g, name } : g));
+    systemNote(group.id, `${actorName} renamed the group to "${name}"`);
+    broadcast();
+    if (typeof ack === 'function') ack({ ok: true });
+  });
+
+  // Anyone can leave; only the creator can remove someone else, and never themselves via "remove".
+  socket.on('group:remove', (payload, ack) => {
+    const group = state.groups.find((g) => g.id === String(payload?.groupId || ''));
+    const actor = norm(payload?.actorEmail);
+    const target = norm(payload?.email);
+    const targetName = String(payload?.targetName || target).slice(0, 60);
+    const allowed = group && group.memberEmails.includes(actor) && group.memberEmails.includes(target) && (actor === target || (actor === group.createdBy && target !== group.createdBy));
+    if (!allowed) {
+      if (typeof ack === 'function') ack({ ok: false });
+      return;
+    }
+    state.groups = state.groups.map((g) => (g.id === group.id ? { ...g, memberEmails: g.memberEmails.filter((e) => e !== target) } : g));
+    systemNote(group.id, actor === target ? `${targetName} left the group` : `${targetName} was removed from the group`);
+    broadcast();
+    if (typeof ack === 'function') ack({ ok: true });
+  });
+
   socket.on('chat:message', (payload, ack) => {
     const threadId = String(payload?.threadId || '').trim();
     const email = norm(payload?.person?.email);

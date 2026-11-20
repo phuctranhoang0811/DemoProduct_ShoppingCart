@@ -108,3 +108,34 @@ describe('sample data', () => {
     expect(useCommunityStore.getState().posts).toEqual([]);
   });
 });
+
+describe('renaming and removing group members', () => {
+  const owner = { email: 'a@x.com', name: 'Ann' };
+
+  it('lets a member rename, trims the name and leaves a system note', () => {
+    const store = useCommunityStore.getState();
+    const id = store.createGroup('Old', 'a@x.com', ['b@x.com']);
+    expect(store.renameGroup(id, owner, '  New name  ')).toBe(true);
+    expect(useCommunityStore.getState().groups.find((g) => g.id === id)?.name).toBe('New name');
+    expect(useCommunityStore.getState().messages.some((m) => m.threadId === id && m.system && m.body.includes('New name'))).toBe(true);
+  });
+
+  it('refuses rename by outsiders, empty names and unknown groups', () => {
+    const store = useCommunityStore.getState();
+    const id = store.createGroup('Keep', 'a@x.com', []);
+    expect(store.renameGroup(id, { email: 'z@x.com', name: 'Z' }, 'Hack')).toBe(false);
+    expect(store.renameGroup(id, owner, '   ')).toBe(false);
+    expect(store.renameGroup('nope', owner, 'X')).toBe(false);
+  });
+
+  it('only the creator can remove others, anyone can leave', () => {
+    const store = useCommunityStore.getState();
+    const id = store.createGroup('Crew2', 'a@x.com', ['b@x.com', 'c@x.com']);
+    expect(store.removeFromGroup(id, 'b@x.com', 'c@x.com')).toBe(false);
+    expect(store.removeFromGroup(id, 'a@x.com', 'a@x.com')).toBe(true);
+    const id2 = store.createGroup('Crew3', 'a@x.com', ['b@x.com', 'c@x.com']);
+    expect(store.removeFromGroup(id2, 'a@x.com', 'c@x.com')).toBe(true);
+    expect(store.removeFromGroup(id2, 'b@x.com', 'b@x.com')).toBe(true);
+    expect(useCommunityStore.getState().groups.find((g) => g.id === id2)?.memberEmails).toEqual(['a@x.com']);
+  });
+});

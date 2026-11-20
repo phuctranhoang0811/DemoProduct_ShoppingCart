@@ -54,6 +54,7 @@ export interface ChatMessage {
   fromName: string;
   body: string;
   imageUrl?: string;
+  system?: boolean;
   at: number;
 }
 
@@ -61,6 +62,8 @@ export interface Person {
   email: string;
   name: string;
 }
+
+const systemNote = (threadId: string, body: string): ChatMessage => ({ id: uid('msg'), threadId, fromEmail: 'system', fromName: 'System', body, system: true, at: Date.now() });
 
 interface CommunityState {
   codes: MembershipCode[];
@@ -82,6 +85,8 @@ interface CommunityState {
   addPost: (person: Person, body: string, meta?: { category?: PostCategory; location?: string; imageUrl?: string }) => void;
   createGroup: (name: string, creator: string, memberEmails: string[]) => string;
   addToGroup: (groupId: string, actorEmail: string, emails: string[]) => number;
+  renameGroup: (groupId: string, actor: Person, name: string) => boolean;
+  removeFromGroup: (groupId: string, actorEmail: string, email: string, targetName?: string) => boolean;
   sendMessage: (threadId: string, person: Person, body: string, imageUrl?: string) => void;
 }
 
@@ -244,6 +249,31 @@ export const useCommunityStore = create<CommunityState>()(
           groups: s.groups.map((g) => (g.id === groupId ? { ...g, memberEmails: [...g.memberEmails, ...added] } : g)),
         }));
         return added.length;
+      },
+
+      renameGroup: (groupId, actor, name) => {
+        const group = get().groups.find((g) => g.id === groupId);
+        const next = name.trim().slice(0, 40);
+        if (!group || !next || next === group.name || !group.memberEmails.includes(norm(actor.email))) return false;
+        set((s) => ({
+          groups: s.groups.map((g) => (g.id === groupId ? { ...g, name: next } : g)),
+          messages: [...s.messages, systemNote(groupId, `${actor.name} renamed the group to "${next}"`)].slice(-1000),
+        }));
+        return true;
+      },
+
+      // Anyone can leave; only the creator can remove someone else.
+      removeFromGroup: (groupId, actorEmail, email, targetName) => {
+        const group = get().groups.find((g) => g.id === groupId);
+        const actor = norm(actorEmail);
+        const target = norm(email);
+        const allowed = group && group.memberEmails.includes(actor) && group.memberEmails.includes(target) && (actor === target || (actor === group.createdBy && target !== group.createdBy));
+        if (!allowed) return false;
+        set((s) => ({
+          groups: s.groups.map((g) => (g.id === groupId ? { ...g, memberEmails: g.memberEmails.filter((e) => e !== target) } : g)),
+          messages: [...s.messages, systemNote(groupId, actor === target ? `${targetName ?? target} left the group` : `${targetName ?? target} was removed from the group`)].slice(-1000),
+        }));
+        return true;
       },
 
       sendMessage: (threadId, person, body, imageUrl) =>

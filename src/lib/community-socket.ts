@@ -138,6 +138,18 @@ export async function emitAddToGroup(groupId: string, actorEmail: string, emails
   return useCommunityStore.getState().addToGroup(groupId, actorEmail, emails);
 }
 
+export async function emitRenameGroup(groupId: string, actor: Person, name: string): Promise<boolean> {
+  const res = await emitAck<{ ok: boolean }>('group:rename', { groupId, actorEmail: actor.email, actorName: actor.name, name });
+  if (res) return res.ok;
+  return useCommunityStore.getState().renameGroup(groupId, actor, name);
+}
+
+export async function emitRemoveFromGroup(groupId: string, actorEmail: string, email: string, targetName?: string): Promise<boolean> {
+  const res = await emitAck<{ ok: boolean }>('group:remove', { groupId, actorEmail, email, targetName });
+  if (res) return res.ok;
+  return useCommunityStore.getState().removeFromGroup(groupId, actorEmail, email, targetName);
+}
+
 export function emitSendMessage(threadId: string, person: Person, body: string, imageUrl?: string): void {
   if (socket?.connected) {
     socket.emit('chat:message', { threadId, person, body, imageUrl });

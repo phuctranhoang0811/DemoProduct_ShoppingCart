@@ -9,12 +9,15 @@ import {
   Italic,
   List,
   ListOrdered,
+  LogOut,
   MessageCircle,
   Paperclip,
+  Pencil,
   Plus,
   Search,
   Send,
   Strikethrough,
+  UserMinus,
   Users,
   X,
 } from 'lucide-react';
@@ -30,6 +33,8 @@ import {
   emitAddToGroup,
   emitCreateGroup,
   emitEnsureMember,
+  emitRemoveFromGroup,
+  emitRenameGroup,
   emitSendMessage,
 } from '@/lib/community-socket';
 import { useCommerceStore } from '@/stores/useCommerceStore';
@@ -75,17 +80,33 @@ function listTime(ms: number): string {
 }
 
 // Small markdown subset: **bold**, _italic_, ~~strike~~, "- " bullets and "1. " numbered lines.
-function inline(text: string, keyBase: string) {
+interface Mentions {
+  re: RegExp | null;
+  myName: string;
+}
+function withMentions(text: string, keyBase: string, mentions?: Mentions): React.ReactNode {
+  if (!mentions?.re) return text;
+  return text.split(mentions.re).map((part, i) =>
+    i % 2 === 1 ? (
+      <span key={`${keyBase}-m${i}`} className={`font-semibold rounded px-0.5 ${part.slice(1) === mentions.myName ? 'bg-[#FFE9A8] text-[#7A4B00]' : 'text-[#1D5FD1]'}`}>
+        {part}
+      </span>
+    ) : (
+      part
+    ),
+  );
+}
+function inline(text: string, keyBase: string, mentions?: Mentions) {
   const parts = text.split(/(\*\*[^*]+\*\*|_[^_]+_|~~[^~]+~~)/g).filter(Boolean);
   return parts.map((part, i) => {
     const key = `${keyBase}-${i}`;
-    if (part.startsWith('**') && part.endsWith('**') && part.length > 4) return <strong key={key}>{part.slice(2, -2)}</strong>;
-    if (part.startsWith('~~') && part.endsWith('~~') && part.length > 4) return <s key={key}>{part.slice(2, -2)}</s>;
-    if (part.startsWith('_') && part.endsWith('_') && part.length > 2) return <em key={key}>{part.slice(1, -1)}</em>;
-    return <Fragment key={key}>{part}</Fragment>;
+    if (part.startsWith('**') && part.endsWith('**') && part.length > 4) return <strong key={key}>{withMentions(part.slice(2, -2), key, mentions)}</strong>;
+    if (part.startsWith('~~') && part.endsWith('~~') && part.length > 4) return <s key={key}>{withMentions(part.slice(2, -2), key, mentions)}</s>;
+    if (part.startsWith('_') && part.endsWith('_') && part.length > 2) return <em key={key}>{withMentions(part.slice(1, -1), key, mentions)}</em>;
+    return <Fragment key={key}>{withMentions(part, key, mentions)}</Fragment>;
   });
 }
-function RichText({ body }: { body: string }) {
+function RichText({ body, mentions }: { body: string; mentions?: Mentions }) {
   const lines = body.split('\n');
   const blocks: React.ReactNode[] = [];
   for (let i = 0; i < lines.length; ) {
@@ -104,14 +125,14 @@ function RichText({ body }: { body: string }) {
       blocks.push(
         <Tag key={`l${i}`} className={`${ordered ? 'list-decimal' : 'list-disc'} pl-5 my-0.5`}>
           {items.map((it, j) => (
-            <li key={j}>{inline(it, `li${i}-${j}`)}</li>
+            <li key={j}>{inline(it, `li${i}-${j}`, mentions)}</li>
           ))}
         </Tag>,
       );
     } else {
       blocks.push(
         <p key={`p${i}`} className="min-h-[1.25em]">
-          {inline(lines[i], `p${i}`)}
+          {inline(lines[i], `p${i}`, mentions)}
         </p>,
       );
       i++;
@@ -157,6 +178,10 @@ export function Chat({ me }: { me: Person }) {
   const [picked, setPicked] = useState<string[]>([]);
   const [inviting, setInviting] = useState(false);
   const [invitePicked, setInvitePicked] = useState<string[]>([]);
+  const [renaming, setRenaming] = useState<string | null>(null);
+  const [showMembers, setShowMembers] = useState(false);
+  const [mention, setMention] = useState<{ start: number; query: string } | null>(null);
+  const [mentionIdx, setMentionIdx] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -179,6 +204,8 @@ export function Chat({ me }: { me: Person }) {
   const myGroups = useMemo(() => groups.filter((g) => g.memberEmails.includes(myEmail)), [groups, myEmail]);
   const activeGroup = myGroups.find((g) => g.id === thread);
   const invitable = activeGroup ? people.filter((p) => !activeGroup.memberEmails.includes(p.email)) : [];
+  const nameOf = (email: string) => (email === myEmail ? me.name : people.find((p) => p.email === email)?.name ?? email);
+  const isCreator = Boolean(activeGroup && activeGroup.createdBy === myEmail);
 
   const conversations = useMemo(() => {
     const byThread = new Map<string, ChatMessage[]>();
@@ -199,6 +226,18 @@ export function Chat({ me }: { me: Person }) {
   const active =
     thread === LIVE_THREAD ? conversations.live : conversations.groups.find((c) => c.id === thread) ?? conversations.dms.find((c) => c.id === thread) ?? conversations.live;
   const current = useMemo(() => messages.filter((m) => m.threadId === active.id), [messages, active.id]);
+
+  const tagable = useMemo(() => {
+    if (active.kind === 'group') return people.filter((p) => activeGroup?.memberEmails.includes(p.email));
+    if (active.kind === 'dm') return people.filter((p) => dmThreadId(myEmail, p.email) === active.id);
+    return people;
+  }, [active.kind, active.id, activeGroup, people, myEmail]);
+  const mentions = useMemo<Mentions>(() => {
+    const names = [...people.map((p) => cleanName(p.name)), cleanName(me.name)].filter(Boolean).sort((a, b) => b.length - a.length);
+    const escaped = names.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    return { re: escaped.length ? new RegExp(`(@(?:${escaped.join('|')}))(?![\\p{L}\\p{N}])`, 'gu') : null, myName: cleanName(me.name) };
+  }, [people, me.name]);
+  const mentionList = mention ? tagable.filter((p) => cleanName(p.name).toLowerCase().includes(mention.query.toLowerCase())).slice(0, 6) : [];
 
   // Opening a conversation, or receiving a message in it, marks it read.
   useEffect(() => {
@@ -222,6 +261,9 @@ export function Chat({ me }: { me: Person }) {
   const choose = (id: string) => {
     setThread(id);
     setInviting(false);
+    setShowMembers(false);
+    setRenaming(null);
+    setMention(null);
     setInvitePicked([]);
     setText('');
     setImage(undefined);
@@ -266,6 +308,46 @@ export function Chat({ me }: { me: Person }) {
     emitSendMessage(active.id, { email: myEmail, name: me.name }, text.trim(), image);
     setText('');
     setImage(undefined);
+  };
+
+  const onTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setText(value);
+    const caret = e.target.selectionStart;
+    const m = /(^|\s)@([^\s@]{0,30})$/.exec(value.slice(0, caret));
+    if (m) {
+      setMention({ start: caret - m[2].length - 1, query: m[2] });
+      setMentionIdx(0);
+    } else setMention(null);
+  };
+  const pickMention = (p: { name: string }) => {
+    if (!mention) return;
+    const el = inputRef.current;
+    const caret = el?.selectionStart ?? text.length;
+    const insert = `@${cleanName(p.name)} `;
+    setText(text.slice(0, mention.start) + insert + text.slice(caret));
+    setMention(null);
+    requestAnimationFrame(() => {
+      el?.focus();
+      el?.setSelectionRange(mention.start + insert.length, mention.start + insert.length);
+    });
+  };
+
+  const rename = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeGroup || renaming === null) return;
+    const ok = await emitRenameGroup(activeGroup.id, { email: myEmail, name: me.name }, renaming);
+    if (ok) toast.success('Group renamed.');
+    setRenaming(null);
+  };
+  const removeMember = async (email: string) => {
+    if (!activeGroup) return;
+    const leaving = email === myEmail;
+    const ok = await emitRemoveFromGroup(activeGroup.id, myEmail, email, cleanName(nameOf(email)));
+    if (ok) {
+      toast.success(leaving ? 'You left the group.' : 'Member removed.');
+      if (leaving) choose(LIVE_THREAD);
+    }
   };
 
   const invite = async (e: React.FormEvent) => {
@@ -384,19 +466,56 @@ export function Chat({ me }: { me: Person }) {
           <div className="flex items-center gap-3 min-w-0">
             <Avatar name={active.label} seed={active.seed} size={36} icon={active.kind === 'dm' ? undefined : active.kind} />
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-[#111111] truncate">{active.label}</p>
+              {renaming !== null ? (
+                <form onSubmit={rename} className="flex items-center gap-1">
+                  <input autoFocus value={renaming} maxLength={40} onChange={(e) => setRenaming(e.target.value)} aria-label="Rename group" className="border border-[#CFCFCF] rounded-xs px-2 py-1 text-sm w-44" />
+                  <button type="submit" className="text-xs font-semibold underline">Save</button>
+                  <button type="button" onClick={() => setRenaming(null)} className="text-xs text-[#777777]">Cancel</button>
+                </form>
+              ) : (
+                <p className="text-sm font-semibold text-[#111111] truncate">{active.label}</p>
+              )}
               <p className="text-xs text-[#777777]">
-                {active.kind === 'live' ? 'Everyone in the community' : active.kind === 'group' ? `${activeGroup?.memberEmails.length ?? 0} members` : 'Direct message'}
+                {active.kind === 'live' ? 'Everyone in the community' : active.kind === 'group' ? `${activeGroup?.memberEmails.length ?? 0} member${activeGroup?.memberEmails.length === 1 ? "" : "s"}` : 'Direct message'}
                 {active.last && ` · last message ${listTime(active.last.at)}`}
               </p>
             </div>
           </div>
           {activeGroup && (
-            <button type="button" onClick={() => setInviting((v) => !v)} className="inline-flex items-center gap-1 text-xs font-semibold underline shrink-0">
-              <Plus className="w-3.5 h-3.5" /> Add members
-            </button>
+            <div className="flex items-center gap-3 shrink-0">
+              <button type="button" onClick={() => setRenaming(activeGroup.name)} className="inline-flex items-center gap-1 text-xs font-semibold underline">
+                <Pencil className="w-3.5 h-3.5" /> Rename
+              </button>
+              <button type="button" onClick={() => setShowMembers((v) => !v)} aria-expanded={showMembers} className="inline-flex items-center gap-1 text-xs font-semibold underline">
+                <Users className="w-3.5 h-3.5" /> Members
+              </button>
+              <button type="button" onClick={() => setInviting((v) => !v)} className="inline-flex items-center gap-1 text-xs font-semibold underline">
+                <Plus className="w-3.5 h-3.5" /> Add members
+              </button>
+            </div>
           )}
         </header>
+        {activeGroup && showMembers && (
+          <div className="p-3 border-b border-[#E5E5E5] bg-[#FAF9F5] shrink-0 space-y-1" aria-label="Group members">
+            {activeGroup.memberEmails.map((email) => (
+              <div key={email} className="flex items-center justify-between gap-2 text-xs">
+                <span className="truncate">
+                  {cleanName(nameOf(email))}
+                  {email === myEmail && ' (you)'}
+                  {email === activeGroup.createdBy && ' · creator'}
+                </span>
+                {isCreator && email !== myEmail && (
+                  <button type="button" onClick={() => removeMember(email)} aria-label={`Remove ${cleanName(nameOf(email))}`} className="inline-flex items-center gap-1 text-[#B3261E] font-semibold">
+                    <UserMinus className="w-3.5 h-3.5" /> Remove
+                  </button>
+                )}
+              </div>
+            ))}
+            <button type="button" onClick={() => removeMember(myEmail)} className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#B3261E]">
+              <LogOut className="w-3.5 h-3.5" /> Leave group
+            </button>
+          </div>
+        )}
         {activeGroup && inviting && (
           <form onSubmit={invite} className="p-3 border-b border-[#E5E5E5] space-y-2 bg-[#FAF9F5] shrink-0">
             {invitable.length === 0 ? (
@@ -423,6 +542,20 @@ export function Chat({ me }: { me: Person }) {
             const mine = m.fromEmail.toLowerCase() === myEmail;
             const prev = current[i - 1];
             const newDay = !prev || !sameDay(prev.at, m.at);
+            if (m.system) {
+              return (
+                <Fragment key={m.id}>
+                  {newDay && (
+                    <div className="flex items-center gap-3 my-4" role="separator">
+                      <span className="flex-1 h-px bg-[#E5E5E5]" />
+                      <span className="text-[11px] text-[#777777] border border-[#E5E5E5] rounded-full px-3 py-1">{longDate(m.at)}</span>
+                      <span className="flex-1 h-px bg-[#E5E5E5]" />
+                    </div>
+                  )}
+                  <p className="my-2 text-center text-[11px] text-[#777777]" data-system>{m.body}</p>
+                </Fragment>
+              );
+            }
             const showName = !mine && active.kind !== 'dm' && (newDay || prev.fromEmail !== m.fromEmail);
             return (
               <Fragment key={m.id}>
@@ -436,7 +569,7 @@ export function Chat({ me }: { me: Person }) {
                 <div className={`flex mb-2 ${mine ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[75%] rounded-lg px-3.5 py-2.5 text-sm text-[#222222] ${mine ? 'bg-[#DCF5D0] rounded-tr-none' : 'bg-[#F1F1F1] rounded-tl-none'}`}>
                     {showName && <p className="text-[11px] font-semibold text-[#8A5A0B] mb-0.5">{cleanName(m.fromName)}</p>}
-                    {m.body && <RichText body={m.body} />}
+                    {m.body && <RichText body={m.body} mentions={mentions} />}
                     {m.imageUrl && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={m.imageUrl} alt="Shared image" className="mt-1 max-h-72 w-auto max-w-full rounded-md border border-black/5" />
@@ -480,13 +613,48 @@ export function Chat({ me }: { me: Person }) {
               </button>
             </div>
           )}
+          {mention && mentionList.length > 0 && (
+            <ul role="listbox" aria-label="Mention suggestions" className="mx-3 mb-1 border border-[#E5E5E5] rounded-md bg-white shadow-sm overflow-hidden">
+              {mentionList.map((p, i) => (
+                <li key={p.email} role="option" aria-selected={i === mentionIdx}>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      pickMention(p);
+                    }}
+                    className={`w-full flex items-center gap-2 px-3 py-1.5 text-left text-sm ${i === mentionIdx ? 'bg-[#F1F1F1]' : ''}`}
+                  >
+                    <Avatar name={p.name} seed={p.email} size={22} />
+                    {cleanName(p.name)}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
           <textarea
             ref={inputRef}
             rows={2}
             maxLength={1000}
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={onTextChange}
             onKeyDown={(e) => {
+              if (mention && mentionList.length > 0) {
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                  e.preventDefault();
+                  setMentionIdx((i) => (i + (e.key === 'ArrowDown' ? 1 : mentionList.length - 1)) % mentionList.length);
+                  return;
+                }
+                if (e.key === 'Enter' || e.key === 'Tab') {
+                  e.preventDefault();
+                  pickMention(mentionList[mentionIdx] ?? mentionList[0]);
+                  return;
+                }
+                if (e.key === 'Escape') {
+                  setMention(null);
+                  return;
+                }
+              }
               if (e.key === 'Enter' && !e.shiftKey) submit(e);
             }}
             placeholder="Type message here"
