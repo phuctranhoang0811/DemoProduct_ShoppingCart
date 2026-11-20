@@ -281,6 +281,9 @@ io.on('connection', (socket) => {
       state.groups = state.groups.map((g) =>
         g.id === groupId ? { ...g, memberEmails: [...g.memberEmails, ...added] } : g,
       );
+      const names = Array.isArray(payload?.names) ? payload.names : [];
+      const label = (e) => String(names[emails.findIndex((x) => norm(x) === e)] || e).slice(0, 60);
+      systemNote(groupId, `${String(payload?.actorName || actor).slice(0, 60)} added ${added.map((e) => `@${label(e)}`).join(', ')} to the group`);
       broadcast();
     }
     if (typeof ack === 'function') ack({ ok: true, added: added.length });

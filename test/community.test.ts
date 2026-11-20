@@ -139,3 +139,13 @@ describe('renaming and removing group members', () => {
     expect(useCommunityStore.getState().groups.find((g) => g.id === id2)?.memberEmails).toEqual(['a@x.com']);
   });
 });
+
+describe('add-member note', () => {
+  it('posts a system note that tags the added people', () => {
+    const store = useCommunityStore.getState();
+    const id = store.createGroup('Tagged', 'a@x.com', []);
+    store.addToGroup(id, 'a@x.com', ['b@x.com', 'c@x.com'], 'Ann', ['Bob', 'Cy']);
+    const note = useCommunityStore.getState().messages.find((m) => m.threadId === id && m.system);
+    expect(note?.body).toBe('Ann added @Bob, @Cy to the group');
+  });
+});

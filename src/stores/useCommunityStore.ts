@@ -84,7 +84,7 @@ interface CommunityState {
   toggleRsvp: (meetingId: string, email: string) => void;
   addPost: (person: Person, body: string, meta?: { category?: PostCategory; location?: string; imageUrl?: string }) => void;
   createGroup: (name: string, creator: string, memberEmails: string[]) => string;
-  addToGroup: (groupId: string, actorEmail: string, emails: string[]) => number;
+  addToGroup: (groupId: string, actorEmail: string, emails: string[], actorName?: string, names?: string[]) => number;
   renameGroup: (groupId: string, actor: Person, name: string) => boolean;
   removeFromGroup: (groupId: string, actorEmail: string, email: string, targetName?: string) => boolean;
   sendMessage: (threadId: string, person: Person, body: string, imageUrl?: string) => void;
@@ -237,7 +237,7 @@ export const useCommunityStore = create<CommunityState>()(
       },
 
       // Only someone already in the group can invite; returns how many people were added.
-      addToGroup: (groupId, actorEmail, emails) => {
+      addToGroup: (groupId, actorEmail, emails, actorName, names = []) => {
         const group = get().groups.find((g) => g.id === groupId);
         const actor = norm(actorEmail);
         if (!group || !group.memberEmails.includes(actor)) return 0;
@@ -247,6 +247,10 @@ export const useCommunityStore = create<CommunityState>()(
 
         set((s) => ({
           groups: s.groups.map((g) => (g.id === groupId ? { ...g, memberEmails: [...g.memberEmails, ...added] } : g)),
+          messages: [
+            ...s.messages,
+            systemNote(groupId, `${actorName ?? actorEmail} added ${added.map((e) => `@${names[emails.findIndex((x) => norm(x) === e)] ?? e}`).join(', ')} to the group`),
+          ].slice(-1000),
         }));
         return added.length;
       },

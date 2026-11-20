@@ -132,10 +132,10 @@ export async function emitCreateGroup(name: string, creator: string, memberEmail
   return useCommunityStore.getState().createGroup(name, creator, memberEmails);
 }
 
-export async function emitAddToGroup(groupId: string, actorEmail: string, emails: string[]): Promise<number> {
-  const res = await emitAck<{ ok: boolean; added?: number }>('group:add', { groupId, actorEmail, emails });
+export async function emitAddToGroup(groupId: string, actorEmail: string, emails: string[], actorName?: string, names?: string[]): Promise<number> {
+  const res = await emitAck<{ ok: boolean; added?: number }>('group:add', { groupId, actorEmail, actorName, emails, names });
   if (res?.ok && typeof res.added === 'number') return res.added;
-  return useCommunityStore.getState().addToGroup(groupId, actorEmail, emails);
+  return useCommunityStore.getState().addToGroup(groupId, actorEmail, emails, actorName, names);
 }
 
 export async function emitRenameGroup(groupId: string, actor: Person, name: string): Promise<boolean> {

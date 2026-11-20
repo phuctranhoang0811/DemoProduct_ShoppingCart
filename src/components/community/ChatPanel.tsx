@@ -353,7 +353,7 @@ export function Chat({ me }: { me: Person }) {
   const invite = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeGroup || invitePicked.length === 0) return;
-    const added = await emitAddToGroup(activeGroup.id, myEmail, invitePicked);
+    const added = await emitAddToGroup(activeGroup.id, myEmail, invitePicked, me.name, invitePicked.map((em) => cleanName(nameOf(em))));
     toast.success(added > 0 ? `Added ${added} to ${activeGroup.name}.` : 'Nobody new to add.');
     setInvitePicked([]);
     setInviting(false);
@@ -552,7 +552,7 @@ export function Chat({ me }: { me: Person }) {
                       <span className="flex-1 h-px bg-[#E5E5E5]" />
                     </div>
                   )}
-                  <p className="my-2 text-center text-[11px] text-[#777777]" data-system>{m.body}</p>
+                  <p className="my-2 text-center text-[11px] text-[#777777]" data-system>{inline(m.body, m.id, mentions)}</p>
                 </Fragment>
               );
             }
