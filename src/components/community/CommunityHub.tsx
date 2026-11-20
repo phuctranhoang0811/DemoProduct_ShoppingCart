@@ -17,7 +17,6 @@ import {
 import { toast } from 'sonner';
 import {
   LIVE_THREAD,
-  SUPPORT_EMAIL,
   dmThreadId,
   useCommunityStore,
   type MeetingKind,
@@ -36,6 +35,8 @@ import {
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { MembershipCard } from './MembershipCard';
 import { useIsMember } from './useIsMember';
+import { resizeImageFile } from './resizeImage';
+import { Chat } from './ChatPanel';
 
 type Tab = 'meetings' | 'posts' | 'chat';
 
@@ -45,33 +46,6 @@ const input = 'w-full border border-[#E5E5E5] rounded-xs px-3 py-2 text-sm bg-wh
 
 const when = (ms: number) =>
   new Date(ms).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-
-function resizeImageFile(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error('Failed to read image'));
-    reader.onload = () => {
-      const img = new window.Image();
-      img.onerror = () => reject(new Error('Invalid image file'));
-      img.onload = () => {
-        const maxWidth = 800;
-        const scale = img.width > maxWidth ? maxWidth / img.width : 1;
-        const canvas = document.createElement('canvas');
-        canvas.width = Math.round(img.width * scale);
-        canvas.height = Math.round(img.height * scale);
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          resolve(String(reader.result));
-          return;
-        }
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL('image/jpeg', 0.75));
-      };
-      img.src = String(reader.result);
-    };
-    reader.readAsDataURL(file);
-  });
-}
 
 export function CommunityHub() {
   const [mounted, setMounted] = useState(false);
@@ -255,6 +229,11 @@ function Meetings({ me, canInteract }: { me: Person; canInteract: boolean }) {
       )}
 
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {sorted.length === 0 && (
+          <p className="text-sm text-[#777777] md:col-span-2 xl:col-span-3">
+            No meetings yet. {canInteract ? 'Organize the first one above.' : 'Members can organize meetings, dinners and gatherings.'}
+          </p>
+        )}
         {sorted.map((m) => {
           const going = canInteract && m.attendees.includes(me.email);
           return (
@@ -434,203 +413,6 @@ function Posts({ me, canInteract }: { me: Person; canInteract: boolean }) {
           )}
         </article>
       ))}
-    </div>
-  );
-}
-
-function Chat({ me }: { me: Person }) {
-  const groups = useCommunityStore((s) => s.groups);
-  const messages = useCommunityStore((s) => s.messages);
-  const joined = useCommunityStore((s) => s.members);
-  const socketConnected = useCommunityStore((s) => s.socketConnected);
-  const hellobeeMembers = useCommerceStore((s) => s.hellobeeMembers);
-
-  const [thread, setThread] = useState(LIVE_THREAD);
-  const [text, setText] = useState('');
-  const [creating, setCreating] = useState(false);
-  const [groupName, setGroupName] = useState('');
-  const [picked, setPicked] = useState<string[]>([]);
-  const [inviting, setInviting] = useState(false);
-  const [invitePicked, setInvitePicked] = useState<string[]>([]);
-  const listRef = useRef<HTMLDivElement>(null);
-
-  const myEmail = me.email.toLowerCase();
-
-  const people = useMemo(() => {
-    const map = new Map<string, string>([[SUPPORT_EMAIL, 'Hello Bee Support']]);
-    Object.entries(joined).forEach(([email, m]) => map.set(email.toLowerCase(), m.name));
-    hellobeeMembers.forEach((m) => {
-      if (m.isActive && m.email) {
-        const key = m.email.toLowerCase();
-        if (!map.has(key)) map.set(key, m.name);
-      }
-    });
-    map.delete(myEmail);
-    return Array.from(map, ([email, name]) => ({ email, name }));
-  }, [joined, hellobeeMembers, myEmail]);
-
-  useEffect(() => {
-    emitEnsureMember(me);
-  }, [me.email, me.name, socketConnected]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const myGroups = groups.filter((g) => g.memberEmails.includes(myEmail));
-  const activeGroup = myGroups.find((g) => g.id === thread);
-  const invitable = activeGroup ? people.filter((p) => !activeGroup.memberEmails.includes(p.email)) : [];
-  const current = messages.filter((m) => m.threadId === thread);
-
-  useEffect(() => {
-    const el = listRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [current.length, thread]);
-
-  const title =
-    thread === LIVE_THREAD
-      ? 'Live chat'
-      : myGroups.find((g) => g.id === thread)?.name ?? people.find((p) => dmThreadId(myEmail, p.email) === thread)?.name ?? 'Chat';
-
-  const send = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!text.trim()) return;
-    emitSendMessage(thread, { email: myEmail, name: me.name }, text.trim());
-    setText('');
-  };
-
-  const invite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!activeGroup || invitePicked.length === 0) return;
-    const added = await emitAddToGroup(activeGroup.id, myEmail, invitePicked);
-    toast.success(added > 0 ? `Added ${added} to ${activeGroup.name}.` : 'Nobody new to add.');
-    setInvitePicked([]);
-    setInviting(false);
-  };
-
-  const makeGroup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!groupName.trim() || picked.length === 0) {
-      toast.error('Name the group and pick at least one member.');
-      return;
-    }
-    const id = await emitCreateGroup(groupName.trim(), myEmail, picked);
-    setThread(id);
-    setGroupName('');
-    setPicked([]);
-    setCreating(false);
-  };
-
-  const row = (id: string, label: string) => (
-    <button
-      key={id}
-      type="button"
-      onClick={() => {
-        setThread(id);
-        setInviting(false);
-        setInvitePicked([]);
-      }}
-      className={`w-full text-left px-3 py-2 text-sm rounded-xs truncate ${thread === id ? 'bg-[#111111] text-white' : 'hover:bg-[#F5F4F0]'}`}
-    >
-      {label}
-    </button>
-  );
-
-  return (
-    <div className="grid md:grid-cols-[260px_1fr] bg-white border border-[#E5E5E5] rounded-xl overflow-hidden h-[540px]">
-      <aside className="border-b md:border-b-0 md:border-r border-[#E5E5E5] p-3 space-y-1 overflow-y-auto">
-        {row(LIVE_THREAD, 'Live chat')}
-        <div className="flex items-center justify-between pt-3 pb-1 px-1">
-          <span className="text-[10px] uppercase tracking-wider font-bold text-[#888888]">Groups</span>
-          <button type="button" onClick={() => setCreating((v) => !v)} aria-label="New group" className="p-1 hover:bg-[#F5F4F0] rounded">
-            <Plus className="w-3.5 h-3.5" />
-          </button>
-        </div>
-        {creating && (
-          <form onSubmit={makeGroup} className="space-y-2 p-2 border border-[#E5E5E5] rounded-xs">
-            <input className={input} placeholder="Group name" value={groupName} onChange={(e) => setGroupName(e.target.value)} />
-            <div className="max-h-28 overflow-y-auto space-y-1">
-              {people.map((p) => (
-                <label key={p.email} className="flex items-center gap-2 text-xs">
-                  <input
-                    type="checkbox"
-                    checked={picked.includes(p.email)}
-                    onChange={(e) => setPicked(e.target.checked ? [...picked, p.email] : picked.filter((x) => x !== p.email))}
-                  />
-                  <span className="truncate">{p.name}</span>
-                </label>
-              ))}
-            </div>
-            <button type="submit" className="w-full bg-[#111111] text-white py-1.5 text-xs uppercase font-semibold rounded-xs">
-              Create
-            </button>
-          </form>
-        )}
-        {myGroups.map((g) => row(g.id, g.name))}
-        <div className="pt-3 pb-1 px-1 text-[10px] uppercase tracking-wider font-bold text-[#888888]">
-          Direct messages ({people.length})
-        </div>
-        {people.map((p) => row(dmThreadId(myEmail, p.email), p.name))}
-      </aside>
-
-      <div className="flex flex-col min-h-0">
-        <header className="px-4 py-3 border-b border-[#E5E5E5] text-sm font-semibold flex items-center justify-between gap-3 shrink-0">
-          <span className="truncate">
-            {title}
-            {activeGroup && (
-              <span className="ml-2 text-xs font-normal text-[#888888]">
-                {activeGroup.memberEmails.length} members
-              </span>
-            )}
-          </span>
-          {activeGroup && (
-            <button type="button" onClick={() => setInviting((v) => !v)} className="inline-flex items-center gap-1 text-xs font-semibold underline shrink-0">
-              <Plus className="w-3.5 h-3.5" /> Add members
-            </button>
-          )}
-        </header>
-        {activeGroup && inviting && (
-          <form onSubmit={invite} className="p-3 border-b border-[#E5E5E5] space-y-2 bg-[#FAF9F5] shrink-0">
-            {invitable.length === 0 ? (
-              <p className="text-xs text-[#777777]">Everyone is already in this group.</p>
-            ) : (
-              <div className="max-h-28 overflow-y-auto space-y-1">
-                {invitable.map((p) => (
-                  <label key={p.email} className="flex items-center gap-2 text-xs">
-                    <input
-                      type="checkbox"
-                      checked={invitePicked.includes(p.email)}
-                      onChange={(e) => setInvitePicked(e.target.checked ? [...invitePicked, p.email] : invitePicked.filter((x) => x !== p.email))}
-                    />
-                    <span className="truncate">{p.name}</span>
-                  </label>
-                ))}
-              </div>
-            )}
-            <button type="submit" disabled={invitePicked.length === 0} className="bg-[#111111] text-white px-4 py-1.5 text-xs uppercase font-semibold rounded-xs disabled:opacity-40">
-              Add
-            </button>
-          </form>
-        )}
-        <div ref={listRef} className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
-          {current.length === 0 && <p className="text-xs text-[#888888]">No messages yet. Say hello.</p>}
-          {current.map((m) => {
-            const mine = m.fromEmail.toLowerCase() === myEmail;
-            return (
-              <div key={m.id} className={`flex flex-col ${mine ? 'items-end' : 'items-start'}`}>
-                <span className="text-[10px] text-[#888888] mb-0.5">
-                  {mine ? 'You' : m.fromName} · {when(m.at)}
-                </span>
-                <p className={`text-sm px-3 py-2 rounded-2xl max-w-[80%] break-words whitespace-pre-wrap ${mine ? 'bg-[#111111] text-white' : 'bg-[#F0EFEA]'}`}>
-                  {m.body}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-        <form onSubmit={send} className="flex gap-2 p-3 border-t border-[#E5E5E5] shrink-0">
-          <input className={input} placeholder="Message" maxLength={1000} value={text} onChange={(e) => setText(e.target.value)} />
-          <button type="submit" aria-label="Send" className="bg-[#111111] text-white px-4 rounded-xs btn-tactile">
-            <Send className="w-4 h-4" />
-          </button>
-        </form>
-      </div>
     </div>
   );
 }

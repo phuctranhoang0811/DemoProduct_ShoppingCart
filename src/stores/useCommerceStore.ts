@@ -47,21 +47,34 @@ const STORAGE_KEYS = {
   categories: 'enagic_kangen_categories_v9',
   cart: 'enagic_kangen_cart_v2',
   wishlist: 'enagic_kangen_wishlist_v5',
-  orders: 'enagic_kangen_orders_v2',
-  customers: 'enagic_kangen_customers_v2',
-  discounts: 'enagic_kangen_discounts_v2',
-  reviews: 'enagic_kangen_reviews_v3',
-  inventory: 'enagic_kangen_inventory_v2',
+  orders: 'enagic_kangen_orders_v3',
+  customers: 'enagic_kangen_customers_v3',
+  discounts: 'enagic_kangen_discounts_v3',
+  reviews: 'enagic_kangen_reviews_v4',
+  inventory: 'enagic_kangen_inventory_v3',
   settings: 'enagic_kangen_settings_v3',
-  session: 'enagic_kangen_session_v2',
+  session: 'enagic_kangen_session_v3',
   currency: 'enagic_kangen_currency_v2',
   language: 'enagic_kangen_language_v2',
   appliedDiscount: 'enagic_kangen_discount_v1',
-  hellobeeMembers: 'hellobee_members_v3',
-  commissions: 'hellobee_commissions_v1',
-  payouts: 'hellobee_payouts_v1',
+  hellobeeMembers: 'hellobee_members_v4',
+  commissions: 'hellobee_commissions_v2',
+  payouts: 'hellobee_payouts_v2',
   activeMemberId: 'hellobee_active_member_v1',
 };
+
+// Keys that held the old sample data. Removed on load so nothing from it lingers in the browser.
+const LEGACY_KEYS = [
+  'enagic_kangen_orders_v2',
+  'enagic_kangen_customers_v2',
+  'enagic_kangen_discounts_v2',
+  'enagic_kangen_reviews_v3',
+  'enagic_kangen_inventory_v2',
+  'enagic_kangen_session_v2',
+  'hellobee_members_v3',
+  'hellobee_commissions_v1',
+  'hellobee_payouts_v1',
+];
 
 function getStorageItem<T>(key: string, defaultValue: T): T {
   if (typeof window === 'undefined') return defaultValue;
@@ -295,6 +308,8 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
 
   initHydrate: () => {
     if (typeof window === 'undefined') return;
+
+    LEGACY_KEYS.forEach((k) => localStorage.removeItem(k));
 
     const products = getStorageItem<Product[]>(STORAGE_KEYS.products, initialProducts);
     const categories = getStorageItem<Category[]>(STORAGE_KEYS.categories, initialCategories);
@@ -980,7 +995,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     if (role === 'employee') {
       const emp =
         state.hellobeeMembers.find((m) => m.email.toLowerCase() === 'employee@hellobee.com') ||
-        initialHellobeeMembers[2];
+        (initialHellobeeMembers.find((m) => m.role === 'EMPLOYEE') ?? initialHellobeeMembers[0]);
       const empUser: Customer = {
         id: emp.id,
         name: emp.name.replace(/\s*\(.*\)/, ''),
@@ -993,21 +1008,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
         birthday: '1992-04-18',
         company: 'Hellobee Associate Network',
         status: 'active',
-        addresses: [
-          {
-            id: `addr-${emp.id}`,
-            fullName: emp.name.replace(/\s*\(.*\)/, ''),
-            phone: emp.phone || '+1 (555) 014-4411',
-            street: '128 Nguyen Thi Minh Khai, Ward 6',
-            ward: 'Vo Thi Sau Ward',
-            district: 'District 3',
-            city: 'Ho Chi Minh City',
-            postalCode: '700000',
-            country: 'Vietnam',
-            deliveryNotes: 'Hellobee Regional Consultant Office - 4th Floor',
-            isDefault: true,
-          },
-        ],
+        addresses: [],
         createdAt: emp.createdAt,
         totalOrders: emp.validOrdersCount,
         totalSpent: emp.personalSalesVolume,
@@ -1035,21 +1036,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
         birthday: '1985-09-12',
         company: 'Hellobee Corporation & Hellobee HQ',
         status: 'active',
-        addresses: [
-          {
-            id: `addr-${owner.id}`,
-            fullName: owner.name.replace(/\s*\(.*\)/, ''),
-            phone: owner.phone || '+1 (555) 019-2831',
-            street: '88 Dong Khoi Boulevard, Suite 1200',
-            ward: 'Ben Nghe Ward',
-            district: 'District 1',
-            city: 'Ho Chi Minh City',
-            postalCode: '700000',
-            country: 'Vietnam',
-            deliveryNotes: 'Headquarters Reception Desk',
-            isDefault: true,
-          },
-        ],
+        addresses: [],
         createdAt: owner.createdAt,
         totalOrders: owner.validOrdersCount,
         totalSpent: owner.personalSalesVolume,
@@ -1094,20 +1081,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
         membershipTier: 'VIP Platinum',
         gender: 'male',
         status: 'active',
-        addresses: [
-          {
-            id: `addr-admin`,
-            fullName: 'Admin User',
-            phone: '+1 (555) 019-2831',
-            street: '88 Dong Khoi Boulevard',
-            ward: 'Ben Nghe Ward',
-            district: 'District 1',
-            city: 'Ho Chi Minh City',
-            postalCode: '700000',
-            country: 'Vietnam',
-            isDefault: true,
-          },
-        ],
+        addresses: [],
         createdAt: new Date().toISOString(),
         totalOrders: 642,
         totalSpent: 45000,
@@ -1121,7 +1095,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     // Check employee
     const member = state.hellobeeMembers.find((m) => m.email.toLowerCase() === clean);
     if (member || clean.includes('employee') || clean.includes('staff')) {
-      const targetMember = member || initialHellobeeMembers[2];
+      const targetMember = member || (initialHellobeeMembers.find((m) => m.role === 'EMPLOYEE') ?? initialHellobeeMembers[0]);
       const isOwner = targetMember.role === 'OWNER';
       const empUser: Customer = {
         id: targetMember.id,
@@ -1132,20 +1106,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
         referralCode: targetMember.referralCode,
         membershipTier: 'VIP Platinum',
         status: 'active',
-        addresses: [
-          {
-            id: `addr-${targetMember.id}`,
-            fullName: targetMember.name.replace(/\s*\(.*\)/, ''),
-            phone: targetMember.phone || '+1 (555) 014-4411',
-            street: '128 Nguyen Thi Minh Khai',
-            ward: 'Vo Thi Sau Ward',
-            district: 'District 3',
-            city: 'Ho Chi Minh City',
-            postalCode: '700000',
-            country: 'Vietnam',
-            isDefault: true,
-          },
-        ],
+        addresses: [],
         createdAt: targetMember.createdAt,
         totalOrders: targetMember.validOrdersCount,
         totalSpent: targetMember.personalSalesVolume,

@@ -80,3 +80,31 @@ describe('adding people to a group', () => {
     expect(store.addToGroup('nope', 'a@x.com', ['d@x.com'])).toBe(0);
   });
 });
+
+describe('sample data', () => {
+  it('ships with no meetings or posts', () => {
+    expect(useCommunityStore.getInitialState().meetings).toEqual([]);
+    expect(useCommunityStore.getInitialState().posts).toEqual([]);
+  });
+
+  it('drops sample items left in older storage and keeps what people created', () => {
+    const merged = mergeStored(
+      {
+        meetings: [{ id: 'meet-seed-1' }, { id: 'meet-abc123' }],
+        posts: [{ id: 'post-seed-2' }, { id: 'post-xyz789' }],
+      },
+      useCommunityStore.getState(),
+    );
+    expect(merged.meetings.map((m) => m.id)).toEqual(['meet-abc123']);
+    expect(merged.posts.map((p) => p.id)).toEqual(['post-xyz789']);
+  });
+
+  it('removes sample items that arrive in a server snapshot', () => {
+    useCommunityStore.getState().applySnapshot({
+      meetings: [{ id: 'meet-seed-3' }, { id: 'meet-real' }] as never,
+      posts: [{ id: 'post-seed-1' }] as never,
+    });
+    expect(useCommunityStore.getState().meetings.map((m) => m.id)).toEqual(['meet-real']);
+    expect(useCommunityStore.getState().posts).toEqual([]);
+  });
+});

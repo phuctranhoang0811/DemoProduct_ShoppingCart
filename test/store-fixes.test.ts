@@ -135,3 +135,22 @@ describe('Store Security, Promo Persistence, and Referral Regression Tests', () 
   });
 
 });
+
+describe('shipped sample data', () => {
+  it('has no sample orders, customers beyond the demo account, reviews or network activity', async () => {
+    const { initialOrders } = await import('../src/data/orders');
+    const { initialReviews } = await import('../src/data/reviews');
+    const { initialInventoryMovements } = await import('../src/data/inventory');
+    const { initialCustomers } = await import('../src/data/customers');
+    const { initialHellobeeMembers, initialCommissionTransactions, initialPayoutRequests } = await import('../src/data/hellobeeMembers');
+
+    expect(initialOrders).toEqual([]);
+    expect(initialReviews).toEqual([]);
+    expect(initialInventoryMovements).toEqual([]);
+    expect(initialCommissionTransactions).toEqual([]);
+    expect(initialPayoutRequests).toEqual([]);
+    expect(initialCustomers.map((c) => c.email)).toEqual(['customer@example.com']);
+    expect(initialHellobeeMembers.map((m) => m.email)).toEqual(['owner@hellobee.com', 'employee@hellobee.com']);
+    expect(initialHellobeeMembers.every((m) => m.validOrdersCount === 0 && m.availableBalance === 0)).toBe(true);
+  });
+});

@@ -25,7 +25,6 @@ import {
   Filter,
   Check,
   ArrowRight,
-  RefreshCw,
   Search,
   Crown,
   Gift,
@@ -63,43 +62,14 @@ export default function EmployeePage() {
 
   // Payout request modal state
   const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
-  const [payoutAmount, setPayoutAmount] = useState('500');
-  const [payoutBank, setPayoutBank] = useState('Chase Bank');
-  const [payoutAccount, setPayoutAccount] = useState('001100223344');
+  const [payoutAmount, setPayoutAmount] = useState('');
+  const [payoutBank, setPayoutBank] = useState('');
+  const [payoutAccount, setPayoutAccount] = useState('');
 
-  // Lead contact simulation state
-  const [leads, setLeads] = useState([
-    {
-      id: 'lead-01',
-      name: 'Dr. Arthur Vance',
-      phone: '+1 (555) 234-8899',
-      email: 'a.vance@wellnessclinic.org',
-      interestedIn: 'LeveLuk K8 (8-Plate Medical Grade)',
-      status: 'Consultation Scheduled',
-      date: 'Today, 10:30 AM',
-      notes: 'Requested clinic installation for 2 doctor consultation rooms.',
-    },
-    {
-      id: 'lead-02',
-      name: 'Claire Beauchamp',
-      phone: '+1 (555) 987-1234',
-      email: 'claire.b@highrise.io',
-      interestedIn: 'emGuarde Personal Protection Device',
-      status: 'Quote Sent',
-      date: 'Yesterday',
-      notes: 'Interested in personal electromagnetic harmonizer unit for office and travel.',
-    },
-    {
-      id: 'lead-03',
-      name: 'Marcus Lindqvist',
-      phone: '+1 (555) 912-3456',
-      email: 'marcus.l@nordicminimal.com',
-      interestedIn: 'Leveluk SD501 Platinum',
-      status: 'Water Test Demo Requested',
-      date: 'Nov 12',
-      notes: 'Needs technician to perform pH and ORP chemical drop test at home.',
-    },
-  ]);
+  // Consultation requests from outside the system have no source yet; registered clients are listed separately.
+  const [leads] = useState<
+    { id: string; name: string; phone: string; email: string; interestedIn: string; status: string; date: string; notes: string }[]
+  >([]);
 
   // Current member record matched to the authenticated user (by id, email, or referral code).
   const currentMember =
@@ -800,13 +770,13 @@ export default function EmployeePage() {
                   Direct water quality testing, showroom visits, and residential installation assessments.
                 </p>
               </div>
-              <button
-                onClick={() => toast.success('Lead records refreshed from CRM webhook.')}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-[#111111] text-xs font-semibold uppercase rounded-xs hover:bg-[#F5F4F0]"
-              >
-                <RefreshCw className="w-3 h-3" /> Refresh Leads
-              </button>
             </div>
+
+            {assignedClients.length === 0 && leads.length === 0 && (
+              <p className="py-10 text-center text-sm text-[#888888]">
+                No consultations yet. Customers who register with your referral code appear here.
+              </p>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {assignedClients.map((client) => (

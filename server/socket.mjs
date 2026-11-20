@@ -11,69 +11,13 @@ const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const MAX_MISSES = 5;
 const LOCK_MS = 30_000;
 
-const SEED_MEETINGS = [
-  {
-    id: 'meet-seed-1',
-    title: 'Monthly Members Meeting',
-    kind: 'Meeting',
-    date: '2026-12-05',
-    time: '7:00 PM',
-    location: 'Hello Bee Studio, Ho Chi Minh City',
-    description: 'Product updates, LV1–LV10 rank progress and open questions for every member.',
-    hostName: 'Hello Bee Team',
-    attendees: [],
-  },
-  {
-    id: 'meet-seed-2',
-    title: 'Weekend Team Dinner & Drinks',
-    kind: 'Dining',
-    date: '2026-12-12',
-    time: '6:30 PM',
-    location: 'Riverside Garden Restaurant',
-    description: 'Eat, drink, share stories and meet your upline and downline offline.',
-    hostName: 'Johnathan Bee',
-    attendees: [],
-  },
-  {
-    id: 'meet-seed-3',
-    title: 'Sunday Coffee & Offline Meetup',
-    kind: 'Gathering',
-    date: '2026-12-19',
-    time: '9:30 AM',
-    location: 'The Hive Coffee, District 1',
-    description: 'Casual weekend coffee meetup to welcome new members and exchange ideas.',
-    hostName: 'David Nguyen',
-    attendees: [],
-  },
-];
-
-const SEED_POSTS = [
-  {
-    id: 'post-seed-1',
-    authorEmail: 'owner@hellobee.com',
-    authorName: 'Johnathan Bee (Managing Owner)',
-    category: 'Dining & Drinks',
-    location: 'Riverside Garden Restaurant',
-    body: 'Great dinner & drinks tonight with the crew! Looking forward to welcoming everyone at our next weekend meetup.',
-    imageUrl: '/images/events/campfire.webp',
-    createdAt: Date.UTC(2026, 10, 15, 19, 30),
-  },
-  {
-    id: 'post-seed-2',
-    authorEmail: 'employee@hellobee.com',
-    authorName: 'David Nguyen (Senior Associate)',
-    category: 'Offline Meetup',
-    location: 'The Hive Coffee, District 1',
-    body: 'Hosting a casual coffee and offline hangout this Sunday morning. Bring any new friends who want to learn about Hello Bee!',
-    createdAt: Date.UTC(2026, 10, 18, 9, 15),
-  },
-];
+const isSample = (item) => /^(meet|post)-seed-/.test(String(item?.id || ''));
 
 const defaultState = () => ({
   codes: [],
   members: {},
-  meetings: SEED_MEETINGS,
-  posts: SEED_POSTS,
+  meetings: [],
+  posts: [],
   groups: [],
   messages: [],
 });
@@ -85,8 +29,8 @@ function loadState() {
     return {
       codes: Array.isArray(raw.codes) ? raw.codes : [],
       members: raw.members && typeof raw.members === 'object' && !Array.isArray(raw.members) ? raw.members : {},
-      meetings: Array.isArray(raw.meetings) ? raw.meetings : SEED_MEETINGS,
-      posts: Array.isArray(raw.posts) ? raw.posts : SEED_POSTS,
+      meetings: Array.isArray(raw.meetings) ? raw.meetings.filter((m) => !isSample(m)) : [],
+      posts: Array.isArray(raw.posts) ? raw.posts.filter((x) => !isSample(x)) : [],
       groups: Array.isArray(raw.groups) ? raw.groups : [],
       messages: Array.isArray(raw.messages) ? raw.messages : [],
     };
@@ -347,7 +291,12 @@ io.on('connection', (socket) => {
     const email = norm(payload?.person?.email);
     const name = String(payload?.person?.name || '').trim() || email;
     const body = String(payload?.body || '').trim().slice(0, 1000);
-    if (!threadId || !body) {
+    // Only small inline images; anything else is dropped rather than stored and rebroadcast.
+    const imageUrl =
+      typeof payload?.imageUrl === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(payload.imageUrl) && payload.imageUrl.length <= 700_000
+        ? payload.imageUrl
+        : undefined;
+    if (!threadId || (!body && !imageUrl)) {
       if (typeof ack === 'function') ack({ ok: false });
       return;
     }
@@ -357,6 +306,7 @@ io.on('connection', (socket) => {
       fromEmail: email,
       fromName: name,
       body,
+      ...(imageUrl ? { imageUrl } : {}),
       at: Date.now(),
     };
     state.messages = [...state.messages, msg].slice(-1000);

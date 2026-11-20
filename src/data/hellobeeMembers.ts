@@ -1,60 +1,7 @@
 import { HellobeeMember, CommissionTransaction, PayoutRequest } from '@/types/hellobee';
 
-const FIRST_NAMES = ['Olivia', 'Liam', 'Emma', 'Noah', 'Ava', 'Mason', 'Mia', 'Lucas', 'Chloe', 'Ethan', 'Grace', 'Henry', 'Zoe', 'Jack', 'Lily', 'Owen', 'Ruby', 'Leo', 'Nora', 'Eli'];
-const LAST_NAMES = ['Carter', 'Brooks', 'Hayes', 'Foster', 'Reed', 'Bailey', 'Cooper', 'Morgan', 'Price', 'Ward', 'Bell', 'Ross', 'Gray', 'Wood', 'James'];
-
-// Demo downline sized to each core member's directInviteCount; a few second-level children lift the two owners to LV2.
-function buildDemoDownline(core: HellobeeMember[]): HellobeeMember[] {
-  const out: HellobeeMember[] = [];
-  let n = 0;
-  const addChild = (sponsor: HellobeeMember): HellobeeMember => {
-    n += 1;
-    const first = FIRST_NAMES[n % FIRST_NAMES.length];
-    const last = LAST_NAMES[(n * 7) % LAST_NAMES.length];
-    const code = `HB-EMP-${200 + n}`;
-    const ownerId = sponsor.role === 'OWNER' ? sponsor.id : sponsor.ownerId ?? null;
-    const m: HellobeeMember = {
-      id: `usr_demo_${String(n).padStart(2, '0')}`,
-      name: `${first} ${last}`,
-      email: `${first}.${last}.${n}@example.com`.toLowerCase(),
-      role: 'EMPLOYEE',
-      phone: `+1 (555) 01${n % 10}-${String(1000 + n * 37).slice(-4)}`,
-      referralCode: code,
-      referredById: sponsor.id,
-      sponsorCode: sponsor.referralCode,
-      ownerId,
-      rank: '1A',
-      validOrdersCount: 1,
-      personalSalesVolume: 1500,
-      networkSalesVolume: 1500,
-      directInviteCount: 0,
-      totalCommissionEarned: 0,
-      availableBalance: 0,
-      hasPurchasedFiltrationDevice: true,
-      isActive: true,
-      createdAt: `2026-0${4 + (n % 5)}-${String(1 + (n % 27)).padStart(2, '0')}T10:00:00Z`,
-    };
-    out.push(m);
-    return m;
-  };
-
-  const byId = (id: string) => core.find((m) => m.id === id)!;
-  const owner1 = byId('usr_owner_01');
-  const owner2 = byId('usr_owner_02');
-
-  for (let i = 0; i < owner1.directInviteCount - 2; i++) addChild(owner1); // 2 invites are the core employees
-  for (let i = 0; i < owner2.directInviteCount - 1; i++) addChild(owner2);
-
-  const emp1Kids = Array.from({ length: byId('usr_emp_01').directInviteCount }, () => addChild(byId('usr_emp_01')));
-  Array.from({ length: byId('usr_emp_02').directInviteCount }, () => addChild(byId('usr_emp_02')));
-  const emp3Kids = Array.from({ length: byId('usr_emp_03').directInviteCount }, () => addChild(byId('usr_emp_03')));
-
-  [emp1Kids[0], emp1Kids[1]].forEach((k) => addChild(k));
-  [emp3Kids[0], emp3Kids[1], emp3Kids[2]].forEach((k) => addChild(k));
-
-  return out;
-}
-
+// Only the two accounts behind the Admin and Staff quick logins, with empty statistics.
+// Network members, orders, commissions and payouts all come from real use.
 const coreMembers: HellobeeMember[] = [
   {
     id: 'usr_owner_01',
@@ -66,37 +13,16 @@ const coreMembers: HellobeeMember[] = [
     referredById: null,
     sponsorCode: null,
     ownerId: null,
-    rank: '5A',
-    validOrdersCount: 642,
-    personalSalesVolume: 45000,
-    networkSalesVolume: 963000,
-    directInviteCount: 14,
-    totalCommissionEarned: 14130, // 10% direct + 1% override
-    availableBalance: 4250,
+    rank: '1A',
+    validOrdersCount: 0,
+    personalSalesVolume: 0,
+    networkSalesVolume: 0,
+    directInviteCount: 0,
+    totalCommissionEarned: 0,
+    availableBalance: 0,
     hasPurchasedFiltrationDevice: true,
     isActive: true,
     createdAt: '2026-01-10T08:00:00Z',
-  },
-  {
-    id: 'usr_owner_02',
-    name: 'Elena Thorne (Regional Owner)',
-    email: 'elena.owner@hellobee.com',
-    role: 'OWNER',
-    phone: '+1 (555) 018-9922',
-    referralCode: 'HBEE02',
-    referredById: null,
-    sponsorCode: null,
-    ownerId: null,
-    rank: '4A',
-    validOrdersCount: 180,
-    personalSalesVolume: 22500,
-    networkSalesVolume: 270000,
-    directInviteCount: 8,
-    totalCommissionEarned: 4950,
-    availableBalance: 1800,
-    hasPurchasedFiltrationDevice: true,
-    isActive: true,
-    createdAt: '2026-02-01T09:30:00Z',
   },
   {
     id: 'usr_emp_01',
@@ -108,188 +34,20 @@ const coreMembers: HellobeeMember[] = [
     referredById: 'usr_owner_01',
     sponsorCode: 'HBEE01',
     ownerId: 'usr_owner_01',
-    rank: '2A', // >= 5 orders
-    validOrdersCount: 12,
-    personalSalesVolume: 18000,
-    networkSalesVolume: 18000,
-    directInviteCount: 7,
-    totalCommissionEarned: 1800, // 12 * $1,500 * 10% = 1,800
-    availableBalance: 650,
+    rank: '1A',
+    validOrdersCount: 0,
+    personalSalesVolume: 0,
+    networkSalesVolume: 0,
+    directInviteCount: 0,
+    totalCommissionEarned: 0,
+    availableBalance: 0,
     hasPurchasedFiltrationDevice: true,
     isActive: true,
     createdAt: '2026-02-15T10:00:00Z',
   },
-  {
-    id: 'usr_emp_02',
-    name: 'Sophia Miller (Sales Consultant)',
-    email: 'sophia@hellobee.com',
-    role: 'EMPLOYEE',
-    phone: '+1 (555) 016-7788',
-    referralCode: 'HBEE04',
-    referredById: 'usr_owner_01',
-    sponsorCode: 'HBEE01',
-    ownerId: 'usr_owner_01',
-    rank: '1A', // < 5 orders
-    validOrdersCount: 4,
-    personalSalesVolume: 6000,
-    networkSalesVolume: 6000,
-    directInviteCount: 3,
-    totalCommissionEarned: 600,
-    availableBalance: 450,
-    hasPurchasedFiltrationDevice: true,
-    isActive: true,
-    createdAt: '2026-03-01T11:20:00Z',
-  },
-  {
-    id: 'usr_emp_03',
-    name: 'Michael Chen (Master Distributor)',
-    email: 'michael.chen@hellobee.com',
-    role: 'EMPLOYEE',
-    phone: '+1 (555) 012-3399',
-    referralCode: 'HBEE05',
-    referredById: 'usr_owner_02',
-    sponsorCode: 'HBEE02',
-    ownerId: 'usr_owner_02',
-    rank: '3A', // >= 25 orders
-    validOrdersCount: 34,
-    personalSalesVolume: 51000,
-    networkSalesVolume: 51000,
-    directInviteCount: 15,
-    totalCommissionEarned: 5100,
-    availableBalance: 1950,
-    hasPurchasedFiltrationDevice: true,
-    isActive: true,
-    createdAt: '2026-02-10T14:45:00Z',
-  },
 ];
 
 export const initialCoreHellobeeMembers: HellobeeMember[] = coreMembers;
-export const initialHellobeeMembers: HellobeeMember[] = [...coreMembers, ...buildDemoDownline(coreMembers)];
-
-export const initialCommissionTransactions: CommissionTransaction[] = [
-  {
-    id: 'comm_01',
-    orderId: 'ord_101',
-    orderNumber: 'HB-ORD-9021',
-    orderAmount: 1500,
-    buyerName: 'Robert Vance',
-    beneficiaryId: 'usr_emp_01',
-    beneficiaryName: 'David Nguyen',
-    beneficiaryRole: 'EMPLOYEE',
-    commissionType: 'DIRECT_10_PERCENT',
-    rate: 0.1,
-    amount: 150,
-    status: 'APPROVED',
-    notes: 'Direct 10% commission on Hellobee Ionizer $1,500 sale',
-    createdAt: '2026-11-01T14:20:00Z',
-  },
-  {
-    id: 'comm_02',
-    orderId: 'ord_101',
-    orderNumber: 'HB-ORD-9021',
-    orderAmount: 1500,
-    buyerName: 'Robert Vance',
-    beneficiaryId: 'usr_owner_01',
-    beneficiaryName: 'Johnathan Bee',
-    beneficiaryRole: 'OWNER',
-    commissionType: 'OWNER_OVERRIDE_1_PERCENT',
-    rate: 0.01,
-    amount: 15,
-    status: 'APPROVED',
-    notes: 'Owner 1% override on employee David Nguyen invoice $1,500',
-    createdAt: '2026-11-01T14:20:00Z',
-  },
-  {
-    id: 'comm_03',
-    orderId: 'ord_102',
-    orderNumber: 'HB-ORD-9022',
-    orderAmount: 1500,
-    buyerName: 'Angela Martin',
-    beneficiaryId: 'usr_emp_01',
-    beneficiaryName: 'David Nguyen',
-    beneficiaryRole: 'EMPLOYEE',
-    commissionType: 'DIRECT_10_PERCENT',
-    rate: 0.1,
-    amount: 150,
-    status: 'APPROVED',
-    notes: 'Direct 10% commission on Hellobee Ionizer $1,500 sale',
-    createdAt: '2026-11-03T16:00:00Z',
-  },
-  {
-    id: 'comm_04',
-    orderId: 'ord_102',
-    orderNumber: 'HB-ORD-9022',
-    orderAmount: 1500,
-    buyerName: 'Angela Martin',
-    beneficiaryId: 'usr_owner_01',
-    beneficiaryName: 'Johnathan Bee',
-    beneficiaryRole: 'OWNER',
-    commissionType: 'OWNER_OVERRIDE_1_PERCENT',
-    rate: 0.01,
-    amount: 15,
-    status: 'APPROVED',
-    notes: 'Owner 1% override on employee David Nguyen invoice $1,500',
-    createdAt: '2026-11-03T16:00:00Z',
-  },
-  {
-    id: 'comm_05',
-    orderId: 'ord_103',
-    orderNumber: 'HB-ORD-9023',
-    orderAmount: 1500,
-    buyerName: 'Oscar Martinez',
-    beneficiaryId: 'usr_emp_03',
-    beneficiaryName: 'Michael Chen',
-    beneficiaryRole: 'EMPLOYEE',
-    commissionType: 'DIRECT_10_PERCENT',
-    rate: 0.1,
-    amount: 150,
-    status: 'APPROVED',
-    notes: 'Direct 10% commission on Hellobee Ionizer $1,500 sale',
-    createdAt: '2026-11-06T10:15:00Z',
-  },
-  {
-    id: 'comm_06',
-    orderId: 'ord_103',
-    orderNumber: 'HB-ORD-9023',
-    orderAmount: 1500,
-    buyerName: 'Oscar Martinez',
-    beneficiaryId: 'usr_owner_02',
-    beneficiaryName: 'Elena Thorne',
-    beneficiaryRole: 'OWNER',
-    commissionType: 'OWNER_OVERRIDE_1_PERCENT',
-    rate: 0.01,
-    amount: 15,
-    status: 'APPROVED',
-    notes: 'Owner 1% override on employee Michael Chen invoice $1,500',
-    createdAt: '2026-11-06T10:15:00Z',
-  },
-];
-
-export const initialPayoutRequests: PayoutRequest[] = [
-  {
-    id: 'payout_01',
-    memberId: 'usr_emp_01',
-    memberName: 'David Nguyen',
-    memberRole: 'EMPLOYEE',
-    amount: 500,
-    bankName: 'Chase Bank NA',
-    bankAccountNumber: '**** **** 8219',
-    bankAccountName: 'DAVID NGUYEN',
-    status: 'APPROVED',
-    requestedAt: '2026-10-28T09:00:00Z',
-    processedAt: '2026-10-29T14:00:00Z',
-  },
-  {
-    id: 'payout_02',
-    memberId: 'usr_owner_01',
-    memberName: 'Johnathan Bee',
-    memberRole: 'OWNER',
-    amount: 2500,
-    bankName: 'Bank of America',
-    bankAccountNumber: '**** **** 1044',
-    bankAccountName: 'JOHNATHAN BEE LLC',
-    status: 'PENDING',
-    requestedAt: '2026-11-10T11:30:00Z',
-  },
-];
-
+export const initialHellobeeMembers: HellobeeMember[] = [...coreMembers];
+export const initialCommissionTransactions: CommissionTransaction[] = [];
+export const initialPayoutRequests: PayoutRequest[] = [];

@@ -138,10 +138,10 @@ export async function emitAddToGroup(groupId: string, actorEmail: string, emails
   return useCommunityStore.getState().addToGroup(groupId, actorEmail, emails);
 }
 
-export function emitSendMessage(threadId: string, person: Person, body: string): void {
+export function emitSendMessage(threadId: string, person: Person, body: string, imageUrl?: string): void {
   if (socket?.connected) {
-    socket.emit('chat:message', { threadId, person, body });
+    socket.emit('chat:message', { threadId, person, body, imageUrl });
     return;
   }
-  useCommunityStore.getState().sendMessage(threadId, person, body);
+  useCommunityStore.getState().sendMessage(threadId, person, body, imageUrl);
 }

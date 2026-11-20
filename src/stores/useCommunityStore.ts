@@ -3,7 +3,6 @@ import { persist } from 'zustand/middleware';
 
 // Kept in the browser only (localStorage) until the community feature gets a backend.
 export const CODE_TTL_MS = 10 * 60 * 1000;
-export const SUPPORT_EMAIL = 'support@hellobee.com';
 export const LIVE_THREAD = 'live';
 const STORAGE_KEY = 'hellobee_community_v1';
 
@@ -54,6 +53,7 @@ export interface ChatMessage {
   fromEmail: string;
   fromName: string;
   body: string;
+  imageUrl?: string;
   at: number;
 }
 
@@ -82,7 +82,7 @@ interface CommunityState {
   addPost: (person: Person, body: string, meta?: { category?: PostCategory; location?: string; imageUrl?: string }) => void;
   createGroup: (name: string, creator: string, memberEmails: string[]) => string;
   addToGroup: (groupId: string, actorEmail: string, emails: string[]) => number;
-  sendMessage: (threadId: string, person: Person, body: string) => void;
+  sendMessage: (threadId: string, person: Person, body: string, imageUrl?: string) => void;
 }
 
 // Slows down guessing in this browser. Real enforcement has to live on a server later.
@@ -116,63 +116,10 @@ function randomCode(): string {
   return Array.from(bytes, (b) => CODE_CHARS[b % CODE_CHARS.length]).join('');
 }
 
-const SEED_MEETINGS: Meeting[] = [
-  {
-    id: 'meet-seed-1',
-    title: 'Monthly Members Meeting',
-    kind: 'Meeting',
-    date: '2026-12-05',
-    time: '7:00 PM',
-    location: 'Hello Bee Studio, Ho Chi Minh City',
-    description: 'Product updates, LV1–LV10 rank progress and open questions for every member.',
-    hostName: 'Hello Bee Team',
-    attendees: [],
-  },
-  {
-    id: 'meet-seed-2',
-    title: 'Weekend Team Dinner & Drinks',
-    kind: 'Dining',
-    date: '2026-12-12',
-    time: '6:30 PM',
-    location: 'Riverside Garden Restaurant',
-    description: 'Eat, drink, share stories and meet your upline and downline offline.',
-    hostName: 'Johnathan Bee',
-    attendees: [],
-  },
-  {
-    id: 'meet-seed-3',
-    title: 'Sunday Coffee & Offline Meetup',
-    kind: 'Gathering',
-    date: '2026-12-19',
-    time: '9:30 AM',
-    location: 'The Hive Coffee, District 1',
-    description: 'Casual weekend coffee meetup to welcome new members and exchange ideas.',
-    hostName: 'David Nguyen',
-    attendees: [],
-  },
-];
-
-const SEED_POSTS: Post[] = [
-  {
-    id: 'post-seed-1',
-    authorEmail: 'owner@hellobee.com',
-    authorName: 'Johnathan Bee (Managing Owner)',
-    category: 'Dining & Drinks',
-    location: 'Riverside Garden Restaurant',
-    body: 'Great dinner & drinks tonight with the crew! Looking forward to welcoming everyone at our next weekend meetup.',
-    imageUrl: '/images/events/campfire.webp',
-    createdAt: Date.UTC(2026, 10, 15, 19, 30),
-  },
-  {
-    id: 'post-seed-2',
-    authorEmail: 'employee@hellobee.com',
-    authorName: 'David Nguyen (Senior Associate)',
-    category: 'Offline Meetup',
-    location: 'The Hive Coffee, District 1',
-    body: 'Hosting a casual coffee and offline hangout this Sunday morning. Bring any new friends who want to learn about Hello Bee!',
-    createdAt: Date.UTC(2026, 10, 18, 9, 15),
-  },
-];
+// Sample meetings and posts shipped in earlier versions. Browsers that still hold them drop them on load;
+// anything people created themselves stays.
+const isSample = (item: { id: string }) => /^(meet|post)-seed-/.test(item.id);
+const withoutSamples = <T extends { id: string }>(list: T[]): T[] => list.filter((item) => !isSample(item));
 
 export function mergeStored(persisted: unknown, current: CommunityState): CommunityState {
   const p = (persisted ?? {}) as Partial<CommunityState>;
@@ -180,8 +127,8 @@ export function mergeStored(persisted: unknown, current: CommunityState): Commun
     ...current,
     codes: Array.isArray(p.codes) ? p.codes : current.codes,
     members: p.members && typeof p.members === 'object' && !Array.isArray(p.members) ? p.members : current.members,
-    meetings: Array.isArray(p.meetings) ? p.meetings : current.meetings,
-    posts: Array.isArray(p.posts) ? p.posts : current.posts,
+    meetings: Array.isArray(p.meetings) ? withoutSamples(p.meetings) : current.meetings,
+    posts: Array.isArray(p.posts) ? withoutSamples(p.posts) : current.posts,
     groups: Array.isArray(p.groups) ? p.groups : current.groups,
     messages: Array.isArray(p.messages) ? p.messages : current.messages,
   };
@@ -192,8 +139,8 @@ export const useCommunityStore = create<CommunityState>()(
     (set, get) => ({
       codes: [],
       members: {},
-      meetings: SEED_MEETINGS,
-      posts: SEED_POSTS,
+      meetings: [],
+      posts: [],
       groups: [],
       messages: [],
       socketConnected: false,
@@ -207,8 +154,8 @@ export const useCommunityStore = create<CommunityState>()(
             snapshot.members && typeof snapshot.members === 'object' && !Array.isArray(snapshot.members)
               ? snapshot.members
               : s.members,
-          meetings: Array.isArray(snapshot.meetings) ? snapshot.meetings : s.meetings,
-          posts: Array.isArray(snapshot.posts) ? snapshot.posts : s.posts,
+          meetings: Array.isArray(snapshot.meetings) ? withoutSamples(snapshot.meetings) : s.meetings,
+          posts: Array.isArray(snapshot.posts) ? withoutSamples(snapshot.posts) : s.posts,
           groups: Array.isArray(snapshot.groups) ? snapshot.groups : s.groups,
           messages: Array.isArray(snapshot.messages) ? snapshot.messages : s.messages,
         })),
@@ -299,9 +246,9 @@ export const useCommunityStore = create<CommunityState>()(
         return added.length;
       },
 
-      sendMessage: (threadId, person, body) =>
+      sendMessage: (threadId, person, body, imageUrl) =>
         set((s) => ({
-          messages: [...s.messages, { id: uid('msg'), threadId, fromEmail: person.email, fromName: person.name, body, at: Date.now() }].slice(-1000),
+          messages: [...s.messages, { id: uid('msg'), threadId, fromEmail: person.email, fromName: person.name, body, ...(imageUrl ? { imageUrl } : {}), at: Date.now() }].slice(-1000),
         })),
     }),
     {

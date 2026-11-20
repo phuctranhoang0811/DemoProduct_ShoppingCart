@@ -9,7 +9,6 @@ import {
   Shirt,
   Users,
   AlertTriangle,
-  TrendingUp,
   ArrowRight,
   ExternalLink,
 } from 'lucide-react';
@@ -28,6 +27,10 @@ import {
 } from 'recharts';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { formatPrice, formatDate } from '@/lib/utils';
+
+function EmptyNote({ children }: { children: React.ReactNode }) {
+  return <div className="h-full flex items-center justify-center text-center px-6 text-xs text-[#888888]">{children}</div>;
+}
 
 export default function AdminDashboardPage() {
   const products = useCommerceStore((state) => state.products);
@@ -104,8 +107,17 @@ export default function AdminDashboardPage() {
 
   // Top selling products
   const topSellingProducts = useMemo(() => {
-    return products.filter((p) => p.bestSeller).slice(0, 5);
-  }, [products]);
+    const units = new Map<string, number>();
+    orders.forEach((o) => {
+      if (o.status === 'Cancelled') return;
+      o.items.forEach((i) => units.set(i.productId, (units.get(i.productId) || 0) + i.quantity));
+    });
+    return products
+      .map((product) => ({ product, sold: units.get(product.id) || 0 }))
+      .filter((x) => x.sold > 0)
+      .sort((a, b) => b.sold - a.sold)
+      .slice(0, 5);
+  }, [orders, products]);
 
   // Recent 6 orders
   const recentOrders = useMemo(() => {
@@ -134,9 +146,7 @@ export default function AdminDashboardPage() {
             <p className="text-2xl sm:text-3xl font-semibold text-[#111111]">
               {formatPrice(totalRevenue)}
             </p>
-            <span className="text-xs text-[#477A5A] font-medium flex items-center gap-1">
-              <TrendingUp className="w-3.5 h-3.5" /> +14.2% vs last month
-            </span>
+            <span className="text-xs text-[#777777]">From non-cancelled orders</span>
           </div>
           <div className="w-10 h-10 bg-[#F5F4F0] flex items-center justify-center text-[#111111]">
             <DollarSign className="w-5 h-5" />
@@ -205,6 +215,9 @@ export default function AdminDashboardPage() {
             </span>
           </div>
           <div className="h-64 w-full">
+            {revenueChartData.length === 0 ? (
+              <EmptyNote>No orders yet. Revenue appears here after the first order.</EmptyNote>
+            ) : (
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={revenueChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
@@ -234,6 +247,7 @@ export default function AdminDashboardPage() {
                 />
               </AreaChart>
             </ResponsiveContainer>
+            )}
           </div>
         </div>
 
@@ -244,6 +258,9 @@ export default function AdminDashboardPage() {
           </h2>
           <p className="text-[11px] text-[#777777] mb-4">Current fulfillment distribution</p>
           <div className="h-52 w-full">
+            {orderStatusData.length === 0 ? (
+              <EmptyNote>No orders yet.</EmptyNote>
+            ) : (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -272,6 +289,7 @@ export default function AdminDashboardPage() {
                 />
               </PieChart>
             </ResponsiveContainer>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-2 text-[10px] mt-2">
             {orderStatusData.map((item) => (
@@ -317,6 +335,13 @@ export default function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E5E5E5]">
+                {recentOrders.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-[#888888]">
+                      No orders yet.
+                    </td>
+                  </tr>
+                )}
                 {recentOrders.map((o) => (
                   <tr key={o.id} className="hover:bg-[#F9F9F8]">
                     <td className="py-3 font-mono font-medium text-[#111111]">{o.id}</td>
@@ -383,7 +408,10 @@ export default function AdminDashboardPage() {
               Top Performing Products
             </h2>
             <div className="divide-y divide-[#E5E5E5]">
-              {topSellingProducts.map((p) => (
+              {topSellingProducts.length === 0 && (
+                <p className="py-4 text-xs text-[#888888]">No sales yet.</p>
+              )}
+              {topSellingProducts.map(({ product: p, sold }) => (
                 <div key={p.id} className="py-2.5 flex items-center justify-between text-xs">
                   <div className="flex items-center gap-3">
                     <div className="relative w-10 h-14 bg-[#F5F4F0] flex-shrink-0 overflow-hidden border border-[#E5E5E5]">
@@ -391,7 +419,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <p className="font-medium text-[#111111] line-clamp-1">{p.name}</p>
                   </div>
-                  <span className="font-semibold text-[#111111]">{formatPrice(p.price)}</span>
+                  <span className="font-semibold text-[#111111]">{sold} sold</span>
                 </div>
               ))}
             </div>

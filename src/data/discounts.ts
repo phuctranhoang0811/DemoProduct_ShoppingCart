@@ -11,7 +11,7 @@ export const initialDiscounts: Discount[] = [
     startDate: '2026-01-01T00:00:00Z',
     endDate: '2026-12-31T23:59:59Z',
     usageLimit: 500,
-    usedCount: 84,
+    usedCount: 0,
     isActive: true,
   },
   {
@@ -24,7 +24,7 @@ export const initialDiscounts: Discount[] = [
     startDate: '2026-09-01T00:00:00Z',
     endDate: '2026-12-31T23:59:59Z',
     usageLimit: 200,
-    usedCount: 47,
+    usedCount: 0,
     isActive: true,
   },
   {
@@ -36,7 +36,7 @@ export const initialDiscounts: Discount[] = [
     startDate: '2026-08-01T00:00:00Z',
     endDate: '2026-11-30T23:59:59Z',
     usageLimit: 150,
-    usedCount: 39,
+    usedCount: 0,
     isActive: true,
   },
   {
@@ -48,7 +48,7 @@ export const initialDiscounts: Discount[] = [
     startDate: '2026-01-01T00:00:00Z',
     endDate: '2026-12-31T23:59:59Z',
     usageLimit: 1000,
-    usedCount: 312,
+    usedCount: 0,
     isActive: true,
   },
   {
@@ -60,7 +60,7 @@ export const initialDiscounts: Discount[] = [
     startDate: '2026-10-01T00:00:00Z',
     endDate: '2026-12-31T23:59:59Z',
     usageLimit: 50,
-    usedCount: 18,
+    usedCount: 0,
     isActive: true,
   },
   {
@@ -72,7 +72,7 @@ export const initialDiscounts: Discount[] = [
     startDate: '2026-01-01T00:00:00Z',
     endDate: '2026-05-31T23:59:59Z',
     usageLimit: 100,
-    usedCount: 100,
+    usedCount: 0,
     isActive: false,
   },
 ];

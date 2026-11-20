@@ -63,7 +63,7 @@ export function ProductDetailClient({
   const stockAvailable = currentPkgObj ? currentPkgObj.stock : 10;
 
   const averageRating = useMemo(() => {
-    if (approvedReviews.length === 0) return '5.0';
+    if (approvedReviews.length === 0) return null;
     const sum = approvedReviews.reduce((acc, r) => acc + r.rating, 0);
     return (sum / approvedReviews.length).toFixed(1);
   }, [approvedReviews]);
@@ -201,11 +201,15 @@ export function ProductDetailClient({
               <span className="text-[11px] uppercase tracking-widest text-[#777777] font-mono">
                 {product.sku}
               </span>
-              <div className="flex items-center gap-1.5 text-xs">
-                <Star className="w-3.5 h-3.5 fill-[#111111] text-[#111111]" />
-                <span className="font-semibold">{averageRating}</span>
-                <span className="text-[#777777]">({approvedReviews.length})</span>
-              </div>
+              {averageRating ? (
+                <div className="flex items-center gap-1.5 text-xs">
+                  <Star className="w-3.5 h-3.5 fill-[#111111] text-[#111111]" />
+                  <span className="font-semibold">{averageRating}</span>
+                  <span className="text-[#777777]">({approvedReviews.length})</span>
+                </div>
+              ) : (
+                <span className="text-xs text-[#777777]">No reviews yet</span>
+              )}
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-normal tracking-tight text-[#111111]">
