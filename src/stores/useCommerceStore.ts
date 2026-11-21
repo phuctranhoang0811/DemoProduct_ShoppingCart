@@ -45,35 +45,43 @@ import type { Language } from '@/i18n/types';
 const STORAGE_KEYS = {
   products: 'enagic_kangen_products_v15',
   categories: 'enagic_kangen_categories_v9',
-  cart: 'enagic_kangen_cart_v2',
+  cart: 'enagic_kangen_cart_v3',
   wishlist: 'enagic_kangen_wishlist_v5',
-  orders: 'enagic_kangen_orders_v3',
-  customers: 'enagic_kangen_customers_v3',
+  orders: 'enagic_kangen_orders_v4',
+  customers: 'enagic_kangen_customers_v4',
   discounts: 'enagic_kangen_discounts_v3',
-  reviews: 'enagic_kangen_reviews_v4',
-  inventory: 'enagic_kangen_inventory_v3',
+  reviews: 'enagic_kangen_reviews_v5',
+  inventory: 'enagic_kangen_inventory_v4',
   settings: 'enagic_kangen_settings_v3',
   session: 'enagic_kangen_session_v3',
   currency: 'enagic_kangen_currency_v2',
   language: 'enagic_kangen_language_v2',
   appliedDiscount: 'enagic_kangen_discount_v1',
-  hellobeeMembers: 'hellobee_members_v4',
-  commissions: 'hellobee_commissions_v2',
-  payouts: 'hellobee_payouts_v2',
+  hellobeeMembers: 'hellobee_members_v5',
+  commissions: 'hellobee_commissions_v3',
+  payouts: 'hellobee_payouts_v3',
   activeMemberId: 'hellobee_active_member_v1',
 };
 
 // Keys that held the old sample data. Removed on load so nothing from it lingers in the browser.
 const LEGACY_KEYS = [
   'enagic_kangen_orders_v2',
+  'enagic_kangen_orders_v3',
   'enagic_kangen_customers_v2',
+  'enagic_kangen_customers_v3',
   'enagic_kangen_discounts_v2',
   'enagic_kangen_reviews_v3',
+  'enagic_kangen_reviews_v4',
   'enagic_kangen_inventory_v2',
+  'enagic_kangen_inventory_v3',
   'enagic_kangen_session_v2',
+  'enagic_kangen_cart_v2',
   'hellobee_members_v3',
+  'hellobee_members_v4',
   'hellobee_commissions_v1',
+  'hellobee_commissions_v2',
   'hellobee_payouts_v1',
+  'hellobee_payouts_v2',
 ];
 
 function getStorageItem<T>(key: string, defaultValue: T): T {
@@ -398,6 +406,9 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
     setStorageItem(STORAGE_KEYS.reviews, initialReviews);
     setStorageItem(STORAGE_KEYS.inventory, initialInventoryMovements);
     setStorageItem(STORAGE_KEYS.settings, initialSettings);
+    setStorageItem(STORAGE_KEYS.hellobeeMembers, initialHellobeeMembers);
+    setStorageItem(STORAGE_KEYS.commissions, initialCommissionTransactions);
+    setStorageItem(STORAGE_KEYS.payouts, initialPayoutRequests);
     setStorageItem(STORAGE_KEYS.session, null);
   },
 
@@ -1082,9 +1093,9 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
         gender: 'male',
         status: 'active',
         addresses: [],
-        createdAt: new Date().toISOString(),
-        totalOrders: 642,
-        totalSpent: 45000,
+        createdAt: owner.createdAt,
+        totalOrders: owner.validOrdersCount,
+        totalSpent: owner.personalSalesVolume,
       };
       setStorageItem(STORAGE_KEYS.session, adminUser);
       setStorageItem(STORAGE_KEYS.activeMemberId, owner.id);

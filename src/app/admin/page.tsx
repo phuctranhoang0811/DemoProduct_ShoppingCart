@@ -14,7 +14,9 @@ import {
   Cpu,
   UserCheck,
   Building2,
+  RotateCcw,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -43,6 +45,8 @@ export default function AdminDashboardPage() {
   const settings = useCommerceStore((state) => state.settings);
   const hellobeeMembers = useCommerceStore((state) => state.hellobeeMembers);
   const commissions = useCommerceStore((state) => state.commissions);
+  const resetDemoData = useCommerceStore((state) => state.resetDemoData);
+  const loginAsDemo = useCommerceStore((state) => state.loginAsDemo);
 
   // Dynamic KPI calculations
   const totalRevenue = useMemo(() => {
@@ -182,13 +186,27 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       {/* Top Welcome Title */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-[#111111]">
-          Dashboard Overview
-        </h1>
-        <p className="text-sm text-[#666666] mt-1">
-          Real-time metrics calculated dynamically from active store data and browser local storage.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-[#111111]">
+            Dashboard Overview
+          </h1>
+          <p className="text-sm text-[#666666] mt-1">
+            Real-time metrics calculated dynamically from active store data and browser local storage.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            resetDemoData();
+            loginAsDemo('admin');
+            toast.success('All test orders, commissions, and mock records have been reset to $0.');
+          }}
+          className="inline-flex items-center gap-2 px-4 py-2 border border-[#B74747]/40 bg-white text-[#B74747] hover:bg-[#FBEAEA] text-xs font-semibold uppercase tracking-wider transition-colors w-fit"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          <span>Reset All Test Data ($0)</span>
+        </button>
       </div>
 
       {/* KPI Cards */}
