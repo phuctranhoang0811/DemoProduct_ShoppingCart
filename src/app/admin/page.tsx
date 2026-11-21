@@ -11,6 +11,9 @@ import {
   AlertTriangle,
   ArrowRight,
   ExternalLink,
+  Cpu,
+  UserCheck,
+  Building2,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -38,6 +41,8 @@ export default function AdminDashboardPage() {
   const customers = useCommerceStore((state) => state.customers);
   const categories = useCommerceStore((state) => state.categories);
   const settings = useCommerceStore((state) => state.settings);
+  const hellobeeMembers = useCommerceStore((state) => state.hellobeeMembers);
+  const commissions = useCommerceStore((state) => state.commissions);
 
   // Dynamic KPI calculations
   const totalRevenue = useMemo(() => {
@@ -45,6 +50,56 @@ export default function AdminDashboardPage() {
       .filter((o) => o.status !== 'Cancelled')
       .reduce((sum, o) => sum + o.total, 0);
   }, [orders]);
+
+  // Machine & financial breakdown
+  const financialBreakdown = useMemo(() => {
+    const validOrders = orders.filter((o) => o.status !== 'Cancelled');
+    let machineInflow = 0;
+    let machineUnitsSold = 0;
+
+    validOrders.forEach((o) => {
+      o.items.forEach((it) => {
+        machineInflow += it.price * it.quantity;
+        machineUnitsSold += it.quantity;
+      });
+    });
+
+    // If no itemized lines exist, fallback to total revenue or network sales volume
+    const memberVolume = hellobeeMembers.reduce((sum, m) => sum + m.personalSalesVolume, 0);
+    const totalMachineInflow = machineInflow > 0 ? machineInflow : Math.max(totalRevenue, memberVolume);
+    const effectiveGrossRevenue = Math.max(totalRevenue, totalMachineInflow);
+
+    const employeeEarningsFromTx = commissions
+      .filter((c) => c.beneficiaryRole === 'EMPLOYEE' && c.status !== 'REVOKED')
+      .reduce((sum, c) => sum + c.amount, 0);
+    const employeeMemberTotal = hellobeeMembers
+      .filter((m) => m.role === 'EMPLOYEE')
+      .reduce((sum, m) => sum + m.totalCommissionEarned, 0);
+    const totalEmployeeFunds = Math.max(employeeEarningsFromTx, employeeMemberTotal);
+
+    const ownerCommissionFromTx = commissions
+      .filter((c) => c.beneficiaryRole === 'OWNER' && c.status !== 'REVOKED')
+      .reduce((sum, c) => sum + c.amount, 0);
+    const ownerMemberTotal = hellobeeMembers
+      .filter((m) => m.role === 'OWNER')
+      .reduce((sum, m) => sum + m.totalCommissionEarned, 0);
+    const totalOwnerCommissions = Math.max(ownerCommissionFromTx, ownerMemberTotal);
+
+    const netCompanyRetained = Math.max(0, effectiveGrossRevenue - totalEmployeeFunds - totalOwnerCommissions);
+    const totalOwnerProceeds = totalOwnerCommissions + netCompanyRetained;
+
+    return {
+      totalMachineInflow,
+      machineUnitsSold:
+        machineUnitsSold ||
+        hellobeeMembers.reduce((sum, m) => sum + m.validOrdersCount, 0),
+      effectiveGrossRevenue,
+      totalEmployeeFunds,
+      totalOwnerCommissions,
+      netCompanyRetained,
+      totalOwnerProceeds,
+    };
+  }, [orders, hellobeeMembers, commissions, totalRevenue]);
 
   const totalOrdersCount = orders.length;
   const totalProductsCount = products.length;
@@ -144,9 +199,9 @@ export default function AdminDashboardPage() {
               Total Revenue
             </span>
             <p className="text-2xl sm:text-3xl font-semibold text-[#111111]">
-              {formatPrice(totalRevenue)}
+              {formatPrice(financialBreakdown.effectiveGrossRevenue)}
             </p>
-            <span className="text-xs text-[#777777]">From non-cancelled orders</span>
+            <span className="text-xs text-[#777777]">Gross store &amp; network revenue</span>
           </div>
           <div className="w-10 h-10 bg-[#F5F4F0] flex items-center justify-center text-[#111111]">
             <DollarSign className="w-5 h-5" />
@@ -195,6 +250,84 @@ export default function AdminDashboardPage() {
           </div>
           <div className="w-10 h-10 bg-[#F5F4F0] flex items-center justify-center text-[#111111]">
             <Users className="w-5 h-5" />
+          </div>
+        </div>
+      </div>
+
+      {/* Admin Financial & Revenue Distribution Breakdown */}
+      <div className="bg-white border border-[#E5E5E5] p-6 space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[#E5E5E5]">
+          <div>
+            <span className="text-[10px] uppercase tracking-widest font-bold text-[#B9A58B]">
+              Financial Treasury &amp; Commission Allocation
+            </span>
+            <h2 className="text-base font-semibold text-[#111111] mt-0.5">
+              Total Funds &amp; Revenue Distribution Breakdown
+            </h2>
+            <p className="text-xs text-[#777777]">
+              Clear breakdown of machine sales inflow, gross revenue, employee commissions, and owner funds.
+            </p>
+          </div>
+          <Link
+            href="/admin/hellobee"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider px-3.5 py-2 border border-[#111111] text-[#111111] hover:bg-[#111111] hover:text-white transition-colors w-fit"
+          >
+            <span>Inspect Employees &amp; Ledger</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-4 bg-[#FAF9F5] border border-[#E5E5E5] space-y-1.5">
+            <div className="flex items-center justify-between text-[#666666]">
+              <span className="text-[11px] uppercase tracking-wider font-bold">Machine Sales Inflow</span>
+              <Cpu className="w-4 h-4 text-[#111111]" />
+            </div>
+            <p className="text-2xl font-bold text-[#111111] font-mono">
+              {formatPrice(financialBreakdown.totalMachineInflow)}
+            </p>
+            <p className="text-[11px] text-[#666666]">
+              Total device &amp; equipment inflow ({financialBreakdown.machineUnitsSold} unit{financialBreakdown.machineUnitsSold === 1 ? '' : 's'} sold)
+            </p>
+          </div>
+
+          <div className="p-4 bg-[#FAF9F5] border border-[#E5E5E5] space-y-1.5">
+            <div className="flex items-center justify-between text-[#666666]">
+              <span className="text-[11px] uppercase tracking-wider font-bold">Total Gross Revenue</span>
+              <DollarSign className="w-4 h-4 text-[#111111]" />
+            </div>
+            <p className="text-2xl font-bold text-[#111111] font-mono">
+              {formatPrice(financialBreakdown.effectiveGrossRevenue)}
+            </p>
+            <p className="text-[11px] text-[#666666]">
+              100% total sales revenue collected from orders
+            </p>
+          </div>
+
+          <div className="p-4 bg-[#EBF3EA]/60 border border-[#2D5A27]/30 space-y-1.5">
+            <div className="flex items-center justify-between text-[#2D5A27]">
+              <span className="text-[11px] uppercase tracking-wider font-bold">Employee Earnings</span>
+              <UserCheck className="w-4 h-4 text-[#2D5A27]" />
+            </div>
+            <p className="text-2xl font-bold text-[#2D5A27] font-mono">
+              {formatPrice(financialBreakdown.totalEmployeeFunds)}
+            </p>
+            <p className="text-[11px] text-[#2D5A27]/90">
+              10% direct sales + 1% upline team overrides ({hellobeeMembers.filter((m) => m.role === 'EMPLOYEE').length} staff)
+            </p>
+          </div>
+
+          <div className="p-4 bg-[#111111] text-white border border-[#111111] space-y-1.5">
+            <div className="flex items-center justify-between text-[#B9A58B]">
+              <span className="text-[11px] uppercase tracking-wider font-bold">Owner Revenue &amp; Share</span>
+              <Building2 className="w-4 h-4 text-[#B9A58B]" />
+            </div>
+            <p className="text-2xl font-bold text-white font-mono">
+              {formatPrice(financialBreakdown.totalOwnerProceeds)}
+            </p>
+            <p className="text-[11px] text-[#CCCCCC]">
+              Owner commissions ({formatPrice(financialBreakdown.totalOwnerCommissions)}) + Net retained ({formatPrice(financialBreakdown.netCompanyRetained)})
+            </p>
           </div>
         </div>
       </div>
