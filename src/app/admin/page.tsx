@@ -32,6 +32,7 @@ import {
 } from 'recharts';
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { formatPrice, formatDate } from '@/lib/utils';
+import { computeFinancials, isRevenueOrder } from '@/lib/financials';
 
 function EmptyNote({ children }: { children: React.ReactNode }) {
   return <div className="h-full flex items-center justify-center text-center px-6 text-xs text-[#888888]">{children}</div>;
@@ -48,62 +49,8 @@ export default function AdminDashboardPage() {
   const resetDemoData = useCommerceStore((state) => state.resetDemoData);
   const loginAsDemo = useCommerceStore((state) => state.loginAsDemo);
 
-  // Dynamic KPI calculations
-  const totalRevenue = useMemo(() => {
-    return orders
-      .filter((o) => o.status !== 'Cancelled')
-      .reduce((sum, o) => sum + o.total, 0);
-  }, [orders]);
-
-  // Machine & financial breakdown
-  const financialBreakdown = useMemo(() => {
-    const validOrders = orders.filter((o) => o.status !== 'Cancelled');
-    let machineInflow = 0;
-    let machineUnitsSold = 0;
-
-    validOrders.forEach((o) => {
-      o.items.forEach((it) => {
-        machineInflow += it.price * it.quantity;
-        machineUnitsSold += it.quantity;
-      });
-    });
-
-    // If no itemized lines exist, fallback to total revenue or network sales volume
-    const memberVolume = hellobeeMembers.reduce((sum, m) => sum + m.personalSalesVolume, 0);
-    const totalMachineInflow = machineInflow > 0 ? machineInflow : Math.max(totalRevenue, memberVolume);
-    const effectiveGrossRevenue = Math.max(totalRevenue, totalMachineInflow);
-
-    const employeeEarningsFromTx = commissions
-      .filter((c) => c.beneficiaryRole === 'EMPLOYEE' && c.status !== 'REVOKED')
-      .reduce((sum, c) => sum + c.amount, 0);
-    const employeeMemberTotal = hellobeeMembers
-      .filter((m) => m.role === 'EMPLOYEE')
-      .reduce((sum, m) => sum + m.totalCommissionEarned, 0);
-    const totalEmployeeFunds = Math.max(employeeEarningsFromTx, employeeMemberTotal);
-
-    const ownerCommissionFromTx = commissions
-      .filter((c) => c.beneficiaryRole === 'OWNER' && c.status !== 'REVOKED')
-      .reduce((sum, c) => sum + c.amount, 0);
-    const ownerMemberTotal = hellobeeMembers
-      .filter((m) => m.role === 'OWNER')
-      .reduce((sum, m) => sum + m.totalCommissionEarned, 0);
-    const totalOwnerCommissions = Math.max(ownerCommissionFromTx, ownerMemberTotal);
-
-    const netCompanyRetained = Math.max(0, effectiveGrossRevenue - totalEmployeeFunds - totalOwnerCommissions);
-    const totalOwnerProceeds = totalOwnerCommissions + netCompanyRetained;
-
-    return {
-      totalMachineInflow,
-      machineUnitsSold:
-        machineUnitsSold ||
-        hellobeeMembers.reduce((sum, m) => sum + m.validOrdersCount, 0),
-      effectiveGrossRevenue,
-      totalEmployeeFunds,
-      totalOwnerCommissions,
-      netCompanyRetained,
-      totalOwnerProceeds,
-    };
-  }, [orders, hellobeeMembers, commissions, totalRevenue]);
+  const financialBreakdown = useMemo(() => computeFinancials(orders, commissions), [orders, commissions]);
+  const totalRevenue = financialBreakdown.grossRevenue;
 
   const totalOrdersCount = orders.length;
   const totalProductsCount = products.length;
@@ -131,7 +78,7 @@ export default function AdminDashboardPage() {
     );
 
     sorted.forEach((o) => {
-      if (o.status !== 'Cancelled') {
+      if (isRevenueOrder(o)) {
         const dateKey = new Date(o.createdAt).toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric',
@@ -168,7 +115,7 @@ export default function AdminDashboardPage() {
   const topSellingProducts = useMemo(() => {
     const units = new Map<string, number>();
     orders.forEach((o) => {
-      if (o.status === 'Cancelled') return;
+      if (!isRevenueOrder(o)) return;
       o.items.forEach((i) => units.set(i.productId, (units.get(i.productId) || 0) + i.quantity));
     });
     return products
@@ -217,7 +164,7 @@ export default function AdminDashboardPage() {
               Total Revenue
             </span>
             <p className="text-2xl sm:text-3xl font-semibold text-[#111111]">
-              {formatPrice(financialBreakdown.effectiveGrossRevenue)}
+              {formatPrice(financialBreakdown.grossRevenue)}
             </p>
             <span className="text-xs text-[#777777]">Gross store &amp; network revenue</span>
           </div>
@@ -302,10 +249,10 @@ export default function AdminDashboardPage() {
               <Cpu className="w-4 h-4 text-[#111111]" />
             </div>
             <p className="text-2xl font-bold text-[#111111] font-mono">
-              {formatPrice(financialBreakdown.totalMachineInflow)}
+              {formatPrice(financialBreakdown.machineInflow)}
             </p>
             <p className="text-[11px] text-[#666666]">
-              Total device &amp; equipment inflow ({financialBreakdown.machineUnitsSold} unit{financialBreakdown.machineUnitsSold === 1 ? '' : 's'} sold)
+              Total device &amp; equipment inflow ({financialBreakdown.machineUnits} unit{financialBreakdown.machineUnits === 1 ? '' : 's'} sold)
             </p>
           </div>
 
@@ -315,10 +262,10 @@ export default function AdminDashboardPage() {
               <DollarSign className="w-4 h-4 text-[#111111]" />
             </div>
             <p className="text-2xl font-bold text-[#111111] font-mono">
-              {formatPrice(financialBreakdown.effectiveGrossRevenue)}
+              {formatPrice(financialBreakdown.grossRevenue)}
             </p>
             <p className="text-[11px] text-[#666666]">
-              100% total sales revenue collected from orders
+              Revenue from active orders{financialBreakdown.pendingCollection > 0 ? ` (${formatPrice(financialBreakdown.pendingCollection)} still to collect)` : ''}
             </p>
           </div>
 
@@ -328,7 +275,7 @@ export default function AdminDashboardPage() {
               <UserCheck className="w-4 h-4 text-[#2D5A27]" />
             </div>
             <p className="text-2xl font-bold text-[#2D5A27] font-mono">
-              {formatPrice(financialBreakdown.totalEmployeeFunds)}
+              {formatPrice(financialBreakdown.employeeEarnings)}
             </p>
             <p className="text-[11px] text-[#2D5A27]/90">
               10% direct sales + 1% upline team overrides ({hellobeeMembers.filter((m) => m.role === 'EMPLOYEE').length} staff)
@@ -341,10 +288,10 @@ export default function AdminDashboardPage() {
               <Building2 className="w-4 h-4 text-[#B9A58B]" />
             </div>
             <p className="text-2xl font-bold text-white font-mono">
-              {formatPrice(financialBreakdown.totalOwnerProceeds)}
+              {formatPrice(financialBreakdown.ownerProceeds)}
             </p>
             <p className="text-[11px] text-[#CCCCCC]">
-              Owner commissions ({formatPrice(financialBreakdown.totalOwnerCommissions)}) + Net retained ({formatPrice(financialBreakdown.netCompanyRetained)})
+              Owner commissions ({formatPrice(financialBreakdown.ownerCommissions)}) + Net retained ({formatPrice(financialBreakdown.netRetained)})
             </p>
           </div>
         </div>

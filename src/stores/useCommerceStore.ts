@@ -223,6 +223,7 @@ interface CommerceState {
     upgrades: { memberName: string; oldRank: string; newRank: string }[];
   };
   resetMemberProgress: (memberId: string) => void;
+  revokeOrderCommissions: (orderId: string) => void;
   requestPayout: (
     memberId: string,
     amount: number,
@@ -773,6 +774,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
         inventoryMovements: updatedMovements,
       };
     });
+    if (status === 'Cancelled') get().revokeOrderCommissions(orderId);
   },
 
   updatePaymentStatus: (orderId, paymentStatus) => {
@@ -782,6 +784,7 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       setStorageItem(STORAGE_KEYS.orders, updatedOrders);
       return { orders: updatedOrders };
     });
+    if (paymentStatus === 'Refunded') get().revokeOrderCommissions(orderId);
   },
 
   // CUSTOMERS
@@ -1567,6 +1570,39 @@ export const useCommerceStore = create<CommerceState>((set, get) => ({
       commissionsAwarded,
       upgrades,
     };
+  },
+
+  // Cancelled or refunded orders claw back every commission they generated.
+  revokeOrderCommissions: (orderId) => {
+    const state = get();
+    const targets = state.commissions.filter((c) => c.orderId === orderId && c.status !== 'REVOKED');
+    if (!targets.length) return;
+
+    const clawback = new Map<string, number>();
+    targets.forEach((c) => clawback.set(c.beneficiaryId, (clawback.get(c.beneficiaryId) || 0) + c.amount));
+    const directIds = new Set(targets.filter((c) => c.commissionType === 'DIRECT_10_PERCENT').map((c) => c.beneficiaryId));
+    const orderAmount = targets[0].orderAmount;
+
+    const members = state.hellobeeMembers.map((m) => {
+      const amount = clawback.get(m.id);
+      if (!amount) return m;
+      const isDirect = directIds.has(m.id);
+      return {
+        ...m,
+        totalCommissionEarned: Math.max(0, m.totalCommissionEarned - amount),
+        availableBalance: Math.max(0, m.availableBalance - amount),
+        networkSalesVolume: Math.max(0, m.networkSalesVolume - orderAmount),
+        personalSalesVolume: isDirect ? Math.max(0, m.personalSalesVolume - orderAmount) : m.personalSalesVolume,
+        validOrdersCount: isDirect ? Math.max(0, m.validOrdersCount - 1) : m.validOrdersCount,
+      };
+    });
+    const commissions = state.commissions.map((c) =>
+      c.orderId === orderId && c.status !== 'REVOKED' ? { ...c, status: 'REVOKED' as const } : c
+    );
+
+    setStorageItem(STORAGE_KEYS.hellobeeMembers, members);
+    setStorageItem(STORAGE_KEYS.commissions, commissions);
+    set({ hellobeeMembers: members, commissions });
   },
 
   // Demo reset: clears only this member's own sales and ledger; uplines keep commissions already credited to them.

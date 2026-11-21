@@ -21,6 +21,7 @@ import {
 import { useCommerceStore } from '@/stores/useCommerceStore';
 import { Customer } from '@/types';
 import { formatPrice, formatDate } from '@/lib/utils';
+import { isRevenueOrder } from '@/lib/financials';
 import { toast } from 'sonner';
 
 export default function AdminCustomersPage() {
@@ -72,7 +73,7 @@ export default function AdminCustomersPage() {
   }, [activeCustomer, hellobeeMembers]);
 
   const activeCustomerStats = useMemo(() => {
-    const validOrders = customerOrders.filter((o) => o.status !== 'Cancelled');
+    const validOrders = customerOrders.filter(isRevenueOrder);
     const totalSpent = validOrders.reduce((sum, o) => sum + o.total, 0);
     const totalItems = validOrders.reduce(
       (sum, o) => sum + o.items.reduce((iSum, it) => iSum + it.quantity, 0),
@@ -175,7 +176,7 @@ export default function AdminCustomersPage() {
                     o.customerName.toLowerCase() === c.name.toLowerCase()
                 );
                 const liveSpend = liveOrders
-                  .filter((o) => o.status !== 'Cancelled')
+                  .filter(isRevenueOrder)
                   .reduce((sum, o) => sum + o.total, 0);
                 const isSelected = activeCustomer?.id === c.id;
 
